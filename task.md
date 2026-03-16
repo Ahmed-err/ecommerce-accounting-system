@@ -8,7 +8,10 @@
   - [x] Run `npx prisma db push` or `migrate dev`
   - [x] Create and run seed script
 - [x] **Step 4 — Authentication & Roles**
-- [ ] **Step 5 — Admin Dashboard Layout**
+- [/] **Step 5 — Admin Dashboard Layout**
+  - [ ] Initialize shadcn/ui and install components (button, card, sheet)
+  - [ ] Create responsive Admin Layout (`src/app/admin/layout.js`) with Sidebar 
+  - [ ] Create Dashboard Overview Page (`src/app/admin/page.js`) with Stats Cards and Charts
 - [ ] **Step 6 — Inventory Management**
 - [ ] **Step 7 — Accounting System**
 - [ ] **Step 8 — Employee Management**
