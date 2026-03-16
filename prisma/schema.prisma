@@ -30,7 +30,7 @@
 
 // === GENERATOR: tells Prisma to generate a JavaScript client ===
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -44,12 +44,12 @@ datasource db {
 // =============================================
 // One table for ALL users. The "role" field determines what they can do.
 model User {
-  id String @id @default(cuid())
-  // ☝️ cuid() generates a unique ID like "clx1abc123..."
-  // We use String IDs instead of numbers for better security
-
-  email    String @unique
-  password String
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
   // ☝️ We'll store HASHED passwords (never plain text!)
 
   firstName String
@@ -57,15 +57,17 @@ model User {
   phone     String?
   // ☝️ The ? means phone is OPTIONAL — not everyone has to provide one
 
-  role Role @default(CUSTOMER)
+  role      Role     @default(CUSTOMER)
   // ☝️ Defaults to CUSTOMER when a new user signs up
 
-  avatar String?
+  avatar    String?
   // ☝️ URL to profile picture (optional)
 
   // === RELATIONS (connections to other tables) ===
-  orders Order[]
-  // ☝️ A user can have MANY orders → one-to-many relationship
+  orders    Order[]
+  accounts  Account[]
+  sessions  Session[]
+  // ☝️ Added for Auth.js
 
   salary     Float?
   hireDate   DateTime?
@@ -77,6 +79,51 @@ model User {
   // ☝️ Automatically tracks when the user was created and last modified
 }
 
+// =============================================
+// AUTH.JS MODELS (Required for Prisma Adapter)
+// =============================================
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// =============================================
+// ENUMS
+// =============================================
 // ENUM = a fixed set of allowed values (like a dropdown)
 enum Role {
   ADMIN // Full access to everything

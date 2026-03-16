@@ -1,0 +1,79 @@
+# Electrical Supplies Store & ERP — Step-by-Step Plan
+
+A professional, real-world e-commerce store with a built-in simple ERP (accounting, inventory, employees).
+
+## Tech Stack
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| **Framework** | Next.js 16 (App Router) | Full-stack React — handles pages, API, and SSR |
+| **Styling** | Tailwind CSS v4 | Utility-first CSS — rapid, consistent, beautiful UI |
+| **UI Components** | shadcn/ui | Pre-built, customizable components (tables, forms, charts, sidebar, etc.) |
+| **Database** | PostgreSQL | Rock-solid relational DB — perfect for accounting & inventory |
+| **ORM** | Prisma | Type-safe database access from Next.js |
+| **Auth** | NextAuth.js (Auth.js) | Secure login system with role-based access |
+| **Icons** | Lucide React | Beautiful, consistent icon set |
+
+## Step-by-Step Build Order
+
+Each step is a self-contained milestone you can run and see working.
+
+### Step 1 — Project Setup & Tailwind ✅
+- Install Tailwind CSS v4 into the existing Next.js project
+- Install shadcn/ui for ready-made dashboard components
+- Configure the project structure and global styles
+- **You will learn**: How Next.js project structure works, how Tailwind utility classes work
+
+### Step 2 — Landing Page (Customer-Facing Store) ✅
+- Build a stunning hero section, featured products grid, categories, and footer
+- Responsive design for mobile and desktop
+- **You will learn**: Next.js pages, Tailwind responsive design, component composition
+
+### Step 3 — Database Setup with Prisma + PostgreSQL ✅
+- Define the full database schema: Users, Products, Categories, Orders, Transactions, Employees
+- Run migrations to create the tables
+- Seed initial data (sample products, admin user)
+- **You will learn**: Database modeling, Prisma ORM, migrations
+
+### Step 4 — Authentication & Role-Based Access ✅
+- Login/Register pages
+- Role system: Admin, Manager, Cashier, Customer
+- Protect admin routes
+- **You will learn**: NextAuth.js, middleware, session management
+
+### Step 5 — Admin Dashboard Layout ✏️ *(we are here)*
+- Sidebar navigation with shadcn/ui
+- Dashboard overview page with stats cards & charts
+- **You will learn**: Layout patterns, component libraries, data visualization
+
+### Step 6 — Inventory Management (CRUD)
+- Product listing table with search, filter, pagination
+- Add/Edit/Delete products with image upload
+- Stock level tracking and low-stock alerts
+- **You will learn**: Server Actions, form handling, CRUD operations
+
+### Step 7 — Simple Accounting System
+- Record incoming (sales revenue) and outgoing (expenses) transactions
+- Transaction history with filters
+- Generate account statements / balance reports
+- **You will learn**: Financial data modeling, report generation
+
+### Step 8 — Employee Management
+- Employee list, add/edit/remove
+- Role assignment and permissions
+- **You will learn**: User management patterns, RBAC
+
+### Step 9 — E-Commerce: Product Catalog & Cart
+- Product browsing with categories and search
+- Shopping cart with add/remove/quantity
+- Checkout flow
+- **You will learn**: State management, cart logic, order processing
+
+### Step 10 — Polish & Deploy
+- Performance optimization, SEO, error handling
+- Deploy to production (Vercel + managed PostgreSQL)
+- **You will learn**: Deployment, environment variables, production best practices
+
+## Verification Plan
+- Each step will be verified visually in the browser and functionally tested
+- Database operations will be verified via Prisma Studio
+- The accounting module will be tested with sample transactions for accuracy

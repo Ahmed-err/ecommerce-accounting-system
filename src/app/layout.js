@@ -16,13 +16,17 @@ export const metadata = {
   description: "Electrical supplies store with inventory, accounting, and employee management",
 };
 
+import { Providers } from "@/components/Providers";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
