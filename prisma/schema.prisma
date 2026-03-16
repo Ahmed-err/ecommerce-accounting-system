@@ -1,0 +1,239 @@
+// =============================================
+// PRISMA SCHEMA — The "Blueprint" of Our Database
+// =============================================
+//
+// This file defines ALL the tables (called "models") in our database.
+// When we run `npx prisma migrate dev`, Prisma reads this file and
+// creates the actual tables in PostgreSQL.
+//
+// THINK OF IT LIKE THIS:
+// - A "model" = a TABLE in the database (like a spreadsheet)
+// - A "field" = a COLUMN in that table
+// - Relations = how tables CONNECT to each other
+//
+// FIELD TYPES:
+// - String   = text (names, emails, descriptions)
+// - Int      = whole numbers (1, 2, 3...)
+// - Float    = decimal numbers (9.99, 45.50)
+// - Boolean  = true or false
+// - DateTime = date and time
+// - Json     = flexible structured data
+//
+// FIELD MODIFIERS:
+// - @id          = this field is the PRIMARY KEY (unique identifier)
+// - @unique      = no two rows can have the same value
+// - @default()   = automatic default value
+// - ?            = OPTIONAL (can be empty/null)
+// - @relation    = connects this model to another model
+// - @updatedAt   = auto-updates when the row changes
+// =============================================
+
+// === GENERATOR: tells Prisma to generate a JavaScript client ===
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// === DATASOURCE: tells Prisma which database to use ===
+datasource db {
+  provider = "postgresql"
+}
+
+// =============================================
+// 1. USER MODEL — Customers & Employees
+// =============================================
+// One table for ALL users. The "role" field determines what they can do.
+model User {
+  id String @id @default(cuid())
+  // ☝️ cuid() generates a unique ID like "clx1abc123..."
+  // We use String IDs instead of numbers for better security
+
+  email    String @unique
+  password String
+  // ☝️ We'll store HASHED passwords (never plain text!)
+
+  firstName String
+  lastName  String
+  phone     String?
+  // ☝️ The ? means phone is OPTIONAL — not everyone has to provide one
+
+  role Role @default(CUSTOMER)
+  // ☝️ Defaults to CUSTOMER when a new user signs up
+
+  avatar String?
+  // ☝️ URL to profile picture (optional)
+
+  // === RELATIONS (connections to other tables) ===
+  orders Order[]
+  // ☝️ A user can have MANY orders → one-to-many relationship
+
+  salary     Float?
+  hireDate   DateTime?
+  department String?
+  // ☝️ Employee-specific fields (only filled for staff, null for customers)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // ☝️ Automatically tracks when the user was created and last modified
+}
+
+// ENUM = a fixed set of allowed values (like a dropdown)
+enum Role {
+  ADMIN // Full access to everything
+  MANAGER // Can manage inventory & view reports
+  CASHIER // Can process sales
+  CUSTOMER // Can browse products & place orders
+}
+
+// =============================================
+// 2. CATEGORY MODEL — Product Categories
+// =============================================
+model Category {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  image       String?
+
+  // === RELATIONS ===
+  products Product[]
+  // ☝️ A category has MANY products
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================
+// 3. PRODUCT MODEL — Items We Sell
+// =============================================
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  sku         String  @unique
+  // ☝️ SKU = Stock Keeping Unit — a unique code for each product (like "LED-PANEL-60W")
+
+  purchasePrice Float
+  // ☝️ How much WE pay to buy it (cost price)
+
+  sellingPrice Float
+  // ☝️ How much we SELL it for (retail price)
+
+  stock Int @default(0)
+  // ☝️ How many units are currently in our warehouse
+
+  minStock Int @default(5)
+  // ☝️ When stock drops below this number, we get a LOW STOCK alert
+
+  images String[]
+  // ☝️ Array of image URLs — a product can have multiple photos
+
+  isActive Boolean @default(true)
+  // ☝️ Set to false to "hide" a product without deleting it
+
+  // === RELATIONS ===
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  // ☝️ Each product BELONGS TO one category
+  // fields: [categoryId] = the foreign key in THIS table
+  // references: [id]     = the primary key in the Category table
+
+  orderItems OrderItem[]
+  // ☝️ A product can appear in MANY order items
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================
+// 4. ORDER MODEL — Customer Purchases
+// =============================================
+model Order {
+  id String @id @default(cuid())
+
+  status OrderStatus @default(PENDING)
+  // ☝️ Tracks the order lifecycle
+
+  totalAmount Float
+  // ☝️ Total price of the order
+
+  // === RELATIONS ===
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  // ☝️ Each order belongs to ONE user (the customer)
+
+  items OrderItem[]
+  // ☝️ An order has MANY items
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING // Just placed, waiting for processing
+  PROCESSING // Being prepared
+  SHIPPED // On the way
+  DELIVERED // Customer received it
+  CANCELLED // Order was cancelled
+}
+
+// =============================================
+// 5. ORDER ITEM MODEL — Individual Items in an Order
+// =============================================
+// This is a "junction table" — it connects Orders and Products
+// because one Order can have MANY Products, and one Product
+// can be in MANY Orders (that's a many-to-many relationship!)
+model OrderItem {
+  id String @id @default(cuid())
+
+  quantity Int
+  // ☝️ How many of this product were ordered
+
+  price Float
+  // ☝️ Price at time of purchase (important! prices can change later)
+
+  // === RELATIONS ===
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  // ☝️ onDelete: Cascade = if the order is deleted, delete its items too
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// =============================================
+// 6. TRANSACTION MODEL — Accounting (Money In & Out)
+// =============================================
+// This is the core of our simple ERP accounting system!
+// Every money movement gets recorded here.
+model Transaction {
+  id String @id @default(cuid())
+
+  type TransactionType
+  // ☝️ INCOMING = money coming IN (sales, payments received)
+  //    OUTGOING = money going OUT (expenses, salaries, bills)
+
+  amount Float
+  // ☝️ Always positive — the "type" tells us if it's in or out
+
+  description String
+  // ☝️ What was this transaction for? (e.g., "Sale #123", "Electricity bill")
+
+  category String
+  // ☝️ Group transactions: "Sales", "Salary", "Rent", "Supplies", etc.
+
+  reference String?
+  // ☝️ Optional reference number (invoice number, receipt number)
+
+  date DateTime @default(now())
+  // ☝️ When the transaction happened
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TransactionType {
+  INCOMING // Money coming in (revenue)
+  OUTGOING // Money going out (expenses)
+}
