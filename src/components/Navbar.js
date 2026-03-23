@@ -28,7 +28,7 @@ export default function Navbar() {
         { name: "Home", href: "/" },
         { name: "Products", href: "/products" },
         { name: "Categories", href: "/categories" },
-        ...(isAdmin ? [{ name: "Dashboard", href: "/admin" }] : []),
+        ...(isAdmin ? [{ name: "Dashboard", href: "/admin", target: "_self" }] : []),
     ];
 
     return (
@@ -51,6 +51,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
+                                target={link.target}
                                 className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 text-sm font-medium"
                             >
                                 {link.name}
@@ -88,7 +89,7 @@ export default function Navbar() {
                                             <span className="inline-block mt-1 px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded uppercase">{session.user.role}</span>
                                         </div>
                                         {isAdmin && (
-                                            <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                                            <Link href="/admin" target="_self" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all">
                                                 Dashboard
                                             </Link>
                                         )}
@@ -129,6 +130,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
+                                target={link.target}
                                 className="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >

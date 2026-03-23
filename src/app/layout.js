@@ -17,6 +17,7 @@ export const metadata = {
 };
 
 import { Providers } from "@/components/Providers";
+import { UploadthingProvider } from "@/components/UploadthingProvider";
 
 export default function RootLayout({ children }) {
   return (
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <UploadthingProvider />
         <Providers>
           {children}
         </Providers>

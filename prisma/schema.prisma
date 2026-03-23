@@ -31,7 +31,6 @@
 // === GENERATOR: tells Prisma to generate a JavaScript client ===
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 // === DATASOURCE: tells Prisma which database to use ===

@@ -3,6 +3,8 @@ import { DollarSign, Users, ShoppingBag, Activity } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import DashboardCharts from "@/components/DashboardCharts";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
   // Fetch some real numbers from our database
   const totalUsers = await prisma.user.count();
@@ -31,7 +33,7 @@ export default async function AdminDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Dashboard Overview</h1>
-        <p className="text-gray-400 text-sm">Welcome back! Analyze your store's performance and recent activity below.</p>
+        <p className="text-gray-400 text-sm">Welcome back! Analyze your store&apos;s performance and recent activity below.</p>
       </div>
 
       {/* Stats Cards Grid */}

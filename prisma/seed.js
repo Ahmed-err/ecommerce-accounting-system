@@ -14,7 +14,7 @@
 import "dotenv/config";
 // ☝️ Load environment variables from .env file
 
-import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { PrismaClient } from "../src/generated/prisma";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -100,12 +100,12 @@ async function main() {
     // === 5. CREATE CATEGORIES ===
     const categories = [];
     const catData = [
-        { name: "Lighting", description: "LED panels, bulbs, fixtures, and smart lighting solutions", image: "/images/categories/lighting.jpg" },
-        { name: "Cables & Wires", description: "Power cables, data cables, and fiber optic wiring", image: "/images/categories/cables.jpg" },
-        { name: "Switches & Sockets", description: "Wall switches, power sockets, dimmers, and smart controls", image: "/images/categories/switches.jpg" },
-        { name: "Connectors", description: "Plugs, adapters, junction boxes, and terminal blocks", image: "/images/categories/connectors.jpg" },
-        { name: "Power Systems", description: "Generators, UPS units, inverters, and power distribution", image: "/images/categories/power.jpg" },
-        { name: "Safety Gear", description: "Circuit breakers, fuses, PPE, and safety equipment", image: "/images/categories/safety.jpg" },
+        { name: "Lighting", description: "LED panels, bulbs, fixtures, and smart lighting solutions", image: "https://placehold.co/600x400/1a1a1a/amber?text=Lighting" },
+        { name: "Cables & Wires", description: "Power cables, data cables, and fiber optic wiring", image: "https://placehold.co/600x400/1a1a1a/blue?text=Cables" },
+        { name: "Switches & Sockets", description: "Wall switches, power sockets, dimmers, and smart controls", image: "https://placehold.co/600x400/1a1a1a/emerald?text=Switches" },
+        { name: "Connectors", description: "Plugs, adapters, junction boxes, and terminal blocks", image: "https://placehold.co/600x400/1a1a1a/purple?text=Connectors" },
+        { name: "Power Systems", description: "Generators, UPS units, inverters, and power distribution", image: "https://placehold.co/600x400/1a1a1a/red?text=Power" },
+        { name: "Safety Gear", description: "Circuit breakers, fuses, PPE, and safety equipment", image: "https://placehold.co/600x400/1a1a1a/orange?text=Safety" },
     ];
     for (const cat of catData) {
         const created = await prisma.category.create({ data: cat });
@@ -115,14 +115,14 @@ async function main() {
 
     // === 6. CREATE PRODUCTS ===
     const productsData = [
-        { name: "LED Panel Light 60W", description: "Ultra-slim LED panel light, 60W, warm white", sku: "LED-PNL-60W", purchasePrice: 25.00, sellingPrice: 45.99, stock: 50, minStock: 10, images: ["/images/products/led-panel.jpg"], categoryId: categories[0].id },
-        { name: "Smart LED Bulb RGB", description: "WiFi-enabled smart LED bulb with RGB color control", sku: "LED-SMART-RGB", purchasePrice: 8.00, sellingPrice: 18.99, stock: 200, minStock: 20, images: ["/images/products/smart-bulb.jpg"], categoryId: categories[0].id },
-        { name: "Industrial Cable 100m", description: "Heavy-duty industrial cable, 100m roll, 2.5mm²", sku: "CBL-IND-100M", purchasePrice: 55.00, sellingPrice: 89.99, stock: 30, minStock: 5, images: ["/images/products/industrial-cable.jpg"], categoryId: categories[1].id },
-        { name: "Ethernet Cable Cat6 50m", description: "High-speed Cat6 ethernet cable, 50m, shielded", sku: "CBL-ETH-CAT6", purchasePrice: 12.00, sellingPrice: 24.99, stock: 100, minStock: 15, images: ["/images/products/ethernet-cable.jpg"], categoryId: categories[1].id },
-        { name: "Smart Switch 3-Gang", description: "Touch-sensitive smart wall switch, 3-gang, WiFi", sku: "SW-SMART-3G", purchasePrice: 18.00, sellingPrice: 34.99, stock: 75, minStock: 10, images: ["/images/products/smart-switch.jpg"], categoryId: categories[2].id },
-        { name: "Circuit Breaker 32A", description: "Miniature circuit breaker, 32A, single pole", sku: "CB-MCB-32A", purchasePrice: 12.00, sellingPrice: 24.99, stock: 120, minStock: 20, images: ["/images/products/circuit-breaker.jpg"], categoryId: categories[5].id },
-        { name: "Power Inverter 3000W", description: "Pure sine wave power inverter, 3000W, 24V DC", sku: "PWR-INV-3000", purchasePrice: 180.00, sellingPrice: 299.99, stock: 15, minStock: 3, images: ["/images/products/inverter.jpg"], categoryId: categories[4].id },
-        { name: "Voltage Tester Pro", description: "Non-contact voltage tester with LED indicator", sku: "TL-VTESTER", purchasePrice: 15.00, sellingPrice: 29.99, stock: 90, minStock: 10, images: ["/images/products/voltage-tester.jpg"], categoryId: categories[5].id },
+        { name: "LED Panel Light 60W", description: "Ultra-slim LED panel light, 60W, warm white", sku: "LED-PNL-60W", purchasePrice: 25.00, sellingPrice: 45.99, stock: 50, minStock: 10, images: ["https://placehold.co/400x400/1a1a1a/amber?text=LED+Panel"], categoryId: categories[0].id },
+        { name: "Smart LED Bulb RGB", description: "WiFi-enabled smart LED bulb with RGB color control", sku: "LED-SMART-RGB", purchasePrice: 8.00, sellingPrice: 18.99, stock: 200, minStock: 20, images: ["https://placehold.co/400x400/1a1a1a/amber?text=Smart+Bulb"], categoryId: categories[0].id },
+        { name: "Industrial Cable 100m", description: "Heavy-duty industrial cable, 100m roll, 2.5mm²", sku: "CBL-IND-100M", purchasePrice: 55.00, sellingPrice: 89.99, stock: 30, minStock: 5, images: ["https://placehold.co/400x400/1a1a1a/blue?text=Cable"], categoryId: categories[1].id },
+        { name: "Ethernet Cable Cat6 50m", description: "High-speed Cat6 ethernet cable, 50m, shielded", sku: "CBL-ETH-CAT6", purchasePrice: 12.00, sellingPrice: 24.99, stock: 100, minStock: 15, images: ["https://placehold.co/400x400/1a1a1a/blue?text=CAT6"], categoryId: categories[1].id },
+        { name: "Smart Switch 3-Gang", description: "Touch-sensitive smart wall switch, 3-gang, WiFi", sku: "SW-SMART-3G", purchasePrice: 18.00, sellingPrice: 34.99, stock: 75, minStock: 10, images: ["https://placehold.co/400x400/1a1a1a/emerald?text=Switch"], categoryId: categories[2].id },
+        { name: "Circuit Breaker 32A", description: "Miniature circuit breaker, 32A, single pole", sku: "CB-MCB-32A", purchasePrice: 12.00, sellingPrice: 24.99, stock: 120, minStock: 20, images: ["https://placehold.co/400x400/1a1a1a/orange?text=Breaker"], categoryId: categories[5].id },
+        { name: "Power Inverter 3000W", description: "Pure sine wave power inverter, 3000W, 24V DC", sku: "PWR-INV-3000", purchasePrice: 180.00, sellingPrice: 299.99, stock: 15, minStock: 3, images: ["https://placehold.co/400x400/1a1a1a/red?text=Inverter"], categoryId: categories[4].id },
+        { name: "Voltage Tester Pro", description: "Non-contact voltage tester with LED indicator", sku: "TL-VTESTER", purchasePrice: 15.00, sellingPrice: 29.99, stock: 90, minStock: 10, images: ["https://placehold.co/400x400/1a1a1a/orange?text=Tester"], categoryId: categories[5].id },
     ];
     const products = [];
     for (const prod of productsData) {
