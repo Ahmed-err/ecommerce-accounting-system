@@ -11,7 +11,7 @@ export default function AdminSidebar({ onNavigate }) {
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Inventory", href: "/admin/inventory", icon: Package },
-    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Employees", href: "/admin/employees", icon: Users },
     { name: "Accounting", href: "/admin/accounting", icon: CreditCard },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];

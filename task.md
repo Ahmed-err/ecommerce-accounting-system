@@ -18,6 +18,11 @@
   - [x] Create `src/components/accounting/TransactionForm.js`
   - [x] Create `src/components/accounting/TransactionTable.js`
   - [x] Create `src/app/admin/accounting/page.js` (summary cards + table)
-- [ ] **Step 8 — Employee Management**
+- [x] **Step 8 — Employee Management**
+  - [x] Create `src/app/actions/employees.js` (CRUD + departments)
+  - [x] Create `src/components/employees/EmployeeForm.js`
+  - [x] Create `src/components/employees/EmployeeTable.js`
+  - [x] Create `src/app/admin/employees/page.js`
+  - [x] Update sidebar: Customers → Employees
 - [ ] **Step 9 — E-Commerce: Catalog & Cart**
 - [ ] **Step 10 — Polish & Deploy**
