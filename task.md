@@ -24,5 +24,10 @@
   - [x] Create `src/components/employees/EmployeeTable.js`
   - [x] Create `src/app/admin/employees/page.js`
   - [x] Update sidebar: Customers → Employees
-- [ ] **Step 9 — E-Commerce: Catalog & Cart**
+- [x] **Step 9 — E-Commerce: Catalog & Cart**
+  - [x] Create server actions for catalog (`getCatalogProducts`, `getProductById`, etc.)
+  - [x] Build `CartProvider` using local storage
+  - [x] Create Products listing page and Product Detail page
+  - [x] Implement Cart page and checkout action
+  - [x] Integrate real DB data into the homepage components
 - [ ] **Step 10 — Polish & Deploy**

@@ -17,8 +17,11 @@ import {
 
 import { useSession, signOut } from "next-auth/react";
 
+import { useCart } from "@/components/store/CartProvider";
+
 export default function Navbar() {
     const { data: session } = useSession();
+    const { cartCount, loaded } = useCart();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -27,7 +30,7 @@ export default function Navbar() {
     const navLinks = [
         { name: "Home", href: "/" },
         { name: "Products", href: "/products" },
-        { name: "Categories", href: "/categories" },
+        { name: "Categories", href: "/#categories" },
         ...(isAdmin ? [{ name: "Dashboard", href: "/admin", target: "_self" }] : []),
     ];
 
@@ -61,12 +64,14 @@ export default function Navbar() {
 
                     {/* === RIGHT SIDE: Icons === */}
                     <div className="flex items-center gap-3">
-                        <button className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                        <Link href="/cart" className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
                             <ShoppingCart className="h-5 w-5" />
-                            <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                0
-                            </span>
-                        </button>
+                            {loaded && cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-amber-500 text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-gray-950">
+                                    {cartCount > 9 ? "9+" : cartCount}
+                                </span>
+                            )}
+                        </Link>
 
                         {/* Account Area */}
                         {session ? (
@@ -105,10 +110,10 @@ export default function Navbar() {
                         ) : (
                             <Link
                                 href="/login"
-                                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25"
+                                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25"
                             >
                                 <User className="h-4 w-4" />
-                                Login
+                                <span className="hidden xs:block">Login</span>
                             </Link>
                         )}
 
@@ -138,13 +143,16 @@ export default function Navbar() {
                             </Link>
                         ))}
                         {!session && (
-                            <Link
-                                href="/login"
-                                className="block px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm text-center mt-2 transition-all"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                Login
-                            </Link>
+                            <div className="pt-2 border-t border-white/5 mt-2">
+                                <Link
+                                    href="/login"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm transition-all"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <User className="h-4 w-4" />
+                                    Login to Account
+                                </Link>
+                            </div>
                         )}
                     </div>
                 </div>

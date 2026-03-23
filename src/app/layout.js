@@ -18,6 +18,7 @@ export const metadata = {
 
 import { Providers } from "@/components/Providers";
 import { UploadthingProvider } from "@/components/UploadthingProvider";
+import { CartProvider } from "@/components/store/CartProvider";
 
 export default function RootLayout({ children }) {
   return (
@@ -27,9 +28,12 @@ export default function RootLayout({ children }) {
       >
         <UploadthingProvider />
         <Providers>
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
         </Providers>
       </body>
     </html>
   );
 }
+

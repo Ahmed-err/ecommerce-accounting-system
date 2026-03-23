@@ -122,12 +122,17 @@ export default async function AdminDashboard() {
                 recentOrders.map(order => (
                   <div key={order.id} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0 last:pb-0 hover:bg-white/5 rounded-lg p-2 transition-colors">
                     <div>
-                      <p className="text-sm font-medium text-white">{order.user?.name || "Unknown Customer"}</p>
-                      <p className="text-xs text-gray-500">{order.user?.email}</p>
+                      <p className="text-sm font-medium text-white">{order.user?.name || order.guestName || "Unknown Customer"}</p>
+                      <p className="text-xs text-gray-500">{order.user?.email || order.guestEmail}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-emerald-400">${order.totalAmount.toFixed(2)}</p>
-                      <p className="text-[10px] font-bold tracking-wider text-amber-500 uppercase mt-0.5 bg-amber-500/10 inline-block px-1.5 py-0.5 rounded">{order.status}</p>
+                      <p className="text-sm font-bold text-emerald-400">SDG {order.totalAmount.toLocaleString()}</p>
+                      <div className="flex flex-col items-end gap-1 mt-1">
+                        <span className="text-[10px] font-bold tracking-wider text-amber-500 uppercase bg-amber-500/10 px-1.5 py-0.5 rounded leading-none">{order.status}</span>
+                        <span className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded leading-none ${order.isVerified ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>
+                          {order.isVerified ? '✓ Verified' : '⚠ Unverified'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))

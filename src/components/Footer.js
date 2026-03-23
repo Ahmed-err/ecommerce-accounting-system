@@ -44,12 +44,11 @@ export default function Footer() {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Quick Links</h3>
                         <ul className="space-y-2">
-                            {/* ☝️ space-y-2 = adds 8px gap between each <li> */}
-                            {["Home", "Products", "Categories", "About Us", "Contact"].map(
+                            {["Home", "Products", "Categories"].map(
                                 (link) => (
                                     <li key={link}>
                                         <Link
-                                            href="#"
+                                            href={link === "Home" ? "/" : link === "Products" ? "/products" : "/#categories"}
                                             className="text-gray-400 hover:text-amber-500 text-sm transition-colors"
                                         >
                                             {link}
@@ -57,6 +56,11 @@ export default function Footer() {
                                     </li>
                                 )
                             )}
+                            <li>
+                                <Link href="/login" className="text-amber-500 hover:text-amber-400 text-sm font-bold transition-colors">
+                                    Account / Login
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
