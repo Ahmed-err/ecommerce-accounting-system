@@ -22,9 +22,9 @@ export default function ProductDetailClient({ product }) {
   };
 
   return (
-    <div>
+    <div className="text-right">
       <Link href="/products" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8">
-        <ArrowLeft className="h-4 w-4" /> Back to Products
+        <ArrowRight className="h-4 w-4" /> العودة للمنتجات
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -73,14 +73,14 @@ export default function ProductDetailClient({ product }) {
           <h1 className="text-3xl font-bold text-white mb-4">{product.name}</h1>
 
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl font-bold text-white">SDG {product.sellingPrice.toLocaleString()}</span>
+            <span className="text-3xl font-bold text-white">{product.sellingPrice.toLocaleString()} ج.س</span>
             {product.stock > 0 ? (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                <CheckCircle className="h-3 w-3" /> In Stock ({product.stock})
+                <CheckCircle className="h-3 w-3" /> متوفر ({product.stock})
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-xs font-semibold">
-                Out of Stock
+                نفذت الكمية
               </span>
             )}
           </div>
@@ -90,7 +90,7 @@ export default function ProductDetailClient({ product }) {
           )}
 
           <div className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-            <Package className="h-4 w-4" /> SKU: <span className="text-gray-300 font-mono">{product.sku}</span>
+            <Package className="h-4 w-4" /> رمز المنتج: <span className="text-gray-300 font-mono">{product.sku}</span>
           </div>
 
           {/* Quantity & Add to Cart */}
@@ -121,9 +121,9 @@ export default function ProductDetailClient({ product }) {
                 }`}
               >
                 {added ? (
-                  <><CheckCircle className="mr-2 h-5 w-5" /> Added to Cart!</>
+                  <><CheckCircle className="ml-2 h-5 w-5" /> تمت الإضافة للسلة!</>
                 ) : (
-                  <><ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart — SDG {(product.sellingPrice * quantity).toLocaleString()}</>
+                  <><ShoppingCart className="ml-2 h-5 w-5" /> أضف إلى السلة — {(product.sellingPrice * quantity).toLocaleString()} ج.س</>
                 )}
               </Button>
             </div>

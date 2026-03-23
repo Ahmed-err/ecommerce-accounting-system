@@ -20,14 +20,14 @@ export default function ProductCard({ product }) {
           <span className="text-4xl opacity-30">📦</span>
         )}
         {product.stock <= 0 && (
-          <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            Out of Stock
+          <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+            نفذت الكمية
           </span>
         )}
       </Link>
 
       {/* Info */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-5 flex flex-col flex-1 text-right">
         <span className="text-amber-500 text-xs font-medium uppercase tracking-wider">
           {product.category?.name}
         </span>
@@ -39,12 +39,13 @@ export default function ProductCard({ product }) {
 
         <div className="mt-auto flex items-center justify-between pt-3">
           <div className="flex items-center gap-2">
-            <span className="text-white text-xl font-bold">SDG {product.sellingPrice.toLocaleString()}</span>
+            <span className="text-white text-xl font-bold">{product.sellingPrice.toLocaleString()} ج.س</span>
           </div>
           <button
-            onClick={() => addToCart(product)}
+            onClick={(e) => { e.preventDefault(); addToCart(product); }}
             disabled={product.stock <= 0}
-            className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-600 hover:text-white transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            title="أضف إلى السلة"
           >
             <ShoppingCart className="h-4 w-4" />
           </button>

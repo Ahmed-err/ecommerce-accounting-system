@@ -19,11 +19,11 @@ export default async function InventoryPage({ searchParams }) {
   const categories = await getCategories();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Inventory Management</h1>
-          <p className="text-gray-400 mt-1">Manage products, pricing, and stock levels.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">إدارة المخزون</h1>
+          <p className="text-gray-400 mt-1">إدارة المنتجات والأسعار ومستويات المخزون.</p>
         </div>
       </div>
       

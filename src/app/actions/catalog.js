@@ -188,3 +188,28 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
   }
 }
 
+export async function getUserOrders(userId) {
+  try {
+    if (!userId) return [];
+    
+    const orders = await db.order.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    return orders;
+  } catch (error) {
+    console.error("Failed to fetch user orders:", error);
+    return [];
+  }
+}
+

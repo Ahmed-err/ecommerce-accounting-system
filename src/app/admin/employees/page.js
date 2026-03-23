@@ -26,16 +26,16 @@ export default async function EmployeesPage({ searchParams }) {
   const deptCount = new Set(employees.map((e) => e.department).filter(Boolean)).size;
 
   const stats = [
-    { label: "Total Staff", value: totalEmployees, icon: Users, color: "bg-blue-500/10 text-blue-500" },
-    { label: "Admins (this page)", value: adminCount, icon: Shield, color: "bg-purple-500/10 text-purple-500" },
-    { label: "Departments (this page)", value: deptCount, icon: Building, color: "bg-amber-500/10 text-amber-500" },
+    { label: "إجمالي الموظفين", value: totalEmployees, icon: Users, color: "bg-blue-500/10 text-blue-500" },
+    { label: "المسؤولون", value: adminCount, icon: Shield, color: "bg-purple-500/10 text-purple-500" },
+    { label: "الأقسام", value: deptCount, icon: Building, color: "bg-amber-500/10 text-amber-500" },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Employee Management</h1>
-        <p className="text-gray-400 mt-1">Manage staff members, roles, and departments.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">إدارة الموظفين</h1>
+        <p className="text-gray-400 mt-1">إدارة أعضاء الفريق والأدوار والأقسام.</p>
       </div>
 
       {/* Quick Stats */}

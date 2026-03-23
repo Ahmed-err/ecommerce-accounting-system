@@ -84,7 +84,7 @@ export default function ProductTable({ initialProducts, total, categories, searc
   };
   
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
+    if (window.confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج؟")) {
       await deleteProduct(id);
     }
   };
@@ -100,15 +100,15 @@ export default function ProductTable({ initialProducts, total, categories, searc
   };
 
   return (
-    <div className="bg-gray-900 border border-white/5 rounded-xl flex flex-col w-full h-full min-h-[500px]">
+    <div className="bg-gray-900 border border-white/5 rounded-xl flex flex-col w-full h-full min-h-[500px] text-right" dir="rtl">
       {mounted && (
         <div className="p-4 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
            <div className="flex gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-64 group h-8">
-                <Search className="absolute left-3 inset-y-0 my-auto h-4 w-4 text-gray-500 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
+                <Search className="absolute right-3 inset-y-0 my-auto h-4 w-4 text-gray-400 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
                 <Input 
-                  placeholder="Search name or SKU..." 
-                  className="h-full pl-10 pr-10 bg-gray-800 border-white/10 text-white focus:border-amber-500/50 transition-all"
+                  placeholder="البحث بالاسم أو رمز SKU..." 
+                  className="h-full pr-10 pl-10 bg-gray-800 border-white/10 text-white focus:border-amber-500/50 transition-all text-right"
                   value={searchValue}
                   onChange={handleSearch}
                 />
@@ -121,7 +121,7 @@ export default function ProductTable({ initialProducts, total, categories, searc
                       params.set('page', '1');
                       router.replace(`${pathname}?${params.toString()}`);
                     }}
-                    className="absolute right-3 inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors"
+                    className="absolute left-3 inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -131,13 +131,13 @@ export default function ProductTable({ initialProducts, total, categories, searc
                 value={searchParamsHook.get('status') || "all"} 
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="w-[140px] bg-gray-800 border-white/10 text-white">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className="w-[140px] bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectValue placeholder="الحالة" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-white/10 text-white">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="low">Low Stock</SelectItem>
-                  <SelectItem value="out">Out of Stock</SelectItem>
+                <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectItem value="all">كل الحالات</SelectItem>
+                  <SelectItem value="low">مخزون منخفض</SelectItem>
+                  <SelectItem value="out">نفذت الكمية</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -145,13 +145,13 @@ export default function ProductTable({ initialProducts, total, categories, searc
                 value={searchParamsHook.get('category') || "all"} 
                 onValueChange={handleCategoryChange}
               >
-                <SelectTrigger className="w-[160px] bg-gray-800 border-white/10 text-white">
-                  <SelectValue placeholder="Category">
+                <SelectTrigger className="w-[160px] bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectValue placeholder="الفئة">
                     {searchParamsHook.get('category') && categories.find(c => c.id.toString() === searchParamsHook.get('category'))?.name}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-white/10 text-white">
-                  <SelectItem value="all">All Categories</SelectItem>
+                <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectItem value="all">كل الفئات</SelectItem>
                   {categories.map(c => (
                     <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
                   ))}
@@ -162,41 +162,41 @@ export default function ProductTable({ initialProducts, total, categories, searc
                 value={searchParamsHook.get('sort') || "newest"} 
                 onValueChange={handleSortChange}
               >
-                <SelectTrigger className="w-[160px] bg-gray-800 border-white/10 text-white">
-                  <SelectValue placeholder="Sort By" />
+                <SelectTrigger className="w-[160px] bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectValue placeholder="رتب حسب" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-white/10 text-white">
-                  <SelectItem value="newest">Newest Added</SelectItem>
-                  <SelectItem value="price_asc">Price: Low-High</SelectItem>
-                  <SelectItem value="price_desc">Price: High-Low</SelectItem>
-                  <SelectItem value="stock_asc">Stock: Low-High</SelectItem>
-                  <SelectItem value="stock_desc">Stock: High-Low</SelectItem>
-                  <SelectItem value="name_asc">Name: A-Z</SelectItem>
+                <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                  <SelectItem value="newest">الأحدث إضافة</SelectItem>
+                  <SelectItem value="price_asc">السعر: من الأقل للأعلى</SelectItem>
+                  <SelectItem value="price_desc">السعر: من الأعلى للأقل</SelectItem>
+                  <SelectItem value="stock_asc">المخزون: من الأقل للأعلى</SelectItem>
+                  <SelectItem value="stock_desc">المخزون: من الأعلى للأقل</SelectItem>
+                  <SelectItem value="name_asc">الاسم: أ-ي</SelectItem>
                 </SelectContent>
               </Select>
            </div>
            <Button onClick={openNew} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-             <Plus className="mr-2 h-4 w-4" /> Add Product
+             <Plus className="ml-2 h-4 w-4" /> إضافة منتج
            </Button>
         </div>
       )}
 
       <div className="overflow-x-auto flex-1">
-        <table className="w-full text-left text-sm text-gray-300">
+        <table className="w-full text-right text-sm text-gray-300">
           <thead className="bg-gray-800/50 text-xs uppercase text-gray-400">
             <tr>
-              <th className="px-6 py-4 font-medium">Product</th>
-              <th className="px-6 py-4 font-medium">SKU</th>
-              <th className="px-6 py-4 font-medium">Price</th>
-              <th className="px-6 py-4 font-medium">Stock</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <th className="px-6 py-4 font-medium">المنتج</th>
+              <th className="px-6 py-4 font-medium">رمز SKU</th>
+              <th className="px-6 py-4 font-medium">السعر</th>
+              <th className="px-6 py-4 font-medium">المخزون</th>
+              <th className="px-6 py-4 font-medium text-left">العمليات</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {initialProducts.length === 0 && (
               <tr>
                 <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                  No products found.
+                  لم يتم العثور على منتجات.
                 </td>
               </tr>
             )}
@@ -217,8 +217,8 @@ export default function ProductTable({ initialProducts, total, categories, searc
                 </td>
                 <td className="px-6 py-4">{p.sku}</td>
                 <td className="px-6 py-4">
-                  <div>${p.sellingPrice.toFixed(2)}</div>
-                  <div className="text-xs text-gray-500">Cost: ${p.purchasePrice.toFixed(2)}</div>
+                  <div>{p.sellingPrice.toLocaleString()} ج.س</div>
+                  <div className="text-xs text-gray-500">التكلفة: {p.purchasePrice.toLocaleString()} ج.س</div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
@@ -226,11 +226,11 @@ export default function ProductTable({ initialProducts, total, categories, searc
                       {p.stock}
                     </span>
                     {p.stock <= p.minStock && (
-                      <AlertTriangle className="h-4 w-4 text-red-400" title="Low Stock" />
+                      <AlertTriangle className="h-4 w-4 text-red-400" title="مخزون منخفض" />
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-6 py-4 text-left">
                   <Button variant="ghost" size="icon" onClick={() => openEdit(p)} className="text-gray-400 hover:text-white">
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -246,7 +246,7 @@ export default function ProductTable({ initialProducts, total, categories, searc
 
       <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
         <div>
-          Showing <span className="text-white font-medium">{initialProducts.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> to <span className="text-white font-medium">{Math.min(currentPage * 10, total)}</span> of <span className="text-white font-medium">{total}</span> results
+          عرض <span className="text-white font-medium">{initialProducts.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> إلى <span className="text-white font-medium">{Math.min(currentPage * 10, total)}</span> من أصل <span className="text-white font-medium">{total}</span> نتيجة
         </div>
         <div className="flex items-center gap-2">
           <Button 
@@ -256,10 +256,10 @@ export default function ProductTable({ initialProducts, total, categories, searc
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            <ChevronLeft className="h-4 w-4 ml-1 rotate-180" /> السابق
           </Button>
           <div className="px-4 py-1.5 bg-gray-800 rounded-md border border-white/10 text-white font-medium">
-            Page {currentPage} of {totalPages}
+            صفحة {currentPage} من {totalPages}
           </div>
           <Button 
             variant="outline" 
@@ -268,7 +268,7 @@ export default function ProductTable({ initialProducts, total, categories, searc
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >
-            Next <ChevronRight className="h-4 w-4 ml-1" />
+            التالي <ChevronRight className="h-4 w-4 mr-1 rotate-180" />
           </Button>
         </div>
       </div>

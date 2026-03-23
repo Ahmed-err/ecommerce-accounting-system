@@ -6,9 +6,12 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/co
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 export default function AdminLayout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { isRTL, lang } = useLanguage();
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -16,9 +19,9 @@ export default function AdminLayout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans selection:bg-amber-500/30">
+    <div className={`flex min-h-screen bg-gray-950 text-gray-100 selection:bg-amber-500/30 ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`} dir={isRTL ? "rtl" : "ltr"}>
       
-      {/* --- DESKTOP SIDEBAR --- */}
+      {/* --- SIDEBAR --- */}
       <aside className="hidden md:block w-64 flex-shrink-0 sticky top-0 h-screen">
         <AdminSidebar />
       </aside>
@@ -27,18 +30,18 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* --- MOBILE HEADER --- */}
-        <header className="md:hidden sticky top-0 z-40 flex items-center gap-4 p-4 border-b border-white/5 bg-gray-900/80 backdrop-blur-xl">
+        <header className={`md:hidden sticky top-0 z-40 flex items-center gap-4 p-4 border-b border-white/5 bg-gray-900/80 backdrop-blur-xl ${isRTL ? 'flex-row' : 'flex-row-reverse justify-between'}`}>
           {mounted && (
             <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-white/10 shrink-0">
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle mobile menu</span>
+                  <span className="sr-only">{isRTL ? 'تبديل القائمة' : 'Toggle Menu'}</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 bg-gray-900 border-r border-white/5 w-72 pt-0">
+              <SheetContent side={isRTL ? "right" : "left"} className={`p-0 bg-gray-900 border-white/5 w-72 pt-0 ${isRTL ? 'border-l' : 'border-r'}`}>
                 <SheetHeader className="sr-only">
-                  <SheetTitle>Navigation Menu</SheetTitle>
+                  <SheetTitle>{isRTL ? 'قائمة التنقل' : 'Navigation Menu'}</SheetTitle>
                 </SheetHeader>
                 <AdminSidebar onNavigate={() => setIsMobileOpen(false)} />
               </SheetContent>
@@ -47,7 +50,7 @@ export default function AdminLayout({ children }) {
 
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold tracking-tight text-white">
-              Power<span className="text-amber-500">Store</span>
+              {isRTL ? 'بـاور' : 'Power'}<span className="text-amber-500">{isRTL ? 'سـتور' : 'Store'}</span>
             </h2>
           </div>
         </header>

@@ -22,21 +22,21 @@ export default async function AccountingPage({ searchParams }) {
 
   const cards = [
     {
-      label: "Total Incoming",
+      label: "إجمالي الواردات",
       value: summary.totalIn,
       icon: TrendingUp,
       color: "emerald",
       prefix: "+",
     },
     {
-      label: "Total Outgoing",
+      label: "إجمالي الصادرات",
       value: summary.totalOut,
       icon: TrendingDown,
       color: "red",
       prefix: "-",
     },
     {
-      label: "Net Profit",
+      label: "صافي الربح",
       value: Math.abs(summary.netProfit),
       icon: DollarSign,
       color: summary.netProfit >= 0 ? "amber" : "red",
@@ -63,11 +63,11 @@ export default async function AccountingPage({ searchParams }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right" dir="rtl">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Accounting</h1>
-        <p className="text-gray-400 mt-1">Track all incoming and outgoing transactions.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">المحاسبة</h1>
+        <p className="text-gray-400 mt-1">تتبع جميع المعاملات الواردة والصادرة.</p>
       </div>
 
       {/* Summary Cards */}
@@ -82,8 +82,8 @@ export default async function AccountingPage({ searchParams }) {
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">{card.label}</p>
-                <p className={`text-2xl font-bold mt-0.5 ${colors.value}`}>
-                  {card.prefix}${card.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                <p className={`text-2xl font-bold mt-0.5 ${colors.value} regular-nums`}>
+                  {card.prefix}{card.value.toLocaleString()} ج.س
                 </p>
               </div>
             </div>

@@ -8,10 +8,10 @@ import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-
 import ProductCard from "./ProductCard";
 
 const SORT_OPTIONS = [
-  { label: "Newest", value: "newest" },
-  { label: "Price: Low → High", value: "price_asc" },
-  { label: "Price: High → Low", value: "price_desc" },
-  { label: "Name: A → Z", value: "name_asc" },
+  { label: "الأحدث", value: "newest" },
+  { label: "السعر: من الأقل", value: "price_asc" },
+  { label: "السعر: من الأعلى", value: "price_desc" },
+  { label: "الاسم", value: "name_asc" },
 ];
 
 export default function ProductGrid({ initialProducts, total, categories, searchParams }) {
@@ -59,20 +59,20 @@ export default function ProductGrid({ initialProducts, total, categories, search
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-right">
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search */}
         <div className="relative group w-full md:w-80">
-          <Search className="absolute left-3 inset-y-0 my-auto h-4 w-4 text-gray-500 pointer-events-none" />
+          <Search className="absolute right-3 inset-y-0 my-auto h-4 w-4 text-gray-500 pointer-events-none" />
           <Input
-            placeholder="Search products..."
-            className="pl-10 pr-10 bg-white/5 border-white/10 text-white focus:border-amber-500/50"
+            placeholder="ابحث عن المنتجات..."
+            className="pr-10 pl-10 bg-white/5 border-white/10 text-white focus:border-amber-500/50 text-right"
             value={searchValue}
             onChange={handleSearch}
           />
           {searchValue && (
-            <button onClick={clearSearch} className="absolute right-3 inset-y-0 my-auto text-gray-500 hover:text-white">
+            <button onClick={clearSearch} className="absolute left-3 inset-y-0 my-auto text-gray-500 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           )}
@@ -105,28 +105,28 @@ export default function ProductGrid({ initialProducts, total, categories, search
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Category Sidebar */}
-        <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-56 shrink-0`}>
+        <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-56 shrink-0 order-last md:order-first`}>
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-1 sticky top-24">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Categories</h3>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">الأقسام</h3>
             <button
               onClick={() => updateParam("category", "all")}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`w-full text-right px-3 py-2 rounded-lg text-sm transition-all ${
                 activeCategory === "all" ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              All Products <span className="text-gray-600 ml-1">({total})</span>
+              كل المنتجات <span className="text-gray-600 mr-1">({total})</span>
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => updateParam("category", cat.name)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`w-full text-right px-3 py-2 rounded-lg text-sm transition-all ${
                   activeCategory === cat.name ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {cat.name} <span className="text-gray-600 ml-1">({cat.productCount})</span>
+                {cat.name} <span className="text-gray-600 mr-1">({cat.productCount})</span>
               </button>
             ))}
           </div>
@@ -136,8 +136,8 @@ export default function ProductGrid({ initialProducts, total, categories, search
         <div className="flex-1">
           {initialProducts.length === 0 ? (
             <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10 border-dashed">
-              <p className="text-gray-400 text-lg">No products found.</p>
-              <p className="text-gray-500 text-sm mt-1">Try adjusting your filters or search query.</p>
+              <p className="text-gray-400 text-lg">لم يتم العثور على منتجات.</p>
+              <p className="text-gray-500 text-sm mt-1">جرب تعديل الفلاتر أو البحث.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -156,10 +156,10 @@ export default function ProductGrid({ initialProducts, total, categories, search
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                <ChevronRight className="h-4 w-4 ml-1" /> السابق
               </Button>
               <span className="px-4 py-1.5 bg-white/5 rounded-lg border border-white/10 text-white text-sm">
-                Page {currentPage} of {totalPages}
+                صفحة {currentPage} من {totalPages}
               </span>
               <Button
                 variant="outline" size="sm"
@@ -167,7 +167,7 @@ export default function ProductGrid({ initialProducts, total, categories, search
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages}
               >
-                Next <ChevronRight className="h-4 w-4 ml-1" />
+                التالي <ChevronLeft className="h-4 w-4 mr-1" />
               </Button>
             </div>
           )}

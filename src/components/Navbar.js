@@ -16,35 +16,39 @@ import {
 // ☝️ lucide-react = an icon library. Each icon is a React component
 
 import { useSession, signOut } from "next-auth/react";
-
 import { useCart } from "@/components/store/CartProvider";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 export default function Navbar() {
     const { data: session } = useSession();
     const { cartCount, loaded } = useCart();
+    const { lang, setLang, isRTL } = useLanguage();
+    const t = translations[lang];
+    
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
     const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER";
 
     const navLinks = [
-        { name: "Home", href: "/" },
-        { name: "Products", href: "/products" },
-        { name: "Categories", href: "/#categories" },
-        ...(isAdmin ? [{ name: "Dashboard", href: "/admin", target: "_self" }] : []),
+        { name: t.home, href: "/" },
+        { name: t.catalog, href: "/products" },
+        { name: lang === "ar" ? "الأقسام" : "Categories", href: "/#categories" },
+        ...(isAdmin ? [{ name: t.admin, href: "/admin", target: "_self" }] : []),
     ];
 
     return (
         <nav className="sticky top-0 z-50 backdrop-blur-xl bg-gray-950/80 border-b border-gray-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* === LEFT SIDE: Logo === */}
+                    {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-2 rounded-lg group-hover:shadow-lg group-hover:shadow-amber-500/25 transition-all duration-300">
                             <Zap className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-xl font-bold text-white">
-                            Power<span className="text-amber-500">Store</span>
+                        <span className={`text-xl font-bold text-white ${isRTL ? 'font-arabic' : ''}`}>
+                            {isRTL ? 'باور' : 'Power'}<span className="text-amber-500">{isRTL ? 'ستور' : 'Store'}</span>
                         </span>
                     </Link>
 
@@ -62,12 +66,20 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* === RIGHT SIDE: Icons === */}
+                    {/* === LEFT SIDE (in LTR) / RIGHT SIDE (in RTL) === */}
                     <div className="flex items-center gap-3">
+                        {/* Language Switcher */}
+                        <button
+                            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+                            className="px-2 py-1 text-xs font-bold border border-white/20 rounded hover:bg-white/10 text-amber-500 transition-all"
+                        >
+                            {lang === "ar" ? "EN" : "عربي"}
+                        </button>
+
                         <Link href="/cart" className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
                             <ShoppingCart className="h-5 w-5" />
                             {loaded && cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-amber-500 text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-gray-950">
+                                <span className={`absolute -top-1 ${isRTL ? '-left-1' : '-right-1'} bg-amber-500 text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-gray-950`}>
                                     {cartCount > 9 ? "9+" : cartCount}
                                 </span>
                             )}
@@ -78,31 +90,39 @@ export default function Navbar() {
                             <div className="relative">
                                 <button
                                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                    className="flex items-center gap-2 p-1.5 pr-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all"
+                                    className={`flex items-center gap-2 p-1.5 ${isRTL ? 'pl-3' : 'pr-3'} bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all`}
                                 >
                                     <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-gray-950 font-bold text-sm">
                                         {session.user.name?.charAt(0) || "U"}
                                     </div>
-                                    <span className="hidden sm:block text-sm font-medium text-gray-300">{session.user.name?.split(' ')[0] || 'User'}</span>
+                                    <span className="hidden sm:block text-sm font-medium text-gray-300">
+                                        {session.user.name?.split(' ')[0] || (isRTL ? 'المستخدم' : 'User')}
+                                    </span>
                                 </button>
 
                                 {isUserMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-white/10 rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className={`absolute ${isRTL ? 'left-0' : 'right-0'} mt-2 w-48 bg-gray-900 border border-white/10 rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${isRTL ? 'text-right' : 'text-left'}`}>
                                         <div className="px-3 py-2 border-b border-white/5 mb-1">
-                                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Signed in as</p>
+                                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{isRTL ? 'تحية طيبة' : 'Welcome'}</p>
                                             <p className="text-sm text-white font-bold truncate">{session.user.email}</p>
                                             <span className="inline-block mt-1 px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded uppercase">{session.user.role}</span>
                                         </div>
                                         {isAdmin && (
-                                            <Link href="/admin" target="_self" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-                                                Dashboard
+                                            <Link href="/admin" target="_self" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all" onClick={() => setIsUserMenuOpen(false)}>
+                                                {t.admin}
                                             </Link>
                                         )}
+                                        <Link href="/my-orders" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all" onClick={() => setIsUserMenuOpen(false)}>
+                                            {isRTL ? 'طلباتي' : 'My Orders'}
+                                        </Link>
+                                        <Link href="/settings" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all" onClick={() => setIsUserMenuOpen(false)}>
+                                            {isRTL ? 'الإعدادات' : 'Settings'}
+                                        </Link>
                                         <button
                                             onClick={() => signOut()}
-                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all text-left"
+                                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all ${isRTL ? 'text-right' : 'text-left'}`}
                                         >
-                                            Logout
+                                            {t.logout}
                                         </button>
                                     </div>
                                 )}
@@ -113,7 +133,7 @@ export default function Navbar() {
                                 className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25"
                             >
                                 <User className="h-4 w-4" />
-                                <span className="hidden xs:block">Login</span>
+                                <span className="hidden xs:block">{isRTL ? 'دخول' : 'Login'}</span>
                             </Link>
                         )}
 
@@ -142,6 +162,30 @@ export default function Navbar() {
                                 {link.name}
                             </Link>
                         ))}
+                        {session && (
+                            <>
+                                <Link
+                                    href="/my-orders"
+                                    className="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {isRTL ? 'طلباتي' : 'My Orders'}
+                                </Link>
+                                <Link
+                                    href="/settings"
+                                    className="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {isRTL ? 'الإعدادات' : 'Settings'}
+                                </Link>
+                                <button
+                                    onClick={() => { setIsMobileMenuOpen(false); signOut(); }}
+                                    className={`w-full h-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                                >
+                                    {t.logout}
+                                </button>
+                            </>
+                        )}
                         {!session && (
                             <div className="pt-2 border-t border-white/5 mt-2">
                                 <Link
@@ -150,7 +194,7 @@ export default function Navbar() {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <User className="h-4 w-4" />
-                                    Login to Account
+                                    {isRTL ? 'تسجيل الدخول' : 'Login'}
                                 </Link>
                             </div>
                         )}

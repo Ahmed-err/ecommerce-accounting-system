@@ -4,25 +4,25 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 // Static data for layout demonstration purposes
 const data = [
-  { name: "Mon", revenue: 4000 },
-  { name: "Tue", revenue: 3000 },
-  { name: "Wed", revenue: 2000 },
-  { name: "Thu", revenue: 2780 },
-  { name: "Fri", revenue: 1890 },
-  { name: "Sat", revenue: 2390 },
-  { name: "Sun", revenue: 3490 },
+  { name: "الإثنين", revenue: 4000 },
+  { name: "الثلاثاء", revenue: 3000 },
+  { name: "الأربعاء", revenue: 2000 },
+  { name: "الخميس", revenue: 2780 },
+  { name: "الجمعة", revenue: 1890 },
+  { name: "السبت", revenue: 2390 },
+  { name: "الأحد", revenue: 3490 },
 ];
 
 export default function DashboardCharts() {
   return (
-    <div className="h-[350px] w-full px-4">
+    <div className="h-[350px] w-full px-4" dir="rtl">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
           margin={{
             top: 10,
-            right: 10,
-            left: -20, // adjust standard left offset
+            right: -20, // adjust standard right offset for RTL
+            left: 10,
             bottom: 0,
           }}
         >
@@ -40,18 +40,21 @@ export default function DashboardCharts() {
             tickLine={false} 
             axisLine={false} 
             dy={10}
+            reversed={true} // RTL
           />
           <YAxis 
+            orientation="right" // RTL
             stroke="#94a3b8" 
             fontSize={12} 
             tickLine={false} 
             axisLine={false} 
-            tickFormatter={(value) => `$${value}`}
-            dx={-10}
+            tickFormatter={(value) => `${value.toLocaleString()} ج.س`}
+            dx={10}
           />
           <Tooltip 
-            contentStyle={{ backgroundColor: "#0f172a", borderColor: "#ffffff10", color: "#f8fafc", borderRadius: "8px" }}
+            contentStyle={{ backgroundColor: "#0f172a", borderColor: "#ffffff10", color: "#f8fafc", borderRadius: "8px", textAlign: "right" }}
             itemStyle={{ color: "#f59e0b" }}
+            formatter={(value) => [`${value.toLocaleString()} ج.س`, "الإيرادات"]}
           />
           <Area 
             type="monotone" 

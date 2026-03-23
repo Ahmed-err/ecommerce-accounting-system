@@ -3,24 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Package, Users, ShoppingCart, Settings, CreditCard } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 export default function AdminSidebar({ onNavigate }) {
   const pathname = usePathname();
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
 
   const navItems = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-    { name: "Inventory", href: "/admin/inventory", icon: Package },
-    { name: "Employees", href: "/admin/employees", icon: Users },
-    { name: "Accounting", href: "/admin/accounting", icon: CreditCard },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: t.dashboard, href: "/admin", icon: LayoutDashboard },
+    { name: t.orders, href: "/admin/orders", icon: ShoppingCart },
+    { name: t.inventory, href: "/admin/inventory", icon: Package },
+    { name: t.employees, href: "/admin/employees", icon: Users },
+    { name: t.accounting, href: "/admin/accounting", icon: CreditCard },
+    { name: t.settings, href: "/admin/settings", icon: Settings },
   ];
 
   return (
-    <div className="flex h-full flex-col bg-gray-900 border-r border-white/5 text-gray-300 w-full md:w-64">
+    <div className={`flex h-full flex-col bg-gray-900 ${isRTL ? 'border-l' : 'border-r'} border-white/5 text-gray-300 w-full md:w-64 ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="p-6">
         <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm">
-          Power<span className="text-amber-500">Store</span> <span className="text-sm font-medium text-gray-500 uppercase tracking-widest ml-1">ERP</span>
+          Power<span className="text-amber-500">Store</span> <span className={`text-sm font-medium text-gray-500 uppercase tracking-widest ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.erp}</span>
         </h2>
       </div>
       
@@ -53,9 +57,9 @@ export default function AdminSidebar({ onNavigate }) {
       <div className="p-4 border-t border-white/5 mt-auto">
         <Link 
           href="/" 
-          className="text-sm text-gray-500 hover:text-white transition-colors flex items-center justify-center gap-2 p-2 hover:bg-white/5 rounded-lg"
+          className={`text-sm text-gray-500 hover:text-white transition-colors flex items-center justify-center gap-2 p-2 hover:bg-white/5 rounded-lg`}
         >
-          ← Back to Storefront
+          {isRTL ? 'العودة للمتجر ←' : '← Back to Store'}
         </Link>
       </div>
     </div>

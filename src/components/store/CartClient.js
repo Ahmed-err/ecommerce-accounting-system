@@ -30,7 +30,7 @@ export default function CartClient() {
     // If not logged in, ensure guest info is filled
     if (!session?.user?.id) {
       if (!guestInfo.name || !guestInfo.email || !guestInfo.address) {
-        setError("Please provide your name, email, and shipping address to continue as guest.");
+        setError("يرجى تقديم الاسم والبريد الإلكتروني وعنوان الشحن للمتابعة كزائر.");
         return;
       }
     }
@@ -44,9 +44,9 @@ export default function CartClient() {
     });
     if (res.success) {
       clearCart();
-      setSuccess(`Order placed! Your order ID: ${res.orderId.slice(-8).toUpperCase()}`);
+      setSuccess(`تم تقديم الطلب! رقم طلبك هو: ${res.orderId.slice(-8).toUpperCase()}`);
     } else {
-      setError(res.error || "Failed to place order.");
+      setError(res.error || "فشل في تقديم الطلب.");
     }
     setLoading(false);
   };
@@ -55,13 +55,16 @@ export default function CartClient() {
     return (
       <div className="text-center py-20">
         <div className="inline-flex p-4 bg-emerald-500/10 rounded-full mb-6"><ShoppingBag className="h-10 w-10 text-emerald-400" /></div>
-        <h2 className="text-2xl font-bold text-white mb-2">Order Placed Successfully!</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">تم تقديم الطلب بنجاح!</h2>
         <p className="text-gray-400 mb-6">{success}</p>
-        <Link href="/products">
-          <Button className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-            Continue Shopping <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="flex flex-col items-center gap-4">
+          <Link href="/products">
+            <Button className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+              <ArrowRight className="mr-2 h-4 w-4" /> العودة للتسوق
+            </Button>
+          </Link>
+          <p className="text-sm text-gray-500">سنتواصل معك هاتفياً لتأكيد الطلب قريباً.</p>
+        </div>
       </div>
     );
   }
@@ -70,11 +73,11 @@ export default function CartClient() {
     return (
       <div className="text-center py-20">
         <div className="inline-flex p-4 bg-white/5 rounded-full mb-6"><ShoppingBag className="h-10 w-10 text-gray-500" /></div>
-        <h2 className="text-2xl font-bold text-white mb-2">Your cart is empty</h2>
-        <p className="text-gray-400 mb-6">Add some products to get started!</p>
+        <h2 className="text-2xl font-bold text-white mb-2">سلة التسوق فارغة</h2>
+        <p className="text-gray-400 mb-6">أضف بعض المنتجات لتبدأ التسوق!</p>
         <Link href="/products">
           <Button className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-            Browse Products <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="mr-2 h-4 w-4" /> تصفح المنتجات
           </Button>
         </Link>
       </div>
@@ -82,70 +85,70 @@ export default function CartClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-right" dir="rtl">
       {/* Cart Items */}
       <div className="lg:col-span-2 space-y-4">
         <Link href="/products" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-4 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Continue Shopping
+          <ArrowRight className="h-4 w-4" /> متابعة التسوق
         </Link>
 
         {/* Guest Details Form */}
         {!session && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-6 space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs">1</span>
-              Guest Information
+              <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs ml-2">١</span>
+              معلومات الزائر
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Full Name</label>
+                <label className="text-sm text-gray-400">الاسم الكامل</label>
                 <input
                   type="text"
-                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors"
-                  placeholder="John Doe"
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors text-right"
+                  placeholder="محمد أحمد"
                   value={guestInfo.name}
                   onChange={(e) => setGuestInfo({ ...guestInfo, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">Email Address</label>
+                <label className="text-sm text-gray-400">البريد الإلكتروني</label>
                 <input
                   type="email"
-                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors"
-                  placeholder="john@example.com"
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors text-right"
+                  placeholder="name@example.com"
                   value={guestInfo.email}
                   onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-gray-400">City / Region (Detection for Delivery Rate)</label>
+                <label className="text-sm text-gray-400">المدينة / الولاية (لتحديد تكلفة التوصيل)</label>
                 <select
-                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors"
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors text-right"
                   value={guestInfo.city}
                   onChange={(e) => setGuestInfo({ ...guestInfo, city: e.target.value })}
                 >
-                  <option value="">Select your city...</option>
+                  <option value="">اختر مدينتك...</option>
                   {SUDAN_CITIES.map(city => (
-                    <option key={city.name} value={city.name}>{city.name} (SDG {city.rate})</option>
+                    <option key={city.name} value={city.name}>{city.name} ({city.rate.toLocaleString()} ج.س)</option>
                   ))}
                 </select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm text-gray-400">Shipping Address (Neighborhood/Street/House #)</label>
+                <label className="text-sm text-gray-400">عنوان الشحن (الحي/الشارع/رقم المنزل)</label>
                 <textarea
                   rows={2}
-                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors resize-none"
-                  placeholder="e.g. Al-Riyadh, Street 15, House 42"
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors resize-none text-right"
+                  placeholder="مثال: الرياض، شارع ١٥، منزل ٤٢"
                   value={guestInfo.address}
                   onChange={(e) => setGuestInfo({ ...guestInfo, address: e.target.value })}
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm text-gray-400">Phone Number (Required for confirmation call)</label>
+                <label className="text-sm text-gray-400">رقم الهاتف (مطلوب للاتصال وتأكيد الطلب)</label>
                 <input
                   type="text"
-                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors"
-                  placeholder="+249..."
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-amber-500 transition-colors text-right"
+                  placeholder="09..."
                   value={guestInfo.phone}
                   onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
                 />
@@ -157,10 +160,10 @@ export default function CartClient() {
         {/* Payment Method */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-6 space-y-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs">
-              {session ? '1' : '2'}
+            <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs ml-2">
+              {session ? '١' : '٢'}
             </span>
-            Payment Method
+            طريقة الدفع
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PAYMENT_METHODS.map((method) => (
@@ -180,14 +183,14 @@ export default function CartClient() {
                   checked={guestInfo.paymentMethod === method.id}
                   onChange={() => setGuestInfo({ ...guestInfo, paymentMethod: method.id })}
                 />
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full text-right">
                   <span className={`font-bold transition-colors ${guestInfo.paymentMethod === method.id ? 'text-amber-500' : 'text-white'}`}>
-                    {method.name}
+                    {method.arName || method.name}
                   </span>
-                  <p className="text-xs text-gray-500 mt-1">{method.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">{method.arDescription || method.description}</p>
                 </div>
                 {guestInfo.paymentMethod === method.id && (
-                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
+                  <div className="absolute top-3 left-3 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-950" />
                   </div>
                 )}
@@ -196,22 +199,22 @@ export default function CartClient() {
           </div>
 
           {guestInfo.paymentMethod === "BANK_TRANSFER" && (
-            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl space-y-2">
-              <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">Bank Transfer Instructions</p>
-              <p className="text-sm text-gray-300">Please send your payment to the following account:</p>
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl space-y-2 text-right">
+              <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">تعليمات التحويل البنكي</p>
+              <p className="text-sm text-gray-300">يرجى تحويل مبلغ الطلب إلى الحساب التالي:</p>
               <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 text-sm space-y-1">
-                <p><span className="text-gray-500">Bank:</span> <span className="text-white font-medium">{STORE_BANK_DETAILS.bankName}</span></p>
-                <p><span className="text-gray-500">Account:</span> <span className="text-white font-mono font-bold">{STORE_BANK_DETAILS.accountNumber}</span></p>
-                <p><span className="text-gray-500">Name:</span> <span className="text-white font-medium">{STORE_BANK_DETAILS.accountName}</span></p>
+                <p><span className="text-gray-500">البنك:</span> <span className="text-white font-medium">{STORE_BANK_DETAILS.bankName}</span></p>
+                <p><span className="text-gray-500">رقم الحساب:</span> <span className="text-white font-mono font-bold">{STORE_BANK_DETAILS.accountNumber}</span></p>
+                <p><span className="text-gray-500">الاسم:</span> <span className="text-white font-medium">{STORE_BANK_DETAILS.accountName}</span></p>
               </div>
-              <p className="text-xs text-gray-400 italic">Please send a screenshot of the transfer to our WhatsApp number after placing the order.</p>
+              <p className="text-xs text-gray-400 italic font-medium">يرجى إرسال لقطة شاشة للعملية عبر الواتساب مع إرفاق رقم الطلب.</p>
             </div>
           )}
         </div>
 
         <h2 className="text-lg font-bold text-white flex items-center gap-2 px-2">
-          {!session && <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs">2</span>}
-          Review Order Items
+          {!session && <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-xs ml-2">٣</span>}
+          مراجعة المنتجات
         </h2>
 
         {cart.map((item) => (
@@ -226,11 +229,11 @@ export default function CartClient() {
             </div>
 
             {/* Info */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-right">
               <Link href={`/products/${item.id}`}>
                 <h3 className="text-white font-semibold truncate hover:text-amber-500 transition-colors">{item.name}</h3>
               </Link>
-              <p className="text-amber-500 font-bold mt-1">SDG {item.price.toLocaleString()}</p>
+              <p className="text-amber-500 font-bold mt-1">{item.price.toLocaleString()} ج.س</p>
             </div>
 
             {/* Quantity */}
@@ -245,8 +248,8 @@ export default function CartClient() {
             </div>
 
             {/* Subtotal */}
-            <div className="text-right w-24 shrink-0">
-              <p className="text-white font-bold">SDG {(item.price * item.quantity).toLocaleString()}</p>
+            <div className="text-left w-32 shrink-0">
+              <p className="text-white font-bold">{(item.price * item.quantity).toLocaleString()} ج.س</p>
             </div>
 
             {/* Remove */}
@@ -260,22 +263,24 @@ export default function CartClient() {
       {/* Order Summary */}
       <div className="lg:col-span-1">
         <div className="bg-white/5 border border-white/10 rounded-xl p-6 sticky top-24 space-y-4">
-          <h2 className="text-lg font-bold text-white">Order Summary</h2>
+          <h2 className="text-lg font-bold text-white">ملخص الطلب</h2>
 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-gray-400">
-              <span>Items ({cartCount})</span>
-              <span>SDG {cartTotal.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-gray-400">
-              <span>Shipping ({guestInfo.city || 'Choose city'})</span>
-              <span>{shippingCost > 0 ? `SDG ${shippingCost.toLocaleString()}` : '—'}</span>
+              <span className="text-amber-500 font-bold">{finalTotal.toLocaleString()} ج.س</span>
+              <span className="text-white font-bold">الإجمالي الكلي</span>
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-4 flex justify-between">
-            <span className="text-white font-bold">Total</span>
-            <span className="text-amber-500 text-xl font-bold">SDG {finalTotal.toLocaleString()}</span>
+          <div className="border-t border-white/10 pt-4 space-y-2 text-xs text-gray-500">
+             <div className="flex justify-between">
+               <span>{cartTotal.toLocaleString()} ج.س</span>
+               <span>إجمالي المنتجات ({cartCount})</span>
+             </div>
+             <div className="flex justify-between">
+               <span>{shippingCost > 0 ? `${shippingCost.toLocaleString()} ج.س` : '—'}</span>
+               <span>التوصيل ({guestInfo.city || 'لم يتم اختيار المدينة'})</span>
+             </div>
           </div>
 
           {error && <div className="p-3 bg-red-500/20 text-red-400 rounded-md text-sm">{error}</div>}
@@ -285,12 +290,12 @@ export default function CartClient() {
             disabled={loading}
             className="w-full py-6 bg-amber-500 hover:bg-amber-600 text-black font-semibold text-base rounded-xl"
           >
-            {loading ? "Placing Order..." : "Place Order"}
+            {loading ? "جاري تقديم الطلب..." : "إتمام الطلب"}
           </Button>
 
           {!session && (
             <p className="text-xs text-gray-500 text-center">
-              Already have an account? <Link href="/login" className="text-amber-500 hover:underline">Log in</Link> instead.
+              هل لديك حساب؟ <Link href="/login" className="text-amber-500 hover:underline">سجل الدخول</Link> بدلاً من ذلك.
             </p>
           )}
         </div>

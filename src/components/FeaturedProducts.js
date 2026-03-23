@@ -16,17 +16,17 @@ export default async function FeaturedProducts() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12">
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-              Featured Products
+              منتجات مختارة
             </h2>
             <p className="text-gray-400 text-lg">
-              Top picks from our electrical supplies catalog
+              أفضل المختارات من كتالوج المستلزمات الكهربائية
             </p>
           </div>
           <Link
             href="/products"
             className="mt-4 sm:mt-0 text-amber-500 hover:text-amber-400 font-medium transition-colors"
           >
-            View All Products →
+            عرض جميع المنتجات ←
           </Link>
         </div>
 
