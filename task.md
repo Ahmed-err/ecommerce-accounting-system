@@ -13,7 +13,11 @@
   - [x] Create responsive Admin Layout (`src/app/admin/layout.js`) with Sidebar 
   - [x] Create Dashboard Overview Page (`src/app/admin/page.js`) with Stats Cards and Charts
 - [x] **Step 6 — Inventory Management**
-- [ ] **Step 7 — Accounting System**
+- [x] **Step 7 — Accounting System**
+  - [x] Create `src/app/actions/accounting.js` (CRUD + summary)
+  - [x] Create `src/components/accounting/TransactionForm.js`
+  - [x] Create `src/components/accounting/TransactionTable.js`
+  - [x] Create `src/app/admin/accounting/page.js` (summary cards + table)
 - [ ] **Step 8 — Employee Management**
 - [ ] **Step 9 — E-Commerce: Catalog & Cart**
 - [ ] **Step 10 — Polish & Deploy**
