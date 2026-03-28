@@ -1,23 +1,35 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import ContactFormClient from "@/components/ContactFormClient";
+import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { cookies } from "next/headers";
+import { translations } from "@/lib/translations";
+import { STORE_WHATSAPP_NUMBER } from "@/lib/constants";
 
-export const metadata = {
-  title: "اتصل بالمبيعات | باور ستور",
-  description: "تواصل مع فريق المبيعات لدينا للطلبات بالجملة أو المستلزمات الكهربائية الاحترافية.",
-};
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const t = translations[lang];
+  return {
+    title: t.contactSalesTitle + " | " + t.brandName,
+    description: t.contactSalesDesc,
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const t = translations[lang];
+
   return (
-    <main className="min-h-screen bg-gray-950 text-right" dir="rtl">
+    <main className={`min-h-screen bg-background ${lang === 'ar' ? 'text-right' : 'text-left'}`} dir={lang === "ar" ? "rtl" : "ltr"}>
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">اتصل بالمبيعات</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">{t.contactSalesTitle}</h1>
           <p className="text-gray-400 text-lg">
-            هل لديك أسئلة حول الطلبات بالجملة أو معدات كهربائية محددة؟ فريقنا هنا لمساعدتك في تزويد مشروعك بالطاقة.
+            {t.contactSalesDesc}
           </p>
         </div>
 
@@ -25,7 +37,7 @@ export default function ContactPage() {
           {/* Contact Information */}
           <div className="lg:col-span-1 space-y-8">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-8">
-              <h2 className="text-xl font-bold text-white">مكاتبنا</h2>
+              <h2 className="text-xl font-bold text-white">{t.ourOffices}</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -33,10 +45,10 @@ export default function ContactPage() {
                     <MapPin className="h-6 w-6 text-amber-500" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold">تفضل بزيارتنا</h3>
+                    <h3 className="text-white font-semibold">{t.visitUs}</h3>
                     <p className="text-gray-400 text-sm mt-1">
-                      ١٢٣ شارع الرياض، الخرطوم، السودان<br />
-                      مقابل عفراء مول
+                      {t.addressLine1}<br />
+                      {t.addressLine2}
                     </p>
                   </div>
                 </div>
@@ -46,9 +58,14 @@ export default function ContactPage() {
                     <Phone className="h-6 w-6 text-amber-500" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold">اتصل بنا</h3>
-                    <p className="text-gray-400 text-sm mt-1 text-left" dir="ltr">+249 123 456 789</p>
-                    <p className="text-gray-400 text-sm">الأحد - الخميس، ٨ صباحاً - ٥ مساءً</p>
+                    <h3 className="text-white font-semibold">{t.callUs}</h3>
+                    <p className="text-gray-400 text-sm mt-1 text-left" dir="ltr">
+                      {t.salesPhone}
+                    </p>
+                    <p className="text-gray-400 text-sm mt-1 text-left" dir="ltr">
+                      {t.secondSalesPhone}
+                    </p>
+                    <p className="text-gray-400 text-sm">{t.workingHours}</p>
                   </div>
                 </div>
 
@@ -57,83 +74,29 @@ export default function ContactPage() {
                     <Mail className="h-6 w-6 text-amber-500" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold">راسلنا عبر البريد الإلكتروني</h3>
-                    <p className="text-gray-400 text-sm mt-1">sales@powerstore.com</p>
+                    <h3 className="text-white font-semibold">{t.emailUs}</h3>
+                    <p className="text-gray-400 text-sm mt-1">{t.businessEmail}</p>
                   </div>
                 </div>
               </div>
 
               <div className="pt-8 border-t border-white/5">
-                <h3 className="text-white font-semibold mb-4">اتصال سريع</h3>
+                <h3 className="text-white font-semibold mb-4">{t.quickContact}</h3>
                 <a 
-                  href="https://wa.me/249123456789" 
+                  href={`https://wa.me/${STORE_WHATSAPP_NUMBER}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
                 >
                   <MessageCircle className="h-5 w-5" />
-                  دعم مبيعات واتساب
+                  {t.whatsappSales}
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12">
-              <h2 className="text-2xl font-bold text-white mb-8">أرسل لنا رسالة</h2>
-              
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300 mr-1">الاسم الكامل</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none text-right"
-                    placeholder="أحمد علي"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300 mr-1">البريد الإلكتروني</label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none text-right"
-                    placeholder="ahmed@example.com"
-                  />
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium text-gray-300 mr-1">الموضوع</label>
-                  <select
-                    className="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none text-right appearance-none"
-                  >
-                    <option>استفسار عن منتج</option>
-                    <option>عرض سعر لطلب بالجملة</option>
-                    <option>دعم فني</option>
-                    <option>أخرى</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium text-gray-300 mr-1">الرسالة</label>
-                  <textarea
-                    required
-                    rows={5}
-                    className="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none resize-none text-right"
-                    placeholder="أخبرنا كيف يمكننا مساعدتك..."
-                  ></textarea>
-                </div>
-
-                <div className="md:col-span-2 pt-4">
-                  <Button className="w-full py-6 bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg rounded-xl flex items-center justify-center gap-2 group transition-all">
-                    <span>إرسال الرسالة</span>
-                    <Send className="h-5 w-5 group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </Button>
-                </div>
-              </form>
-            </div>
+            <ContactFormClient />
           </div>
         </div>
       </div>

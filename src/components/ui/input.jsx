@@ -6,10 +6,15 @@ import { cn } from "@/lib/utils"
 function Input({
   className,
   type,
+  id: providedId,
   ...props
 }) {
+  const generatedId = React.useId();
+  const id = providedId ?? generatedId;
+
   return (
     <InputPrimitive
+      id={id}
       type={type}
       data-slot="input"
       className={cn(

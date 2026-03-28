@@ -6,15 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import ProductCard from "./ProductCard";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations, translateCategory } from "@/lib/translations";
 
-const SORT_OPTIONS = [
-  { label: "الأحدث", value: "newest" },
-  { label: "السعر: من الأقل", value: "price_asc" },
-  { label: "السعر: من الأعلى", value: "price_desc" },
-  { label: "الاسم", value: "name_asc" },
+const getSortOptions = (t) => [
+  { label: t.newest, value: "newest" },
+  { label: t.priceLowHigh, value: "price_asc" },
+  { label: t.priceHighLow, value: "price_desc" },
+  { label: t.sortByName, value: "name_asc" },
 ];
 
 export default function ProductGrid({ initialProducts, total, categories, searchParams }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
+  const SORT_OPTIONS = getSortOptions(t);
+  
   const router = useRouter();
   const params = useSearchParams();
   const pathname = usePathname();
@@ -59,20 +65,20 @@ export default function ProductGrid({ initialProducts, total, categories, search
   };
 
   return (
-    <div className="space-y-6 text-right">
+    <div className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search */}
         <div className="relative group w-full md:w-80">
-          <Search className="absolute right-3 inset-y-0 my-auto h-4 w-4 text-gray-500 pointer-events-none" />
+          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} inset-y-0 my-auto h-4 w-4 text-gray-500 pointer-events-none`} />
           <Input
-            placeholder="ابحث عن المنتجات..."
-            className="pr-10 pl-10 bg-white/5 border-white/10 text-white focus:border-amber-500/50 text-right"
+            placeholder={t.searchPlaceholder}
+            className={`${isRTL ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10 text-left'} bg-white/5 border-white/10 text-white focus:border-amber-500/50`}
             value={searchValue}
             onChange={handleSearch}
           />
           {searchValue && (
-            <button onClick={clearSearch} className="absolute left-3 inset-y-0 my-auto text-gray-500 hover:text-white">
+            <button onClick={clearSearch} className={`absolute ${isRTL ? 'left-3' : 'right-3'} inset-y-0 my-auto text-gray-500 hover:text-white`}>
               <X className="h-4 w-4" />
             </button>
           )}
@@ -107,26 +113,26 @@ export default function ProductGrid({ initialProducts, total, categories, search
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Category Sidebar */}
-        <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-56 shrink-0 order-last md:order-first`}>
+        <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-56 shrink-0 ${isRTL ? 'order-last md:order-first' : 'order-last md:order-last'}`}>
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-1 sticky top-24">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">الأقسام</h3>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t.categoriesTab}</h3>
             <button
               onClick={() => updateParam("category", "all")}
-              className={`w-full text-right px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`w-full ${isRTL ? 'text-right' : 'text-left'} px-3 py-2 rounded-lg text-sm transition-all ${
                 activeCategory === "all" ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              كل المنتجات <span className="text-gray-600 mr-1">({total})</span>
+              {t.allProducts || (isRTL ? "الكل" : "All Products")} <span className="text-gray-600 mx-1">({total})</span>
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => updateParam("category", cat.name)}
-                className={`w-full text-right px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`w-full ${isRTL ? 'text-right' : 'text-left'} px-3 py-2 rounded-lg text-sm transition-all ${
                   activeCategory === cat.name ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {cat.name} <span className="text-gray-600 mr-1">({cat.productCount})</span>
+                {translateCategory(cat.name, t)} <span className="text-gray-600 mx-1">({cat.productCount})</span>
               </button>
             ))}
           </div>
@@ -136,8 +142,8 @@ export default function ProductGrid({ initialProducts, total, categories, search
         <div className="flex-1">
           {initialProducts.length === 0 ? (
             <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10 border-dashed">
-              <p className="text-gray-400 text-lg">لم يتم العثور على منتجات.</p>
-              <p className="text-gray-500 text-sm mt-1">جرب تعديل الفلاتر أو البحث.</p>
+              <p className="text-gray-400 text-lg">{t.noProductsFound}</p>
+              <p className="text-gray-500 text-sm mt-1">{t.tryDifferentSearch}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -156,10 +162,10 @@ export default function ProductGrid({ initialProducts, total, categories, search
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                <ChevronRight className="h-4 w-4 ml-1" /> السابق
+                <ChevronRight className={`h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1 rotate-180'}`} /> {t.tablePrevious}
               </Button>
               <span className="px-4 py-1.5 bg-white/5 rounded-lg border border-white/10 text-white text-sm">
-                صفحة {currentPage} من {totalPages}
+                {t.tablePage} {currentPage} {t.tablePageOf} {totalPages}
               </span>
               <Button
                 variant="outline" size="sm"
@@ -167,7 +173,7 @@ export default function ProductGrid({ initialProducts, total, categories, search
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages}
               >
-                التالي <ChevronLeft className="h-4 w-4 mr-1" />
+                {t.tableNext} <ChevronLeft className={`h-4 w-4 ${isRTL ? 'mr-1' : 'ml-1 rotate-180'}`} />
               </Button>
             </div>
           )}

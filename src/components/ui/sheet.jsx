@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
 function Sheet({
+  id: providedId,
   ...props
 }) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+  const generatedId = React.useId();
+  const id = providedId ?? generatedId;
+  return <SheetPrimitive.Root id={id} data-slot="sheet" {...props} />;
 }
 
 function SheetTrigger({
@@ -79,9 +82,9 @@ function SheetContent({
           <SheetPrimitive.Close
             data-slot="sheet-close"
             render={
-              <Button variant="ghost" className="absolute top-3 right-3" size="icon-sm" />
+              <Button variant="ghost" className="absolute top-3 right-3 rtl:right-auto rtl:left-3 text-gray-400 hover:text-white hover:bg-white/10 transition-colors" size="icon-sm" />
             }>
-            <XIcon />
+            <XIcon className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}

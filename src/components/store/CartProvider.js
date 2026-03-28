@@ -1,28 +1,46 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const { data: session, status } = useSession();
+  const storageKey = session?.user?.id
+    ? `powerstore_cart_${session.user.id}`
+    : "powerstore_cart_guest";
 
-  // Load cart from localStorage on mount
+  // Load cart per user (or guest) from localStorage
   useEffect(() => {
+    if (status === "loading") return;
     try {
-      const saved = localStorage.getItem("powerstore_cart");
-      if (saved) setCart(JSON.parse(saved));
-    } catch {}
-    setLoaded(true);
-  }, []);
+      let saved = localStorage.getItem(storageKey);
 
-  // Save cart to localStorage on change
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem("powerstore_cart", JSON.stringify(cart));
+      // One-time fallback for legacy shared key
+      if (!saved && storageKey === "powerstore_cart_guest") {
+        saved = localStorage.getItem("powerstore_cart");
+      }
+
+      if (saved) {
+        setCart(JSON.parse(saved));
+      } else {
+        setCart([]);
+      }
+    } catch {
+      setCart([]);
     }
-  }, [cart, loaded]);
+    setLoaded(true);
+  }, [storageKey, status]);
+
+  // Save cart to localStorage per user/guest key
+  useEffect(() => {
+    if (loaded && status !== "loading") {
+      localStorage.setItem(storageKey, JSON.stringify(cart));
+    }
+  }, [cart, loaded, storageKey, status]);
 
   const addToCart = useCallback((product, quantity = 1) => {
     setCart((prev) => {

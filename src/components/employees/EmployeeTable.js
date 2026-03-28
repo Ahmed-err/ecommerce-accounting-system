@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, Edit, Trash2, X, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import EmployeeForm from "./EmployeeForm";
 import { deleteEmployee } from "@/app/actions/employees";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 const ROLE_COLORS = {
   ADMIN: "bg-purple-500/10 text-purple-400",
@@ -15,9 +17,10 @@ const ROLE_COLORS = {
   CASHIER: "bg-amber-500/10 text-amber-400",
 };
 
-function formatDate(date) {
+function formatDate(date, lang, mounted) {
   if (!date) return "—";
-  return new Date(date).toLocaleDateString("ar-SA", {
+  if (!mounted) return new Date(date).toISOString().split("T")[0];
+  return new Date(date).toLocaleDateString(lang === 'ar' ? "ar-EG" : "en-US", {
     year: "numeric", month: "short", day: "numeric",
   });
 }
@@ -29,6 +32,13 @@ const ROLE_LABELS = {
 };
 
 export default function EmployeeTable({ initialEmployees, total, departments, searchParams }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
+  const roleLabels = {
+    ADMIN: t.roleAdmin,
+    MANAGER: t.roleManager,
+    CASHIER: t.roleCashier,
+  };
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const pathname = usePathname();
@@ -85,7 +95,7 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("هل أنت متأكد من حذف هذا الموظف؟")) {
+    if (window.confirm(t.employeesDeleteConfirm)) {
       await deleteEmployee(id);
     }
   };
@@ -94,22 +104,22 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   const openNew = () => { setEditingEmployee(null); setIsFormOpen(true); };
 
   return (
-    <div className="bg-gray-900 border border-white/5 rounded-xl flex flex-col w-full h-full min-h-[500px] text-right" dir="rtl">
+    <div className={`bg-gray-900 border border-white/5 rounded-xl flex flex-col w-full h-full min-h-[500px] ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
       {/* Filter Bar */}
       {mounted && (
-        <div className="p-4 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+        <div className="p-4 border-b border-white/5 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:flex-wrap gap-2 w-full xl:w-auto">
             {/* Search */}
-            <div className="relative group h-8 w-full md:w-64">
-              <Search className="absolute right-3 inset-y-0 my-auto h-4 w-4 text-gray-400 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
+            <div className="relative group h-10 w-full sm:col-span-2 xl:w-64">
+              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} inset-y-0 my-auto h-4 w-4 text-gray-400 group-focus-within:text-amber-500 transition-colors pointer-events-none`} />
               <Input
-                placeholder="البحث بالاسم أو البريد..."
-                className="h-full pr-10 pl-10 bg-gray-800 border-white/10 text-white focus:border-amber-500/50 transition-all text-right"
+                placeholder={t.employeesSearchPlaceholder}
+                className={`h-full ${isRTL ? 'pr-10 pl-10' : 'pl-10 pr-10'} bg-gray-800 border-white/10 text-white focus:border-amber-500/50 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchValue}
                 onChange={handleSearch}
               />
               {searchValue && (
-                <button onClick={clearSearch} className="absolute left-3 inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                <button onClick={clearSearch} className={`absolute ${isRTL ? 'left-3' : 'right-3'} inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors`}>
                   <X className="h-4 w-4" />
                 </button>
               )}
@@ -120,14 +130,14 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
               value={searchParamsHook.get("role") || "all"}
               onValueChange={(val) => handleFilter("role", val, "all")}
             >
-              <SelectTrigger className="w-[140px] bg-gray-800 border-white/10 text-white text-right" dir="rtl">
-                <SelectValue placeholder="الدور" />
+              <SelectTrigger className={`w-full sm:w-[140px] bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectValue placeholder={t.employeesColRole} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
-                <SelectItem value="all">كل الأدوار</SelectItem>
-                <SelectItem value="admin">مسؤول</SelectItem>
-                <SelectItem value="manager">مدير</SelectItem>
-                <SelectItem value="cashier">محاسب</SelectItem>
+              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectItem value="all">{t.employeesRoleAll}</SelectItem>
+                <SelectItem value="admin">{t.roleAdmin}</SelectItem>
+                <SelectItem value="manager">{t.roleManager}</SelectItem>
+                <SelectItem value="cashier">{t.roleCashier}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -136,15 +146,15 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
               value={searchParamsHook.get("department") || "all"}
               onValueChange={(val) => handleFilter("department", val, "all")}
             >
-              <SelectTrigger className="w-[160px] bg-gray-800 border-white/10 text-white text-right" dir="rtl">
-                <SelectValue placeholder="القسم">
+              <SelectTrigger className={`w-full sm:w-[160px] bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectValue placeholder={t.employeesColDept}>
                   {searchParamsHook.get("department") && searchParamsHook.get("department") !== "all"
                     ? searchParamsHook.get("department")
                     : undefined}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
-                <SelectItem value="all">كل الأقسام</SelectItem>
+              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectItem value="all">{t.employeesDeptAll}</SelectItem>
                 {departments.map((d) => (
                   <SelectItem key={d} value={d}>{d}</SelectItem>
                 ))}
@@ -152,30 +162,30 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
             </Select>
           </div>
 
-          <Button onClick={openNew} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold shrink-0">
-            <Plus className="ml-2 h-4 w-4" /> إضافة موظف
+          <Button onClick={openNew} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-semibold shrink-0">
+            <Plus className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} /> {t.employeesAddEmployee}
           </Button>
         </div>
       )}
 
       {/* Table */}
       <div className="overflow-x-auto flex-1">
-        <table className="w-full min-w-[900px] text-right text-sm text-gray-300">
+        <table className={`w-full min-w-[900px] ${isRTL ? 'text-right' : 'text-left'} text-sm text-gray-300`}>
           <thead className="bg-gray-800/50 text-xs uppercase text-gray-400">
             <tr>
-              <th className="px-6 py-4 font-medium">الموظف</th>
-              <th className="px-6 py-4 font-medium">الدور</th>
-              <th className="px-6 py-4 font-medium">القسم</th>
-              <th className="px-6 py-4 font-medium">الراتب</th>
-              <th className="px-6 py-4 font-medium">تاريخ التعيين</th>
-              <th className="px-6 py-4 font-medium text-left">العمليات</th>
+              <th className="px-6 py-4 font-medium">{t.employeesColEmployee}</th>
+              <th className="px-6 py-4 font-medium">{t.employeesColRole}</th>
+              <th className="px-6 py-4 font-medium">{t.employeesColDept}</th>
+              <th className="px-6 py-4 font-medium">{t.employeesColSalary}</th>
+              <th className="px-6 py-4 font-medium">{t.employeesColHireDate}</th>
+              <th className={`px-6 py-4 font-medium ${isRTL ? 'text-left' : 'text-right'}`}>{t.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {initialEmployees.length === 0 && (
               <tr>
                 <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
-                  لم يتم العثور على موظفين.
+                  {t.employeesNoEmployees}
                 </td>
               </tr>
             )}
@@ -195,19 +205,19 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${ROLE_COLORS[emp.role] || "bg-gray-500/10 text-gray-400"}`}>
                     <Shield className="h-3 w-3" />
-                    {ROLE_LABELS[emp.role] || emp.role}
+                    {roleLabels[emp.role] || emp.role}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-gray-400">{emp.department || "—"}</td>
                 <td className="px-6 py-4">
                   {emp.salary ? (
-                    <span className="text-emerald-400 font-mono font-semibold regular-nums">{emp.salary.toLocaleString()} ج.س</span>
+                    <span className="text-emerald-400 font-mono font-semibold regular-nums">{emp.salary.toLocaleString()} {t.currency}</span>
                   ) : (
                     <span className="text-gray-500">—</span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-gray-400 whitespace-nowrap">{formatDate(emp.hireDate)}</td>
-                <td className="px-6 py-4 text-left">
+                 <td className="px-6 py-4 text-gray-400 whitespace-nowrap">{formatDate(emp.hireDate, lang, mounted)}</td>
+                <td className={`px-6 py-4 ${isRTL ? 'text-left' : 'text-right'}`}>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(emp)} className="text-gray-400 hover:text-white">
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -222,11 +232,11 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
+      <div className="p-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
         <div>
-          عرض <span className="text-white font-medium regular-nums">{initialEmployees.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> إلى{" "}
-          <span className="text-white font-medium regular-nums">{Math.min(currentPage * 10, total)}</span> من أصل{" "}
-          <span className="text-white font-medium regular-nums">{total}</span> نتائج
+          {t.tableShowing} <span className="text-white font-medium regular-nums">{initialEmployees.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> {t.tableTo}{" "}
+          <span className="text-white font-medium regular-nums">{Math.min(currentPage * 10, total)}</span> {t.tableOf}{" "}
+          <span className="text-white font-medium regular-nums">{total}</span> {t.tableResults}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -235,10 +245,14 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            <ChevronRight className="h-4 w-4 ml-1" /> السابق
+            {isRTL ? (
+              <><ChevronRight className="h-4 w-4 ml-1" /> {t.tablePrevious}</>
+            ) : (
+              <><ChevronLeft className="h-4 w-4 mr-1" /> {t.tablePrevious}</>
+            )}
           </Button>
           <div className="px-4 py-1.5 bg-gray-800 rounded-md border border-white/10 text-white font-medium regular-nums">
-            صفحة {currentPage} من {totalPages}
+            {t.tablePage} {currentPage} {t.tablePageOf} {totalPages}
           </div>
           <Button
             variant="outline" size="sm"
@@ -246,7 +260,11 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >
-            التالي <ChevronLeft className="h-4 w-4 mr-1" />
+            {isRTL ? (
+              <>{t.tableNext} <ChevronLeft className="h-4 w-4 mr-1" /></>
+            ) : (
+              <>{t.tableNext} <ChevronRight className="h-4 w-4 ml-1" /></>
+            )}
           </Button>
         </div>
       </div>

@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UploadButton } from "@/lib/uploadthing";
 import { createProduct, updateProduct } from "@/app/actions/inventory";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 export default function ProductForm({ isOpen, onClose, product, categories }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
   const isEditing = !!product;
   
   const [formData, setFormData] = useState({
@@ -58,7 +62,7 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
     setError("");
     
     try {
-      if (!formData.categoryId) throw new Error("يرجى اختيار فئة");
+      if (!formData.categoryId) throw new Error(t.inventorySelectCategoryError);
       
       const res = isEditing 
         ? await updateProduct(product.id, formData)
@@ -67,7 +71,7 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
       if (res.success) {
         onClose();
       } else {
-        setError(res.error || "فشل حفظ المنتج");
+        setError(res.error || t.inventorySaveError);
       }
     } catch (err) {
       setError(err.message);
@@ -78,11 +82,11 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="bg-gray-900 border-r border-white/10 text-white w-full sm:max-w-2xl overflow-y-auto pb-24 text-right" dir="rtl">
+      <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-2xl overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
         <SheetHeader>
-          <SheetTitle className="text-white text-right">{isEditing ? "تعديل المنتج" : "إضافة منتج جديد"}</SheetTitle>
-          <SheetDescription className="text-gray-400 text-right">
-            {isEditing ? "قم بتحديث تفاصيل المنتج أدناه." : "املأ التفاصيل لإضافة منتج جديد."}
+          <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>{isEditing ? t.inventoryEditProduct : t.inventoryAddNewProduct}</SheetTitle>
+          <SheetDescription className={`text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+            {isEditing ? t.inventoryUpdateDetails : t.inventoryFillDetails}
           </SheetDescription>
         </SheetHeader>
 
@@ -91,27 +95,27 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
           
           {/* --- Basic Information --- */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">المعلومات الأساسية</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryBasicInfo}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium mr-1">اسم المنتج</label>
-                <Input name="name" value={formData.name} onChange={handleChange} required className="bg-gray-800 border-white/10 text-right" placeholder="مثال: كشاف إضاءة LED" />
+                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryProductName}</label>
+                <Input name="name" value={formData.name} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: كشاف إضاءة LED" : "e.g. LED Flashlight"} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium mr-1">رمز SKU / الموديل</label>
-                <Input name="sku" value={formData.sku} onChange={handleChange} required className="bg-gray-800 border-white/10 text-right" placeholder="مثال: LP-60W-01" />
+                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventorySkuModel}</label>
+                <Input name="sku" value={formData.sku} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: LP-60W-01" : "e.g. LP-60W-01"} />
               </div>
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium mr-1">الفئة</label>
+              <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.categoriesTab}</label>
               <Select value={formData.categoryId?.toString()} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="bg-gray-800 border-white/10 text-right" dir="rtl">
-                  <SelectValue placeholder="اختر الفئة">
+                <SelectTrigger className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectValue placeholder={t.inventorySelectCategory}>
                     {formData.categoryId && categories.find(c => c.id.toString() === formData.categoryId.toString())?.name}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-white/10 text-white text-right" dir="rtl">
+                <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
                   {categories.map(c => (
                     <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
                   ))}
@@ -122,26 +126,26 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
 
           {/* --- Pricing & Inventory --- */}
           <div className="pt-2 space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">الأسعار والمخزون</h4>
-            <div className="grid grid-cols-2 gap-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryPriceStock}</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-amber-500/80 mr-1">سعر الشراء</label>
-                <Input type="number" step="0.01" name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} required className="bg-gray-800 border-white/10 focus:border-amber-500/50 text-right" />
+                <label className={`text-sm font-medium text-amber-500/80 ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryPurchasePrice}</label>
+                <Input type="number" step="0.01" name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} required className={`bg-gray-800 border-white/10 focus:border-amber-500/50 ${isRTL ? 'text-right' : 'text-left'}`} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-emerald-500/80 mr-1">سعر البيع</label>
-                <Input type="number" step="0.01" name="sellingPrice" value={formData.sellingPrice} onChange={handleChange} required className="bg-gray-800 border-white/10 focus:border-emerald-500/50 text-right" />
+                <label className={`text-sm font-medium text-emerald-500/80 ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventorySellingPrice}</label>
+                <Input type="number" step="0.01" name="sellingPrice" value={formData.sellingPrice} onChange={handleChange} required className={`bg-gray-800 border-white/10 focus:border-emerald-500/50 ${isRTL ? 'text-right' : 'text-left'}`} />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium mr-1">المخزون الحالي</label>
-                <Input type="number" name="stock" value={formData.stock} onChange={handleChange} required className="bg-gray-800 border-white/10 text-right" />
+                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryCurrentStock}</label>
+                <Input type="number" name="stock" value={formData.stock} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium mr-1">تنبيه عند وصول المخزون إلى</label>
-                <Input type="number" name="minStock" value={formData.minStock} onChange={handleChange} required className="bg-gray-800 border-white/10 text-right" />
+                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryMinStockAlert}</label>
+                <Input type="number" name="minStock" value={formData.minStock} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} />
               </div>
             </div>
           </div>
@@ -149,12 +153,12 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
           {/* --- Images --- */}
           <div className="pt-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">صور المنتج</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryProductImages}</h4>
               <span className="text-[10px] text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">{formData.images.length}/4</span>
             </div>
             
             {formData.images.length > 0 && (
-              <div className="grid grid-cols-4 gap-2 mb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
                 {formData.images.map((img, i) => (
                   <div key={i} className="relative group aspect-square">
                     <img src={img} alt="Product" className="h-full w-full object-cover rounded-lg border border-white/10" />
@@ -166,7 +170,7 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
                       ×
                     </button>
                     {i === 0 && (
-                      <span className="absolute bottom-1 right-1 bg-black/60 text-[8px] text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter">أساسيـة</span>
+                      <span className={`absolute bottom-1 ${isRTL ? 'right-1' : 'left-1'} bg-black/60 text-[8px] text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter`}>{t.inventoryImagePrimary}</span>
                     )}
                   </div>
                 ))}
@@ -177,8 +181,8 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
                <UploadButton
                 endpoint="productImage"
                 content={{
-                  button: ({ ready }) => ready ? "رفع صور" : "جاري التجهيز...",
-                  allowedContent: "الحد الأقصى ٤ صور (٤ ميجابايت)"
+                  button: ({ ready }) => ready ? t.inventoryUploadImages : t.saving,
+                  allowedContent: t.inventoryUploadLimit
                 }}
                 className="ut-button:bg-amber-500 ut-button:ut-readying:bg-amber-500/50 ut-button:text-black ut-button:font-bold ut-allowed-content:text-gray-500"
                 onClientUploadComplete={(res) => {
@@ -188,7 +192,7 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
                   }
                 }}
                 onUploadError={(error) => {
-                  setError(`فشل الرفع: ${error.message}`);
+                  setError(`${lang === 'ar' ? 'فشل الرفع' : 'Upload failed'}: ${error.message}`);
                 }}
               />
             </div>
@@ -196,10 +200,10 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
 
           <div className="pt-8 pb-4 flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">
-              إلغاء
+              {t.cancel}
             </Button>
             <Button type="submit" disabled={loading} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-              {loading ? "جاري الحفظ..." : "حفظ المنتج"}
+              {loading ? t.saving : t.inventorySaveProduct}
             </Button>
           </div>
         </form>

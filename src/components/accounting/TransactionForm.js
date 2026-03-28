@@ -6,15 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createTransaction, updateTransaction } from "@/app/actions/accounting";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 const PRESET_CATEGORIES = [
-  "Sales", "Salary", "Rent", "Supplies", "Utilities",
-  "Maintenance", "Marketing", "Shipping", "Tax", "Other",
+  "Sales", "Salaries", "Rent", "Supplies", "Utilities",
+  "Maintenance", "Marketing", "Shipping", "Taxes", "Refund", "Other",
 ];
 
 const today = () => new Date().toISOString().split("T")[0];
 
 export default function TransactionForm({ isOpen, onClose, transaction }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
   const isEditing = !!transaction;
 
   const [formData, setFormData] = useState({
@@ -62,9 +66,9 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
     setLoading(true);
     setError("");
     try {
-      if (!formData.amount || parseFloat(formData.amount) <= 0) throw new Error("Please enter a valid amount.");
-      if (!formData.description.trim()) throw new Error("Description is required.");
-      if (!formData.category) throw new Error("Please select a category.");
+      if (!formData.amount || parseFloat(formData.amount) <= 0) throw new Error(lang === 'ar' ? "يرجى إدخال مبلغ صحيح" : "Please enter a valid amount.");
+      if (!formData.description.trim()) throw new Error(lang === 'ar' ? "الوصف مطلوب" : "Description is required.");
+      if (!formData.category) throw new Error(lang === 'ar' ? "يرجى اختيار فئة" : "Please select a category.");
 
       const res = isEditing
         ? await updateTransaction(transaction.id, formData)
@@ -73,7 +77,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
       if (res.success) {
         onClose();
       } else {
-        setError(res.error || "Failed to save transaction.");
+        setError(res.error || (lang === 'ar' ? "فشل حفظ المعاملة" : "Failed to save transaction."));
       }
     } catch (err) {
       setError(err.message);
@@ -86,13 +90,13 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="bg-gray-900 border-l border-white/10 text-white w-full sm:max-w-lg overflow-y-auto pb-24">
+      <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-lg overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
         <SheetHeader>
-          <SheetTitle className="text-white">
-            {isEditing ? "Edit Transaction" : "Add Transaction"}
+          <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>
+            {isEditing ? t.accountingEditTransactionHeader : t.accountingAddNewTransactionHeader}
           </SheetTitle>
-          <SheetDescription className="text-gray-400">
-            {isEditing ? "Update the transaction details below." : "Record a new financial transaction."}
+          <SheetDescription className={`text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+            {isEditing ? t.accountingUpdateDetails : t.accountingFillDetails}
           </SheetDescription>
         </SheetHeader>
 
@@ -103,8 +107,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
           {/* Type Toggle */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Transaction Type</label>
-            <div className="flex rounded-xl overflow-hidden border border-white/10">
+            <label className="text-sm font-medium text-gray-300">{t.accountingType}</label>
+            <div className={`flex rounded-xl overflow-hidden border border-white/10 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
               <button
                 type="button"
                 onClick={() => setFormData((p) => ({ ...p, type: "INCOMING" }))}
@@ -112,7 +116,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                   isIncoming ? "bg-emerald-500 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
                 }`}
               >
-                ↑ Incoming
+                {isRTL ? "إيراد ↑" : "↑ Incoming"}
               </button>
               <button
                 type="button"
@@ -121,14 +125,14 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                   !isIncoming ? "bg-red-500 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
                 }`}
               >
-                ↓ Outgoing
+                {isRTL ? "مصروف ↓" : "↓ Outgoing"}
               </button>
             </div>
           </div>
 
           {/* Amount */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Amount ($)</label>
+            <label className="text-sm font-medium text-gray-300">{t.accountingAmount} ({t.currency})</label>
             <Input
               type="number"
               name="amount"
@@ -138,36 +142,36 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
               onChange={handleChange}
               placeholder="0.00"
               required
-              className="bg-gray-800 border-white/10 text-white text-lg"
+              className={`bg-gray-800 border-white/10 text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Description</label>
+            <label className="text-sm font-medium text-gray-300">{t.accountingDesc}</label>
             <Input
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="e.g. Monthly rent payment"
+              placeholder={lang === 'ar' ? "مثال: دفع إيجار المحل" : "e.g. Monthly rent payment"}
               required
-              className="bg-gray-800 border-white/10 text-white"
+              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
             />
           </div>
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Category</label>
+            <label className="text-sm font-medium text-gray-300">{t.accountingCategory}</label>
             <Select
               value={formData.category}
               onValueChange={(val) => setFormData((p) => ({ ...p, category: val }))}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white">
-                <SelectValue placeholder="Select a category">
+              <SelectTrigger className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectValue placeholder={t.accountingSelectCategory}>
                   {formData.category || undefined}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white">
+              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
                 {PRESET_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                 ))}
@@ -178,33 +182,33 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
           {/* Reference */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">
-              Reference <span className="text-gray-600 text-xs">(optional)</span>
+              {t.accountingRef} <span className="text-gray-600 text-xs">{t.optional}</span>
             </label>
             <Input
               name="reference"
               value={formData.reference}
               onChange={handleChange}
-              placeholder="e.g. INV-2024-001"
-              className="bg-gray-800 border-white/10 text-white"
+              placeholder="INV-2024-001"
+              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
             />
           </div>
 
           {/* Date */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Date</label>
+            <label className="text-sm font-medium text-gray-300">{t.accountingDate}</label>
             <Input
               type="date"
               name="date"
               value={formData.date}
               onChange={handleChange}
               required
-              className="bg-gray-800 border-white/10 text-white"
+              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
             />
           </div>
 
           <div className="pt-4 flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               type="submit"
@@ -215,7 +219,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                   : "bg-red-600 hover:bg-red-700"
               }`}
             >
-              {loading ? "Saving..." : "Save Transaction"}
+              {loading ? t.saving : t.accountingSaveTransaction}
             </Button>
           </div>
         </form>

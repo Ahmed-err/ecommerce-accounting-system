@@ -2,9 +2,19 @@
 
 import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
+
+async function ensureManager() {
+  const session = await auth();
+  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    throw new Error("Unauthorized: Only Admins or Managers can manage inventory.");
+  }
+}
 
 export async function getCategories() {
   try {
+    await ensureManager();
     return await db.category.findMany({
       orderBy: { name: "asc" },
     });
@@ -16,6 +26,7 @@ export async function getCategories() {
 
 export async function getProducts({ search = "", categoryId = "", status = "all", sort = "newest", page = 1, limit = 10 }) {
   try {
+    await ensureManager();
     const where = {
       ...(search ? {
         OR: [
@@ -106,8 +117,40 @@ export async function getProducts({ search = "", categoryId = "", status = "all"
   }
 }
 
+export async function getInventorySummary() {
+  try {
+    await ensureManager();
+    const [totalProducts, stockStats, lowStockCount] = await Promise.all([
+      db.product.count({ where: { isActive: true } }),
+      db.product.aggregate({
+        _sum: { stock: true },
+        where: { isActive: true }
+      }),
+      db.$queryRaw`SELECT COUNT(*)::int as count FROM "Product" WHERE "stock" <= "minStock" AND "isActive" = true`
+    ]);
+
+    const products = await db.product.findMany({
+      where: { isActive: true },
+      select: { stock: true, sellingPrice: true }
+    });
+
+    const totalValue = products.reduce((acc, p) => acc + (p.stock * p.sellingPrice), 0);
+
+    return {
+      totalProducts,
+      totalStock: stockStats._sum.stock || 0,
+      totalValue,
+      lowStock: Number(lowStockCount[0].count)
+    };
+  } catch (error) {
+    console.error("Failed to fetch inventory summary:", error);
+    return { totalProducts: 0, totalStock: 0, totalValue: 0, lowStock: 0 };
+  }
+}
+
 export async function createProduct(data) {
   try {
+    await ensureManager();
     const product = await db.product.create({
       data: {
         name: data.name,
@@ -122,6 +165,7 @@ export async function createProduct(data) {
         isActive: data.isActive !== undefined ? data.isActive : true,
       },
     });
+    await logAction("CREATE_PRODUCT", { productId: product.id, name: data.name });
     revalidatePath("/admin/inventory");
     return { success: true, product };
   } catch (error) {
@@ -132,6 +176,7 @@ export async function createProduct(data) {
 
 export async function updateProduct(id, data) {
   try {
+    await ensureManager();
     const product = await db.product.update({
       where: { id },
       data: {
@@ -147,6 +192,7 @@ export async function updateProduct(id, data) {
         isActive: data.isActive,
       },
     });
+    await logAction("UPDATE_PRODUCT", { productId: id, name: data.name });
     revalidatePath("/admin/inventory");
     return { success: true, product };
   } catch (error) {
@@ -157,6 +203,7 @@ export async function updateProduct(id, data) {
 
 export async function deleteProduct(id) {
   try {
+    await ensureManager();
     // Try to delete physically
     await db.product.delete({ where: { id } });
     revalidatePath("/admin/inventory");
@@ -171,8 +218,31 @@ export async function deleteProduct(id) {
       });
       revalidatePath("/admin/inventory");
       return { success: true, softDeleted: true };
-    } catch (softError) {
+  } catch (softError) {
       return { success: false, error: softError.message };
     }
+  }
+}
+
+export async function updateStockQuantity(id, change) {
+  try {
+    await ensureManager();
+
+    const current = await db.product.findUnique({ where: { id }, select: { stock: true } });
+    if (!current) return { success: false, error: "Product not found" };
+
+    if (current.stock + change < 0) {
+      return { success: false, error: "Stock cannot go below zero" };
+    }
+
+    const product = await db.product.update({
+      where: { id },
+      data: { stock: { increment: change } },
+    });
+    revalidatePath("/admin/inventory");
+    return { success: true, stock: product.stock };
+  } catch (error) {
+    console.error("Failed to update stock:", error);
+    return { success: false, error: error.message };
   }
 }
