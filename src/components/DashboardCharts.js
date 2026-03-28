@@ -1,21 +1,18 @@
 "use client";
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
-// Static data for layout demonstration purposes
-const data = [
-  { name: "الإثنين", revenue: 4000 },
-  { name: "الثلاثاء", revenue: 3000 },
-  { name: "الأربعاء", revenue: 2000 },
-  { name: "الخميس", revenue: 2780 },
-  { name: "الجمعة", revenue: 1890 },
-  { name: "السبت", revenue: 2390 },
-  { name: "الأحد", revenue: 3490 },
-];
+export default function DashboardCharts({ chartData }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
 
-export default function DashboardCharts() {
+  const data = chartData && chartData.length > 0 ? chartData : [
+    { name: "—", revenue: 0 },
+  ];
   return (
-    <div className="h-[350px] w-full px-4" dir="rtl">
+    <div className="h-[350px] w-full px-4" dir={isRTL ? "rtl" : "ltr"}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -40,21 +37,21 @@ export default function DashboardCharts() {
             tickLine={false} 
             axisLine={false} 
             dy={10}
-            reversed={true} // RTL
+            reversed={isRTL}
           />
           <YAxis 
-            orientation="right" // RTL
+            orientation={isRTL ? "right" : "left"}
             stroke="#94a3b8" 
             fontSize={12} 
             tickLine={false} 
             axisLine={false} 
-            tickFormatter={(value) => `${value.toLocaleString()} ج.س`}
-            dx={10}
+            tickFormatter={(value) => `${value.toLocaleString()} ${t.currency}`}
+            dx={isRTL ? 10 : -10}
           />
           <Tooltip 
-            contentStyle={{ backgroundColor: "#0f172a", borderColor: "#ffffff10", color: "#f8fafc", borderRadius: "8px", textAlign: "right" }}
+            contentStyle={{ backgroundColor: "#0f172a", borderColor: "#ffffff10", color: "#f8fafc", borderRadius: "8px", textAlign: isRTL ? "right" : "left" }}
             itemStyle={{ color: "#f59e0b" }}
-            formatter={(value) => [`${value.toLocaleString()} ج.س`, "الإيرادات"]}
+            formatter={(value) => [`${value.toLocaleString()} ${t.currency}`, lang === 'ar' ? "الإيرادات" : "Revenue"]}
           />
           <Area 
             type="monotone" 

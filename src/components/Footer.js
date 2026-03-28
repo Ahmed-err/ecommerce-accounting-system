@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Mail, Phone, MapPin } from "lucide-react";
+import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 
 export default function Footer() {
     const { lang, isRTL } = useLanguage();
@@ -12,118 +13,140 @@ export default function Footer() {
     const quickLinks = [
         { name: t.home, href: "/" },
         { name: t.catalog, href: "/products" },
-        { name: isRTL ? "الأقسام" : "Categories", href: "/#categories" },
+        { name: t.about, href: "/about" },
         { name: t.contact, href: "/contact" }
     ];
 
-    const categories = isRTL 
-        ? ["الإضاءة", "الكابلات والأسلاك", "المفاتيح والمقابس", "أنظمة الطاقة", "معدات السلامة"]
-        : ["Lighting", "Cables & Wires", "Switches & Sockets", "Power Systems", "Safety Gear"];
-
     return (
-        <footer className={`bg-gray-900 border-t border-gray-800 ${isRTL ? 'font-arabic' : 'font-sans'}`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-                    {/* Column 1: Brand / About */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-2 rounded-lg">
-                                <Zap className="h-5 w-5 text-white" />
+        <footer className={cn(
+            "border-t border-border",
+             isRTL ? "font-arabic" : "font-sans"
+        )}>
+            <div className="bg-neutral-950 text-zinc-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div className={cn(
+                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20",
+                    isRTL ? "text-right" : "text-left"
+                )}>
+                    {/* Brand Section */}
+                    <div className="space-y-8 flex flex-col items-center sm:items-start">
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <div className="bg-amber-500 p-2 rounded-xl group-hover:scale-110 transition-transform">
+                                <Zap className="h-5 w-5 text-black" />
                             </div>
-                            <span className="text-xl font-bold text-white">
-                                {isRTL ? 'باور' : 'Power'}<span className="text-amber-500">{isRTL ? 'ستور' : 'Store'}</span>
+                            <span className="text-xl font-black tracking-tighter uppercase text-zinc-100 leading-tight">
+                                {isRTL ? "أعمال عصام نصرالدين" : "Essam Nasreddin Electrical"}
                             </span>
-                        </div>
-                        <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                            {isRTL 
-                                ? "موردك الموثوق للمستلزمات الكهربائية الاحترافية. نخدم المقاولين وأصحاب المنازل في السودان منذ 2024."
-                                : "Your trusted provider of professional electrical supplies. Serving contractors and homeowners in Sudan since 2024."
-                            }
+                        </Link>
+                        <p className={cn("text-zinc-400 text-sm leading-relaxed font-medium", isRTL && "text-right")}>
+                            {t.brandDesc}
                         </p>
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-gray-400 text-sm">
-                                <Phone className="h-4 w-4 text-amber-500" />
-                                <span className="regular-nums">+249 123 456 789</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400 text-sm">
-                                <Mail className="h-4 w-4 text-amber-500" />
-                                <span>info@powerstore.com</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400 text-sm">
-                                <MapPin className="h-4 w-4 text-amber-500" />
-                                <span>{isRTL ? 'الخرطوم، السودان' : 'Khartoum, Sudan'}</span>
-                            </div>
+                        <div className="flex gap-4">
+                            {[
+                              { Icon: Facebook, href: "https://facebook.com" },
+                              { Icon: Twitter, href: "https://twitter.com" },
+                              { Icon: Instagram, href: "https://instagram.com" },
+                              { Icon: Linkedin, href: "https://linkedin.com" },
+                            ].map(({ Icon, href }, i) => (
+                                <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-zinc-300 hover:bg-amber-500 hover:text-black transition-all border border-white/10" aria-label={Icon.displayName}>
+                                    <Icon className="h-4 w-4" />
+                                </a>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Column 2: Quick Links */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">{isRTL ? 'روابط سريعة' : 'Quick Links'}</h3>
-                        <ul className="space-y-2">
+                    {/* Links */}
+                    <div className={cn(isRTL ? "sm:items-start" : "sm:items-start")}>
+                        <h3 className="text-zinc-100 font-black uppercase tracking-widest text-sm mb-8">{t.quickLinks}</h3>
+                        <ul className="space-y-4">
                             {quickLinks.map((link) => (
                                 <li key={link.name}>
-                                    <Link href={link.href} className="text-gray-400 hover:text-amber-500 text-sm transition-colors">
+                                    <Link href={link.href} className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
                                         {link.name}
                                     </Link>
                                 </li>
                             ))}
-                            <li>
-                                <Link href="/login" className="text-amber-500 hover:text-amber-400 text-sm font-bold transition-colors">
-                                    {isRTL ? 'الحساب / الدخول' : 'Account / Login'}
+                        </ul>
+                    </div>
+
+                    {/* Support */}
+                    <div>
+                        <h3 className="text-zinc-100 font-black uppercase tracking-widest text-sm mb-8">{isRTL ? "الدعم" : "Support"}</h3>
+                        <ul className="space-y-4">
+                             <li>
+                                <Link href="/contact" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    {t.contact}
                                 </Link>
-                            </li>
+                             </li>
+                             <li>
+                                <Link href="/contact" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    {isRTL ? "الأسئلة الشائعة" : "FAQ"}
+                                </Link>
+                             </li>
+                             <li>
+                                <Link href="/contact" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    {isRTL ? "سياسة الشحن" : "Shipping Policy"}
+                                </Link>
+                             </li>
+                             <li>
+                                <Link href="/contact" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    {t.termsOfService}
+                                </Link>
+                             </li>
                         </ul>
                     </div>
 
-                    {/* Column 3: Categories */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">{isRTL ? 'الأقسام' : 'Categories'}</h3>
-                        <ul className="space-y-2">
-                            {categories.map((cat) => (
-                                <li key={cat}>
-                                    <Link href={`/products?category=${encodeURIComponent(cat)}`} className="text-gray-400 hover:text-amber-500 text-sm transition-colors">
-                                        {cat}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Column 4: Newsletter */}
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">{isRTL ? 'ابقَ على اطلاع' : 'Stay Tuned'}</h3>
-                        <p className="text-gray-400 text-sm mb-4">
-                            {isRTL ? "اشترك لتعرف آخر العروض وتحديثات المنتجات." : "Subscribe to get the latest offers and product updates."}
-                        </p>
-                        <div className="flex gap-2">
-                            <input
-                                type="email"
-                                placeholder={isRTL ? "أدخل بريدك الإلكتروني" : "Enter your email"}
-                                className={`flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
-                            />
-                            <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors whitespace-nowrap">
-                                {isRTL ? 'اشترك' : 'Subscribe'}
-                            </button>
+                    {/* Contact Info */}
+                    <div className="space-y-8">
+                        <h3 className="text-zinc-100 font-black uppercase tracking-widest text-sm mb-8">{isRTL ? "تواصل معنا" : "Contact Us"}</h3>
+                        <div className="space-y-6 text-zinc-100">
+                            <div className="flex items-start gap-4 group">
+                                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 border border-white/10 shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                    <Phone className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase text-zinc-500 mb-1">{isRTL ? "المبيعات" : "Sales"}</span>
+                                    <span className="text-sm font-bold tracking-tight regular-nums">{t.salesPhone}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4 group">
+                                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 border border-white/10 shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                    <Mail className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-[10px] font-black uppercase text-zinc-500 mb-1">{isRTL ? "البريد الإلكتروني" : "Email"}</span>
+                                    <span className="text-sm font-bold tracking-tight truncate">{t.businessEmail}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4 group">
+                                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 border border-white/10 shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                    <MapPin className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase text-zinc-500 mb-1">{isRTL ? "العنوان" : "Address"}</span>
+                                    <span className="text-sm font-bold tracking-tight">{t.khartoumSudan}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
 
-            {/* === BOTTOM BAR === */}
-            <div className="border-t border-gray-800">
-                <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4`}>
-                    <p className="text-gray-500 text-sm regular-nums">
-                        {isRTL ? "© 2024 باور ستور. جميع الحقوق محفوظة." : "© 2024 Power Store. All rights reserved."}
+            {/* Bottom Bar */}
+            <div className="border-t border-white/10 py-8 bg-neutral-950 text-zinc-400">
+                <div className={cn(
+                    "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6",
+                    isRTL && "md:flex-row-reverse"
+                )}>
+                    <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest text-center md:text-left">
+                        &copy; {new Date().getFullYear()} {isRTL ? "أعمال عصام نصرالدين" : "Essam Nasreddin Electrical"}. {t.allRightsReserved}
                     </p>
-                    <div className="flex items-center gap-6">
-                        <Link href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
-                            {isRTL ? "سياسة الخصوصية" : "Privacy Policy"}
-                        </Link>
-                        <Link href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
-                            {isRTL ? "شروط الخدمة" : "Terms of Service"}
-                        </Link>
+                    <div className="flex items-center gap-8">
+                         <Link href="/contact" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacyPolicy}</Link>
+                         <Link href="/contact" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.termsOfService}</Link>
                     </div>
                 </div>
+            </div>
             </div>
         </footer>
     );

@@ -24,10 +24,10 @@ const adapter = new PrismaPg(pool);
 const globalForPrisma = globalThis;
 
 export const prisma =
-    globalForPrisma.prisma ??  // If a client already exists, reuse it
+    globalForPrisma.prismaV2 ??  // Incremented version to force refresh
     new PrismaClient({ adapter });        // Otherwise, create a new one
 
 // In development, save the client to globalThis so it persists
 if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = prisma;
+    globalForPrisma.prismaV2 = prisma;
 }

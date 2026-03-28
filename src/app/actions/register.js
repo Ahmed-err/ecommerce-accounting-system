@@ -2,6 +2,27 @@
 
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+
+/**
+ * Validates password strength
+ * Requires: 8+ chars, 1 uppercase, 1 lowercase, 1 number
+ */
+function validatePassword(password) {
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long.";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "Password must contain at least one uppercase letter.";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "Password must contain at least one lowercase letter.";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one number.";
+  }
+  return null;
+}
 
 /**
  * Handles user registration.
@@ -17,21 +38,35 @@ export async function registerUser(formData) {
     const phone = formData.get("phone");
 
     // 1. Validation
-    if (!firstName || !lastName || !email || !password) {
-      return { error: "Missing required fields (First Name, Last Name, Email, or Password)." };
+    if (!firstName || !lastName || !email || !password || !phone) {
+      return { error: "Missing required fields (First Name, Last Name, Email, Phone, or Password)." };
     }
 
-    if (password.length < 6) {
-      return { error: "Password must be at least 6 characters long." };
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return { error: passwordError };
     }
 
-    // 2. Check for existing user
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    // Get IP and check rate limits
+    const ip = await getClientIP();
+    const [ipAllowed, emailAllowed] = await Promise.all([
+      checkRateLimit(`register_${ip}`, 5, 15 * 60 * 1000),
+      checkRateLimit(`register_${email}`, 5, 15 * 60 * 1000)
+    ]);
+    
+    if (!ipAllowed || !emailAllowed) {
+        return { error: "Too many registration attempts. Please try again later." };
+    }
 
-    if (existingUser) {
-      return { error: "An account with this email already exists." };
+    // 2. Check for existing user - use generic error to prevent user enumeration
+    const [existingEmail, existingPhone] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { phone } })
+    ]);
+
+    if (existingEmail || existingPhone) {
+      // Generic error - don't reveal which field is taken
+      return { error: "An account with this information already exists." };
     }
 
     // 3. Hash password
@@ -55,6 +90,6 @@ export async function registerUser(formData) {
     return { success: true };
   } catch (error) {
     console.error("Registration fatal error:", error);
-    return { error: `Registration error: ${error.message}` };
+    return { error: "Registration failed. Please try again later." };
   }
 }

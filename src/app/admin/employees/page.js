@@ -1,6 +1,8 @@
 import { getEmployees, getDepartments } from "@/app/actions/employees";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 import { Users, Shield, Building } from "lucide-react";
+import { cookies } from "next/headers";
+import { translations } from "@/lib/translations";
 
 export const metadata = {
   title: "Employee Management | Admin Dashboard",
@@ -15,27 +17,34 @@ export default async function EmployeesPage({ searchParams }) {
   const role = params?.role || "all";
   const department = params?.department || "";
 
-  const [{ employees, total }, departments] = await Promise.all([
+  const { prisma } = await import("@/lib/prisma");
+
+  const [{ employees, total }, departments, adminCount, deptResult] = await Promise.all([
     getEmployees({ search, role, department, page }),
     getDepartments(),
+    prisma.user.count({ where: { role: "ADMIN" } }),
+    prisma.user.findMany({ where: { department: { not: null } }, select: { department: true }, distinct: ["department"] }),
   ]);
 
-  // Quick stats
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const t = translations[lang];
+  const isRTL = lang === "ar";
+
   const totalEmployees = total;
-  const adminCount = employees.filter((e) => e.role === "ADMIN").length;
-  const deptCount = new Set(employees.map((e) => e.department).filter(Boolean)).size;
+  const deptCount = deptResult.length;
 
   const stats = [
-    { label: "إجمالي الموظفين", value: totalEmployees, icon: Users, color: "bg-blue-500/10 text-blue-500" },
-    { label: "المسؤولون", value: adminCount, icon: Shield, color: "bg-purple-500/10 text-purple-500" },
-    { label: "الأقسام", value: deptCount, icon: Building, color: "bg-amber-500/10 text-amber-500" },
+    { label: lang === 'ar' ? 'إجمالي الموظفين' : 'Total Employees', value: totalEmployees, icon: Users, color: "bg-blue-500/10 text-blue-500" },
+    { label: t.adminAdmins, value: adminCount, icon: Shield, color: "bg-purple-500/10 text-purple-500" },
+    { label: t.departments, value: deptCount, icon: Building, color: "bg-amber-500/10 text-amber-500" },
   ];
 
   return (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">إدارة الموظفين</h1>
-        <p className="text-gray-400 mt-1">إدارة أعضاء الفريق والأدوار والأقسام.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">{t.adminEmployeesTitle}</h1>
+        <p className="text-gray-400 mt-1">{t.adminEmployeesDesc}</p>
       </div>
 
       {/* Quick Stats */}

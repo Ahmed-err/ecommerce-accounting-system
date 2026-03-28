@@ -12,7 +12,7 @@ export async function updateUserProfile(data) {
       return { success: false, error: "Not authenticated" };
     }
 
-    const { firstName, lastName, currentPassword, newPassword } = data;
+    const { firstName, lastName, phone, avatar, currentPassword, newPassword } = data;
 
     const user = await db.user.findUnique({
       where: { id: session.user.id },
@@ -24,11 +24,13 @@ export async function updateUserProfile(data) {
 
     const updateData = {};
 
-    if (firstName && lastName) {
-      updateData.firstName = firstName;
-      updateData.lastName = lastName;
-      updateData.name = `${firstName} ${lastName}`;
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (firstName || lastName) {
+       updateData.name = `${firstName || user.firstName} ${lastName || user.lastName}`;
     }
+    if (phone !== undefined) updateData.phone = phone;
+    if (avatar !== undefined) updateData.avatar = avatar;
 
     if (newPassword) {
       if (!currentPassword) {

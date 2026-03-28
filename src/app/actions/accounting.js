@@ -2,9 +2,19 @@
 
 import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
+
+async function ensureAdmin() {
+  const session = await auth();
+  if (!session || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized: Only Admins can access accounting data.");
+  }
+}
 
 export async function getSummary() {
   try {
+    await ensureAdmin();
     const [incoming, outgoing, recentTransactions] = await Promise.all([
       db.transaction.aggregate({
         where: { type: "INCOMING" },
@@ -43,6 +53,7 @@ export async function getTransactions({
   limit = 10,
 } = {}) {
   try {
+    await ensureAdmin();
     const where = {
       ...(search
         ? {
@@ -78,6 +89,7 @@ export async function getTransactions({
 
 export async function getCategories() {
   try {
+    await ensureAdmin();
     const rows = await db.transaction.findMany({
       select: { category: true },
       distinct: ["category"],
@@ -92,6 +104,7 @@ export async function getCategories() {
 
 export async function createTransaction(data) {
   try {
+    await ensureAdmin();
     const transaction = await db.transaction.create({
       data: {
         type: data.type,
@@ -102,6 +115,9 @@ export async function createTransaction(data) {
         date: data.date ? new Date(data.date) : new Date(),
       },
     });
+    
+    await logAction("CREATE_TRANSACTION", { transactionId: transaction.id, amount: transaction.amount, type: transaction.type });
+    
     revalidatePath("/admin/accounting");
     return { success: true, transaction };
   } catch (error) {
@@ -112,6 +128,7 @@ export async function createTransaction(data) {
 
 export async function updateTransaction(id, data) {
   try {
+    await ensureAdmin();
     const transaction = await db.transaction.update({
       where: { id },
       data: {
@@ -123,6 +140,9 @@ export async function updateTransaction(id, data) {
         date: data.date ? new Date(data.date) : new Date(),
       },
     });
+    
+    await logAction("UPDATE_TRANSACTION", { transactionId: id, amount: transaction.amount });
+    
     revalidatePath("/admin/accounting");
     return { success: true, transaction };
   } catch (error) {
@@ -133,7 +153,11 @@ export async function updateTransaction(id, data) {
 
 export async function deleteTransaction(id) {
   try {
+    await ensureAdmin();
     await db.transaction.delete({ where: { id } });
+    
+    await logAction("DELETE_TRANSACTION", { transactionId: id });
+    
     revalidatePath("/admin/accounting");
     return { success: true };
   } catch (error) {

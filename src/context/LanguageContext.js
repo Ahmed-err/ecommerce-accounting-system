@@ -1,19 +1,22 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const LanguageContext = createContext();
 
-export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState("ar"); // Default language
+export function LanguageProvider({ children, initialLang = "ar" }) {
+  const [lang, setLang] = useState(initialLang); // Use server-side initial language
 
   useEffect(() => {
-    // Load preference from localStorage
+    // Sync with localStorage on client load
     const saved = localStorage.getItem("lang");
-    if (saved) {
+    if (saved && saved !== lang) {
       setLang(saved);
     }
-  }, []);
+  }, [lang]);
+
+  const router = useRouter();
 
   const switchLanguage = (newLang) => {
     setLang(newLang);
@@ -24,6 +27,9 @@ export function LanguageProvider({ children }) {
     // Update HTML attributes immediately
     document.documentElement.lang = newLang;
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
+    
+    // Refresh to update server components
+    router.refresh();
   };
 
   const isRTL = lang === "ar";

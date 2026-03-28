@@ -1,5 +1,6 @@
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { translations } from "@/lib/translations";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -12,10 +13,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "باور ستور — حلول الإمدادات الكهربائية",
-  description: "المتجر المتكامل لمستلزمات الكهرباء مع نظام إدارة المخزون والمحاسبة والموظفين",
-};
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const t = translations[lang] || translations.en;
+  const title = `${t.brandName} — ${t.brandTagline}`;
+  const description = t.brandDesc;
+
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_URL || "https://essamnasr.com"),
+    title: { default: title, template: `%s | ${t.brandName}` },
+    description,
+    robots: { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      locale: lang === "ar" ? "ar_SD" : "en_US",
+      siteName: t.brandName,
+      title,
+      description,
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 import { Providers } from "@/components/Providers";
 import { UploadthingProvider } from "@/components/UploadthingProvider";
@@ -29,12 +48,12 @@ export default async function RootLayout({ children }) {
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} suppressHydrationWarning>
       <body
         className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <UploadthingProvider />
-        <Providers>
+        <Providers lang={lang}>
           <CartProvider>
             {children}
           </CartProvider>

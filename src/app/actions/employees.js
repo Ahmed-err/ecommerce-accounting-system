@@ -3,6 +3,16 @@
 import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
+import { logAction } from "@/lib/audit";
+
+async function ensureAdmin() {
+  const session = await auth();
+  if (!session || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized: Only Admins can manage employees.");
+  }
+  return session.user;
+}
 
 export async function getEmployees({
   search = "",
@@ -12,6 +22,10 @@ export async function getEmployees({
   limit = 10,
 } = {}) {
   try {
+     const session = await auth();
+     if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+        return { employees: [], total: 0 };
+     }
     const where = {
       role: { not: "CUSTOMER" },
       ...(search
@@ -64,6 +78,10 @@ export async function getEmployees({
 
 export async function getDepartments() {
   try {
+    const session = await auth();
+    if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+      return [];
+    }
     const rows = await db.user.findMany({
       where: { role: { not: "CUSTOMER" }, department: { not: null } },
       select: { department: true },
@@ -79,6 +97,7 @@ export async function getDepartments() {
 
 export async function createEmployee(data) {
   try {
+    await ensureAdmin();
     if (!data.email || !data.firstName || !data.lastName || !data.password) {
       return { success: false, error: "Missing required fields." };
     }
@@ -106,6 +125,8 @@ export async function createEmployee(data) {
       },
     });
 
+    await logAction("CREATE_EMPLOYEE", { employeeId: employee.id, name: employee.name, role: employee.role });
+
     revalidatePath("/admin/employees");
     return { success: true, employee };
   } catch (error) {
@@ -116,6 +137,7 @@ export async function createEmployee(data) {
 
 export async function updateEmployee(id, data) {
   try {
+    await ensureAdmin();
     const updateData = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -138,6 +160,8 @@ export async function updateEmployee(id, data) {
       data: updateData,
     });
 
+    await logAction("UPDATE_EMPLOYEE", { employeeId: id, updatedFields: Object.keys(updateData) });
+
     revalidatePath("/admin/employees");
     return { success: true, employee };
   } catch (error) {
@@ -148,7 +172,12 @@ export async function updateEmployee(id, data) {
 
 export async function deleteEmployee(id) {
   try {
+    const admin = await ensureAdmin();
+    if (admin.id === id) {
+       return { success: false, error: "You cannot delete your own admin account." };
+    }
     await db.user.delete({ where: { id } });
+    await logAction("DELETE_EMPLOYEE", { employeeId: id });
     revalidatePath("/admin/employees");
     return { success: true };
   } catch (error) {

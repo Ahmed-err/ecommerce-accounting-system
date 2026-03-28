@@ -6,7 +6,7 @@ import SettingsClient from "@/components/store/SettingsClient";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Account Settings | PowerStore",
+  title: "Account Settings | Essam Nasreddin Electrical Tools",
 };
 
 export default async function SettingsPage() {
@@ -23,7 +23,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950">
+    <main className="min-h-screen bg-background">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <SettingsClient user={user} />

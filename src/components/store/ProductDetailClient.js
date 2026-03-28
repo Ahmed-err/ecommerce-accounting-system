@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, Minus, Plus, ArrowLeft, CheckCircle, Package } from "lucide-react";
+import Image from "next/image";
+import { ShoppingCart, Minus, Plus, ArrowLeft, ArrowRight, CheckCircle, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "./CartProvider";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 export default function ProductDetailClient({ product }) {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -22,23 +27,26 @@ export default function ProductDetailClient({ product }) {
   };
 
   return (
-    <div className="text-right">
+    <div className={isRTL ? "text-right" : "text-left"}>
       <Link href="/products" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8">
-        <ArrowRight className="h-4 w-4" /> العودة للمنتجات
+        <ArrowRight className={`h-4 w-4 ${isRTL ? "" : "rotate-180"}`} /> {t.backToProducts}
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Gallery */}
         <div className="space-y-4">
-          <div className="aspect-square bg-white/5 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center transition-all duration-300">
+          <div className="relative aspect-square bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
             {images.length > 0 ? (
-              <img 
-                src={images[activeImageIndex]} 
-                alt={product.name} 
-                className="h-full w-full object-cover animate-in fade-in zoom-in-95 duration-300" 
+              <Image
+                src={images[activeImageIndex]}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover animate-in fade-in zoom-in-95 duration-300"
+                priority
               />
             ) : (
-              <span className="text-8xl opacity-20 text-white">📦</span>
+              <span className="absolute inset-0 flex items-center justify-center text-8xl opacity-20 text-white">📦</span>
             )}
           </div>
           
@@ -49,13 +57,13 @@ export default function ProductDetailClient({ product }) {
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`aspect-square rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                  className={`relative aspect-square rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                     activeImageIndex === idx 
                       ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/20' 
                       : 'border-white/5 opacity-50 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover" />
+                  <Image src={img} alt={`${product.name} ${idx + 1}`} fill sizes="100px" className="object-cover" />
                 </button>
               ))}
             </div>
@@ -73,14 +81,14 @@ export default function ProductDetailClient({ product }) {
           <h1 className="text-3xl font-bold text-white mb-4">{product.name}</h1>
 
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl font-bold text-white">{product.sellingPrice.toLocaleString()} ج.س</span>
+            <span className="text-3xl font-bold text-white">{product.sellingPrice.toLocaleString()} {t.currency}</span>
             {product.stock > 0 ? (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                <CheckCircle className="h-3 w-3" /> متوفر ({product.stock})
+                <CheckCircle className="h-3 w-3" /> {t.inStock} ({product.stock})
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-xs font-semibold">
-                نفذت الكمية
+                {t.outOfStock}
               </span>
             )}
           </div>
@@ -90,7 +98,7 @@ export default function ProductDetailClient({ product }) {
           )}
 
           <div className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-            <Package className="h-4 w-4" /> رمز المنتج: <span className="text-gray-300 font-mono">{product.sku}</span>
+            <Package className="h-4 w-4" /> {t.productSku}: <span className="text-gray-300 font-mono">{product.sku}</span>
           </div>
 
           {/* Quantity & Add to Cart */}
@@ -114,16 +122,16 @@ export default function ProductDetailClient({ product }) {
 
               <Button
                 onClick={handleAddToCart}
-                className={`flex-1 py-6 text-base font-semibold rounded-xl transition-all duration-300 ${
+                className={`flex-1 py-6 text-base font-semibold rounded-xl transition-all duration-300 ${isRTL ? 'flex-row' : 'flex-row-reverse'} ${
                   added
                     ? "bg-emerald-500 hover:bg-emerald-600 text-white"
                     : "bg-amber-500 hover:bg-amber-600 text-black"
                 }`}
               >
                 {added ? (
-                  <><CheckCircle className="ml-2 h-5 w-5" /> تمت الإضافة للسلة!</>
+                  <><CheckCircle className={`${isRTL ? 'ml-2' : 'mr-2'} h-5 w-5`} /> {t.addedToCart}</>
                 ) : (
-                  <><ShoppingCart className="ml-2 h-5 w-5" /> أضف إلى السلة — {(product.sellingPrice * quantity).toLocaleString()} ج.س</>
+                  <><ShoppingCart className={`${isRTL ? 'ml-2' : 'mr-2'} h-5 w-5`} /> {t.addToCart} — {(product.sellingPrice * quantity).toLocaleString()} {t.currency}</>
                 )}
               </Button>
             </div>
