@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createTransaction, updateTransaction } from "@/app/actions/accounting";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { useSession } from "next-auth/react";
+import { UploadButton } from "@/lib/uploader";
+import { toast } from "sonner";
 
 const PRESET_CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -20,6 +23,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const isEditing = !!transaction;
+  const { data: session } = useSession();
+  const managerNoIncome = session?.user?.role === "MANAGER";
 
   const [formData, setFormData] = useState({
     type: "INCOMING",
@@ -28,6 +33,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
     category: "",
     reference: "",
     date: today(),
+    paymentMethod: "",
+    receiptUrl: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,26 +42,31 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
   useEffect(() => {
     if (transaction) {
+      const amt = typeof transaction.amount?.toNumber === "function" ? transaction.amount.toNumber() : Number(transaction.amount);
       setFormData({
         type: transaction.type,
-        amount: transaction.amount.toString(),
+        amount: String(amt),
         description: transaction.description,
         category: transaction.category,
         reference: transaction.reference || "",
         date: new Date(transaction.date).toISOString().split("T")[0],
+        paymentMethod: transaction.paymentMethod || "",
+        receiptUrl: transaction.receiptUrl || "",
       });
     } else {
       setFormData({
-        type: "INCOMING",
+        type: managerNoIncome ? "OUTGOING" : "INCOMING",
         amount: "",
         description: "",
         category: "",
         reference: "",
         date: today(),
+        paymentMethod: "",
+        receiptUrl: "",
       });
     }
     setError("");
-  }, [transaction, isOpen]);
+  }, [transaction, isOpen, managerNoIncome]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,14 +82,24 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
       if (!formData.description.trim()) throw new Error(lang === 'ar' ? "الوصف مطلوب" : "Description is required.");
       if (!formData.category) throw new Error(lang === 'ar' ? "يرجى اختيار فئة" : "Please select a category.");
 
+      const payload = {
+        ...formData,
+        receiptUrl: formData.receiptUrl || null,
+        paymentMethod: formData.paymentMethod || null,
+      };
+
       const res = isEditing
-        ? await updateTransaction(transaction.id, formData)
-        : await createTransaction(formData);
+        ? await updateTransaction(transaction.id, payload)
+        : await createTransaction(payload);
 
       if (res.success) {
         onClose();
       } else {
-        setError(res.error || (lang === 'ar' ? "فشل حفظ المعاملة" : "Failed to save transaction."));
+        const msg = res.error || (lang === "ar" ? "فشل حفظ المعاملة" : "Failed to save transaction.");
+        setError(msg);
+        if (msg.includes("Unauthorized") || msg.includes("locked")) {
+          toast.error(lang === "ar" ? "غير مسموح" : msg);
+        }
       }
     } catch (err) {
       setError(err.message);
@@ -111,10 +133,11 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
             <div className={`flex rounded-xl overflow-hidden border border-white/10 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
               <button
                 type="button"
+                disabled={managerNoIncome}
                 onClick={() => setFormData((p) => ({ ...p, type: "INCOMING" }))}
                 className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
                   isIncoming ? "bg-emerald-500 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-                }`}
+                } ${managerNoIncome ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isRTL ? "إيراد ↑" : "↑ Incoming"}
               </button>
@@ -205,6 +228,44 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
               className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
             />
           </div>
+
+          {!isIncoming && (
+            <>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">{t.accFilterPayment}</label>
+                <Select
+                  value={formData.paymentMethod || "CASH"}
+                  onValueChange={(val) => setFormData((p) => ({ ...p, paymentMethod: val }))}
+                >
+                  <SelectTrigger className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-white/10 text-white">
+                    <SelectItem value="CASH">CASH</SelectItem>
+                    <SelectItem value="BANK_TRANSFER">BANK_TRANSFER</SelectItem>
+                    <SelectItem value="CARD">CARD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">{t.accReceipt}</label>
+                <div className="rounded-xl border border-dashed border-white/10 p-4">
+                  <UploadButton
+                    endpoint="expenseReceipt"
+                    content={{
+                      button: ({ ready }) => (ready ? t.accReceipt : t.saving),
+                      allowedContent: "Image max 4MB",
+                    }}
+                    className="rounded-md bg-amber-500 px-4 py-2 font-bold text-black hover:bg-amber-600 disabled:opacity-60"
+                    onClientUploadComplete={(res) => {
+                      if (res?.[0]?.url) setFormData((p) => ({ ...p, receiptUrl: res[0].url }));
+                    }}
+                    onUploadError={(err) => toast.error(err.message)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="pt-4 flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">

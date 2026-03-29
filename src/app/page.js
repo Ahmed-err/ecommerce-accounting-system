@@ -51,7 +51,7 @@ export default async function HomePage() {
       </a>
       <Navbar />
       
-      <main id="home-main" className="flex-grow">
+      <main id="home-main" className="relative z-0 flex-grow">
         {/* 1. Hero Slider */}
         <section aria-label={isRTL ? "العروض الرئيسية" : "Hero banners"}>
           <HeroSlider banners={banners} />

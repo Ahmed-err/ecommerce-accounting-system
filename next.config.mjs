@@ -4,7 +4,7 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
-  { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://utfs.io https://ufs.sh https://placehold.co https://images.unsplash.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://utfs.io https://ufs.sh; frame-ancestors 'self';" },
+  { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://res.cloudinary.com https://placehold.co https://images.unsplash.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://res.cloudinary.com; frame-src 'self' https://www.google.com https://*.google.com https://maps.google.com; frame-ancestors 'self';" },
 ];
 
 /** @type {import('next').NextConfig} */
@@ -16,7 +16,8 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'utfs.io',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -25,10 +26,6 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ufs.sh',
       },
     ],
   },
@@ -39,6 +36,9 @@ const nextConfig = {
         headers: securityHeaders,
       },
     ];
+  },
+  async redirects() {
+    return [{ source: '/shop', destination: '/products', permanent: true }];
   },
 };
 

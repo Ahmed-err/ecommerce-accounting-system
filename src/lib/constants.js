@@ -1,3 +1,9 @@
+/** VAT applied at checkout on (subtotal − coupon discount). Align with invoice copy. */
+export const CHECKOUT_TAX_RATE = 0.14;
+
+/** Admin inventory table — keep in sync with server fetch limit. */
+export const INVENTORY_PAGE_SIZE = 20;
+
 export const SUDAN_CITIES = [
   { name: "Khartoum - Center", arName: "الخرطوم - المركز", rate: 1500 },
   { name: "Khartoum - East", arName: "الخرطوم - شرق (بري/اركويت)", rate: 2000 },
@@ -34,8 +40,8 @@ export const STORE_BANK_DETAILS = {
   bankName: "Bank of Khartoum (MBOK)",
   arBankName: "بنك الخرطوم (بنكك)",
   accountNumber: "1234567",
-  accountName: "Essam Nasreddin Electrical Tools",
-  arAccountName: "أعمال عصام نصرالدين للأدوات الكهربائية",
+  accountName: "Essam El-Din Nasr Electrical Tools",
+  arAccountName: "أعمال عصام الدين نصر للأدوات الكهربائية",
 };
 
 // WhatsApp E.164 (country code without plus sign)

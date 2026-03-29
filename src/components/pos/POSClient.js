@@ -455,7 +455,17 @@ export default function POSClient({ initialProducts }) {
               <Zap className="w-5 h-5 text-black" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-black text-lg tracking-tighter">ESSAM<span className="text-amber-500">NASR</span></span>
+              <span className="font-black text-lg tracking-tighter">
+                {isArabic ? (
+                  <>
+                    عصام الدين <span className="text-amber-500">نصر</span>
+                  </>
+                ) : (
+                  <>
+                    ESSAM EL-DIN <span className="text-amber-500">NASR</span>
+                  </>
+                )}
+              </span>
               <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">{t.posTerminal}</span>
             </div>
           </div>

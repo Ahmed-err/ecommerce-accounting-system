@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 /* @import "shadcn/tailwind.css"; */
-@import "@uploadthing/react/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -132,14 +131,83 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    background-color: var(--background);
+    overscroll-behavior: none;
+    min-height: 100%;
+    min-height: -webkit-fill-available;
+  }
   body {
     @apply bg-background text-foreground min-h-screen;
+    min-height: -webkit-fill-available;
     transition:
       background-color 0.25s ease,
       color 0.25s ease;
   }
   html {
-    @apply font-sans;
+    @apply font-sans bg-background;
+  }
+  .sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+  .bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .select-text {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .select-all {
+    -webkit-user-select: all;
+    user-select: all;
+  }
+  .select-auto {
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+  .h-screen {
+    height: 100vh;
+    height: -webkit-fill-available;
+    height: 100dvh;
+  }
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
+  }
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  .overflow-auto,
+  .overflow-scroll,
+  .overflow-y-auto,
+  .overflow-y-scroll,
+  .overflow-x-auto,
+  .overflow-x-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast)
+      var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert)
+      var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  }
+  [class*="fixed"][class*="bottom-0"],
+  [class*="sticky"][class*="bottom-0"] {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  [class*="fixed"][class*="top-0"],
+  [class*="sticky"][class*="top-0"] {
+    padding-top: env(safe-area-inset-top);
   }
 }
 
@@ -151,4 +219,16 @@
 @keyframes marquee-rtl {
   0% { transform: translateX(0%); }
   100% { transform: translateX(50%); }
+}
+
+@media print {
+  body:has(.accounting-page-print) aside,
+  body:has(.accounting-page-print) header.md\:hidden,
+  body:has(.accounting-page-print) .accounting-no-print {
+    display: none !important;
+  }
+  body:has(.accounting-page-print) main {
+    padding: 0.5rem !important;
+    max-width: none !important;
+  }
 }

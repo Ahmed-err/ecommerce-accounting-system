@@ -7,7 +7,8 @@ import { auth } from "@/auth";
 import PrintButton from "@/components/common/PrintButton";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
-import { STORE_VAT_NUMBER } from "@/lib/constants";
+import { STORE_VAT_NUMBER, CHECKOUT_TAX_RATE } from "@/lib/constants";
+import { ensureOrderInvoice } from "@/lib/orders";
 
 // Currency symbol - SDG for Sudanese Pound
 const CURRENCY = "SDG";
@@ -38,17 +39,17 @@ export default async function InvoicePage({ params }) {
     },
   });
 
-  if (!order || !order.invoice) return notFound();
+  if (!order) return notFound();
 
   // Auth check: Staff can view any invoice, customers can only view their own
   const isStaff = session && ["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role);
   const isOwner = session && order.userId === session.user.id;
-  
+
   if (!isStaff && !isOwner) {
-    return notFound(); // Hide existence of invoice from unauthorized users
+    return notFound();
   }
 
-  const { invoice } = order;
+  const invoice = await ensureOrderInvoice(order);
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 print:p-0 print:bg-white text-gray-100 print:text-black">
@@ -138,8 +139,8 @@ export default async function InvoicePage({ params }) {
              </div>
            )}
            <div className="flex justify-between">
-              <span className="text-gray-500">VAT (15%):</span>
-              <span>{invoice.taxAmount.toFixed(2)} {CURRENCY}</span>
+              <span className="text-gray-500">VAT ({Math.round(CHECKOUT_TAX_RATE * 100)}%):</span>
+              <span>{Number(invoice.taxAmount).toFixed(2)} {CURRENCY}</span>
            </div>
            
            <div className="my-2 border-t border-black"></div>

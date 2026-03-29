@@ -13,6 +13,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
@@ -37,7 +43,6 @@ export async function generateMetadata() {
 }
 
 import { Providers } from "@/components/Providers";
-import { UploadthingProvider } from "@/components/UploadthingProvider";
 import { CartProvider } from "@/components/store/CartProvider";
 
 import { cookies } from "next/headers";
@@ -48,11 +53,10 @@ export default async function RootLayout({ children }) {
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={lang} dir={dir} suppressHydrationWarning>
+    <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overscroll-none">
       <body
-        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none`}
       >
-        <UploadthingProvider />
         <Providers lang={lang}>
           <CartProvider>
             {children}

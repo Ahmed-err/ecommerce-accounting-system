@@ -1,6 +1,44 @@
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
 
+function decimalToNumber(value) {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value?.toNumber === "function") return value.toNumber();
+  return Number(value);
+}
+
+/** Plain object safe for Server → Client Component props (no Prisma Decimal). */
+function serializeProductForClient(row) {
+  if (!row) return null;
+  const category = row.category;
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    sku: row.sku,
+    purchasePrice: decimalToNumber(row.purchasePrice),
+    sellingPrice: decimalToNumber(row.sellingPrice),
+    stock: row.stock,
+    minStock: row.minStock,
+    images: row.images,
+    isActive: row.isActive,
+    categoryId: row.categoryId,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    category: category
+      ? {
+          id: category.id,
+          name: category.name,
+          description: category.description,
+          image: category.image,
+          createdAt: category.createdAt,
+          updatedAt: category.updatedAt,
+        }
+      : null,
+  };
+}
+
 export async function getHomepageData() {
   try {
     const [banners, categories, products, offers] = await Promise.all([
@@ -43,7 +81,7 @@ export async function getHomepageData() {
         image: c.image,
         productCount: c._count.products,
       })),
-      products,
+      products: products.map(serializeProductForClient),
       featuredOffer: offers[0] || null,
     };
   } catch (error) {

@@ -30,12 +30,17 @@ export default function Footer() {
                 )}>
                     {/* Brand Section */}
                     <div className="space-y-8 flex flex-col items-center sm:items-start">
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <div className="bg-amber-500 p-2 rounded-xl group-hover:scale-110 transition-transform">
-                                <Zap className="h-5 w-5 text-black" />
+                        <Link href="/" className="flex items-center gap-2.5 group">
+                            <div className="relative shrink-0">
+                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform duration-300">
+                                    <Zap className="h-5 w-5 text-white" />
+                                </div>
                             </div>
-                            <span className="text-xl font-black tracking-tighter uppercase text-zinc-100 leading-tight">
-                                {isRTL ? "أعمال عصام نصرالدين" : "Essam Nasreddin Electrical"}
+                            <span className={cn(
+                                "text-base font-black text-zinc-100 leading-snug max-w-[16rem]",
+                                isRTL ? "text-right" : "uppercase tracking-tight"
+                            )}>
+                                {t.brandName}
                             </span>
                         </Link>
                         <p className={cn("text-zinc-400 text-sm leading-relaxed font-medium", isRTL && "text-right")}>
@@ -89,8 +94,13 @@ export default function Footer() {
                                 </Link>
                              </li>
                              <li>
-                                <Link href="/contact" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/terms" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
                                     {t.termsOfService}
+                                </Link>
+                             </li>
+                             <li>
+                                <Link href="/privacy" className="text-zinc-400 hover:text-amber-400 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    {t.privacyPolicy}
                                 </Link>
                              </li>
                         </ul>
@@ -138,12 +148,15 @@ export default function Footer() {
                     "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6",
                     isRTL && "md:flex-row-reverse"
                 )}>
-                    <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest text-center md:text-left">
-                        &copy; {new Date().getFullYear()} {isRTL ? "أعمال عصام نصرالدين" : "Essam Nasreddin Electrical"}. {t.allRightsReserved}
+                    <p className={cn(
+                        "text-zinc-400 text-xs font-semibold tracking-tight text-center md:text-left max-w-3xl leading-relaxed",
+                        isRTL && "md:text-right"
+                    )}>
+                        &copy; {new Date().getFullYear()} {t.brandName}. {t.allRightsReserved}
                     </p>
                     <div className="flex items-center gap-8">
-                         <Link href="/contact" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacyPolicy}</Link>
-                         <Link href="/contact" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.termsOfService}</Link>
+                         <Link href="/privacy" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacyPolicy}</Link>
+                         <Link href="/terms" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.termsOfService}</Link>
                     </div>
                 </div>
             </div>

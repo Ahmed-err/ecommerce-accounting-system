@@ -1,45 +1,159 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useTransition, useCallback } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import ProductCard from "./ProductCard";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations, translateCategory } from "@/lib/translations";
+import { getCatalogProductsByIds } from "@/app/actions/catalog";
+import { cn } from "@/lib/utils";
+
+const COMPARE_KEY = "powerstore_compare";
 
 const getSortOptions = (t) => [
   { label: t.newest, value: "newest" },
   { label: t.priceLowHigh, value: "price_asc" },
   { label: t.priceHighLow, value: "price_desc" },
   { label: t.sortByName, value: "name_asc" },
+  { label: t.catalogSortBestSelling, value: "best_selling" },
+  { label: t.catalogSortTopRated, value: "top_rated" },
 ];
 
-export default function ProductGrid({ initialProducts, total, categories, searchParams }) {
+function RecentViewedStrip() {
+  const { lang, isRTL } = useLanguage();
+  const t = translations[lang];
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    try {
+      const ids = JSON.parse(localStorage.getItem("powerstore_recent") || "[]");
+      if (!Array.isArray(ids) || ids.length === 0) return;
+      getCatalogProductsByIds(ids.slice(0, 8)).then((rows) => {
+        if (!cancelled && Array.isArray(rows)) setProducts(rows);
+      });
+    } catch {
+      /* ignore */
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (products.length === 0) return null;
+
+  return (
+    <section className="mt-14 space-y-4 border-t border-border pt-10">
+      <h2 className={cn("text-lg font-bold text-foreground", isRTL && "text-right")}>
+        {t.catalogRecentlyViewed}
+      </h2>
+      <div
+        className={cn(
+          "flex gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          isRTL && "flex-row-reverse"
+        )}
+      >
+        {products.map((product, i) => (
+          <div key={product.id} className="w-[220px] shrink-0">
+            <ProductCard product={product} index={i} compactRail />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function ProductGrid({
+  initialProducts,
+  total,
+  categories,
+  searchParams: initialSearchParams,
+  priceBounds = { min: 0, max: 0 },
+}) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const SORT_OPTIONS = getSortOptions(t);
-  
-  const router = useRouter();
-  const params = useSearchParams();
-  const pathname = usePathname();
 
-  const [searchValue, setSearchValue] = useState(params.get("search") || "");
+  const router = useRouter();
+  const urlParams = useSearchParams();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  const [searchValue, setSearchValue] = useState(urlParams.get("search") || "");
   const [showFilters, setShowFilters] = useState(false);
   const searchTimeout = useRef(null);
+  const priceTimeout = useRef(null);
 
-  const currentPage = Number(params.get("page")) || 1;
+  const [compareIds, setCompareIds] = useState([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COMPARE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) setCompareIds(arr.filter(Boolean).slice(0, 3));
+    } catch {
+      setCompareIds([]);
+    }
+  }, []);
+
+  const toggleCompare = useCallback((id) => {
+    if (!id) return;
+    setCompareIds((prev) => {
+      let next;
+      if (prev.includes(id)) next = prev.filter((x) => x !== id);
+      else if (prev.length >= 3) next = [...prev.slice(1), id];
+      else next = [...prev, id];
+      try {
+        localStorage.setItem(COMPARE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+
+  const currentPage = Number(urlParams.get("page")) || 1;
   const totalPages = Math.ceil(total / 12) || 1;
-  const activeCategory = params.get("category") || "all";
-  const activeSort = params.get("sort") || "newest";
+  const activeCategory = urlParams.get("category") || "all";
+  const activeSort = urlParams.get("sort") || "newest";
+  const minPriceParam = urlParams.get("minPrice") || "";
+  const maxPriceParam = urlParams.get("maxPrice") || "";
+  const inStockOnly = urlParams.get("inStock") === "1";
 
-  const updateParam = (key, value, defaults = {}) => {
-    const p = new URLSearchParams(params);
-    if (value && value !== (defaults[key] || "all")) p.set(key, value);
-    else p.delete(key);
-    p.set("page", "1");
-    router.replace(`${pathname}?${p.toString()}`);
+  const [localMin, setLocalMin] = useState(minPriceParam);
+  const [localMax, setLocalMax] = useState(maxPriceParam);
+
+  useEffect(() => {
+    setLocalMin(minPriceParam);
+    setLocalMax(maxPriceParam);
+  }, [minPriceParam, maxPriceParam]);
+
+  useEffect(() => {
+    setSearchValue(urlParams.get("search") || "");
+  }, [urlParams]);
+
+  const updateParams = (updates, resetPage = true) => {
+    const p = new URLSearchParams(urlParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === "" || value === null || value === undefined) p.delete(key);
+      else p.set(key, String(value));
+    }
+    if (resetPage) p.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${p.toString()}`);
+      router.refresh();
+    });
   };
 
   const handleSearch = (e) => {
@@ -47,138 +161,400 @@ export default function ProductGrid({ initialProducts, total, categories, search
     setSearchValue(val);
     clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
-      updateParam("search", val, { search: "" });
+      updateParams({ search: val || "" });
     }, 300);
   };
 
   const clearSearch = () => {
     setSearchValue("");
-    updateParam("search", "", { search: "" });
+    updateParams({ search: "" });
   };
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
-    const p = new URLSearchParams(params);
+    const p = new URLSearchParams(urlParams.toString());
     p.set("page", newPage.toString());
-    router.replace(`${pathname}?${p.toString()}`);
-    router.refresh();
+    startTransition(() => {
+      router.replace(`${pathname}?${p.toString()}`);
+      router.refresh();
+    });
   };
 
+  const schedulePriceUpdate = (minV, maxV) => {
+    clearTimeout(priceTimeout.current);
+    priceTimeout.current = setTimeout(() => {
+      const minN = minV === "" ? "" : Number(minV);
+      const maxN = maxV === "" ? "" : Number(maxV);
+      updateParams({
+        minPrice:
+          minV === "" || Number.isNaN(minN) ? "" : String(Math.max(0, minN)),
+        maxPrice:
+          maxV === "" || Number.isNaN(maxN) ? "" : String(Math.max(0, maxN)),
+      });
+    }, 300);
+  };
+
+  const resetAllFilters = () => {
+    setSearchValue("");
+    setLocalMin("");
+    setLocalMax("");
+    startTransition(() => {
+      router.replace(pathname);
+      router.refresh();
+    });
+    setShowFilters(false);
+  };
+
+  const categoryLabel =
+    activeCategory === "all"
+      ? t.allProducts
+      : translateCategory(activeCategory, t);
+
+  const filterPanel = (opts = {}) => {
+    const { onNavigate } = opts;
+    const pbMin = priceBounds.min ?? 0;
+    const pbMax = priceBounds.max ?? 0;
+    const hint =
+      pbMax > pbMin
+        ? `${pbMin.toLocaleString()} — ${pbMax.toLocaleString()} ${t.currency}`
+        : null;
+
+    return (
+      <div className="space-y-5">
+        <div>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t.categoriesTab}
+          </h3>
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                updateParams({ category: "" });
+                onNavigate?.();
+              }}
+              className={cn(
+                "w-full rounded-lg px-3 py-2 text-sm transition-all",
+                isRTL ? "text-right" : "text-left",
+                activeCategory === "all"
+                  ? "bg-amber-500/15 font-medium text-amber-500"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              {t.allProducts}{" "}
+              <span className="mx-1 text-muted-foreground/60">({total})</span>
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  updateParams({ category: cat.name });
+                  onNavigate?.();
+                }}
+                className={cn(
+                  "w-full rounded-lg px-3 py-2 text-sm transition-all",
+                  isRTL ? "text-right" : "text-left",
+                  activeCategory === cat.name
+                    ? "bg-amber-500/15 font-medium text-amber-500"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {translateCategory(cat.name, t)}{" "}
+                <span className="mx-1 text-muted-foreground/60">({cat.productCount})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t.filterPriceRange}
+          </h3>
+          {hint && (
+            <p className="mb-2 text-[10px] text-muted-foreground">{hint}</p>
+          )}
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              placeholder={t.priceLowHigh.split(":")[0]}
+              value={localMin}
+              onChange={(e) => {
+                setLocalMin(e.target.value);
+                schedulePriceUpdate(e.target.value, localMax);
+              }}
+            />
+            <Input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              placeholder={t.priceHighLow.split(":")[0]}
+              value={localMax}
+              onChange={(e) => {
+                setLocalMax(e.target.value);
+                schedulePriceUpdate(localMin, e.target.value);
+              }}
+            />
+          </div>
+        </div>
+
+        <label
+          className={cn(
+            "flex cursor-pointer items-center gap-2 text-sm text-foreground",
+            isRTL && "flex-row-reverse"
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={inStockOnly}
+            onChange={(e) => {
+              updateParams({ inStock: e.target.checked ? "1" : "" });
+              onNavigate?.();
+            }}
+            className="size-4 rounded accent-amber-500"
+          />
+          {t.filterInStockOnly}
+        </label>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => {
+            resetAllFilters();
+            onNavigate?.();
+          }}
+        >
+          {t.resetFilters}
+        </Button>
+      </div>
+    );
+  };
+
+  const compareHref =
+    compareIds.length > 0
+      ? `/products/compare?ids=${encodeURIComponent(compareIds.join(","))}`
+      : null;
+
   return (
-    <div className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
-      {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div className={cn("space-y-6", isRTL ? "text-right" : "text-left")}>
+      {/* Breadcrumb */}
+      <nav
+        className={cn(
+          "flex flex-wrap items-center gap-2 text-xs text-muted-foreground",
+          isRTL && "flex-row-reverse"
+        )}
+        aria-label="Breadcrumb"
+      >
+        <Link href="/" className="hover:text-amber-500">
+          {t.catalogBreadcrumbHome}
+        </Link>
+        <span className="text-muted-foreground/50">/</span>
+        <Link href="/products" className="hover:text-amber-500">
+          {t.catalog}
+        </Link>
+        {activeCategory !== "all" && (
+          <>
+            <span className="text-muted-foreground/50">/</span>
+            <span className="text-foreground">{categoryLabel}</span>
+          </>
+        )}
+      </nav>
+
+      {/* Toolbar */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Search */}
-        <div className="relative group w-full md:w-80">
-          <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} inset-y-0 my-auto h-4 w-4 text-gray-500 pointer-events-none`} />
+        <div className="relative w-full md:w-80">
+          <Search
+            className={cn(
+              "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-muted-foreground",
+              isRTL ? "right-3" : "left-3"
+            )}
+          />
           <Input
             placeholder={t.searchPlaceholder}
-            className={`${isRTL ? 'pr-10 pl-10 text-right' : 'pl-10 pr-10 text-left'} bg-white/5 border-white/10 text-white focus:border-amber-500/50`}
+            className={cn(
+              isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left",
+              "focus:border-amber-500/50"
+            )}
             value={searchValue}
             onChange={handleSearch}
           />
           {searchValue && (
-            <button onClick={clearSearch} className={`absolute ${isRTL ? 'left-3' : 'right-3'} inset-y-0 my-auto text-gray-500 hover:text-white`}>
+            <button
+              type="button"
+              onClick={clearSearch}
+              className={cn(
+                "absolute inset-y-0 my-auto text-muted-foreground hover:text-foreground",
+                isRTL ? "left-3" : "right-3"
+              )}
+            >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Sort */}
-          <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-3",
+            isRTL && "flex-row-reverse"
+          )}
+        >
+          {compareHref && (
+            <Link
+              href={compareHref}
+              className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-500 hover:bg-amber-500/20"
+            >
+              {t.catalogCompare} ({compareIds.length})
+            </Link>
+          )}
+
+          {/* Sort tabs */}
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-1 rounded-xl border border-border bg-muted/40 p-1",
+              isRTL && "flex-row-reverse"
+            )}
+          >
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => updateParam("sort", opt.value, { sort: "newest" })}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                type="button"
+                onClick={() => updateParams({ sort: opt.value })}
+                className={cn(
+                  "rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all sm:px-3 sm:text-xs",
                   activeSort === opt.value
                     ? "bg-amber-500 text-black"
-                    : "text-gray-400 hover:text-white"
-                }`}
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
                 {opt.label}
               </button>
             ))}
           </div>
 
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="md:hidden p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-          </button>
+          {/* Mobile filter sheet trigger */}
+          <Sheet open={showFilters} onOpenChange={setShowFilters}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="rounded-xl border border-border bg-muted/40 p-2 text-muted-foreground hover:text-foreground md:hidden"
+                aria-label={t.catalogFilters}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{t.catalogFilters}</SheetTitle>
+              </SheetHeader>
+              <div className="px-1 pb-6 pt-2">
+                {filterPanel({ onNavigate: () => setShowFilters(false) })}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Category Sidebar */}
-        <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-56 shrink-0 ${isRTL ? 'order-last md:order-first' : 'order-last md:order-last'}`}>
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-1 sticky top-24">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t.categoriesTab}</h3>
-            <button
-              onClick={() => updateParam("category", "all")}
-              className={`w-full ${isRTL ? 'text-right' : 'text-left'} px-3 py-2 rounded-lg text-sm transition-all ${
-                activeCategory === "all" ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              {t.allProducts || (isRTL ? "الكل" : "All Products")} <span className="text-gray-600 mx-1">({total})</span>
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => updateParam("category", cat.name)}
-                className={`w-full ${isRTL ? 'text-right' : 'text-left'} px-3 py-2 rounded-lg text-sm transition-all ${
-                  activeCategory === cat.name ? "bg-amber-500/15 text-amber-500 font-medium" : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {translateCategory(cat.name, t)} <span className="text-gray-600 mx-1">({cat.productCount})</span>
-              </button>
-            ))}
+      <div className="flex flex-col gap-6 md:flex-row">
+        {/* Sidebar filters (desktop) */}
+        <div
+          className={cn(
+            "hidden w-full shrink-0 md:block md:w-56",
+            isRTL ? "md:order-last" : "md:order-first"
+          )}
+        >
+          <div className="sticky top-24 space-y-4 rounded-xl border border-border bg-card p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t.catalogFilters}
+            </h3>
+            {filterPanel()}
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="flex-1">
+        {/* Product grid */}
+        <div className="relative flex-1">
+          {isPending && (
+            <div
+              className="absolute inset-0 z-10 flex items-start justify-center rounded-2xl bg-background/40 pt-24 backdrop-blur-[2px]"
+              aria-busy="true"
+            >
+              <div className="h-10 w-10 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+            </div>
+          )}
+
           {initialProducts.length === 0 ? (
-            <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10 border-dashed">
-              <p className="text-gray-400 text-lg">{t.noProductsFound}</p>
-              <p className="text-gray-500 text-sm mt-1">{t.tryDifferentSearch}</p>
+            <div className="rounded-2xl border border-dashed border-border bg-muted/30 py-20 text-center">
+              <p className="text-lg text-foreground">{t.catalogEmptyTitle}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t.tryDifferentSearch}</p>
+              <Button
+                type="button"
+                className="mt-6 bg-amber-500 text-black hover:bg-amber-400"
+                onClick={resetAllFilters}
+              >
+                {t.catalogEmptyReset}
+              </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {initialProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {initialProducts.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  compareIds={compareIds}
+                  onToggleCompare={toggleCompare}
+                />
               ))}
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-3">
+            <div
+              className={cn(
+                "mt-8 flex items-center justify-center gap-3",
+                isRTL && "flex-row-reverse"
+              )}
+            >
               <Button
-                variant="outline" size="sm"
-                className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                variant="outline"
+                size="sm"
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isPending}
               >
-                <ChevronRight className={`h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1 rotate-180'}`} /> {t.tablePrevious}
+                <ChevronRight
+                  className={cn(
+                    "h-4 w-4",
+                    isRTL ? "ml-1" : "mr-1 rotate-180"
+                  )}
+                />{" "}
+                {t.tablePrevious}
               </Button>
-              <span className="px-4 py-1.5 bg-white/5 rounded-lg border border-white/10 text-white text-sm">
+              <span className="rounded-lg border border-border bg-card px-4 py-1.5 text-sm text-foreground">
                 {t.tablePage} {currentPage} {t.tablePageOf} {totalPages}
               </span>
               <Button
-                variant="outline" size="sm"
-                className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                variant="outline"
+                size="sm"
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage >= totalPages}
+                disabled={currentPage >= totalPages || isPending}
               >
-                {t.tableNext} <ChevronLeft className={`h-4 w-4 ${isRTL ? 'mr-1' : 'ml-1 rotate-180'}`} />
+                {t.tableNext}{" "}
+                <ChevronLeft
+                  className={cn(
+                    "h-4 w-4",
+                    isRTL ? "mr-1" : "ml-1 rotate-180"
+                  )}
+                />
               </Button>
             </div>
           )}
         </div>
       </div>
+
+      <RecentViewedStrip />
     </div>
   );
 }

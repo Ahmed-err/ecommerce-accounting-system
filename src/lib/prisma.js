@@ -23,11 +23,11 @@ const adapter = new PrismaPg(pool);
 // In development: store the client on `globalThis` so it survives hot-reloads
 const globalForPrisma = globalThis;
 
+// Bump key when schema changes so dev HMR does not keep a stale client (missing new models).
 export const prisma =
-    globalForPrisma.prismaV2 ??  // Incremented version to force refresh
-    new PrismaClient({ adapter });        // Otherwise, create a new one
+    globalForPrisma.prismaV3 ??
+    new PrismaClient({ adapter });
 
-// In development, save the client to globalThis so it persists
 if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prismaV2 = prisma;
+    globalForPrisma.prismaV3 = prisma;
 }

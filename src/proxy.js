@@ -8,12 +8,9 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const userRole = req.auth?.user?.role;
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
   const isAuthRoute = ["/login", "/register", "/forgot-password", "/reset-password"].includes(nextUrl.pathname);
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isPosRoute = nextUrl.pathname.startsWith("/pos");
-
-  if (isApiAuthRoute) return null;
 
   // Redirect already-logged-in users away from auth pages
   if (isAuthRoute) {
@@ -67,5 +64,14 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    "/pos",
+    "/pos/:path*",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ],
 };

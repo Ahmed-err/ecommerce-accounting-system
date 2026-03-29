@@ -4,17 +4,53 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import {
+  getInventoryProducts,
+  getInventorySummary,
+  listSuppliers,
+  listStockMovements,
+  getProductIdsForBulk,
+} from "@/lib/inventory";
+import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
+import {
+  productMutationSchema,
+  receiveStockSchema,
+  issueStockSchema,
+  bulkIdsSchema,
+  bulkCategorySchema,
+} from "@/lib/schemas/inventory";
+
+async function sessionUser() {
+  const session = await auth();
+  return session?.user || null;
+}
+
+async function ensureStaff() {
+  const u = await sessionUser();
+  if (!u?.id || !["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
+    throw new Error("Unauthorized: Staff access required.");
+  }
+  return u;
+}
 
 async function ensureManager() {
-  const session = await auth();
-  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
-    throw new Error("Unauthorized: Only Admins or Managers can manage inventory.");
+  const u = await sessionUser();
+  if (!u?.id || !["ADMIN", "MANAGER"].includes(u.role)) {
+    throw new Error("Unauthorized: Only Admins or Managers can perform this action.");
   }
+  return u;
+}
+
+function redactProductsIfCashier(role, products) {
+  if (role === "CASHIER") {
+    return products.map((p) => ({ ...p, purchasePrice: null, sellingPrice: null }));
+  }
+  return products;
 }
 
 export async function getCategories() {
   try {
-    await ensureManager();
+    await ensureStaff();
     return await db.category.findMany({
       orderBy: { name: "asc" },
     });
@@ -24,148 +60,107 @@ export async function getCategories() {
   }
 }
 
-export async function getProducts({ search = "", categoryId = "", status = "all", sort = "newest", page = 1, limit = 10 }) {
+export async function getSuppliers() {
   try {
-    await ensureManager();
-    const where = {
-      ...(search ? {
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { sku: { contains: search, mode: "insensitive" } }
-        ]
-      } : {}),
-      ...(categoryId ? { categoryId } : {}),
-      ...(status === "out" ? { stock: 0 } : {}),
-      isActive: true, // Only show active products by default
-    };
+    await ensureStaff();
+    return await listSuppliers();
+  } catch (error) {
+    console.error("Failed to fetch suppliers:", error);
+    return [];
+  }
+}
 
-    const skip = (page - 1) * limit;
-
-    let orderBy = { createdAt: "desc" };
-    let rawOrderBy = 'ORDER BY p."createdAt" DESC';
-
-    switch (sort) {
-      case "price_asc":
-        orderBy = { sellingPrice: "asc" };
-        rawOrderBy = 'ORDER BY p."sellingPrice" ASC';
-        break;
-      case "price_desc":
-        orderBy = { sellingPrice: "desc" };
-        rawOrderBy = 'ORDER BY p."sellingPrice" DESC';
-        break;
-      case "stock_asc":
-        orderBy = { stock: "asc" };
-        rawOrderBy = 'ORDER BY p."stock" ASC';
-        break;
-      case "stock_desc":
-        orderBy = { stock: "desc" };
-        rawOrderBy = 'ORDER BY p."stock" DESC';
-        break;
-      case "name_asc":
-        orderBy = { name: "asc" };
-        rawOrderBy = 'ORDER BY p."name" ASC';
-        break;
-    }
-
-    let products;
-    let total;
-
-    if (status === "low") {
-      const totalLowStock = await db.$queryRaw`SELECT COUNT(*)::int as count FROM "Product" WHERE "stock" <= "minStock" AND "isActive" = true`;
-      total = Number(totalLowStock[0].count);
-
-      let rawQuery;
-      // Using manual string concatenation for ORDER BY because Prisma $queryRaw doesn't support dynamic order by in template literals well
-      // But we must be careful with SQL injection. Since rawOrderBy is hardcoded in the switch above, it's safe.
-      if (sort === "price_asc") {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."sellingPrice" ASC LIMIT ${limit} OFFSET ${skip}`;
-      } else if (sort === "price_desc") {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."sellingPrice" DESC LIMIT ${limit} OFFSET ${skip}`;
-      } else if (sort === "stock_asc") {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."stock" ASC LIMIT ${limit} OFFSET ${skip}`;
-      } else if (sort === "stock_desc") {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."stock" DESC LIMIT ${limit} OFFSET ${skip}`;
-      } else if (sort === "name_asc") {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."name" ASC LIMIT ${limit} OFFSET ${skip}`;
-      } else {
-        rawQuery = db.$queryRaw`SELECT p.*, c.name as "categoryName" FROM "Product" p LEFT JOIN "Category" c ON p."categoryId" = c.id WHERE p."stock" <= p."minStock" AND p."isActive" = true ORDER BY p."createdAt" DESC LIMIT ${limit} OFFSET ${skip}`;
-      }
-      
-      products = await rawQuery;
-      
-      products = products.map(p => ({
-        ...p,
-        category: { name: p.categoryName }
-      }));
-    } else {
-      [products, total] = await Promise.all([
-        db.product.findMany({
-          where,
-          include: { category: true },
-          orderBy,
-          skip,
-          take: limit,
-        }),
-        db.product.count({ where }),
-      ]);
-    }
-
-    return { products, total };
+export async function getProducts(params) {
+  try {
+    const u = await ensureStaff();
+    const {
+      search = "",
+      categoryId = "",
+      supplierId = "",
+      status = "all",
+      sort = "newest",
+      page = 1,
+      limit = INVENTORY_PAGE_SIZE,
+    } = params || {};
+    const { products, total } = await getInventoryProducts({
+      search,
+      categoryId,
+      supplierId,
+      status,
+      sort,
+      page: Number(page) || 1,
+      limit: Number(limit) || INVENTORY_PAGE_SIZE,
+    });
+    return { products: redactProductsIfCashier(u.role, products), total };
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return { products: [], total: 0 };
   }
 }
 
-export async function getInventorySummary() {
+export async function getInventorySummaryAction() {
   try {
-    await ensureManager();
-    const [totalProducts, stockStats, lowStockCount] = await Promise.all([
-      db.product.count({ where: { isActive: true } }),
-      db.product.aggregate({
-        _sum: { stock: true },
-        where: { isActive: true }
-      }),
-      db.$queryRaw`SELECT COUNT(*)::int as count FROM "Product" WHERE "stock" <= "minStock" AND "isActive" = true`
-    ]);
-
-    const products = await db.product.findMany({
-      where: { isActive: true },
-      select: { stock: true, sellingPrice: true }
-    });
-
-    const totalValue = products.reduce((acc, p) => acc + (p.stock * p.sellingPrice), 0);
-
-    return {
-      totalProducts,
-      totalStock: stockStats._sum.stock || 0,
-      totalValue,
-      lowStock: Number(lowStockCount[0].count)
-    };
+    await ensureStaff();
+    return await getInventorySummary();
   } catch (error) {
     console.error("Failed to fetch inventory summary:", error);
-    return { totalProducts: 0, totalStock: 0, totalValue: 0, lowStock: 0 };
+    return {
+      totalProducts: 0,
+      outOfStock: 0,
+      lowStock: 0,
+      totalInventoryCostValue: 0,
+      receiptValueByMonth: [],
+      topByQuantity: [],
+      movementByMonth: [],
+    };
+  }
+}
+
+export async function getStockMovementsAction(params) {
+  try {
+    await ensureStaff();
+    return await listStockMovements(params || {});
+  } catch (error) {
+    console.error("Failed to fetch stock movements:", error);
+    return { movements: [], total: 0 };
   }
 }
 
 export async function createProduct(data) {
   try {
     await ensureManager();
+    const parsed = productMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const d = parsed.data;
+    const barcode =
+      d.barcode && String(d.barcode).trim() ? String(d.barcode).trim() : null;
     const product = await db.product.create({
       data: {
-        name: data.name,
-        description: data.description,
-        sku: data.sku,
-        purchasePrice: parseFloat(data.purchasePrice),
-        sellingPrice: parseFloat(data.sellingPrice),
-        stock: parseInt(data.stock),
-        minStock: parseInt(data.minStock),
-        categoryId: data.categoryId,
-        images: data.images || [],
-        isActive: data.isActive !== undefined ? data.isActive : true,
+        name: d.name,
+        nameEn: d.nameEn || null,
+        nameAr: d.nameAr || null,
+        description: d.description || null,
+        descriptionEn: d.descriptionEn || null,
+        descriptionAr: d.descriptionAr || null,
+        sku: d.sku,
+        barcode,
+        unit: d.unit || "pcs",
+        purchasePrice: d.purchasePrice,
+        sellingPrice: d.sellingPrice,
+        stock: d.stock,
+        minStock: d.minStock,
+        categoryId: d.categoryId,
+        supplierId: d.supplierId || null,
+        images: d.images || [],
+        isActive: d.isActive !== undefined ? d.isActive : true,
+        compareAtPrice: d.compareAtPrice ?? null,
+        specs: d.specs ?? undefined,
+        highlights: d.highlights ?? undefined,
       },
     });
-    await logAction("CREATE_PRODUCT", { productId: product.id, name: data.name });
+    await logAction("CREATE_PRODUCT", { productId: product.id, name: d.name });
     revalidatePath("/admin/inventory");
     return { success: true, product };
   } catch (error) {
@@ -177,22 +172,39 @@ export async function createProduct(data) {
 export async function updateProduct(id, data) {
   try {
     await ensureManager();
+    const parsed = productMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const d = parsed.data;
+    const barcode =
+      d.barcode && String(d.barcode).trim() ? String(d.barcode).trim() : null;
     const product = await db.product.update({
       where: { id },
       data: {
-        name: data.name,
-        description: data.description,
-        sku: data.sku,
-        purchasePrice: parseFloat(data.purchasePrice),
-        sellingPrice: parseFloat(data.sellingPrice),
-        stock: parseInt(data.stock),
-        minStock: parseInt(data.minStock),
-        categoryId: data.categoryId,
-        images: data.images || [],
-        isActive: data.isActive,
+        name: d.name,
+        nameEn: d.nameEn || null,
+        nameAr: d.nameAr || null,
+        description: d.description || null,
+        descriptionEn: d.descriptionEn || null,
+        descriptionAr: d.descriptionAr || null,
+        sku: d.sku,
+        barcode,
+        unit: d.unit || "pcs",
+        purchasePrice: d.purchasePrice,
+        sellingPrice: d.sellingPrice,
+        stock: d.stock,
+        minStock: d.minStock,
+        categoryId: d.categoryId,
+        supplierId: d.supplierId || null,
+        images: d.images || [],
+        isActive: d.isActive !== undefined ? d.isActive : true,
+        compareAtPrice: d.compareAtPrice ?? null,
+        specs: d.specs ?? undefined,
+        highlights: d.highlights ?? undefined,
       },
     });
-    await logAction("UPDATE_PRODUCT", { productId: id, name: data.name });
+    await logAction("UPDATE_PRODUCT", { productId: id, name: d.name });
     revalidatePath("/admin/inventory");
     return { success: true, product };
   } catch (error) {
@@ -204,12 +216,10 @@ export async function updateProduct(id, data) {
 export async function deleteProduct(id) {
   try {
     await ensureManager();
-    // Try to delete physically
     await db.product.delete({ where: { id } });
     revalidatePath("/admin/inventory");
     return { success: true };
   } catch (error) {
-    // If it's used in orders, soft delete
     console.error("Physical delete failed, attempting soft delete", error);
     try {
       await db.product.update({
@@ -218,23 +228,63 @@ export async function deleteProduct(id) {
       });
       revalidatePath("/admin/inventory");
       return { success: true, softDeleted: true };
-  } catch (softError) {
+    } catch (softError) {
       return { success: false, error: softError.message };
     }
+  }
+}
+
+export async function bulkDeleteProducts(ids) {
+  try {
+    await ensureManager();
+    const parsed = bulkIdsSchema.safeParse({ ids });
+    if (!parsed.success) return { success: false, error: "invalid_ids" };
+    const valid = await getProductIdsForBulk(parsed.data.ids);
+    const idList = valid.map((x) => x.id);
+    for (const id of idList) {
+      try {
+        await db.product.delete({ where: { id } });
+      } catch {
+        await db.product.update({ where: { id }, data: { isActive: false } });
+      }
+    }
+    await logAction("BULK_DELETE_PRODUCTS", { count: idList.length });
+    revalidatePath("/admin/inventory");
+    return { success: true, count: idList.length };
+  } catch (error) {
+    console.error("bulkDeleteProducts:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function bulkSetCategory(ids, categoryId) {
+  try {
+    await ensureManager();
+    const parsed = bulkCategorySchema.safeParse({ ids, categoryId });
+    if (!parsed.success) return { success: false, error: "invalid_input" };
+    const valid = await getProductIdsForBulk(parsed.data.ids);
+    const idList = valid.map((x) => x.id);
+    await db.product.updateMany({
+      where: { id: { in: idList } },
+      data: { categoryId: parsed.data.categoryId },
+    });
+    await logAction("BULK_CATEGORY_PRODUCTS", { count: idList.length, categoryId });
+    revalidatePath("/admin/inventory");
+    return { success: true, count: idList.length };
+  } catch (error) {
+    console.error("bulkSetCategory:", error);
+    return { success: false, error: error.message };
   }
 }
 
 export async function updateStockQuantity(id, change) {
   try {
     await ensureManager();
-
     const current = await db.product.findUnique({ where: { id }, select: { stock: true } });
     if (!current) return { success: false, error: "Product not found" };
-
     if (current.stock + change < 0) {
       return { success: false, error: "Stock cannot go below zero" };
     }
-
     const product = await db.product.update({
       where: { id },
       data: { stock: { increment: change } },
@@ -244,5 +294,124 @@ export async function updateStockQuantity(id, change) {
   } catch (error) {
     console.error("Failed to update stock:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function receiveStockAction(raw) {
+  try {
+    await ensureStaff();
+    const u = await sessionUser();
+    if (!["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
+      return { success: false, error: "unauthorized" };
+    }
+    const parsed = receiveStockSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: "validation", details: parsed.error.flatten() };
+    }
+    const { productId, quantity, supplierId, unitCost, notes } = parsed.data;
+    await db.$transaction(async (tx) => {
+      const p = await tx.product.update({
+        where: { id: productId },
+        data: { stock: { increment: quantity } },
+      });
+      await tx.stockMovement.create({
+        data: {
+          type: "IN",
+          quantity,
+          productId,
+          userId: u.id,
+          supplierId: supplierId || null,
+          unitCost: unitCost != null ? unitCost : p.purchasePrice,
+          notes: notes || null,
+        },
+      });
+    });
+    await logAction("STOCK_RECEIVE", { productId, quantity });
+    revalidatePath("/admin/inventory");
+    return { success: true };
+  } catch (error) {
+    console.error("receiveStockAction:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function issueStockAction(raw) {
+  try {
+    await ensureStaff();
+    const u = await sessionUser();
+    if (!["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
+      return { success: false, error: "unauthorized" };
+    }
+    const parsed = issueStockSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: "validation", details: parsed.error.flatten() };
+    }
+    const { productId, quantity, reason, notes } = parsed.data;
+    await db.$transaction(async (tx) => {
+      const cur = await tx.product.findUnique({
+        where: { id: productId },
+        select: { stock: true },
+      });
+      if (!cur) throw new Error("Product not found");
+      if (cur.stock < quantity) throw new Error("Insufficient stock");
+      await tx.product.update({
+        where: { id: productId },
+        data: { stock: { decrement: quantity } },
+      });
+      await tx.stockMovement.create({
+        data: {
+          type: "OUT",
+          quantity,
+          productId,
+          userId: u.id,
+          reason: reason || null,
+          notes: notes || null,
+        },
+      });
+    });
+    await logAction("STOCK_ISSUE", { productId, quantity });
+    revalidatePath("/admin/inventory");
+    return { success: true };
+  } catch (error) {
+    console.error("issueStockAction:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function generateSkuSuggestion() {
+  try {
+    await ensureManager();
+    const n = Date.now().toString(36).toUpperCase();
+    return { success: true, sku: `SKU-${n}` };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function searchProductsForStock({ search = "", limit = 80 }) {
+  try {
+    await ensureStaff();
+    const q = search.trim();
+    const where = {
+      isActive: true,
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { sku: { contains: q, mode: "insensitive" } },
+              { barcode: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+    };
+    return await db.product.findMany({
+      where,
+      select: { id: true, name: true, sku: true, stock: true },
+      orderBy: { name: "asc" },
+      take: Math.min(Number(limit) || 80, 150),
+    });
+  } catch (error) {
+    console.error("searchProductsForStock:", error);
+    return [];
   }
 }

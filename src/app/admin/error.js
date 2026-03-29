@@ -6,7 +6,13 @@ import { AlertTriangle } from "lucide-react";
 
 export default function AdminError({ error, reset }) {
   useEffect(() => {
-    console.error("Admin error:", error);
+    const details = {
+      name: error?.name || "UnknownError",
+      message: error?.message || "No message",
+      digest: error?.digest || null,
+      stack: error?.stack || null,
+    };
+    console.error("Admin error:", details, error);
   }, [error]);
 
   return (
