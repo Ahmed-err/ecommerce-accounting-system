@@ -7,6 +7,59 @@ const BRAND_EN = translations.en.brandName;
 // -------------------------------------------------------------------
 // 📧 EMAIL SENDER (Nodemailer via SMTP)
 // -------------------------------------------------------------------
+export async function sendEmailVerification(to, token) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_APP_PASSWORD,
+      },
+    });
+    if (!process.env.SMTP_USER) return false;
+
+    const verifyUrl = `${process.env.AUTH_URL || "http://localhost:3000"}/account/settings?vt=${encodeURIComponent(token)}&ve=${encodeURIComponent(to)}`;
+
+    await transporter.sendMail({
+      from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      to,
+      subject: "Verify your email",
+      html: `<p>Verify your email:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>This link expires in 24 hours.</p>`,
+    });
+    return true;
+  } catch (e) {
+    console.error("sendEmailVerification:", e.message);
+    return false;
+  }
+}
+
+export async function sendAccountDeletionEmail(to) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_APP_PASSWORD,
+      },
+    });
+    if (!process.env.SMTP_USER) return false;
+    await transporter.sendMail({
+      from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      to,
+      subject: "Account closed",
+      html: `<p>Your account has been closed as requested. This address is no longer active on our store.</p>`,
+    });
+    return true;
+  } catch (e) {
+    console.error("sendAccountDeletionEmail:", e.message);
+    return false;
+  }
+}
+
 export async function sendResetEmail(to, token) {
   try {
     const transporter = nodemailer.createTransport({
@@ -54,6 +107,87 @@ export async function sendResetEmail(to, token) {
 // -------------------------------------------------------------------
 // 💬 SMS SENDER (Twilio)
 // -------------------------------------------------------------------
+export async function sendContactAdminNotification({ name, email, phone, subject, message }) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_APP_PASSWORD,
+      },
+    });
+    const adminTo = process.env.CONTACT_NOTIFY_EMAIL || process.env.SMTP_USER;
+    if (!process.env.SMTP_USER || !adminTo) return false;
+    await transporter.sendMail({
+      from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      to: adminTo,
+      subject: `[Contact] ${subject}`,
+      text: `From: ${name} <${email}>\nPhone: ${phone || "—"}\n\n${message}`,
+    });
+    return true;
+  } catch (e) {
+    console.error("sendContactAdminNotification:", e.message);
+    return false;
+  }
+}
+
+export async function sendContactAutoReply(to, lang = "en") {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_APP_PASSWORD,
+      },
+    });
+    if (!process.env.SMTP_USER) return false;
+    const subj = lang === "ar" ? "تم استلام رسالتك" : "We received your message";
+    const body =
+      lang === "ar"
+        ? "<p>شكراً لتواصلك معنا. سنرد عليك قريباً.</p>"
+        : "<p>Thank you for contacting us. We will get back to you shortly.</p>";
+    await transporter.sendMail({
+      from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      to,
+      subject: subj,
+      html: body,
+    });
+    return true;
+  } catch (e) {
+    console.error("sendContactAutoReply:", e.message);
+    return false;
+  }
+}
+
+export async function sendContactReplyEmail(to, subject, htmlBody) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_APP_PASSWORD,
+      },
+    });
+    if (!process.env.SMTP_USER) return false;
+    await transporter.sendMail({
+      from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      to,
+      subject: `Re: ${subject}`,
+      html: htmlBody,
+    });
+    return true;
+  } catch (e) {
+    console.error("sendContactReplyEmail:", e.message);
+    return false;
+  }
+}
+
 export async function sendResetSMS(to, token) {
   try {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;

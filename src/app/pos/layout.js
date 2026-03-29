@@ -1,14 +1,15 @@
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
+import { translations } from "@/lib/translations";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
-  const brand = lang === "ar" ? "أعمال عصام نصرالدين للأدوات الكهربائية" : "Essam Nasreddin Electrical Tools";
+  const t = translations[lang] || translations.en;
 
   return {
-    title: lang === "ar" ? `نقطة البيع | ${brand}` : `POS | ${brand}`,
+    title: lang === "ar" ? `نقطة البيع | ${t.brandName}` : `POS | ${t.brandName}`,
     description: lang === "ar" ? "واجهة نقطة البيع" : "Point of Sale Terminal",
   };
 }

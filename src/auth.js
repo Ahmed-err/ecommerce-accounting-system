@@ -6,21 +6,31 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export const { 
-  handlers: { GET, POST }, 
-  auth, 
-  signIn, 
-  signOut 
+const googleId = process.env.GOOGLE_CLIENT_ID;
+const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
 } = NextAuth({
+  basePath: "/api/auth",
+  trustHost: true,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   ...authConfig,
   providers: [
-    Google({
-       clientId: process.env.GOOGLE_CLIENT_ID,
-       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-       allowDangerousEmailAccountLinking: false,
-    }),
+    ...(googleId && googleSecret
+      ? [
+          Google({
+            clientId: googleId,
+            clientSecret: googleSecret,
+            allowDangerousEmailAccountLinking: false,
+          }),
+        ]
+      : []),
     Credentials({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
@@ -41,6 +51,8 @@ export const {
         });
 
         if (!user || !user.password) return null;
+
+        if (user.accountDeletedAt) return null;
 
         // Always require hashed passwords - plain text fallback removed for security
         if (!user.password.startsWith("$2y$") && !user.password.startsWith("$2b$") && !user.password.startsWith("$2a$")) {
@@ -64,3 +76,5 @@ export const {
     }),
   ],
 });
+
+export const { GET, POST } = handlers;

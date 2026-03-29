@@ -4,17 +4,70 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import {
+  resolveRange,
+  getDashboardKpis,
+  getRevenueStoreVsPosMonthly,
+  getExpenseCategoryBreakdown,
+  getRecentUnifiedTransactions,
+  listLedgerInvoices,
+  listSalesInvoices,
+  countOverdueLedgerInvoices,
+  getRevenueRows,
+  getExpenseRows,
+  getCogsForOrdersInRange,
+  getPlTrend,
+  getCashFlowSeries,
+  getReportMonthlySummary,
+  isSystemGeneratedTransaction,
+} from "@/lib/accounting";
+import {
+  transactionMutationSchema,
+  ledgerInvoiceCreateSchema,
+  ledgerInvoiceIdSchema,
+} from "@/lib/schemas/accounting";
 
-async function ensureAdmin() {
+async function ensureAccountingView() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized: Only Admins can access accounting data.");
+  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    throw new Error("Unauthorized: Accounting access denied.");
+  }
+  return session;
+}
+
+async function ensureAccountingAdmin() {
+  const session = await ensureAccountingView();
+  if (session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin only.");
+  }
+  return session;
+}
+
+function parseDateInput(v) {
+  if (!v) return new Date();
+  const d = v instanceof Date ? v : new Date(v);
+  return Number.isNaN(d.getTime()) ? new Date() : d;
+}
+
+export async function getAccountingPermissions() {
+  try {
+    const session = await ensureAccountingView();
+    return {
+      ok: true,
+      role: session.user.role,
+      canDelete: session.user.role === "ADMIN",
+      canBulkDelete: session.user.role === "ADMIN",
+      canMarkLedgerPaid: session.user.role === "ADMIN",
+      canExportAll: true,
+    };
+  } catch {
+    return { ok: false, role: null, canDelete: false, canBulkDelete: false, canMarkLedgerPaid: false, canExportAll: false };
   }
 }
 
 export async function getSummary() {
   try {
-    await ensureAdmin();
+    await ensureAccountingView();
     const [incoming, outgoing, recentTransactions] = await Promise.all([
       db.transaction.aggregate({
         where: { type: "INCOMING" },
@@ -30,8 +83,8 @@ export async function getSummary() {
       }),
     ]);
 
-    const totalIn = incoming._sum.amount || 0;
-    const totalOut = outgoing._sum.amount || 0;
+    const totalIn = Number(incoming._sum.amount || 0);
+    const totalOut = Number(outgoing._sum.amount || 0);
 
     return {
       totalIn,
@@ -53,7 +106,7 @@ export async function getTransactions({
   limit = 10,
 } = {}) {
   try {
-    await ensureAdmin();
+    await ensureAccountingView();
     const where = {
       ...(search
         ? {
@@ -65,7 +118,9 @@ export async function getTransactions({
           }
         : {}),
       ...(type && type !== "all" ? { type: type.toUpperCase() } : {}),
-      ...(category && category !== "all" ? { category: { equals: category, mode: "insensitive" } } : {}),
+      ...(category && category !== "all"
+        ? { category: { equals: category, mode: "insensitive" } }
+        : {}),
     };
 
     const skip = (page - 1) * limit;
@@ -89,7 +144,7 @@ export async function getTransactions({
 
 export async function getCategories() {
   try {
-    await ensureAdmin();
+    await ensureAccountingView();
     const rows = await db.transaction.findMany({
       select: { category: true },
       distinct: ["category"],
@@ -104,20 +159,35 @@ export async function getCategories() {
 
 export async function createTransaction(data) {
   try {
-    await ensureAdmin();
+    const session = await ensureAccountingView();
+    if (session.user.role === "MANAGER" && data?.type === "INCOMING") {
+      return { success: false, error: "Unauthorized: Managers cannot add income entries." };
+    }
+    const parsed = transactionMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "validation_failed";
+      return { success: false, error: msg };
+    }
+    const p = parsed.data;
     const transaction = await db.transaction.create({
       data: {
-        type: data.type,
-        amount: parseFloat(data.amount),
-        description: data.description,
-        category: data.category,
-        reference: data.reference || null,
-        date: data.date ? new Date(data.date) : new Date(),
+        type: p.type,
+        amount: p.amount,
+        description: p.description,
+        category: p.category,
+        reference: p.reference || null,
+        date: parseDateInput(p.date),
+        paymentMethod: p.paymentMethod || null,
+        receiptUrl: p.receiptUrl || null,
       },
     });
-    
-    await logAction("CREATE_TRANSACTION", { transactionId: transaction.id, amount: transaction.amount, type: transaction.type });
-    
+
+    await logAction("CREATE_TRANSACTION", {
+      transactionId: transaction.id,
+      amount: transaction.amount,
+      type: transaction.type,
+    });
+
     revalidatePath("/admin/accounting");
     return { success: true, transaction };
   } catch (error) {
@@ -128,21 +198,36 @@ export async function createTransaction(data) {
 
 export async function updateTransaction(id, data) {
   try {
-    await ensureAdmin();
+    const session = await ensureAccountingView();
+    const existing = await db.transaction.findUnique({ where: { id } });
+    if (existing && isSystemGeneratedTransaction(existing)) {
+      return { success: false, error: "locked_system_transaction" };
+    }
+    if (session.user.role === "MANAGER" && data?.type === "INCOMING") {
+      return { success: false, error: "Unauthorized" };
+    }
+    const parsed = transactionMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "validation_failed";
+      return { success: false, error: msg };
+    }
+    const p = parsed.data;
     const transaction = await db.transaction.update({
       where: { id },
       data: {
-        type: data.type,
-        amount: parseFloat(data.amount),
-        description: data.description,
-        category: data.category,
-        reference: data.reference || null,
-        date: data.date ? new Date(data.date) : new Date(),
+        type: p.type,
+        amount: p.amount,
+        description: p.description,
+        category: p.category,
+        reference: p.reference || null,
+        date: parseDateInput(p.date),
+        paymentMethod: p.paymentMethod || null,
+        receiptUrl: p.receiptUrl || null,
       },
     });
-    
+
     await logAction("UPDATE_TRANSACTION", { transactionId: id, amount: transaction.amount });
-    
+
     revalidatePath("/admin/accounting");
     return { success: true, transaction };
   } catch (error) {
@@ -153,15 +238,219 @@ export async function updateTransaction(id, data) {
 
 export async function deleteTransaction(id) {
   try {
-    await ensureAdmin();
+    await ensureAccountingAdmin();
     await db.transaction.delete({ where: { id } });
-    
+
     await logAction("DELETE_TRANSACTION", { transactionId: id });
-    
+
     revalidatePath("/admin/accounting");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete transaction:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function bulkDeleteTransactions(ids) {
+  try {
+    await ensureAccountingAdmin();
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return { success: false, error: "no_ids" };
+    }
+    await db.transaction.deleteMany({ where: { id: { in: ids } } });
+    await logAction("BULK_DELETE_TRANSACTIONS", { count: ids.length });
+    revalidatePath("/admin/accounting");
+    return { success: true };
+  } catch (error) {
+    console.error("Bulk delete failed:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+function nextLedgerNumber() {
+  return `INV-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+}
+
+export async function createLedgerInvoice(raw) {
+  try {
+    await ensureAccountingView();
+    const parsed = ledgerInvoiceCreateSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message || "validation_failed" };
+    }
+    const p = parsed.data;
+    const invoice = await db.ledgerInvoice.create({
+      data: {
+        invoiceNumber: nextLedgerNumber(),
+        direction: p.direction,
+        partyName: p.partyName,
+        amount: p.amount,
+        dueDate: p.dueDate ? parseDateInput(p.dueDate) : null,
+        notes: p.notes || null,
+        status: "PENDING",
+      },
+    });
+    await logAction("CREATE_LEDGER_INVOICE", { id: invoice.id });
+    revalidatePath("/admin/accounting");
+    return { success: true, invoice };
+  } catch (error) {
+    console.error("createLedgerInvoice:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function markLedgerInvoicePaid(raw) {
+  try {
+    await ensureAccountingView();
+    const parsed = ledgerInvoiceIdSchema.safeParse(raw);
+    if (!parsed.success) return { success: false, error: "validation_failed" };
+    const now = new Date();
+    const invoice = await db.ledgerInvoice.update({
+      where: { id: parsed.data.id },
+      data: { status: "PAID", paidAt: now },
+    });
+    await logAction("MARK_LEDGER_PAID", { id: invoice.id });
+    revalidatePath("/admin/accounting");
+    return { success: true, invoice };
+  } catch (error) {
+    console.error("markLedgerInvoicePaid:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getAccountingTabData(tab, query = {}) {
+  try {
+    await ensureAccountingView();
+    const preset = query.rangePreset || "month";
+    const { start, end } = resolveRange(preset, query.customFrom, query.customTo);
+    const overdue = await countOverdueLedgerInvoices();
+
+    switch (tab) {
+      case "dashboard": {
+        const [kpis, stacked, pie, recent] = await Promise.all([
+          getDashboardKpis({ start, end }),
+          getRevenueStoreVsPosMonthly({ start, end }),
+          getExpenseCategoryBreakdown({ start, end }),
+          getRecentUnifiedTransactions(10, { start, end }),
+        ]);
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          kpis,
+          stacked,
+          pie,
+          recent,
+          overdueCount: overdue,
+        };
+      }
+      case "revenues": {
+        const [rev, exp] = await Promise.all([
+          getRevenueRows({
+            start,
+            end,
+            source: query.source || "all",
+            paymentMethod: query.paymentMethod || "all",
+          }),
+          getExpenseRows({
+            start,
+            end,
+            category: query.expenseCategory || "all",
+            paymentMethod: query.expensePaymentMethod || "all",
+          }),
+        ]);
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          revenues: rev,
+          expenses: exp,
+          overdueCount: overdue,
+        };
+      }
+      case "pl": {
+        const gran = query.plGranularity || "monthly";
+        const [statement, trend] = await Promise.all([
+          getCogsForOrdersInRange({ start, end }),
+          getPlTrend({ start, end, granularity: gran }),
+        ]);
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          statement,
+          trend,
+          granularity: gran,
+          overdueCount: overdue,
+        };
+      }
+      case "cashflow": {
+        const series = await getCashFlowSeries({ start, end });
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          ...series,
+          overdueCount: overdue,
+        };
+      }
+      case "invoices": {
+        const [ledger, sales] = await Promise.all([
+          listLedgerInvoices({
+            status: query.invoiceStatus || "all",
+            direction: query.invoiceDirection || "all",
+            start,
+            end,
+          }),
+          listSalesInvoices({
+            start,
+            end,
+            statusFilter: query.invoiceStatus || "all",
+          }),
+        ]);
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          ledger,
+          sales,
+          overdueCount: overdue,
+        };
+      }
+      case "expenses": {
+        const [exp, pie] = await Promise.all([
+          getExpenseRows({
+            start,
+            end,
+            category: query.category || "all",
+            paymentMethod: query.paymentMethod || "all",
+          }),
+          getExpenseCategoryBreakdown({ start, end }),
+        ]);
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          expenses: exp,
+          pie,
+          overdueCount: overdue,
+        };
+      }
+      case "reports": {
+        const report = await getReportMonthlySummary({ start, end });
+        return {
+          ok: true,
+          tab,
+          range: { start: start.toISOString(), end: end.toISOString(), preset },
+          report,
+          overdueCount: overdue,
+        };
+      }
+      default:
+        return { ok: false, error: "unknown_tab" };
+    }
+  } catch (error) {
+    console.error("getAccountingTabData:", error);
+    return { ok: false, error: error.message };
   }
 }

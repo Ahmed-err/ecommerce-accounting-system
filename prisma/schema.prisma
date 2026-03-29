@@ -18,9 +18,22 @@ model User {
   phone         String?   @unique
   role          Role      @default(CUSTOMER)
   avatar        String?
+  gender              String?
+  dateOfBirth         DateTime?
+  prefLanguage        String?   @default("ar")
+  prefTheme           String?   @default("system")
+  prefCurrency        String?
+  newsletterSubscribed  Boolean   @default(true)
+  notifyOrderStatusEmail Boolean  @default(true)
+  notifyPromoEmail    Boolean   @default(true)
+  notifyNewArrivalsEmail Boolean @default(true)
+  notifyWhatsapp      Boolean   @default(false)
+  marketingUnsubscribed Boolean @default(false)
+  accountDeletedAt    DateTime?
   salary            Float?
   hireDate          DateTime?
   department        String?
+  isActive          Boolean   @default(true)
   passwordChangedAt DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -28,6 +41,14 @@ model User {
   orders            Order[]
   sessions          Session[]
   auditLogs         AuditLog[]
+  addresses         UserAddress[]
+  stockMovements    StockMovement[]
+  attendances       Attendance[]
+  salaryRecords     SalaryRecord[]
+  leaveRequests     LeaveRequest[]
+  reviews           Review[]
+  reviewHelpfulVotes ReviewHelpfulVote[]
+  wishlistItems     WishlistItem[]
 }
 
 model AuditLog {
@@ -88,24 +109,210 @@ model Category {
   products    Product[]
 }
 
+model Supplier {
+  id           String           @id @default(cuid())
+  name         String
+  companyName  String?
+  phone        String?
+  email        String?
+  address      String?          @db.Text
+  taxId        String?
+  paymentTerms String?
+  notes        String?          @db.Text
+  category     String?
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  products     Product[]
+  movements    StockMovement[]
+  purchases    Purchase[]
+}
+
 model Product {
-  id            String      @id @default(cuid())
-  name          String
-  description   String?
-  sku           String      @unique
-  purchasePrice Decimal     @db.Decimal(12, 2)
-  sellingPrice  Decimal     @db.Decimal(12, 2)
-  stock         Int         @default(0)
-  minStock      Int         @default(5)
-  images        String[]
-  isActive      Boolean     @default(true)
-  categoryId    String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  orderItems    OrderItem[]
-  category      Category    @relation(fields: [categoryId], references: [id])
+  id             String           @id @default(cuid())
+  name           String
+  nameEn         String?
+  nameAr         String?
+  description    String?
+  descriptionEn  String?
+  descriptionAr  String?
+  sku            String           @unique
+  barcode        String?          @unique
+  unit           String           @default("pcs")
+  purchasePrice  Decimal          @db.Decimal(12, 2)
+  sellingPrice   Decimal          @db.Decimal(12, 2)
+  stock          Int              @default(0)
+  minStock       Int              @default(5)
+  images         String[]
+  isActive       Boolean          @default(true)
+  compareAtPrice Decimal?         @db.Decimal(12, 2)
+  specs          Json?
+  highlights     Json?
+  categoryId     String
+  supplierId     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  orderItems     OrderItem[]
+  returnItems    OrderReturnItem[]
+  category       Category         @relation(fields: [categoryId], references: [id])
+  supplier       Supplier?        @relation(fields: [supplierId], references: [id])
+  stockMovements StockMovement[]
+  reviews        Review[]
+  wishlistItems  WishlistItem[]
+  stockAlerts    ProductStockAlert[]
+  purchaseItems  PurchaseItem[]
 
   @@index([categoryId, isActive])
+  @@index([supplierId])
+}
+
+model Purchase {
+  id               String                 @id @default(cuid())
+  purchaseNumber   String                 @unique
+  supplierId       String
+  supplier         Supplier               @relation(fields: [supplierId], references: [id])
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  dueDate          DateTime?
+  totalAmount      Decimal                @db.Decimal(12, 2)
+  paidAmount       Decimal                @default(0) @db.Decimal(12, 2)
+  paymentMethod    String?
+  invoiceRef       String?
+  notes            String?                @db.Text
+  deliveryStatus   PurchaseDeliveryStatus @default(PENDING)
+  items            PurchaseItem[]
+  stockMovements   StockMovement[]
+
+  @@index([supplierId, createdAt])
+  @@index([deliveryStatus, createdAt])
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
+  unitCost   Decimal  @db.Decimal(12, 2)
+  lineTotal  Decimal  @db.Decimal(12, 2)
+
+  @@index([purchaseId])
+  @@index([productId])
+}
+
+model ContactMessage {
+  id         String               @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String               @db.Text
+  status     ContactMessageStatus @default(NEW)
+  adminReply String?              @db.Text
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model Faq {
+  id         String   @id @default(cuid())
+  questionAr String   @db.Text
+  questionEn String   @db.Text
+  answerAr   String   @db.Text
+  answerEn   String   @db.Text
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model Review {
+  id          String       @id @default(cuid())
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestName   String?
+  guestEmail  String?
+  rating      Int
+  title       String       @db.VarChar(100)
+  body        String       @db.Text
+  images      String[]
+  status      ReviewStatus @default(PENDING)
+  helpfulCount Int         @default(0)
+  adminReply  String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  verified    Boolean      @default(false)
+  helpfulVotes ReviewHelpfulVote[]
+
+  @@index([productId, status, createdAt])
+  @@index([status, createdAt])
+}
+
+model ReviewHelpfulVote {
+  id         String   @id @default(cuid())
+  reviewId   String
+  review     Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipHash     String
+  createdAt  DateTime @default(now())
+
+  @@unique([reviewId, userId])
+  @@unique([reviewId, ipHash])
+  @@index([reviewId, createdAt])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
+}
+
+model ProductStockAlert {
+  id        String   @id @default(cuid())
+  productId String
+  email     String   @db.VarChar(320)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, email])
+  @@index([productId])
+}
+
+model StockMovement {
+  id         String            @id @default(cuid())
+  type       StockMovementType
+  quantity   Int
+  productId  String
+  product    Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?             @relation(fields: [userId], references: [id])
+  supplierId String?
+  supplier   Supplier?         @relation(fields: [supplierId], references: [id])
+  purchaseId String?
+  purchase   Purchase?         @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  unitCost   Decimal?          @db.Decimal(12, 2)
+  reason     String?
+  notes      String?           @db.Text
+  createdAt  DateTime          @default(now())
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
+  @@index([type, createdAt])
+  @@index([purchaseId])
 }
 
 model Order {
@@ -128,10 +335,45 @@ model Order {
   paymentMethod String        @default("CASH_ON_DELIVERY")
   isVerified    Boolean       @default(false)
 
+  customerNotes String? @db.Text
+  couponCode    String?
+
   items   OrderItem[]
   invoice Invoice?
+  returns OrderReturn[]
 
   @@index([userId, status, createdAt])
+}
+
+model UserAddress {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label       String?
+  fullName    String
+  phone       String
+  addressLine String
+  city        String
+  governorate String?
+  street      String?
+  building    String?
+  floor       String?
+  notes       String?  @db.Text
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Coupon {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  percentOff Int
+  isActive   Boolean   @default(true)
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Invoice {
@@ -201,15 +443,121 @@ model OrderItem {
 }
 
 model Transaction {
-  id          String          @id @default(cuid())
-  type        TransactionType
-  amount      Decimal         @db.Decimal(12, 2)
-  description String
-  category    String
-  reference   String?
-  date        DateTime        @default(now())
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id             String          @id @default(cuid())
+  type           TransactionType
+  amount         Decimal         @db.Decimal(12, 2)
+  description    String
+  category       String
+  reference      String?
+  date           DateTime        @default(now())
+  receiptUrl     String?
+  paymentMethod  String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Attendance {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     AttendanceStatus @default(PRESENT)
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@index([date])
+}
+
+model SalaryRecord {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month       Int
+  year        Int
+  baseSalary  Decimal      @db.Decimal(12, 2)
+  bonuses     Decimal      @default(0) @db.Decimal(12, 2)
+  deductions  Decimal      @default(0) @db.Decimal(12, 2)
+  netSalary   Decimal      @db.Decimal(12, 2)
+  status      SalaryStatus @default(PENDING)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([userId, month, year])
+  @@index([userId, year, month])
+}
+
+model LeaveRequest {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        LeaveType
+  fromDate    DateTime
+  toDate      DateTime
+  days        Int
+  reason      String?     @db.Text
+  status      LeaveStatus @default(PENDING)
+  adminNotes  String?     @db.Text
+  reviewedAt  DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId, fromDate])
+  @@index([status])
+}
+
+model OrderReturn {
+  id           String         @id @default(cuid())
+  returnNumber String         @unique
+  orderId      String
+  order        Order          @relation(fields: [orderId], references: [id])
+  reason       String         @db.Text
+  refundAmount Decimal        @db.Decimal(12, 2)
+  refundMethod String         @default("CASH")
+  status       ReturnStatus   @default(PENDING)
+  processedAt  DateTime?
+  notes        String?        @db.Text
+  items        OrderReturnItem[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model OrderReturnItem {
+  id        String      @id @default(cuid())
+  returnId  String
+  return    OrderReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product     @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal     @db.Decimal(12, 2)
+  createdAt DateTime    @default(now())
+
+  @@index([returnId])
+}
+
+model LedgerInvoice {
+  id            String                  @id @default(cuid())
+  invoiceNumber String                  @unique
+  direction     LedgerInvoiceDirection
+  partyName     String
+  amount        Decimal                 @db.Decimal(12, 2)
+  dueDate       DateTime?
+  paidAt        DateTime?
+  status        LedgerInvoiceStatus     @default(PENDING)
+  notes         String?                 @db.Text
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  @@index([status, dueDate])
 }
 
 model RateLimit {
@@ -220,11 +568,174 @@ model RateLimit {
   @@index([identifier, createdAt])
 }
 
+model Store {
+  id                              String   @id @default(cuid())
+  nameAr                          String
+  nameEn                          String
+  sloganAr                        String?
+  sloganEn                        String?
+  logoUrl                         String?
+  faviconUrl                      String?
+  contactPhone                    String?
+  contactEmail                    String?
+  addressAr                       String?
+  addressEn                       String?
+  googleMapsLink                  String?
+  facebookUrl                     String?
+  instagramUrl                    String?
+  whatsappUrl                     String?
+  tiktokUrl                       String?
+  currency                        String   @default("SDG")
+  currencySymbolPosition          String   @default("END")
+  defaultLanguage                 String   @default("ar")
+  maintenanceMode                 Boolean  @default(false)
+  businessHoursJson               Json?
+  globalFreeShippingEnabled       Boolean  @default(false)
+  globalFreeShippingAmount        Decimal? @db.Decimal(12, 2)
+  cashOnDeliveryEnabled           Boolean  @default(true)
+  deliveryNotesAr                 String?  @db.Text
+  deliveryNotesEn                 String?  @db.Text
+  defaultDeliveryEstimateAr       String?
+  defaultDeliveryEstimateEn       String?
+  returnPolicyAr                  String?  @db.Text
+  returnPolicyEn                  String?  @db.Text
+  invoicePrefix                   String   @default("INV-")
+  vatEnabled                      Boolean  @default(false)
+  vatPercentage                   Decimal? @db.Decimal(5, 2)
+  vatLabelAr                      String?
+  vatLabelEn                      String?
+  minOrderAmount                  Decimal? @db.Decimal(12, 2)
+  seoMetaTitleAr                  String?
+  seoMetaTitleEn                  String?
+  seoMetaDescriptionAr            String?  @db.Text
+  seoMetaDescriptionEn            String?  @db.Text
+  seoOgImageUrl                   String?
+  googleAnalyticsId               String?
+  googleSearchConsoleVerification String?
+  robotsTxt                       String?  @db.Text
+  backupSchedule                  String   @default("OFF")
+  backupLastStatus                String?
+  backupLastAt                    DateTime?
+  appVersion                      String?  @default("0.1.0")
+  aboutStoryAr                    String?  @db.Text
+  aboutStoryEn                    String?  @db.Text
+  aboutMissionAr                  String?  @db.Text
+  aboutMissionEn                  String?  @db.Text
+  aboutVisionAr                   String?  @db.Text
+  aboutVisionEn                   String?  @db.Text
+  aboutImageUrl                   String?
+  aboutFoundedYear                Int?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  shippingZones        ShippingZone[]
+  paymentMethods       PaymentMethod[]
+  notificationConfig   NotificationConfig?
+}
+
+model AboutFeature {
+  id        String   @id @default(cuid())
+  titleAr   String
+  titleEn   String
+  descAr    String   @db.Text
+  descEn    String   @db.Text
+  iconKey   String   @default("Shield")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamMember {
+  id         String   @id @default(cuid())
+  nameAr     String
+  nameEn     String
+  positionAr String
+  positionEn String
+  photo      String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model LegalPage {
+  id        String        @id @default(cuid())
+  type      LegalPageType @unique
+  contentAr String        @db.Text
+  contentEn String        @db.Text
+  updatedAt DateTime      @updatedAt
+}
+
+model ShippingZone {
+  id                       String   @id @default(cuid())
+  storeId                  String
+  store                    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  zoneName                 String
+  governorates             String[]
+  shippingCost             Decimal  @db.Decimal(12, 2)
+  freeShippingMinOrder     Decimal? @db.Decimal(12, 2)
+  deliveryDaysEstimate     String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model PaymentMethod {
+  id                 String   @id @default(cuid())
+  storeId            String
+  store              Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  code               String
+  labelAr            String
+  labelEn            String
+  isEnabled          Boolean  @default(true)
+  apiKey             String?
+  apiSecret          String?
+  instructionsAr     String?  @db.Text
+  instructionsEn     String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([storeId, code])
+}
+
+model NotificationConfig {
+  id                          String   @id @default(cuid())
+  storeId                     String   @unique
+  store                       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  emailNewOrderAdmin          Boolean  @default(true)
+  emailOrderStatusCustomer    Boolean  @default(true)
+  emailLowStockAdmin          Boolean  @default(true)
+  emailNewReturnAdmin         Boolean  @default(true)
+  smsWhatsappEnabled          Boolean  @default(false)
+  adminRecipients             String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
+
+model Permission {
+  id         String   @id @default(cuid())
+  role       Role
+  module     String
+  canView    Boolean  @default(false)
+  canCreate  Boolean  @default(false)
+  canEdit    Boolean  @default(false)
+  canDelete  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([role, module])
+}
+
 enum Role {
   ADMIN
   MANAGER
   CASHIER
   CUSTOMER
+}
+
+enum StockMovementType {
+  IN
+  OUT
 }
 
 enum OrderStatus {
@@ -238,4 +749,72 @@ enum OrderStatus {
 enum TransactionType {
   INCOMING
   OUTGOING
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  HOLIDAY
+}
+
+enum SalaryStatus {
+  PENDING
+  PROCESSING
+  PAID
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  EMERGENCY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReturnStatus {
+  PENDING
+  APPROVED
+  REFUNDED
+  REJECTED
+}
+
+enum LedgerInvoiceDirection {
+  PAYABLE
+  RECEIVABLE
+}
+
+enum LedgerInvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PurchaseDeliveryStatus {
+  PENDING
+  PARTIAL
+  RECEIVED
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+}
+
+enum LegalPageType {
+  TERMS
+  PRIVACY
 }

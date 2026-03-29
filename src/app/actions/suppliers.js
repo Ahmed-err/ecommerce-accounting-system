@@ -1,0 +1,471 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { prisma as db } from "@/lib/prisma";
+import { z } from "zod";
+import {
+  getSuppliersKpiOverview,
+  getTopSuppliersByVolume,
+  getRecentPurchases,
+  getMonthlySpendingTrend,
+  listSuppliersAdmin,
+  getSupplierDetailAdmin,
+  supplierHasPurchases,
+  listPurchasesAdmin,
+  getPurchaseDetailAdmin,
+  reportMonthlyPurchasesSummary,
+  reportSpendingBySupplier,
+  reportSpendingByCategory,
+  reportOutstandingPayments,
+  listProductsForPurchaseSelect,
+  listSuppliersForPurchaseSelect,
+} from "@/lib/suppliers";
+
+async function ensure() {
+  const s = await auth();
+  if (!s?.user?.id || !["ADMIN", "MANAGER"].includes(s.user.role)) {
+    throw new Error("Unauthorized");
+  }
+  return s.user;
+}
+
+export async function loadSuppliersOverviewAction() {
+  try {
+    await ensure();
+    const [kpis, top, recent, trend] = await Promise.all([
+      getSuppliersKpiOverview(),
+      getTopSuppliersByVolume(5),
+      getRecentPurchases(8),
+      getMonthlySpendingTrend(6),
+    ]);
+    return { ok: true, kpis, top, recent, trend };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadSuppliersTableAction(params) {
+  try {
+    await ensure();
+    const { rows, total } = await listSuppliersAdmin(params || {});
+    return { ok: true, rows, total };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadPurchasesTableAction(params) {
+  try {
+    await ensure();
+    const { rows, total } = await listPurchasesAdmin(params || {});
+    return { ok: true, rows, total };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadPurchaseFormOptionsAction() {
+  try {
+    await ensure();
+    const [suppliers, products] = await Promise.all([
+      listSuppliersForPurchaseSelect(),
+      listProductsForPurchaseSelect(),
+    ]);
+    return { ok: true, suppliers, products };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadSupplierDetailAction(id) {
+  try {
+    await ensure();
+    const data = await getSupplierDetailAdmin(id);
+    return { ok: true, data };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadPurchaseDetailAction(id) {
+  try {
+    await ensure();
+    const data = await getPurchaseDetailAdmin(id);
+    return { ok: true, data };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function loadReportsAction({ from, to }) {
+  try {
+    await ensure();
+    const fromD = new Date(from);
+    const toD = new Date(to);
+    const [monthly, bySupplier, byCategory, outstanding] = await Promise.all([
+      reportMonthlyPurchasesSummary(fromD, toD),
+      reportSpendingBySupplier(fromD, toD),
+      reportSpendingByCategory(fromD, toD),
+      reportOutstandingPayments(),
+    ]);
+    return { ok: true, monthly, bySupplier, byCategory, outstanding };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+const supplierSchema = z.object({
+  name: z.string().trim().min(1).max(300),
+  companyName: z.string().trim().max(300).optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().or(z.literal("")),
+  address: z.string().trim().max(2000).optional().nullable(),
+  taxId: z.string().trim().max(120).optional().nullable(),
+  paymentTerms: z.string().trim().max(80).optional().nullable(),
+  notes: z.string().max(5000).optional().nullable(),
+  category: z.string().trim().max(200).optional().nullable(),
+  isActive: z.boolean().optional(),
+});
+
+export async function createSupplierAction(raw) {
+  try {
+    await ensure();
+    const parsed = supplierSchema.safeParse(raw);
+    if (!parsed.success) return { ok: false, error: "validation" };
+    const d = parsed.data;
+    await db.supplier.create({
+      data: {
+        name: d.name,
+        companyName: d.companyName || null,
+        phone: d.phone || null,
+        email: d.email || null,
+        address: d.address || null,
+        taxId: d.taxId || null,
+        paymentTerms: d.paymentTerms || null,
+        notes: d.notes || null,
+        category: d.category || null,
+        isActive: d.isActive !== false,
+      },
+    });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function updateSupplierAction(id, raw) {
+  try {
+    await ensure();
+    const parsed = supplierSchema.safeParse(raw);
+    if (!parsed.success) return { ok: false, error: "validation" };
+    const d = parsed.data;
+    await db.supplier.update({
+      where: { id },
+      data: {
+        name: d.name,
+        companyName: d.companyName || null,
+        phone: d.phone || null,
+        email: d.email || null,
+        address: d.address || null,
+        taxId: d.taxId || null,
+        paymentTerms: d.paymentTerms || null,
+        notes: d.notes || null,
+        category: d.category || null,
+        isActive: d.isActive !== false,
+      },
+    });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function deleteSupplierAction(id) {
+  try {
+    await ensure();
+    if (await supplierHasPurchases(id)) {
+      return { ok: false, error: "has_purchases" };
+    }
+    await db.supplier.delete({ where: { id } });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+const purchaseItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.coerce.number().int().min(1).max(1e6),
+  unitCost: z.coerce.number().min(0).max(1e12),
+});
+
+const createPurchaseSchema = z.object({
+  supplierId: z.string().min(1),
+  dueDate: z.string().optional().nullable(),
+  invoiceRef: z.string().max(200).optional().nullable(),
+  notes: z.string().max(5000).optional().nullable(),
+  paymentMethod: z.string().max(80).optional().nullable(),
+  paidAmount: z.coerce.number().min(0).optional().default(0),
+  receiveNow: z.boolean().optional().default(false),
+  items: z.array(purchaseItemSchema).min(1).max(100),
+});
+
+export async function createPurchaseAction(raw) {
+  try {
+    await ensure();
+    const parsed = createPurchaseSchema.safeParse(raw);
+    if (!parsed.success) return { ok: false, error: "validation" };
+    const { supplierId, items, receiveNow, paidAmount, ...rest } = parsed.data;
+
+    const sup = await db.supplier.findFirst({ where: { id: supplierId, isActive: true } });
+    if (!sup) return { ok: false, error: "supplier" };
+
+    let total = 0;
+    const lines = items.map((i) => {
+      const line = Math.round(i.quantity * i.unitCost * 100) / 100;
+      total += line;
+      return { ...i, lineTotal: line };
+    });
+    total = Math.round(total * 100) / 100;
+
+    const purchaseNumber = `PO-${Date.now().toString(36).toUpperCase()}`;
+
+    await db.$transaction(async (tx) => {
+      const p = await tx.purchase.create({
+        data: {
+          purchaseNumber,
+          supplierId,
+          totalAmount: total,
+          paidAmount: Math.min(paidAmount, total),
+          dueDate: rest.dueDate ? new Date(rest.dueDate) : null,
+          invoiceRef: rest.invoiceRef || null,
+          notes: rest.notes || null,
+          paymentMethod: rest.paymentMethod || null,
+          deliveryStatus: receiveNow ? "RECEIVED" : "PENDING",
+          items: {
+            create: lines.map((l) => ({
+              productId: l.productId,
+              quantity: l.quantity,
+              unitCost: l.unitCost,
+              lineTotal: l.lineTotal,
+            })),
+          },
+        },
+      });
+      if (receiveNow) {
+        for (const line of lines) {
+          await tx.product.update({
+            where: { id: line.productId },
+            data: { stock: { increment: line.quantity } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              type: "IN",
+              quantity: line.quantity,
+              productId: line.productId,
+              supplierId,
+              purchaseId: p.id,
+              unitCost: line.unitCost,
+              reason: "PURCHASE",
+              notes: `PO ${purchaseNumber}`,
+            },
+          });
+        }
+      }
+    });
+
+    revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/inventory");
+    return { ok: true };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function markPurchaseReceivedAction(purchaseId) {
+  try {
+    await ensure();
+    const p = await db.purchase.findUnique({
+      where: { id: purchaseId },
+      include: { items: true },
+    });
+    if (!p) return { ok: false, error: "not_found" };
+    if (p.deliveryStatus === "RECEIVED") return { ok: false, error: "already" };
+
+    await db.$transaction(async (tx) => {
+      for (const line of p.items) {
+        await tx.product.update({
+          where: { id: line.productId },
+          data: { stock: { increment: line.quantity } },
+        });
+        await tx.stockMovement.create({
+          data: {
+            type: "IN",
+            quantity: line.quantity,
+            productId: line.productId,
+            supplierId: p.supplierId,
+            purchaseId: p.id,
+            unitCost: line.unitCost,
+            reason: "PURCHASE",
+            notes: `PO ${p.purchaseNumber}`,
+          },
+        });
+      }
+      await tx.purchase.update({
+        where: { id: purchaseId },
+        data: { deliveryStatus: "RECEIVED" },
+      });
+    });
+
+    revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/inventory");
+    return { ok: true };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function recordPurchasePaymentAction(purchaseId, raw) {
+  try {
+    await ensure();
+    const schema = z.object({
+      amount: z.coerce.number().min(0.01).max(1e12),
+      method: z.string().max(80).optional().nullable(),
+      notes: z.string().max(2000).optional().nullable(),
+    });
+    const parsed = schema.safeParse(raw);
+    if (!parsed.success) return { ok: false, error: "validation" };
+
+    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
+    if (!p) return { ok: false, error: "not_found" };
+    const total = Number(p.totalAmount);
+    const paid = Number(p.paidAmount);
+    const next = Math.min(total, Math.round((paid + parsed.data.amount) * 100) / 100);
+
+    await db.purchase.update({
+      where: { id: purchaseId },
+      data: {
+        paidAmount: next,
+        paymentMethod: parsed.data.method || p.paymentMethod,
+        notes:
+          parsed.data.notes && p.notes
+            ? `${p.notes}\n[PAYMENT] ${parsed.data.notes}`
+            : parsed.data.notes || p.notes,
+      },
+    });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function deletePurchaseAction(purchaseId) {
+  try {
+    await ensure();
+    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
+    if (!p) return { ok: false, error: "not_found" };
+    if (p.deliveryStatus !== "PENDING" || Number(p.paidAmount) > 0.005) {
+      return { ok: false, error: "blocked" };
+    }
+    await db.purchase.delete({ where: { id: purchaseId } });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function updatePurchaseMetaAction(purchaseId, raw) {
+  try {
+    await ensure();
+    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
+    if (!p || p.deliveryStatus === "RECEIVED") return { ok: false, error: "blocked" };
+    const schema = z.object({
+      dueDate: z.string().optional().nullable(),
+      invoiceRef: z.string().max(200).optional().nullable(),
+      notes: z.string().max(5000).optional().nullable(),
+    });
+    const parsed = schema.safeParse(raw);
+    if (!parsed.success) return { ok: false, error: "validation" };
+    await db.purchase.update({
+      where: { id: purchaseId },
+      data: {
+        dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
+        invoiceRef: parsed.data.invoiceRef || null,
+        notes: parsed.data.notes || null,
+      },
+    });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+export async function setPurchaseDeliveryStatusAction(purchaseId, status) {
+  try {
+    await ensure();
+    if (!["PENDING", "PARTIAL"].includes(status)) return { ok: false, error: "validation" };
+    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
+    if (!p) return { ok: false, error: "not_found" };
+    if (p.deliveryStatus === "RECEIVED") return { ok: false, error: "blocked" };
+    await db.purchase.update({
+      where: { id: purchaseId },
+      data: { deliveryStatus: status },
+    });
+    revalidatePath("/admin/suppliers");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+async function buildPurchasePdfBuffer(purchase) {
+  const PDFDocument = (await import("pdfkit")).default;
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50 });
+    const chunks = [];
+    doc.on("data", (c) => chunks.push(c));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    doc.fontSize(18).text(`Purchase Order ${purchase.purchaseNumber}`, { underline: true });
+    doc.moveDown();
+    doc.fontSize(11).text(`Supplier: ${purchase.supplier?.name || ""}`);
+    doc.text(`Date: ${purchase.createdAt?.toISOString?.().slice(0, 10) || ""}`);
+    doc.text(`Invoice ref: ${purchase.invoiceRef || "—"}`);
+    doc.moveDown();
+    doc.fontSize(12).text("Items", { underline: true });
+    purchase.items?.forEach((it, i) => {
+      doc.fontSize(10).text(
+        `${i + 1}. ${it.product?.name || it.productId} × ${it.quantity} @ ${Number(it.unitCost)} = ${Number(it.lineTotal)}`
+      );
+    });
+    doc.moveDown();
+    doc.fontSize(12).text(`Total: ${Number(purchase.totalAmount)}`);
+    doc.text(`Paid: ${Number(purchase.paidAmount)}`);
+    doc.end();
+  });
+}
+
+export async function exportPurchasePdfAction(purchaseId) {
+  try {
+    await ensure();
+    const p = await getPurchaseDetailAdmin(purchaseId);
+    if (!p) return { ok: false, error: "not_found" };
+    const buf = await buildPurchasePdfBuffer(p);
+    return { ok: true, base64: buf.toString("base64"), filename: `${p.purchaseNumber}.pdf` };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e.message };
+  }
+}

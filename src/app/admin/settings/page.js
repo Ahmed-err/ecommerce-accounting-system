@@ -1,26 +1,24 @@
 import { auth } from "@/auth";
-import { getUserProfile } from "@/app/actions/user";
-import SettingsClient from "@/components/store/SettingsClient";
 import { redirect } from "next/navigation";
 import { getTranslations } from "@/lib/translations";
 import { cookies } from "next/headers";
+import AdminSettingsClient from "@/components/admin/AdminSettingsClient";
+import { getAdminSettingsData } from "@/app/actions/settings";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminSettingsPage() {
+export default async function AdminSettingsPage({ searchParams }) {
   const session = await auth();
-  if (!session || session.user.role === "CUSTOMER") {
+  if (!session || session.user.role !== "ADMIN") {
     redirect("/admin");
   }
-
-  const user = await getUserProfile();
-  if (!user) {
-    redirect("/login");
-  }
+  const params = await searchParams;
+  const tab = params?.tab || "store";
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = getTranslations(lang);
+  const initialData = await getAdminSettingsData();
 
   return (
     <div className="space-y-8 p-4">
@@ -33,8 +31,8 @@ export default async function AdminSettingsPage() {
         </p>
       </div>
 
-      <div className="max-w-4xl">
-        <SettingsClient user={user} />
+      <div className="max-w-6xl">
+        <AdminSettingsClient initialTab={tab} initialData={initialData} lang={lang} />
       </div>
     </div>
   );

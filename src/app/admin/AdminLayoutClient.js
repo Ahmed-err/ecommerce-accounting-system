@@ -9,7 +9,7 @@ import { Menu } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
-export default function AdminLayoutClient({ children }) {
+export default function AdminLayoutClient({ children, unreadContactCount = 0 }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { isRTL, lang } = useLanguage();
@@ -25,36 +25,49 @@ export default function AdminLayoutClient({ children }) {
       
       {/* --- SIDEBAR --- */}
       <aside className="hidden md:block w-64 flex-shrink-0 sticky top-0 h-screen">
-        <AdminSidebar />
+        <AdminSidebar unreadContactCount={unreadContactCount} />
       </aside>
 
       {/* --- MAIN CONTENT CONTAINER --- */}
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* --- MOBILE HEADER --- */}
-        <header className="md:hidden sticky top-0 z-40 flex items-center justify-between p-4 border-b border-white/5 bg-gray-900/80 backdrop-blur-xl">
-          {mounted && (
-            <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-white/10 shrink-0">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">{t.adminToggleMenu}</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={isRTL ? "right" : "left"} className={`p-0 bg-gray-900 border-white/5 w-72 pt-0 ${isRTL ? 'border-l' : 'border-r'}`}>
-                <SheetHeader className="sr-only">
-                  <SheetTitle>{t.adminNavMenu}</SheetTitle>
-                </SheetHeader>
-                <AdminSidebar onNavigate={() => setIsMobileOpen(false)} />
-              </SheetContent>
-            </Sheet>
-          )}
-
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              {lang === 'ar' ? 'بـاور' : 'Power'}<span className="text-amber-500">{lang === 'ar' ? 'سـتور' : 'Store'}</span>
-            </h2>
+        <header className="md:hidden sticky top-0 z-40 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 border-b border-white/5 bg-gray-900/80 p-4 backdrop-blur-xl">
+          <div className="flex justify-start">
+            {mounted ? (
+              <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-300 hover:bg-white/10 hover:text-white">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">{t.adminToggleMenu}</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side={isRTL ? "right" : "left"} className={`w-72 border-white/5 bg-gray-900 p-0 pt-0 ${isRTL ? "border-l" : "border-r"}`}>
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>{t.adminNavMenu}</SheetTitle>
+                  </SheetHeader>
+                  <AdminSidebar
+                    unreadContactCount={unreadContactCount}
+                    onNavigate={() => setIsMobileOpen(false)}
+                  />
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled
+                className="h-10 w-10 text-gray-300 opacity-100"
+                aria-label={t.adminToggleMenu}
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+            )}
           </div>
+          <h2 className="min-w-0 truncate text-center text-sm font-bold leading-tight text-white">
+            {t.brandName}
+          </h2>
+          <div aria-hidden className="h-9 w-10" />
         </header>
 
         {/* --- PAGE CONTENT --- */}

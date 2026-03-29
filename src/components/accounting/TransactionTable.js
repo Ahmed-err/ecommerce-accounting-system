@@ -10,6 +10,7 @@ import TransactionForm from "./TransactionForm";
 import { deleteTransaction } from "@/app/actions/accounting";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { useSession } from "next-auth/react";
 
 const CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -237,9 +238,11 @@ export default function TransactionTable({ initialTransactions, total, searchPar
                   <Button variant="ghost" size="icon" onClick={() => openEdit(tx)} className="text-gray-400 hover:text-white">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(tx.id)} className="text-gray-400 hover:text-red-400">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {canDelete && (
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(tx.id)} className="text-gray-400 hover:text-red-400">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}

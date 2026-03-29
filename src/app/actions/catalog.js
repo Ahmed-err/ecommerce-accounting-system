@@ -4,13 +4,48 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import QRCode from "qrcode";
-import { PAYMENT_METHODS, SUDAN_CITIES } from "@/lib/constants";
+import { PAYMENT_METHODS, SUDAN_CITIES, CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { translations } from "@/lib/translations";
+import { serializeCatalogProduct } from "@/lib/catalog-serialize";
 
 async function ensureStaff() {
   const session = await auth();
   if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
     throw new Error("Unauthorized: Only Staff can access administrative order data.");
+  }
+}
+
+export async function getCatalogPriceBounds() {
+  try {
+    const agg = await db.product.aggregate({
+      where: { isActive: true },
+      _min: { sellingPrice: true },
+      _max: { sellingPrice: true },
+    });
+    return {
+      min: Number(agg._min.sellingPrice ?? 0),
+      max: Number(agg._max.sellingPrice ?? 0),
+    };
+  } catch {
+    return { min: 0, max: 0 };
+  }
+}
+
+export async function getCatalogProductsByIds(ids) {
+  try {
+    const clean = Array.isArray(ids) ? ids.filter(Boolean).slice(0, 12) : [];
+    if (clean.length === 0) return [];
+    const products = await db.product.findMany({
+      where: { id: { in: clean }, isActive: true },
+      include: { category: true },
+    });
+    const order = new Map(clean.map((id, i) => [id, i]));
+    return products
+      .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
+      .map(serializeCatalogProduct);
+  } catch (e) {
+    console.error("getCatalogProductsByIds:", e);
+    return [];
   }
 }
 
@@ -20,10 +55,36 @@ export async function getCatalogProducts({
   sort = "newest",
   page = 1,
   limit = 12,
+  minPrice,
+  maxPrice,
+  inStockOnly,
 } = {}) {
   try {
+    const minP =
+      minPrice !== undefined && minPrice !== "" && !Number.isNaN(Number(minPrice))
+        ? Number(minPrice)
+        : null;
+    const maxP =
+      maxPrice !== undefined && maxPrice !== "" && !Number.isNaN(Number(maxPrice))
+        ? Number(maxPrice)
+        : null;
+
+    const priceFilter =
+      minP !== null || maxP !== null
+        ? {
+            sellingPrice: {
+              ...(minP !== null ? { gte: minP } : {}),
+              ...(maxP !== null ? { lte: maxP } : {}),
+            },
+          }
+        : {};
+
     const where = {
       isActive: true,
+      ...priceFilter,
+      ...(inStockOnly === true || inStockOnly === "true" || inStockOnly === "1"
+        ? { stock: { gt: 0 } }
+        : {}),
       ...(search
         ? {
             OR: [
@@ -38,27 +99,48 @@ export async function getCatalogProducts({
         : {}),
     };
 
-    const orderBy = {
-      newest: { createdAt: "desc" },
-      price_asc: { sellingPrice: "asc" },
-      price_desc: { sellingPrice: "desc" },
-      name_asc: { name: "asc" },
-    }[sort] || { createdAt: "desc" };
+    let orderBy = { createdAt: "desc" };
+    if (sort === "newest") orderBy = { createdAt: "desc" };
+    else if (sort === "price_asc") orderBy = { sellingPrice: "asc" };
+    else if (sort === "price_desc") orderBy = { sellingPrice: "desc" };
+    else if (sort === "name_asc") orderBy = { name: "asc" };
+    else if (sort === "stock_desc") orderBy = { stock: "desc" };
+    else if (sort === "best_selling") {
+      orderBy = { orderItems: { _count: "desc" } };
+    } else if (sort === "top_rated") {
+      orderBy = { stock: "desc" };
+    }
 
     const skip = (page - 1) * limit;
 
-    const [products, total] = await Promise.all([
-      db.product.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit,
-        include: { category: true },
-      }),
-      db.product.count({ where }),
-    ]);
+    const runQuery = (ob) =>
+      Promise.all([
+        db.product.findMany({
+          where,
+          orderBy: ob,
+          skip,
+          take: limit,
+          include: { category: true },
+        }),
+        db.product.count({ where }),
+      ]);
 
-    return { products, total };
+    let products;
+    let total;
+    try {
+      [products, total] = await runQuery(orderBy);
+    } catch (e) {
+      if (sort === "best_selling") {
+        [products, total] = await runQuery({ stock: "desc" });
+      } else {
+        throw e;
+      }
+    }
+
+    return {
+      products: products.map(serializeCatalogProduct),
+      total,
+    };
   } catch (error) {
     console.error("Failed to fetch catalog products:", error);
     return { products: [], total: 0 };
@@ -67,13 +149,42 @@ export async function getCatalogProducts({
 
 export async function getProductById(id) {
   try {
-    const product = await db.product.findUnique({
-      where: { id },
+    const product = await db.product.findFirst({
+      where: { id, isActive: true },
       include: { category: true },
     });
-    return product;
+    return product ? serializeCatalogProduct(product) : null;
   } catch (error) {
     console.error("Failed to fetch product:", error);
+    return null;
+  }
+}
+
+export async function getMyOrderConfirmation(orderId) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id || !orderId) return null;
+    const order = await db.order.findFirst({
+      where: { id: orderId, userId: session.user.id },
+      include: {
+        items: { include: { product: true } },
+      },
+    });
+    if (!order) return null;
+    return {
+      id: order.id,
+      status: order.status,
+      createdAt: order.createdAt,
+      totalAmount: Number(order.totalAmount),
+      items: order.items.map((i) => ({
+        id: i.id,
+        quantity: i.quantity,
+        price: Number(i.price),
+        productName: i.product?.name || "",
+      })),
+    };
+  } catch (e) {
+    console.error("getMyOrderConfirmation:", e);
     return null;
   }
 }
@@ -122,7 +233,26 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
 
     const session = await auth();
     const role = session?.user?.role || "GUEST";
-    const effectiveUserId = session?.user?.id ?? null;
+    let effectiveUserId =
+      typeof session?.user?.id === "string" && session.user.id.trim() ? session.user.id.trim() : null;
+
+    if (effectiveUserId) {
+      const dbUser = await db.user.findUnique({
+        where: { id: effectiveUserId },
+        select: { id: true },
+      });
+      if (!dbUser) {
+        if (role === "CUSTOMER") {
+          return {
+            success: false,
+            error:
+              "Your session is out of date. Please sign out and sign in again, then retry checkout.",
+          };
+        }
+        effectiveUserId = null;
+      }
+    }
+
     const isCustomerCheckout = role === "CUSTOMER" || role === "GUEST";
 
     const allowedPaymentMethodIds = new Set(PAYMENT_METHODS.map((m) => m.id));
@@ -189,6 +319,26 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
 
     const shippingCharge = isCustomerCheckout ? cityRate : 0;
 
+    const rawCoupon =
+      typeof guest.couponCode === "string" ? guest.couponCode.trim().toUpperCase() : "";
+    let couponRecord = null;
+    if (rawCoupon) {
+      couponRecord = await db.coupon.findFirst({
+        where: { code: rawCoupon, isActive: true },
+      });
+      if (!couponRecord || (couponRecord.expiresAt && couponRecord.expiresAt < new Date())) {
+        return { success: false, error: "Invalid or expired coupon code." };
+      }
+      if (couponRecord.percentOff < 1 || couponRecord.percentOff > 100) {
+        return { success: false, error: "Invalid coupon configuration." };
+      }
+    }
+
+    const notesSanitized =
+      typeof guest.orderNotes === "string"
+        ? guest.orderNotes.trim().slice(0, 2000)
+        : "";
+
     // Invoice Data: number outside transaction (simple uniqueness).
     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
 
@@ -217,6 +367,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             );
           }
 
+          const unitPrice = Number(prod.sellingPrice);
           validatedItems.push({
             productId: prod.id,
             productName: prod.name,
@@ -224,11 +375,23 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             price: prod.sellingPrice,
           });
 
-          totalItemsAmount += prod.sellingPrice * quantity;
+          totalItemsAmount += unitPrice * quantity;
         }
 
-        const taxAmount = totalItemsAmount * 0.15;
-        const grandTotal = totalItemsAmount + shippingCharge + taxAmount;
+        totalItemsAmount = Math.round(totalItemsAmount * 100) / 100;
+
+        let discountAmount = 0;
+        if (couponRecord) {
+          discountAmount = Math.min(
+            totalItemsAmount,
+            Math.round(totalItemsAmount * (couponRecord.percentOff / 100) * 100) / 100
+          );
+        }
+
+        const afterDiscount = Math.round((totalItemsAmount - discountAmount) * 100) / 100;
+        const taxAmount = Math.round(afterDiscount * CHECKOUT_TAX_RATE * 100) / 100;
+        const grandTotal =
+          Math.round((afterDiscount + Number(shippingCharge) + taxAmount) * 100) / 100;
 
         const newOrder = await tx.order.create({
           data: {
@@ -245,6 +408,8 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             shippingCost: shippingCharge,
             paymentMethod: normalizedPaymentMethod,
             isVerified: false,
+            customerNotes: notesSanitized || null,
+            couponCode: couponRecord ? rawCoupon : null,
             items: {
               create: validatedItems.map((vi) => ({
                 productId: vi.productId,
@@ -257,6 +422,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
                 invoiceNumber,
                 totalAmount: grandTotal,
                 taxAmount,
+                discountAmount,
                 qrCode: null,
               },
             },
@@ -301,7 +467,13 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         return {
           order: newOrder,
           invoice: newOrder.invoice,
-          totals: { totalItemsAmount, shippingCharge, taxAmount, grandTotal },
+          totals: {
+            totalItemsAmount,
+            discountAmount,
+            shippingCharge,
+            taxAmount,
+            grandTotal,
+          },
         };
       },
       {

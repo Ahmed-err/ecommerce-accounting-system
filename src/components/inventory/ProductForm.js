@@ -1,26 +1,97 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UploadButton } from "@/lib/uploadthing";
-import { createProduct, updateProduct } from "@/app/actions/inventory";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UploadButton } from "@/lib/uploader";
+import { createProduct, updateProduct, generateSkuSuggestion } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
+import InventoryBarcode from "./InventoryBarcode";
 
-export default function ProductForm({ isOpen, onClose, product, categories }) {
+const MAX_PRODUCT_IMAGES = 4;
+
+function formatServerError(res) {
+  if (!res?.error) return "";
+  if (typeof res.error === "string") return res.error;
+  try {
+    const o = res.error;
+    if (typeof o === "object") {
+      const parts = Object.values(o).flat();
+      return parts.filter(Boolean).join(" · ");
+    }
+  } catch {
+    /* ignore */
+  }
+  return "";
+}
+
+function formatUploadError(err, fallback) {
+  if (!err) return fallback;
+  if (typeof err === "string") return err;
+  if (typeof err?.message === "string" && err.message.trim()) return err.message;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return fallback;
+  }
+}
+
+function pickUploadUrl(file) {
+  if (!file || typeof file !== "object") return "";
+  return (
+    file.url ||
+    file.ufsUrl ||
+    file.appUrl ||
+    file.serverData?.url ||
+    file.serverData?.ufsUrl ||
+    ""
+  );
+}
+
+const emptyForm = {
+  name: "",
+  nameEn: "",
+  nameAr: "",
+  description: "",
+  descriptionEn: "",
+  descriptionAr: "",
+  sku: "",
+  barcode: "",
+  unit: "pcs",
+  purchasePrice: 0,
+  sellingPrice: 0,
+  stock: 0,
+  minStock: 5,
+  categoryId: "",
+  supplierId: "",
+  images: [],
+  isActive: true,
+};
+
+export default function ProductForm({ isOpen, onClose, product, categories, suppliers = [] }) {
+  const router = useRouter();
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const isEditing = !!product;
-  
-  const [formData, setFormData] = useState({
-    name: "", description: "", sku: "", 
-    purchasePrice: 0, sellingPrice: 0, 
-    stock: 0, minStock: 5, categoryId: "", images: []
-  });
-  
+
+  const [formData, setFormData] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,50 +99,82 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
     if (product) {
       setFormData({
         name: product.name || "",
+        nameEn: product.nameEn || "",
+        nameAr: product.nameAr || "",
         description: product.description || "",
+        descriptionEn: product.descriptionEn || "",
+        descriptionAr: product.descriptionAr || "",
         sku: product.sku || "",
-        purchasePrice: product.purchasePrice || 0,
-        sellingPrice: product.sellingPrice || 0,
-        stock: product.stock || 0,
-        minStock: product.minStock || 5,
+        barcode: product.barcode || "",
+        unit: product.unit || "pcs",
+        purchasePrice: product.purchasePrice ?? 0,
+        sellingPrice: product.sellingPrice ?? 0,
+        stock: product.stock ?? 0,
+        minStock: product.minStock ?? 5,
         categoryId: product.categoryId || "",
-        images: product.images || []
+        supplierId: product.supplierId || "",
+        images: product.images || [],
+        isActive: product.isActive !== false,
       });
     } else {
-      setFormData({
-        name: "", description: "", sku: "", 
-        purchasePrice: 0, sellingPrice: 0, 
-        stock: 0, minStock: 5, categoryId: "", images: []
-      });
+      setFormData({ ...emptyForm });
     }
     setError("");
   }, [product, isOpen]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCategoryChange = (val) => {
-    setFormData(prev => ({ ...prev, categoryId: val }));
+  const handleGenSku = async () => {
+    const res = await generateSkuSuggestion();
+    if (res.success) {
+      setFormData((prev) => ({ ...prev, sku: res.sku }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     try {
       if (!formData.categoryId) throw new Error(t.inventorySelectCategoryError);
-      
-      const res = isEditing 
-        ? await updateProduct(product.id, formData)
-        : await createProduct(formData);
-        
+
+      const payload = {
+        name: formData.name,
+        nameEn: formData.nameEn || null,
+        nameAr: formData.nameAr || null,
+        description: formData.description || null,
+        descriptionEn: formData.descriptionEn || null,
+        descriptionAr: formData.descriptionAr || null,
+        sku: formData.sku,
+        barcode: formData.barcode || null,
+        unit: formData.unit || "pcs",
+        purchasePrice: Number(formData.purchasePrice),
+        sellingPrice: Number(formData.sellingPrice),
+        stock: parseInt(formData.stock, 10),
+        minStock: parseInt(formData.minStock, 10),
+        categoryId: formData.categoryId,
+        supplierId: formData.supplierId || null,
+        images: formData.images || [],
+        isActive: formData.isActive,
+      };
+
+      const res = isEditing
+        ? await updateProduct(product.id, payload)
+        : await createProduct(payload);
+
       if (res.success) {
         onClose();
+        router.refresh();
       } else {
-        setError(res.error || t.inventorySaveError);
+        setError(formatServerError(res) || t.inventorySaveError);
       }
     } catch (err) {
       setError(err.message);
@@ -81,133 +184,318 @@ export default function ProductForm({ isOpen, onClose, product, categories }) {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-2xl overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
-        <SheetHeader>
-          <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>{isEditing ? t.inventoryEditProduct : t.inventoryAddNewProduct}</SheetTitle>
-          <SheetDescription className={`text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
-            {isEditing ? t.inventoryUpdateDetails : t.inventoryFillDetails}
-          </SheetDescription>
-        </SheetHeader>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton
+        className={cn(
+          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-4xl flex-col gap-0 overflow-hidden border-white/10 bg-gray-900 p-0 text-white sm:w-full",
+          isRTL && "text-right"
+        )}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <div className={cn("shrink-0 border-b border-white/10 px-6 pb-4 pt-6", isRTL ? "ps-12 pe-6" : "pe-12 ps-6")}>
+          <DialogHeader className={cn("space-y-2 p-0", isRTL ? "text-end" : "text-start")}>
+            <DialogTitle className="text-lg text-white">
+              {isEditing ? t.inventoryEditProduct : t.inventoryAddNewProduct}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              {isEditing ? t.inventoryUpdateDetails : t.inventoryFillDetails}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-8 px-2 pb-6">
-          {error && <div className="p-3 bg-red-500/20 text-red-400 rounded-md text-sm text-center">{error}</div>}
-          
-          {/* --- Basic Information --- */}
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+            <div className="space-y-6">
+          {error && (
+            <div className="rounded-md bg-red-500/20 p-3 text-center text-sm text-red-400">{error}</div>
+          )}
+
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryBasicInfo}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {t.inventoryBasicInfo}
+            </h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryProductName}</label>
-                <Input name="name" value={formData.name} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: كشاف إضاءة LED" : "e.g. LED Flashlight"} />
+                <label className="text-sm font-medium">{t.inventoryProductName}</label>
+                <Input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-800 border-white/10"
+                />
               </div>
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventorySkuModel}</label>
-                <Input name="sku" value={formData.sku} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: LP-60W-01" : "e.g. LP-60W-01"} />
+                <label className="text-sm font-medium">{t.inventoryNameEn}</label>
+                <Input name="nameEn" value={formData.nameEn} onChange={handleChange} className="bg-gray-800 border-white/10" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryNameAr}</label>
+                <Input name="nameAr" value={formData.nameAr} onChange={handleChange} className="bg-gray-800 border-white/10" />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <label className="text-sm font-medium">{t.inventorySkuModel}</label>
+                    <Input name="sku" value={formData.sku} onChange={handleChange} required className="bg-gray-800 border-white/10 font-mono text-sm" />
+                  </div>
+                  <Button type="button" variant="outline" className="border-white/20 text-white" onClick={handleGenSku}>
+                    {t.inventoryGenSku}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryColBarcode}</label>
+                <Input name="barcode" value={formData.barcode} onChange={handleChange} className="bg-gray-800 border-white/10 font-mono text-sm" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryColUnit}</label>
+                <Input name="unit" value={formData.unit} onChange={handleChange} className="bg-gray-800 border-white/10" />
               </div>
             </div>
-            
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.categoriesTab}</label>
+                <Select
+                  value={formData.categoryId?.toString() || ""}
+                  onValueChange={(v) => setFormData((p) => ({ ...p, categoryId: v }))}
+                >
+                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                    <SelectValue placeholder={t.inventorySelectCategory} />
+                  </SelectTrigger>
+                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id.toString()}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventorySupplier}</label>
+                <Select
+                  value={formData.supplierId || "none"}
+                  onValueChange={(v) =>
+                    setFormData((p) => ({ ...p, supplierId: v === "none" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                    <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.categoriesTab}</label>
-              <Select value={formData.categoryId?.toString()} onValueChange={handleCategoryChange}>
-                <SelectTrigger className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
-                  <SelectValue placeholder={t.inventorySelectCategory}>
-                    {formData.categoryId && categories.find(c => c.id.toString() === formData.categoryId.toString())?.name}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
-                  {categories.map(c => (
-                    <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">{t.accountingDesc}</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={2}
+                className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+              />
             </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryDescEn}</label>
+                <textarea
+                  name="descriptionEn"
+                  value={formData.descriptionEn}
+                  onChange={handleChange}
+                  rows={2}
+                  className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryDescAr}</label>
+                <textarea
+                  name="descriptionAr"
+                  value={formData.descriptionAr}
+                  onChange={handleChange}
+                  rows={2}
+                  className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+                />
+              </div>
+            </div>
+
+            {formData.barcode || formData.sku ? (
+              <div className="rounded-lg border border-white/10 bg-white p-3">
+                <InventoryBarcode value={formData.barcode || formData.sku} />
+              </div>
+            ) : null}
           </div>
 
-          {/* --- Pricing & Inventory --- */}
-          <div className="pt-2 space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryPriceStock}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {t.inventoryPriceStock}
+            </h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className={`text-sm font-medium text-amber-500/80 ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryPurchasePrice}</label>
-                <Input type="number" step="0.01" name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} required className={`bg-gray-800 border-white/10 focus:border-amber-500/50 ${isRTL ? 'text-right' : 'text-left'}`} />
+                <label className="text-sm font-medium text-amber-500/80">{t.inventoryPurchasePrice}</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  name="purchasePrice"
+                  value={formData.purchasePrice}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-800 border-white/10"
+                />
               </div>
               <div className="space-y-2">
-                <label className={`text-sm font-medium text-emerald-500/80 ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventorySellingPrice}</label>
-                <Input type="number" step="0.01" name="sellingPrice" value={formData.sellingPrice} onChange={handleChange} required className={`bg-gray-800 border-white/10 focus:border-emerald-500/50 ${isRTL ? 'text-right' : 'text-left'}`} />
+                <label className="text-sm font-medium text-emerald-500/80">{t.inventorySellingPrice}</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  name="sellingPrice"
+                  value={formData.sellingPrice}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-800 border-white/10"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryCurrentStock}</label>
+                <Input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-800 border-white/10"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryMinStockAlert}</label>
+                <Input
+                  type="number"
+                  name="minStock"
+                  value={formData.minStock}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-800 border-white/10"
+                />
               </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryCurrentStock}</label>
-                <Input type="number" name="stock" value={formData.stock} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} />
-              </div>
-              <div className="space-y-2">
-                <label className={`text-sm font-medium ${isRTL ? 'mr-1' : 'ml-1'}`}>{t.inventoryMinStockAlert}</label>
-                <Input type="number" name="minStock" value={formData.minStock} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} />
-              </div>
-            </div>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+                className="rounded border-white/20"
+              />
+              {t.inventoryActive}
+            </label>
           </div>
 
-          {/* --- Images --- */}
-          <div className="pt-2 space-y-4">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.inventoryProductImages}</h4>
-              <span className="text-[10px] text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">{formData.images.length}/4</span>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                {t.inventoryProductImages}
+              </h4>
+              <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-gray-500">
+                {formData.images.length}/{MAX_PRODUCT_IMAGES}
+              </span>
             </div>
-            
+
             {formData.images.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+              <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {formData.images.map((img, i) => (
-                  <div key={i} className="relative group aspect-square">
-                    <img src={img} alt="Product" className="h-full w-full object-cover rounded-lg border border-white/10" />
+                  <div key={i} className="group relative aspect-square">
+                    <img src={img} alt="" className="h-full w-full rounded-lg border border-white/10 object-cover" />
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, index) => index !== i) }))}
-                      className="absolute -top-1 -left-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-[10px] shadow-lg hover:scale-110 transition-transform"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: prev.images.filter((_, index) => index !== i),
+                        }))
+                      }
+                      className="absolute -top-1 end-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-lg"
                     >
                       ×
                     </button>
                     {i === 0 && (
-                      <span className={`absolute bottom-1 ${isRTL ? 'right-1' : 'left-1'} bg-black/60 text-[8px] text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter`}>{t.inventoryImagePrimary}</span>
+                      <span className="absolute bottom-1 start-1 rounded bg-black/60 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-tighter text-white">
+                        {t.inventoryImagePrimary}
+                      </span>
                     )}
                   </div>
                 ))}
               </div>
             )}
-            
-            <div className="p-6 border-2 border-dashed border-white/10 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 hover:border-amber-500/30 transition-all flex flex-col items-center justify-center gap-2">
-               <UploadButton
-                endpoint="productImage"
-                content={{
-                  button: ({ ready }) => ready ? t.inventoryUploadImages : t.saving,
-                  allowedContent: t.inventoryUploadLimit
-                }}
-                className="ut-button:bg-amber-500 ut-button:ut-readying:bg-amber-500/50 ut-button:text-black ut-button:font-bold ut-allowed-content:text-gray-500"
-                onClientUploadComplete={(res) => {
-                  if (res && res.length > 0) {
-                    const newUrls = res.map(f => f.url);
-                    setFormData(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
-                  }
-                }}
-                onUploadError={(error) => {
-                  setError(`${lang === 'ar' ? 'فشل الرفع' : 'Upload failed'}: ${error.message}`);
-                }}
-              />
+
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 bg-gray-800/30 p-6">
+              {formData.images.length >= MAX_PRODUCT_IMAGES ? (
+                <p className="text-xs text-amber-300">
+                  {lang === "ar"
+                    ? `تم الوصول للحد الأقصى (${MAX_PRODUCT_IMAGES}) للصور. احذف صورة لإضافة أخرى.`
+                    : `Maximum ${MAX_PRODUCT_IMAGES} images reached. Remove one to upload another.`}
+                </p>
+              ) : (
+                <UploadButton
+                  endpoint="productImage"
+                  content={{
+                    button: ({ ready }) => (ready ? t.inventoryUploadImages : t.saving),
+                    allowedContent: t.inventoryUploadLimit,
+                  }}
+                  className="rounded-md bg-amber-500 px-4 py-2 font-bold text-black hover:bg-amber-600 disabled:opacity-60"
+                  onClientUploadComplete={(res) => {
+                    if (!res?.length) return;
+                    const slotsLeft = Math.max(0, MAX_PRODUCT_IMAGES - formData.images.length);
+                    const newUrls = res
+                      .map((f) => pickUploadUrl(f))
+                      .filter(Boolean)
+                      .slice(0, slotsLeft);
+                    if (newUrls.length === 0) {
+                      const msg =
+                        lang === "ar"
+                          ? "تم الرفع لكن لم يتم استلام رابط الصورة."
+                          : "Upload finished but no image URL was returned.";
+                      setError(msg);
+                      return;
+                    }
+                    setFormData((prev) => ({
+                      ...prev,
+                      images: [...prev.images, ...newUrls].slice(0, MAX_PRODUCT_IMAGES),
+                    }));
+                  }}
+                  onUploadError={(err) => {
+                    const base = lang === "ar" ? "فشل الرفع" : "Upload failed";
+                    setError(`${base}: ${formatUploadError(err, base)}`);
+                  }}
+                />
+              )}
+            </div>
+          </div>
             </div>
           </div>
 
-          <div className="pt-8 pb-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">
-              {t.cancel}
-            </Button>
-            <Button type="submit" disabled={loading} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-              {loading ? t.saving : t.inventorySaveProduct}
-            </Button>
+          <div className="shrink-0 border-t border-white/10 bg-gray-950/90 px-6 py-4">
+            <div className={cn("flex flex-wrap justify-end gap-3", isRTL && "flex-row-reverse")}>
+              <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="text-white hover:bg-white/10">
+                {t.cancel}
+              </Button>
+              <Button type="submit" disabled={loading} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
+                {loading ? t.saving : t.inventorySaveProduct}
+              </Button>
+            </div>
           </div>
         </form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

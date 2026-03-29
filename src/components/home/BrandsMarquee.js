@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 
 export default function BrandsMarquee() {
   const { lang, isRTL } = useLanguage();
-  const trustedBy = lang === 'ar' ? "شركاء موثوقون وعلامات تجارية رائدة" : "Trusted by industry leaders and premium brands";
+  const trustedBy =
+    lang === "ar"
+      ? "شركاء موثوقون وعلامات تجارية رائدة"
+      : "Trusted by industry leaders and premium brands";
 
   const brands = [
     { name: "GlobalElectric", icon: Zap },
@@ -18,29 +21,50 @@ export default function BrandsMarquee() {
     { name: "MegaConnect", icon: Power },
   ];
 
-  // Provide exactly 4 sets so translating 50% moves exactly 2 sets for a seamless infinite loop
+  /* Four copies for a seamless 50% translate loop */
   const marqueeItems = [...brands, ...brands, ...brands, ...brands];
 
   return (
-    <section className="py-16 bg-background border-y border-foreground/5 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
-        <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.3em]">{trustedBy}</p>
-      </div>
-      
-      <div className="relative flex overflow-x-hidden group">
-        {/* Fading Edges */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+    <section className="py-10 bg-background border-y border-foreground/5 overflow-hidden sm:py-14 lg:py-16">
+      {/* Label */}
+      <p className="mb-7 px-4 text-center text-[10px] font-black text-muted-foreground uppercase tracking-[0.28em] sm:mb-9 sm:text-xs">
+        {trustedBy}
+      </p>
 
-        <div className={cn(
-          "flex items-center space-x-12 sm:space-x-24 rtl:space-x-reverse w-max pr-12 sm:pr-24",
-          isRTL ? "animate-[marquee-rtl_40s_linear_infinite]" : "animate-[marquee_40s_linear_infinite]",
-          "group-hover:[animation-play-state:paused]"
-        )}>
+      {/* Marquee */}
+      <div className="relative flex overflow-x-hidden group">
+        {/* Fade edges */}
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-y-0 z-10 w-16 from-background to-transparent sm:w-28 lg:w-36",
+            isRTL ? "right-0 bg-gradient-to-l" : "left-0 bg-gradient-to-r"
+          )}
+        />
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-y-0 z-10 w-16 from-background to-transparent sm:w-28 lg:w-36",
+            isRTL ? "left-0 bg-gradient-to-r" : "right-0 bg-gradient-to-l"
+          )}
+        />
+
+        <div
+          className={cn(
+            "flex items-center gap-8 sm:gap-16 lg:gap-24 w-max pr-8 sm:pr-16 lg:pr-24",
+            isRTL
+              ? "animate-[marquee-rtl_38s_linear_infinite]"
+              : "animate-[marquee_38s_linear_infinite]",
+            "group-hover:[animation-play-state:paused]"
+          )}
+        >
           {marqueeItems.map((brand, idx) => (
-            <div key={idx} className="flex items-center gap-4 text-foreground/20 hover:text-amber-500 transition-colors duration-500 grayscale hover:grayscale-0">
-              <brand.icon className="h-10 w-10 sm:h-12 sm:w-12" />
-              <span className="text-2xl sm:text-4xl font-black tracking-tighter italic whitespace-nowrap">{brand.name}</span>
+            <div
+              key={idx}
+              className="flex items-center gap-2.5 sm:gap-3.5 text-foreground/20 hover:text-amber-500 transition-colors duration-500 grayscale hover:grayscale-0 shrink-0"
+            >
+              <brand.icon className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 shrink-0" />
+              <span className="text-lg font-black tracking-tighter italic whitespace-nowrap sm:text-2xl lg:text-3xl">
+                {brand.name}
+              </span>
             </div>
           ))}
         </div>

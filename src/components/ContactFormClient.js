@@ -1,30 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Send, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { submitContactForm } from "@/app/actions/contact";
+import { cn } from "@/lib/utils";
 
-export default function ContactFormClient() {
+export default function ContactFormClient({ defaultSubject }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [fields, setFields] = useState({});
+  const [subject, setSubject] = useState(defaultSubject || "GENERAL");
+
+  useEffect(() => {
+    if (defaultSubject) setSubject(defaultSubject);
+  }, [defaultSubject]);
+
+  const subjects = [
+    { v: "GENERAL", label: t.contactSubjGeneral },
+    { v: "ORDER", label: t.contactSubjOrder },
+    { v: "PRODUCT", label: t.contactSubjProduct },
+    { v: "TECH", label: t.contactSubjTech },
+    { v: "OTHER", label: t.contactSubjOther },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setFields({});
 
     const formData = new FormData(e.target);
+    const message = String(formData.get("message") || "");
+    if (message.trim().length < 20) {
+      setLoading(false);
+      setError(t.contactMsgMin);
+      return;
+    }
+
     const result = await submitContactForm({
       name: formData.get("name"),
       email: formData.get("email"),
-      subject: formData.get("subject"),
-      message: formData.get("message"),
+      phone: formData.get("phone") || "",
+      subject,
+      message,
+      lang,
     });
 
     setLoading(false);
@@ -32,89 +59,132 @@ export default function ContactFormClient() {
       setSuccess(true);
       e.target.reset();
     } else {
-      setError(result.error);
+      setError(result.error || "");
+      if (result.fields) setFields(result.fields);
     }
   };
 
   if (success) {
     return (
-      <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
-        <CheckCircle className="h-16 w-16 text-emerald-500 mx-auto" />
-        <h2 className="text-2xl font-bold text-white">{t.contactFormSuccess}</h2>
-        <Button onClick={() => setSuccess(false)} variant="outline" className="mt-4 border-white/10 text-white hover:bg-white/5">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm md:p-12"
+      >
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
+          <CheckCircle className="mx-auto h-16 w-16 text-emerald-500" />
+        </motion.div>
+        <h2 className="mt-4 text-2xl font-bold text-foreground">{t.contactFormSuccess}</h2>
+        <Button onClick={() => setSuccess(false)} variant="outline" className="mt-6 border-border">
           {t.sendMessage}
         </Button>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12">
-      <h2 className="text-2xl font-bold text-white mb-8">{t.sendMessage}</h2>
+    <div className="rounded-3xl border border-border bg-card p-8 shadow-sm md:p-12">
+      <h2 className="mb-8 text-2xl font-bold text-foreground">{t.sendMessage}</h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {error && (
-          <div className="md:col-span-2 p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">{error}</div>
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400 md:col-span-2">
+            {error}
+          </div>
         )}
 
         <div className="space-y-2">
-          <label htmlFor="contact-name" className="text-sm font-medium text-gray-300">{t.fullName}</label>
-          <input
+          <label htmlFor="contact-name" className="text-sm font-medium text-muted-foreground">
+            {t.fullName}
+          </label>
+          <Input
             id="contact-name"
             name="name"
-            type="text"
             required
-            className={`w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'}`}
+            className={cn("border-border bg-background", fields.name && "border-red-500")}
             placeholder={t.contactNamePlaceholder}
           />
+          {fields.name?.[0] ? <p className="text-xs text-red-500">{fields.name[0]}</p> : null}
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="contact-email" className="text-sm font-medium text-gray-300">{t.email}</label>
-          <input
+          <label htmlFor="contact-email" className="text-sm font-medium text-muted-foreground">
+            {t.email}
+          </label>
+          <Input
             id="contact-email"
             name="email"
             type="email"
             required
-            className={`w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'}`}
+            dir="ltr"
+            className={cn("border-border bg-background", fields.email && "border-red-500")}
             placeholder={t.contactEmailPlaceholder}
+          />
+          {fields.email?.[0] ? <p className="text-xs text-red-500">{fields.email[0]}</p> : null}
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="contact-phone" className="text-sm font-medium text-muted-foreground">
+            {t.phoneOptional}
+          </label>
+          <Input
+            id="contact-phone"
+            name="phone"
+            dir="ltr"
+            className="border-border bg-background"
+            placeholder="09xxxxxxxx"
           />
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <label htmlFor="contact-subject" className="text-sm font-medium text-gray-300">{t.subject}</label>
+        <div className="space-y-2">
+          <label htmlFor="contact-subject" className="text-sm font-medium text-muted-foreground">
+            {t.subject}
+          </label>
           <select
             id="contact-subject"
-            name="subject"
-            className={`w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none appearance-none ${isRTL ? 'text-right' : 'text-left'}`}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            className={cn(
+              "flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm",
+              isRTL && "text-right"
+            )}
           >
-            <option>{t.subjProductInquiry}</option>
-            <option>{t.subjWholesaleQuote}</option>
-            <option>{t.subjTechSupport}</option>
-            <option>{t.subjOther}</option>
+            {subjects.map((s) => (
+              <option key={s.v} value={s.v}>
+                {s.label}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <label htmlFor="contact-message" className="text-sm font-medium text-gray-300">{t.messageText}</label>
+          <label htmlFor="contact-message" className="text-sm font-medium text-muted-foreground">
+            {t.messageText}
+          </label>
           <textarea
             id="contact-message"
             name="message"
             required
+            minLength={20}
             rows={5}
-            className={`w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none resize-none ${isRTL ? 'text-right' : 'text-left'}`}
+            className={cn(
+              "w-full resize-none rounded-md border border-border bg-background p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40",
+              isRTL && "text-right",
+              fields.message && "border-red-500"
+            )}
             placeholder={t.tellUsHowWeCanHelp}
           />
+          {fields.message?.[0] ? <p className="text-xs text-red-500">{fields.message[0]}</p> : null}
         </div>
 
-        <div className="md:col-span-2 pt-4">
+        <div className="md:col-span-2">
           <Button
             type="submit"
             disabled={loading}
-            className="w-full py-6 bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg rounded-xl flex items-center justify-center gap-2 group transition-all disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 bg-amber-500 py-6 text-lg font-bold text-black hover:bg-amber-400 disabled:opacity-50"
           >
             <span>{loading ? t.saving : t.submitMessage}</span>
-            {!loading && <Send className="h-5 w-5 group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+            {!loading && <Send className="h-5 w-5" />}
           </Button>
         </div>
       </form>

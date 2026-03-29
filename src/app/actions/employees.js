@@ -5,6 +5,34 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import { z } from "zod";
+
+const attendanceSchema = z.object({
+  userId: z.string().min(1),
+  date: z.string().min(1),
+  checkIn: z.string().optional().nullable(),
+  checkOut: z.string().optional().nullable(),
+  status: z.enum(["PRESENT", "ABSENT", "LATE", "HALF_DAY", "HOLIDAY"]),
+  notes: z.string().max(500).optional().nullable(),
+});
+
+const salarySchema = z.object({
+  userId: z.string().min(1),
+  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int().min(2020).max(2100),
+  baseSalary: z.coerce.number().positive(),
+  bonuses: z.coerce.number().min(0),
+  deductions: z.coerce.number().min(0),
+  notes: z.string().max(1000).optional().nullable(),
+});
+
+const leaveSchema = z.object({
+  userId: z.string().min(1),
+  type: z.enum(["ANNUAL", "SICK", "EMERGENCY", "UNPAID"]),
+  fromDate: z.string().min(1),
+  toDate: z.string().min(1),
+  reason: z.string().max(2000).optional().nullable(),
+});
 
 async function ensureAdmin() {
   const session = await auth();
@@ -174,14 +202,286 @@ export async function deleteEmployee(id) {
   try {
     const admin = await ensureAdmin();
     if (admin.id === id) {
-       return { success: false, error: "You cannot delete your own admin account." };
+      return { success: false, error: "You cannot delete your own admin account." };
     }
-    await db.user.delete({ where: { id } });
+    await db.user.update({ where: { id }, data: { isActive: false } });
     await logAction("DELETE_EMPLOYEE", { employeeId: id });
     revalidatePath("/admin/employees");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete employee:", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function getEmployeeHrData(query = {}) {
+  try {
+    await ensureAdmin();
+    const {
+      getEmployeeKpis,
+      getAttendanceLast30Days,
+      getDepartmentBreakdown,
+      getRoleBreakdown,
+      getRecentHrActivity,
+      getAttendanceSummary,
+      getPayrollSummary,
+      getLeaveSummary,
+    } = await import("@/lib/employees");
+
+    const tab = query.tab || "overview";
+    const now = new Date();
+    const month = query.month ? parseInt(query.month) : now.getMonth() + 1;
+    const year = query.year ? parseInt(query.year) : now.getFullYear();
+
+    switch (tab) {
+      case "overview": {
+        const [kpis, attendance30d, deptBreakdown, roleBreakdown, activity] = await Promise.all([
+          getEmployeeKpis(),
+          getAttendanceLast30Days(),
+          getDepartmentBreakdown(),
+          getRoleBreakdown(),
+          getRecentHrActivity(10),
+        ]);
+        return { ok: true, tab, kpis, attendance30d, deptBreakdown, roleBreakdown, activity };
+      }
+      case "attendance": {
+        const summary = await getAttendanceSummary({
+          userId: query.userId || null,
+          month,
+          year,
+        });
+        return { ok: true, tab, ...summary, month, year };
+      }
+      case "salaries": {
+        const payroll = await getPayrollSummary({
+          month,
+          year,
+          status: query.status || "all",
+        });
+        return { ok: true, tab, ...payroll, month, year };
+      }
+      case "leaves": {
+        const leaves = await getLeaveSummary({
+          month,
+          year,
+          userId: query.userId || null,
+          status: query.status || "all",
+          type: query.type || "all",
+        });
+        return { ok: true, tab, leaves, month, year };
+      }
+      case "reports": {
+        const [summary, payroll] = await Promise.all([
+          getAttendanceSummary({ month, year }),
+          getPayrollSummary({ month, year, status: "all" }),
+        ]);
+        return { ok: true, tab, summary, payroll, month, year };
+      }
+      default:
+        return { ok: true, tab };
+    }
+  } catch (error) {
+    console.error("getEmployeeHrData:", error);
+    return { ok: false, error: error.message };
+  }
+}
+
+export async function createAttendance(raw) {
+  try {
+    await ensureAdmin();
+    const parsed = attendanceSchema.safeParse(raw);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
+
+    const p = parsed.data;
+    const dateOnly = new Date(p.date);
+    dateOnly.setHours(12, 0, 0, 0);
+
+    const record = await db.attendance.upsert({
+      where: { userId_date: { userId: p.userId, date: dateOnly } },
+      update: {
+        status: p.status,
+        checkIn: p.checkIn ? new Date(p.checkIn) : null,
+        checkOut: p.checkOut ? new Date(p.checkOut) : null,
+        notes: p.notes || null,
+      },
+      create: {
+        userId: p.userId,
+        date: dateOnly,
+        status: p.status,
+        checkIn: p.checkIn ? new Date(p.checkIn) : null,
+        checkOut: p.checkOut ? new Date(p.checkOut) : null,
+        notes: p.notes || null,
+      },
+    });
+
+    await logAction("CREATE_ATTENDANCE", { attendanceId: record.id, userId: p.userId });
+    revalidatePath("/admin/employees");
+    return { success: true, record };
+  } catch (error) {
+    console.error("createAttendance:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateAttendance(id, raw) {
+  try {
+    await ensureAdmin();
+    const parsed = attendanceSchema.partial().safeParse(raw);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
+    const p = parsed.data;
+    const record = await db.attendance.update({
+      where: { id },
+      data: {
+        ...(p.status ? { status: p.status } : {}),
+        ...(p.checkIn !== undefined ? { checkIn: p.checkIn ? new Date(p.checkIn) : null } : {}),
+        ...(p.checkOut !== undefined ? { checkOut: p.checkOut ? new Date(p.checkOut) : null } : {}),
+        ...(p.notes !== undefined ? { notes: p.notes || null } : {}),
+      },
+    });
+    revalidatePath("/admin/employees");
+    return { success: true, record };
+  } catch (error) {
+    console.error("updateAttendance:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteAttendance(id) {
+  try {
+    await ensureAdmin();
+    await db.attendance.delete({ where: { id } });
+    revalidatePath("/admin/employees");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createSalaryRecord(raw) {
+  try {
+    await ensureAdmin();
+    const parsed = salarySchema.safeParse(raw);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
+    const p = parsed.data;
+    const net = p.baseSalary + p.bonuses - p.deductions;
+
+    const record = await db.salaryRecord.upsert({
+      where: { userId_month_year: { userId: p.userId, month: p.month, year: p.year } },
+      update: {
+        baseSalary: p.baseSalary,
+        bonuses: p.bonuses,
+        deductions: p.deductions,
+        netSalary: net,
+        notes: p.notes || null,
+      },
+      create: {
+        userId: p.userId,
+        month: p.month,
+        year: p.year,
+        baseSalary: p.baseSalary,
+        bonuses: p.bonuses,
+        deductions: p.deductions,
+        netSalary: net,
+        notes: p.notes || null,
+        status: "PENDING",
+      },
+    });
+
+    await logAction("CREATE_SALARY", { salaryId: record.id, userId: p.userId });
+    revalidatePath("/admin/employees");
+    return { success: true, record };
+  } catch (error) {
+    console.error("createSalaryRecord:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function markSalaryPaid(id) {
+  try {
+    await ensureAdmin();
+    const record = await db.salaryRecord.update({
+      where: { id },
+      data: { status: "PAID", paidAt: new Date() },
+    });
+    await logAction("MARK_SALARY_PAID", { salaryId: id });
+    revalidatePath("/admin/employees");
+    return { success: true, record };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createLeaveRequest(raw) {
+  try {
+    await ensureAdmin();
+    const parsed = leaveSchema.safeParse(raw);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
+    const p = parsed.data;
+    const from = new Date(p.fromDate);
+    const to = new Date(p.toDate);
+    const days = Math.max(1, Math.round((to - from) / (1000 * 60 * 60 * 24)) + 1);
+
+    const leave = await db.leaveRequest.create({
+      data: {
+        userId: p.userId,
+        type: p.type,
+        fromDate: from,
+        toDate: to,
+        days,
+        reason: p.reason || null,
+        status: "PENDING",
+      },
+    });
+
+    await logAction("CREATE_LEAVE", { leaveId: leave.id, userId: p.userId });
+    revalidatePath("/admin/employees");
+    return { success: true, leave };
+  } catch (error) {
+    console.error("createLeaveRequest:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function reviewLeaveRequest(id, action, notes) {
+  try {
+    await ensureAdmin();
+    const status = action === "approve" ? "APPROVED" : "REJECTED";
+    const leave = await db.leaveRequest.update({
+      where: { id },
+      data: { status, adminNotes: notes || null, reviewedAt: new Date() },
+    });
+    await logAction(action === "approve" ? "APPROVE_LEAVE" : "REJECT_LEAVE", { leaveId: id });
+    revalidatePath("/admin/employees");
+    return { success: true, leave };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function bulkMarkAttendance(entries) {
+  try {
+    await ensureAdmin();
+    const results = await Promise.allSettled(
+      entries.map((e) => createAttendance(e))
+    );
+    const failed = results.filter((r) => r.status === "rejected" || !r.value?.success).length;
+    revalidatePath("/admin/employees");
+    return { success: true, total: entries.length, failed };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getAllStaff() {
+  try {
+    await ensureAdmin();
+    const staff = await db.user.findMany({
+      where: { role: { not: "CUSTOMER" }, isActive: true },
+      select: { id: true, firstName: true, lastName: true, role: true, salary: true, avatar: true },
+      orderBy: { firstName: "asc" },
+    });
+    return staff;
+  } catch (error) {
+    return [];
   }
 }
