@@ -26,6 +26,7 @@ export default function ProductCard({
   compareIds = [],
   onToggleCompare,
   compactRail = false,
+  homeShowcase = false,
 }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
@@ -86,7 +87,11 @@ export default function ProductCard({
     onToggleCompare(product.id);
   };
 
-  const imgHeight = compactRail ? "h-40" : "h-64";
+  const imgHeight = compactRail
+    ? "h-40"
+    : homeShowcase
+      ? "h-36 min-h-[9rem] sm:h-40 sm:min-h-[10rem] md:h-44 lg:h-48 xl:h-52"
+      : "h-64";
 
   const quickBody = (
     <div
@@ -202,8 +207,9 @@ export default function ProductCard({
     <>
       <motion.div
         className={cn(
-          "group relative flex flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
-          compactRail && "rounded-2xl"
+          "group relative flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          compactRail && "rounded-2xl",
+          homeShowcase && "rounded-2xl sm:rounded-3xl"
         )}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -216,10 +222,12 @@ export default function ProductCard({
         whileHover={
           compactRail
             ? {}
-            : {
-                y: -8,
-                transition: { duration: 0.3 },
-              }
+            : homeShowcase
+              ? { y: -4, transition: { duration: 0.25 } }
+              : {
+                  y: -8,
+                  transition: { duration: 0.3 },
+                }
         }
       >
         <motion.div
@@ -294,7 +302,11 @@ export default function ProductCard({
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="(max-w-768px) 100vw, (max-w-1200px) 50vw, 25vw"
+                  sizes={
+                    homeShowcase
+                      ? "(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 22vw"
+                      : "(max-w-768px) 100vw, (max-w-1200px) 50vw, 25vw"
+                  }
                   onError={() => setImgError(true)}
                 />
               </div>
@@ -333,31 +345,42 @@ export default function ProductCard({
 
           <div
             className={cn(
-              "relative z-10 flex flex-1 flex-col p-5",
+              "relative z-10 flex min-h-0 flex-1 flex-col p-5",
               compactRail && "p-3",
+              homeShowcase && "p-3 pt-3 sm:p-4 lg:p-5",
               isRTL ? "text-right" : "text-left"
             )}
           >
-            <span className="text-xs font-medium uppercase tracking-wider text-amber-500">
+            <span
+              className={cn(
+                "font-medium uppercase tracking-wider text-amber-500",
+                homeShowcase ? "text-[10px] sm:text-xs" : "text-xs"
+              )}
+            >
               {translateCategory(product.category?.name, t)}
             </span>
 
-            <Link href={`/products/${product.id}`}>
+            <Link href={`/products/${product.id}`} className="min-h-0">
               <h3
                 className={cn(
-                  "mt-1 mb-2 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2",
-                  compactRail ? "text-sm" : "text-lg"
+                  "mt-1 mb-2 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug",
+                  compactRail ? "text-sm" : homeShowcase ? "text-sm sm:text-base lg:text-lg" : "text-lg"
                 )}
               >
                 {product.name}
               </h3>
             </Link>
 
-            <div className="mt-auto flex items-center justify-between pt-3">
+            <div
+              className={cn(
+                "mt-auto flex items-center justify-between gap-2 pt-2 sm:pt-3",
+                homeShowcase && "pt-2"
+              )}
+            >
               <span
                 className={cn(
-                  "font-bold text-foreground",
-                  compactRail ? "text-base" : "text-xl"
+                  "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
+                  compactRail ? "text-base" : homeShowcase ? "text-xs max-[380px]:text-[11px] sm:text-sm md:text-base lg:text-lg" : "text-xl"
                 )}
               >
                 {selling.toLocaleString()} {t.currency}
@@ -370,10 +393,13 @@ export default function ProductCard({
                   addToCart(product);
                 }}
                 disabled={isOutOfStock}
-                className="relative overflow-hidden rounded-xl bg-amber-500/10 p-2.5 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                className={cn(
+                  "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
+                  homeShowcase ? "p-2 sm:p-2.5" : "p-2.5"
+                )}
                 title={t.addToCart}
               >
-                <ShoppingCart className="h-4 w-4" />
+                <ShoppingCart className={cn(homeShowcase ? "h-3.5 w-3.5 sm:h-4 sm:w-4" : "h-4 w-4")} />
               </button>
             </div>
           </div>
