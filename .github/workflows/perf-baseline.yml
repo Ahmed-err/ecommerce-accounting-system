@@ -1,0 +1,39 @@
+name: Performance Baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to test (e.g. https://example.com)"
+        required: true
+        type: string
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run baseline script
+        env:
+          PERF_BASE_URL: ${{ inputs.base_url }}
+          PERF_RUNS: "5"
+          PERF_TIMEOUT_MS: "20000"
+        run: npm run perf:baseline > perf-baseline-report.json
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-baseline-report
+          path: perf-baseline-report.json

@@ -26,7 +26,25 @@ const globalForPrisma = globalThis;
 // Bump key when schema changes so dev HMR does not keep a stale client (missing new models).
 export const prisma =
     globalForPrisma.prismaV3 ??
-    new PrismaClient({ adapter });
+    new PrismaClient({
+      adapter,
+      ...(process.env.PRISMA_LOG_QUERIES === "true"
+        ? { log: [{ level: "query", emit: "event" }, "error", "warn"] }
+        : { log: ["error", "warn"] }),
+    });
+
+if (process.env.PRISMA_LOG_QUERIES === "true") {
+    const slowMs = Number(process.env.DB_SLOW_QUERY_MS || 250);
+    prisma.$on("query", (e) => {
+      if (e.duration >= slowMs) {
+        console.warn("[DB_SLOW_QUERY]", {
+          durationMs: e.duration,
+          target: e.target,
+          query: e.query?.slice(0, 240),
+        });
+      }
+    });
+}
 
 if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prismaV3 = prisma;

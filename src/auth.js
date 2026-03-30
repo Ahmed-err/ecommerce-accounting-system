@@ -9,6 +9,13 @@ import { checkRateLimit } from "@/lib/rate-limit";
 const googleId = process.env.GOOGLE_CLIENT_ID;
 const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
 
+function normalizePhone(input) {
+  const raw = String(input || "").trim();
+  const normalized = raw.replace(/[^\d+]/g, "");
+  if (!/^\+?\d{8,15}$/.test(normalized)) return null;
+  return normalized.startsWith("+") ? normalized : `+${normalized}`;
+}
+
 export const {
   handlers,
   auth,
@@ -34,18 +41,20 @@ export const {
     Credentials({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+        const identifier = String(credentials.email).trim();
 
-        const rateKey = `login_${credentials.email}`;
+        const rateKey = `login_${identifier}`;
         const allowed = await checkRateLimit(rateKey, 10, 15 * 60 * 1000, { failClosed: true });
         if (!allowed) {
             throw new Error("Too many login attempts. Please try again later.");
         }
 
+        const normalizedPhone = normalizePhone(identifier);
         const user = await prisma.user.findFirst({
           where: {
             OR: [
-              { email: credentials.email },
-              { phone: credentials.email } // Assuming 'email' field in form is used for both
+              { email: identifier },
+              ...(normalizedPhone ? [{ phone: normalizedPhone }, { phone: identifier }] : [{ phone: identifier }]),
             ]
           },
         });
@@ -64,6 +73,11 @@ export const {
         const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordCorrect) return null;
+
+        const isPhoneLogin = !!normalizePhone(identifier);
+        if (isPhoneLogin && !user.phoneVerified) {
+          throw new Error("PHONE_NOT_VERIFIED");
+        }
 
         return {
           id: user.id,

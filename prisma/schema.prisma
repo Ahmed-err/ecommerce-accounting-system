@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -12,6 +11,7 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
+  phoneVerified DateTime?
   image         String?
   password      String?
   firstName     String?
@@ -50,6 +50,7 @@ model User {
   reviews           Review[]
   reviewHelpfulVotes ReviewHelpfulVote[]
   wishlistItems     WishlistItem[]
+  notifications     Notification[]
 }
 
 model AuditLog {
@@ -713,6 +714,23 @@ model NotificationConfig {
   updatedAt                   DateTime @updatedAt
 }
 
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  titleAr   String
+  titleEn   String
+  bodyAr    String           @db.Text
+  bodyEn    String           @db.Text
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read, createdAt])
+  @@index([type, createdAt])
+}
+
 model Permission {
   id         String   @id @default(cuid())
   role       Role
@@ -818,4 +836,15 @@ enum ContactMessageStatus {
 enum LegalPageType {
   TERMS
   PRIVACY
+}
+
+enum NotificationType {
+  NEW_ORDER
+  LOW_STOCK
+  NEW_REVIEW
+  NEW_MESSAGE
+  ORDER_STATUS
+  PAYMENT_RECEIVED
+  NEW_USER
+  SYSTEM
 }

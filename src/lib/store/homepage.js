@@ -11,7 +11,6 @@ function decimalToNumber(value) {
 /** Plain object safe for Server → Client Component props (no Prisma Decimal). */
 function serializeProductForClient(row) {
   if (!row) return null;
-  const category = row.category;
   return {
     id: row.id,
     name: row.name,
@@ -20,20 +19,10 @@ function serializeProductForClient(row) {
     purchasePrice: decimalToNumber(row.purchasePrice),
     sellingPrice: decimalToNumber(row.sellingPrice),
     stock: row.stock,
-    minStock: row.minStock,
     images: row.images,
-    isActive: row.isActive,
-    categoryId: row.categoryId,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    category: category
+    category: row.category
       ? {
-          id: category.id,
-          name: category.name,
-          description: category.description,
-          image: category.image,
-          createdAt: category.createdAt,
-          updatedAt: category.updatedAt,
+          name: row.category.name,
         }
       : null,
   };
@@ -55,8 +44,18 @@ export async function getHomepageData() {
       db.product.findMany({
         where: { isActive: true },
         orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
-        take: 8,
-        include: { category: true },
+        take: 6,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          sku: true,
+          purchasePrice: true,
+          sellingPrice: true,
+          stock: true,
+          images: true,
+          category: { select: { name: true } },
+        },
       }),
       db.offer.findMany({
         where: { isActive: true },

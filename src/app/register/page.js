@@ -34,6 +34,12 @@ export default function RegisterPage() {
       return;
     }
 
+    if (result.requiresPhoneVerification && result.phone) {
+      router.push(`/verify-phone?phone=${encodeURIComponent(result.phone)}`);
+      router.refresh();
+      return;
+    }
+
     const signInResult = await signIn("credentials", {
       email,
       password,

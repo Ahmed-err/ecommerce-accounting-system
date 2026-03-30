@@ -1,4 +1,5 @@
 import { getHomepageData } from "@/lib/store/homepage";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSlider from "@/components/HeroSlider";
@@ -6,13 +7,14 @@ import CategoriesStrip from "@/components/CategoriesStrip";
 import TrustBadges from "@/components/TrustBadges";
 import PromoOffer from "@/components/PromoOffer";
 import AboutTeaser from "@/components/AboutTeaser";
-import BrandsMarquee from "@/components/home/BrandsMarquee";
-import NewsletterSection from "@/components/home/NewsletterSection";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import { translations } from "@/lib/translations";
 import { cookies } from "next/headers";
 
-export const revalidate = 60;
+const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
+const NewsletterSection = dynamic(() => import("@/components/home/NewsletterSection"));
+
+export const revalidate = 300;
 
 export default async function HomePage() {
   const cookieStore = await cookies();

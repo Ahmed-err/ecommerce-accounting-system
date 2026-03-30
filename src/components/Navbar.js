@@ -22,6 +22,7 @@ import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
+import StoreNotificationBell from "@/components/store/NotificationBell";
 import { Button } from "@/components/ui/button";
 import {
     Sheet,
@@ -293,6 +294,8 @@ export default function Navbar() {
                                 <span className="sr-only">Language</span>
                             </Button>
                         </div>
+
+                        {session ? <StoreNotificationBell /> : null}
 
                         <Link href="/cart" className="relative group">
                              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full relative bg-foreground/5 hover:bg-amber-500 hover:text-black transition-all">

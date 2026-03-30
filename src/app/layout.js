@@ -1,6 +1,9 @@
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { translations } from "@/lib/translations";
+import PWAInstallPrompt from "@/components/store/PWAInstallPrompt";
+import ServiceWorkerRegistration from "@/components/store/ServiceWorkerRegistration";
+import { validateEnv } from "@/lib/env";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -17,9 +20,11 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#f59e0b",
 };
 
 export async function generateMetadata() {
+  validateEnv();
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
@@ -39,6 +44,19 @@ export async function generateMetadata() {
       description,
     },
     twitter: { card: "summary_large_image", title, description },
+    manifest: "/manifest.json",
+    icons: {
+      apple: "/icons/icon-192.svg",
+      icon: [
+        { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+        { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+      ],
+    },
+    other: {
+      "mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "default",
+    },
   };
 }
 
@@ -48,6 +66,7 @@ import { CartProvider } from "@/components/store/CartProvider";
 import { cookies } from "next/headers";
 
 export default async function RootLayout({ children }) {
+  validateEnv();
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -60,6 +79,8 @@ export default async function RootLayout({ children }) {
         <Providers lang={lang}>
           <CartProvider>
             {children}
+            <ServiceWorkerRegistration />
+            <PWAInstallPrompt />
           </CartProvider>
         </Providers>
       </body>

@@ -2,12 +2,25 @@
   "name": "store-with-erp",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint": "eslint .",
+    "ci:check": "npm run lint && npm run build",
+    "audit:deps": "npm audit --audit-level=high",
+    "smoke": "node scripts/smoke-check.mjs",
+    "perf:baseline": "node scripts/perf-baseline.mjs",
+    "postinstall": "prisma generate",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "vitest run && playwright test"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -23,7 +36,7 @@
     "framer-motion": "^12.38.0",
     "jsbarcode": "^3.12.3",
     "lucide-react": "^0.577.0",
-    "next": "16.1.6",
+    "next": "^16.2.1",
     "next-auth": "^5.0.0-beta.30",
     "next-cloudinary": "^6.17.5",
     "next-themes": "^0.4.6",
@@ -46,11 +59,21 @@
     "seed": "node prisma/seed.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^25.5.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^16.2.1",
+    "jsdom": "^29.0.1",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }

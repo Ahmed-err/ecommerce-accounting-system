@@ -20,6 +20,28 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Quality & Production Commands
+
+```bash
+npm run lint
+npm run build -- --webpack
+npm run audit:deps
+SMOKE_BASE_URL="https://your-domain.com" npm run smoke
+PERF_BASE_URL="https://your-domain.com" npm run perf:baseline
+```
+
+## Production Readiness Docs
+
+- `docs/production/security-audit.md`
+- `docs/production/performance-audit.md`
+- `docs/production/performance-report-template.md`
+- `docs/production/go-live-checklist.md`
+- `docs/production/observability.md`
+- `docs/production/data-reliability.md`
+- `docs/production/auth-audit-matrix.md`
+- `docs/production/launch-status.md`
+- `docs/production/backup-restore-drill.md`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
