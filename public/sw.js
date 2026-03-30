@@ -1,6 +1,6 @@
-const CACHE_NAME = "store-static-v1";
+const CACHE_NAME = "store-static-v2";
 const OFFLINE_URL = "/offline";
-const PRE_CACHE = ["/", "/offline", "/manifest.json"];
+const PRE_CACHE = ["/offline", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -10,11 +10,21 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    ).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+      )
+      .then(() => self.clients.claim())
   );
 });
+
+function isAppRouterRequest(url) {
+  if (url.pathname.startsWith("/api/")) return true;
+  if (url.pathname.startsWith("/_next/")) return true;
+  if (url.search.includes("_rsc=") || url.searchParams.has("_rsc")) return true;
+  return false;
+}
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
@@ -23,28 +33,19 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (isAppRouterRequest(url)) {
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) || (await caches.match(OFFLINE_URL)))
+      fetch(request).catch(async () => {
+        const offline = await caches.match(OFFLINE_URL);
+        return offline || new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
+      })
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request).then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
-          return response;
-        })
-    )
-  );
+  return;
 });

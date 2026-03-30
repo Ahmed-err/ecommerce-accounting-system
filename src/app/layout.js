@@ -4,6 +4,7 @@ import { translations } from "@/lib/translations";
 import PWAInstallPrompt from "@/components/store/PWAInstallPrompt";
 import ServiceWorkerRegistration from "@/components/store/ServiceWorkerRegistration";
 import { validateEnv } from "@/lib/env";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -32,7 +33,7 @@ export async function generateMetadata() {
   const description = t.brandDesc;
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_URL || "https://essamnasr.com"),
+    metadataBase: new URL(`${getAbsoluteSiteUrl()}/`),
     title: { default: title, template: `%s | ${t.brandName}` },
     description,
     robots: { index: true, follow: true },
