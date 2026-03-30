@@ -100,17 +100,19 @@ export default function ProductShowcase({ products }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-4 lg:gap-8"
+                  className="grid grid-cols-2 items-stretch gap-2.5 sm:gap-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-8"
                 >
-                  {tab.data.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                  {tab.data.map((product, i) => (
+                    <div key={product.id} className="flex min-h-0 min-w-0">
+                      <ProductCard product={product} index={i} homeShowcase />
+                    </div>
                   ))}
 
                   {/* View All card */}
                   <Link
                     href="/products"
                     className={cn(
-                      "group relative col-span-2 flex min-h-[220px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-5 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:min-h-[240px] sm:rounded-3xl sm:p-7 lg:col-span-4 lg:min-h-[200px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8",
+                      "group relative col-span-2 flex min-h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:min-h-[220px] sm:rounded-3xl sm:p-6 lg:col-span-4 lg:min-h-[200px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8",
                       isRTL && "lg:flex-row-reverse"
                     )}
                   >
