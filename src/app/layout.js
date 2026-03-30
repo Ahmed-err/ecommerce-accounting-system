@@ -44,6 +44,7 @@ export async function generateMetadata() {
 
 import { Providers } from "@/components/Providers";
 import { CartProvider } from "@/components/store/CartProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { cookies } from "next/headers";
 
@@ -62,6 +63,7 @@ export default async function RootLayout({ children }) {
             {children}
           </CartProvider>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
