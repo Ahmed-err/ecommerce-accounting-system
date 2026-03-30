@@ -1,6 +1,7 @@
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { translations } from "@/lib/translations";
+import PWAInstallPrompt from "@/components/store/PWAInstallPrompt";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -39,6 +40,20 @@ export async function generateMetadata() {
       description,
     },
     twitter: { card: "summary_large_image", title, description },
+    manifest: "/manifest.json",
+    themeColor: "#f59e0b",
+    icons: {
+      apple: "/icons/icon-192.svg",
+      icon: [
+        { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+        { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+      ],
+    },
+    other: {
+      "mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "default",
+    },
   };
 }
 
@@ -60,6 +75,7 @@ export default async function RootLayout({ children }) {
         <Providers lang={lang}>
           <CartProvider>
             {children}
+            <PWAInstallPrompt />
           </CartProvider>
         </Providers>
       </body>

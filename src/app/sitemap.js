@@ -1,37 +1,53 @@
 import { prisma as db } from "@/lib/prisma";
 
-const BASE_URL = process.env.NEXT_PUBLIC_URL || "https://essamnasr.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_URL || "https://essamnasr.com";
+export const revalidate = 3600;
 
 export default async function sitemap() {
-  const products = await db.product.findMany({
-    where: { isActive: true },
-    select: { id: true, updatedAt: true },
-  });
+  let products = [];
+  let categories = [];
+  try {
+    [products, categories] = await Promise.all([
+      db.product.findMany({
+        where: { isActive: true },
+        select: { id: true, updatedAt: true },
+      }),
+      db.category.findMany({
+        select: { name: true },
+      }),
+    ]);
+  } catch (error) {
+    console.error("sitemap db error:", error);
+  }
 
-  const categories = await db.category.findMany({
-    select: { name: true },
-  });
+  const locales = ["ar", "en"];
+  const paths = ["/", "/about", "/contact", "/shop", "/products", "/login", "/register", "/terms", "/privacy"];
+  const staticPages = locales.flatMap((locale) =>
+    paths.map((path) => ({
+      url: `${BASE_URL}/${locale}${path === "/" ? "" : path}`,
+      lastModified: new Date(),
+      changeFrequency: path === "/" ? "daily" : "monthly",
+      priority: path === "/" ? 1.0 : path === "/shop" || path === "/products" ? 0.8 : 0.5,
+    }))
+  );
 
-  const staticPages = [
-    { url: BASE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
-    { url: `${BASE_URL}/products`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-  ];
+  const productPages = locales.flatMap((locale) =>
+    products.map((p) => ({
+      url: `${BASE_URL}/${locale}/shop/${p.id}`,
+      lastModified: p.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }))
+  );
 
-  const productPages = products.map((p) => ({
-    url: `${BASE_URL}/products/${p.id}`,
-    lastModified: p.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  const categoryPages = categories.map((c) => ({
-    url: `${BASE_URL}/products?category=${encodeURIComponent(c.name)}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
+  const categoryPages = locales.flatMap((locale) =>
+    categories.map((c) => ({
+      url: `${BASE_URL}/${locale}/shop?category=${encodeURIComponent(c.name)}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }))
+  );
 
   return [...staticPages, ...productPages, ...categoryPages];
 }

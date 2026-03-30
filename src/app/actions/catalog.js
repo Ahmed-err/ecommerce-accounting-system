@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 import { PAYMENT_METHODS, SUDAN_CITIES, CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { translations } from "@/lib/translations";
 import { serializeCatalogProduct } from "@/lib/catalog-serialize";
+import { createAdminBroadcastNotification, createNotification } from "@/lib/notifications";
 
 async function ensureStaff() {
   const session = await auth();
@@ -487,6 +488,14 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     revalidatePath("/admin");
     revalidatePath("/admin/accounting");
     revalidatePath("/products");
+    await createAdminBroadcastNotification({
+      type: "NEW_ORDER",
+      titleAr: "طلب جديد من المتجر",
+      titleEn: "New store order",
+      bodyAr: `تم استلام طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
+      bodyEn: `New order received: ${order.id.slice(-8).toUpperCase()}.`,
+      link: `/admin/orders`,
+    });
 
     // Generate QR code after transaction succeeds (doesn't affect stock integrity).
     const { grandTotal, taxAmount } = totals;
@@ -679,6 +688,17 @@ export async function updateOrderStatus(orderId, newStatus) {
     revalidatePath("/admin/orders");
     revalidatePath("/admin/accounting");
     revalidatePath("/admin");
+    if (order.userId) {
+      await createNotification({
+        userId: order.userId,
+        type: "ORDER_STATUS",
+        titleAr: "تحديث حالة الطلب",
+        titleEn: "Order status updated",
+        bodyAr: `تم تحديث حالة طلبك ${order.id.slice(-8).toUpperCase()} إلى ${newStatus}.`,
+        bodyEn: `Your order ${order.id.slice(-8).toUpperCase()} status is now ${newStatus}.`,
+        link: `/account/orders/${order.id}`,
+      });
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to update order workflow:", error);

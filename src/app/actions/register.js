@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
 
 /**
  * Validates password strength
@@ -75,7 +76,7 @@ export async function registerUser(formData) {
 
     // 4. Create User
     // Note: The 'name' field is required by Auth.js and is present in our Prisma schema.
-    await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         firstName: firstName,
         lastName: lastName,
@@ -85,6 +86,14 @@ export async function registerUser(formData) {
         phone: phone || null,
         role: "CUSTOMER",
       },
+    });
+    await createAdminBroadcastNotification({
+      type: "NEW_USER",
+      titleAr: "مستخدم جديد",
+      titleEn: "New user registered",
+      bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
+      bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
+      link: "/admin",
     });
 
     return { success: true };

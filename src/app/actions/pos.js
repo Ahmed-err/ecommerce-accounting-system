@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
 
 async function ensureStaff() {
   const session = await auth();
@@ -127,6 +128,14 @@ export async function createPOSOrder(cartItems, paymentDetails) {
     });
 
     await logAction("POS_SALE", { orderId: order.id, staffId: staff.id });
+    await createAdminBroadcastNotification({
+      type: "NEW_ORDER",
+      titleAr: "طلب جديد من نقطة البيع",
+      titleEn: "New POS order",
+      bodyAr: `تم إنشاء طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
+      bodyEn: `A new POS order was created: ${order.id.slice(-8).toUpperCase()}.`,
+      link: `/admin/orders`,
+    });
 
     revalidatePath("/pos");
     return { success: true, orderId: order.id };
