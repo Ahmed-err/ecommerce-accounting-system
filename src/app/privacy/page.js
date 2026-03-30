@@ -1,9 +1,6 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import LegalDocClient from "@/components/store/LegalDocClient";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
-import { getLegalPageForStore } from "@/lib/legal";
+import { DEFAULT_PRIVACY_AR, DEFAULT_PRIVACY_EN } from "@/lib/legal-defaults";
 
 export const revalidate = 3600;
 
@@ -21,20 +18,20 @@ export async function generateMetadata() {
 }
 
 export default async function PrivacyPage() {
-  const legal = await getLegalPageForStore("PRIVACY");
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
+  const html = lang === "ar" ? DEFAULT_PRIVACY_AR : DEFAULT_PRIVACY_EN;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <LegalDocClient
-        contentAr={legal.contentAr}
-        contentEn={legal.contentEn}
-        updatedAt={legal.updatedAt}
-        docTitle={translations[lang].privacyPageTitle}
-      />
-      <Footer />
+      <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+        <h1 className="mb-6 text-3xl font-bold">{translations[lang].privacyPageTitle}</h1>
+        <article
+          dir={lang === "ar" ? "rtl" : "ltr"}
+          className="prose prose-neutral max-w-none dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </section>
     </main>
   );
 }

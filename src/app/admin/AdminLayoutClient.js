@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/AdminSidebar";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import NotificationBell from "@/components/admin/NotificationBell";
 
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -67,8 +68,14 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
           <h2 className="min-w-0 truncate text-center text-sm font-bold leading-tight text-white">
             {t.brandName}
           </h2>
-          <div aria-hidden className="h-9 w-10" />
+          <div className="flex justify-end">
+            <NotificationBell />
+          </div>
         </header>
+
+        <div className="hidden md:flex items-center justify-end border-b border-white/5 bg-gray-900/70 px-6 py-3 backdrop-blur-xl">
+          <NotificationBell />
+        </div>
 
         {/* --- PAGE CONTENT --- */}
         <main className="flex-1 overflow-x-auto p-4 md:p-8 lg:px-10">

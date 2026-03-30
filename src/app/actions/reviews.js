@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getAdminReviewStats, getProductReviewSummary, listApprovedReviews, sanitizeText, hashIp } from "@/lib/reviews";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
 
 const submitSchema = z.object({
   productId: z.string().min(1),
@@ -85,6 +86,14 @@ export async function submitReviewAction(raw) {
         status: "PENDING",
         verified,
       },
+    });
+    await createAdminBroadcastNotification({
+      type: "NEW_REVIEW",
+      titleAr: "مراجعة جديدة",
+      titleEn: "New review submitted",
+      bodyAr: "تم إرسال مراجعة جديدة وتحتاج للمراجعة.",
+      bodyEn: "A new review was submitted and needs moderation.",
+      link: "/admin/reviews",
     });
 
     revalidatePath(`/products/${p.productId}`);

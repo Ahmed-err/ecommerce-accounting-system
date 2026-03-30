@@ -4,6 +4,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { uploadImage } from "@/lib/cloudinary";
 
 const ACCEPTED = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+const ALLOWED_FOLDERS = new Set(["avatars", "employees", "store", "products", "reviews"]);
 
 function maxSizeForFolder(folder) {
   if (folder === "avatars" || folder === "employees") return 2 * 1024 * 1024;
@@ -26,6 +27,10 @@ export async function POST(req) {
     const formData = await req.formData();
     const folder = String(formData.get("folder") || "").trim();
     const file = formData.get("file");
+
+    if (!folder || !ALLOWED_FOLDERS.has(folder)) {
+      return NextResponse.json({ error: "Invalid upload folder" }, { status: 400 });
+    }
 
     if (!file || typeof file === "string") {
       return NextResponse.json({ error: "Missing file" }, { status: 400 });

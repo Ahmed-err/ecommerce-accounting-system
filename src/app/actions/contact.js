@@ -3,6 +3,7 @@
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { createContactMessageRecord } from "@/lib/contact";
 import { sendContactAdminNotification, sendContactAutoReply } from "@/lib/senders";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
 import { z } from "zod";
 
 const subjects = z.enum(["GENERAL", "ORDER", "PRODUCT", "TECH", "OTHER"]);
@@ -60,6 +61,14 @@ export async function submitContactForm(raw) {
       phone: d.phone || null,
       subject: subjLabel,
       message: d.message,
+    });
+    await createAdminBroadcastNotification({
+      type: "NEW_MESSAGE",
+      titleAr: "رسالة تواصل جديدة",
+      titleEn: "New contact message",
+      bodyAr: `رسالة جديدة من ${d.name}.`,
+      bodyEn: `New contact message from ${d.name}.`,
+      link: "/admin/contacts",
     });
 
     await sendContactAdminNotification({

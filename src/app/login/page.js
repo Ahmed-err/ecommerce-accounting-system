@@ -31,7 +31,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError(t.emailOrPasswordIncorrect);
+        if (String(result.error).includes("PHONE_NOT_VERIFIED")) {
+          setError(lang === "ar" ? "رقم الهاتف غير مُفعّل. يرجى التحقق أولاً." : "Phone not verified yet. Please verify first.");
+        } else {
+          setError(t.emailOrPasswordIncorrect);
+        }
       } else {
         router.push("/");
         router.refresh();
@@ -106,7 +110,7 @@ export default function LoginPage() {
                     <Mail className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

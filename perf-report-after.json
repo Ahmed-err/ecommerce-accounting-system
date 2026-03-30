@@ -1,0 +1,194 @@
+
+> store-with-erp@0.1.0 perf:baseline
+> node scripts/perf-baseline.mjs
+
+{
+  "baseUrl": "http://127.0.0.1:3000",
+  "runs": 3,
+  "generatedAt": "2026-03-30T15:13:39.038Z",
+  "summary": [
+    {
+      "path": "/",
+      "runs": 3,
+      "successRate": "0%",
+      "avgTtfbMs": 6786.4,
+      "avgTotalMs": 6789.4,
+      "worstTotalMs": 20000,
+      "avgBytes": 5330
+    },
+    {
+      "path": "/products",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 3704.6,
+      "avgTotalMs": 5295.2,
+      "worstTotalMs": 13662.8,
+      "avgBytes": 157978
+    },
+    {
+      "path": "/about",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 2337.2,
+      "avgTotalMs": 3206.5,
+      "worstTotalMs": 8800.6,
+      "avgBytes": 84233
+    },
+    {
+      "path": "/contact",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 2589.5,
+      "avgTotalMs": 2937.8,
+      "worstTotalMs": 7971,
+      "avgBytes": 81192
+    },
+    {
+      "path": "/api/health",
+      "runs": 3,
+      "successRate": "0%",
+      "avgTtfbMs": 6669,
+      "avgTotalMs": 6677.3,
+      "worstTotalMs": 19899,
+      "avgBytes": 7995
+    }
+  ],
+  "raw": [
+    {
+      "path": "/",
+      "status": 0,
+      "ok": false,
+      "ttfbMs": 20000,
+      "transferMs": 0,
+      "totalMs": 20000,
+      "bytes": 0,
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 10608.7,
+      "transferMs": 3054.1,
+      "totalMs": 13662.8,
+      "bytes": 159772
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 6568.9,
+      "transferMs": 2231.7,
+      "totalMs": 8800.6,
+      "bytes": 84216
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 7267.1,
+      "transferMs": 704,
+      "totalMs": 7971,
+      "bytes": 81193
+    },
+    {
+      "path": "/api/health",
+      "status": 500,
+      "ok": false,
+      "ttfbMs": 19877.7,
+      "transferMs": 21.3,
+      "totalMs": 19899,
+      "bytes": 7995
+    },
+    {
+      "path": "/",
+      "status": 500,
+      "ok": false,
+      "ttfbMs": 308.4,
+      "transferMs": 5.3,
+      "totalMs": 313.7,
+      "bytes": 7995
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 335.8,
+      "transferMs": 1289.5,
+      "totalMs": 1625.3,
+      "bytes": 157084
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 289.6,
+      "transferMs": 165.5,
+      "totalMs": 455.1,
+      "bytes": 84222
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 167.8,
+      "transferMs": 175.9,
+      "totalMs": 343.7,
+      "bytes": 81146
+    },
+    {
+      "path": "/api/health",
+      "status": 500,
+      "ok": false,
+      "ttfbMs": 69.5,
+      "transferMs": 2.2,
+      "totalMs": 71.7,
+      "bytes": 7995
+    },
+    {
+      "path": "/",
+      "status": 500,
+      "ok": false,
+      "ttfbMs": 50.9,
+      "transferMs": 3.6,
+      "totalMs": 54.6,
+      "bytes": 7995
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 169.4,
+      "transferMs": 428,
+      "totalMs": 597.4,
+      "bytes": 157077
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 153.1,
+      "transferMs": 210.7,
+      "totalMs": 363.8,
+      "bytes": 84260
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 333.5,
+      "transferMs": 165.2,
+      "totalMs": 498.7,
+      "bytes": 81236
+    },
+    {
+      "path": "/api/health",
+      "status": 500,
+      "ok": false,
+      "ttfbMs": 59.7,
+      "transferMs": 1.4,
+      "totalMs": 61.1,
+      "bytes": 7995
+    }
+  ]
+}

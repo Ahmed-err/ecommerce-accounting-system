@@ -14,7 +14,10 @@ const FALLBACK = {
 
 export async function getLegalPageForStore(type) {
   try {
-    const row = await db.legalPage.findUnique({ where: { type } });
+    const row = await Promise.race([
+      db.legalPage.findUnique({ where: { type } }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("legal_timeout")), 3000)),
+    ]);
     if (row) {
       return {
         contentAr: sanitizeLegalHtml(row.contentAr),

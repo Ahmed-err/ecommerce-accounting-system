@@ -1,0 +1,193 @@
+
+> store-with-erp@0.1.0 perf:baseline
+> node scripts/perf-baseline.mjs
+
+{
+  "baseUrl": "http://127.0.0.1:3000",
+  "runs": 3,
+  "generatedAt": "2026-03-30T15:15:35.431Z",
+  "summary": [
+    {
+      "path": "/",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 346.3,
+      "avgTotalMs": 1610.2,
+      "worstTotalMs": 2626.8,
+      "avgBytes": 194742
+    },
+    {
+      "path": "/products",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 1342,
+      "avgTotalMs": 2948.9,
+      "worstTotalMs": 6444.2,
+      "avgBytes": 155592
+    },
+    {
+      "path": "/about",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 2876.9,
+      "avgTotalMs": 3256.4,
+      "worstTotalMs": 8187.9,
+      "avgBytes": 84080
+    },
+    {
+      "path": "/contact",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 1232,
+      "avgTotalMs": 1791.2,
+      "worstTotalMs": 3925.6,
+      "avgBytes": 81631
+    },
+    {
+      "path": "/api/health",
+      "runs": 3,
+      "successRate": "100%",
+      "avgTtfbMs": 248,
+      "avgTotalMs": 251.6,
+      "worstTotalMs": 469.7,
+      "avgBytes": 77
+    }
+  ],
+  "raw": [
+    {
+      "path": "/",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 677.3,
+      "transferMs": 1949.5,
+      "totalMs": 2626.8,
+      "bytes": 194748
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 3190.1,
+      "transferMs": 3254.1,
+      "totalMs": 6444.2,
+      "bytes": 155280
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 8150.7,
+      "transferMs": 37.2,
+      "totalMs": 8187.9,
+      "bytes": 84140
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 3151.7,
+      "transferMs": 773.9,
+      "totalMs": 3925.6,
+      "bytes": 81122
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 159.2,
+      "transferMs": 1.8,
+      "totalMs": 161,
+      "bytes": 77
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 142.7,
+      "transferMs": 1466,
+      "totalMs": 1608.6,
+      "bytes": 194736
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 544.6,
+      "transferMs": 1011.6,
+      "totalMs": 1556.2,
+      "bytes": 155365
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 176.9,
+      "transferMs": 947.8,
+      "totalMs": 1124.7,
+      "bytes": 83959
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 334.3,
+      "transferMs": 207.9,
+      "totalMs": 542.2,
+      "bytes": 81158
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 115.6,
+      "transferMs": 8.5,
+      "totalMs": 124.1,
+      "bytes": 77
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 218.9,
+      "transferMs": 376.3,
+      "totalMs": 595.2,
+      "bytes": 194741
+    },
+    {
+      "path": "/products",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 291.2,
+      "transferMs": 555,
+      "totalMs": 846.2,
+      "bytes": 156130
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 303,
+      "transferMs": 153.7,
+      "totalMs": 456.7,
+      "bytes": 84141
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 209.9,
+      "transferMs": 695.8,
+      "totalMs": 905.7,
+      "bytes": 82613
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "ok": true,
+      "ttfbMs": 469.1,
+      "transferMs": 0.6,
+      "totalMs": 469.7,
+      "bytes": 77
+    }
+  ]
+}

@@ -19,6 +19,7 @@ import {
   bulkIdsSchema,
   bulkCategorySchema,
 } from "@/lib/schemas/inventory";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
 
 async function sessionUser() {
   const session = await auth();
@@ -289,6 +290,16 @@ export async function updateStockQuantity(id, change) {
       where: { id },
       data: { stock: { increment: change } },
     });
+    if (product.stock <= product.minStock) {
+      await createAdminBroadcastNotification({
+        type: "LOW_STOCK",
+        titleAr: "تنبيه مخزون منخفض",
+        titleEn: "Low stock alert",
+        bodyAr: `المنتج ${product.name} وصل إلى مخزون منخفض (${product.stock}).`,
+        bodyEn: `Product ${product.name} reached low stock (${product.stock}).`,
+        link: "/admin/inventory",
+      });
+    }
     revalidatePath("/admin/inventory");
     return { success: true, stock: product.stock };
   } catch (error) {
@@ -347,17 +358,23 @@ export async function issueStockAction(raw) {
       return { success: false, error: "validation", details: parsed.error.flatten() };
     }
     const { productId, quantity, reason, notes } = parsed.data;
+    let newStock = null;
+    let productName = "";
+    let minStock = 0;
     await db.$transaction(async (tx) => {
       const cur = await tx.product.findUnique({
         where: { id: productId },
-        select: { stock: true },
+        select: { stock: true, name: true, minStock: true },
       });
       if (!cur) throw new Error("Product not found");
       if (cur.stock < quantity) throw new Error("Insufficient stock");
-      await tx.product.update({
+      const updated = await tx.product.update({
         where: { id: productId },
         data: { stock: { decrement: quantity } },
       });
+      newStock = updated.stock;
+      productName = cur.name;
+      minStock = cur.minStock;
       await tx.stockMovement.create({
         data: {
           type: "OUT",
@@ -370,6 +387,16 @@ export async function issueStockAction(raw) {
       });
     });
     await logAction("STOCK_ISSUE", { productId, quantity });
+    if (newStock !== null && newStock <= minStock) {
+      await createAdminBroadcastNotification({
+        type: "LOW_STOCK",
+        titleAr: "تنبيه مخزون منخفض",
+        titleEn: "Low stock alert",
+        bodyAr: `المنتج ${productName} وصل إلى مخزون منخفض (${newStock}).`,
+        bodyEn: `Product ${productName} reached low stock (${newStock}).`,
+        link: "/admin/inventory",
+      });
+    }
     revalidatePath("/admin/inventory");
     return { success: true };
   } catch (error) {

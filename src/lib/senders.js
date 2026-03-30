@@ -4,6 +4,14 @@ import { translations } from "@/lib/translations";
 
 const BRAND_EN = translations.en.brandName;
 
+function isMockSmsProvider() {
+  return String(process.env.SMS_PROVIDER || "").toLowerCase() === "mock";
+}
+
+function logMockSms(kind, payload) {
+  console.info(`[MOCK_SMS:${kind}]`, payload);
+}
+
 // -------------------------------------------------------------------
 // 📧 EMAIL SENDER (Nodemailer via SMTP)
 // -------------------------------------------------------------------
@@ -190,6 +198,12 @@ export async function sendContactReplyEmail(to, subject, htmlBody) {
 
 export async function sendResetSMS(to, token) {
   try {
+    const resetLink = `${process.env.AUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
+    if (isMockSmsProvider()) {
+      logMockSms("RESET_PASSWORD", { to, resetLink });
+      return true;
+    }
+
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const fromNumber = process.env.TWILIO_PHONE_NUMBER;
@@ -200,7 +214,6 @@ export async function sendResetSMS(to, token) {
     }
 
     const client = twilio(accountSid, authToken);
-    const resetLink = `${process.env.AUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
 
     const message = await client.messages.create({
       body: `${BRAND_EN}: Your password reset link is: ${resetLink} \nValid for 1 hr. Do not share.`,
@@ -213,6 +226,36 @@ export async function sendResetSMS(to, token) {
 
   } catch (error) {
     console.error("Failed to send SMS:", error.message);
+    return false;
+  }
+}
+
+export async function sendPhoneVerificationOTP(to, code) {
+  try {
+    if (isMockSmsProvider()) {
+      logMockSms("PHONE_VERIFY_OTP", { to, code, expiresInMinutes: 10 });
+      return true;
+    }
+
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+    if (!accountSid || !authToken || !fromNumber) {
+      console.warn("[SMS] Twilio credentials missing. OTP SMS not sent.");
+      return false;
+    }
+
+    const client = twilio(accountSid, authToken);
+    await client.messages.create({
+      body: `${BRAND_EN}: Your verification code is ${code}. It expires in 10 minutes.`,
+      from: fromNumber,
+      to,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Failed to send phone verification OTP:", error.message);
     return false;
   }
 }

@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { createAdminBroadcastNotification } from "@/lib/notifications";
+import { sendPhoneVerificationOTP } from "@/lib/senders";
 
 /**
  * Validates password strength
@@ -24,6 +26,91 @@ function validatePassword(password) {
   return null;
 }
 
+function normalizePhone(input) {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  const normalized = raw.replace(/[^\d+]/g, "");
+  if (!/^\+?\d{8,15}$/.test(normalized)) return "";
+  return normalized.startsWith("+") ? normalized : `+${normalized}`;
+}
+
+function generateOtpCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+const otpIdentifier = (phone) => `phone_verify:${phone}`;
+
+export async function sendPhoneVerificationCode(rawPhone) {
+  try {
+    const phone = normalizePhone(rawPhone);
+    if (!phone) return { success: false, error: "Invalid phone number format." };
+
+    const allowed = await checkRateLimit(`verify_phone_send_${phone}`, 3, 10 * 60 * 1000, { failClosed: true });
+    if (!allowed) return { success: false, error: "Too many attempts. Please try later." };
+
+    const user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) return { success: true };
+    if (user.phoneVerified) return { success: true };
+
+    const code = generateOtpCode();
+    const expires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.verificationToken.deleteMany({ where: { identifier: otpIdentifier(phone) } });
+    await prisma.verificationToken.create({
+      data: {
+        identifier: otpIdentifier(phone),
+        token: code,
+        expires,
+      },
+    });
+
+    const sent = await sendPhoneVerificationOTP(phone, code);
+    if (!sent) return { success: false, error: "Could not send verification SMS. Check Twilio settings." };
+    return { success: true };
+  } catch (error) {
+    console.error("sendPhoneVerificationCode:", error);
+    return { success: false, error: "Failed to send verification code." };
+  }
+}
+
+export async function verifyPhoneCode(rawPhone, otpCode) {
+  try {
+    const phone = normalizePhone(rawPhone);
+    const code = String(otpCode || "").trim();
+    if (!phone || !/^\d{6}$/.test(code)) return { success: false, error: "Invalid code." };
+
+    const allowed = await checkRateLimit(`verify_phone_check_${phone}`, 10, 15 * 60 * 1000, { failClosed: true });
+    if (!allowed) return { success: false, error: "Too many attempts. Please try later." };
+
+    const user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) return { success: false, error: "Invalid code or expired code." };
+
+    const row = await prisma.verificationToken.findFirst({
+      where: {
+        identifier: otpIdentifier(phone),
+        token: code,
+        expires: { gt: new Date() },
+      },
+      orderBy: { expires: "desc" },
+    });
+
+    if (!row) return { success: false, error: "Invalid code or expired code." };
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { phoneVerified: new Date() },
+      }),
+      prisma.verificationToken.deleteMany({ where: { identifier: otpIdentifier(phone) } }),
+    ]);
+
+    return { success: true };
+  } catch (error) {
+    console.error("verifyPhoneCode:", error);
+    return { success: false, error: "Failed to verify phone number." };
+  }
+}
+
 /**
  * Handles user registration.
  * 
@@ -35,7 +122,7 @@ export async function registerUser(formData) {
     const lastName = formData.get("lastName");
     const email = formData.get("email");
     const password = formData.get("password");
-    const phone = formData.get("phone");
+    const phone = normalizePhone(formData.get("phone"));
 
     // 1. Validation
     if (!firstName || !lastName || !email || !password || !phone) {
@@ -75,19 +162,32 @@ export async function registerUser(formData) {
 
     // 4. Create User
     // Note: The 'name' field is required by Auth.js and is present in our Prisma schema.
-    await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         firstName: firstName,
         lastName: lastName,
         name: `${firstName} ${lastName}`,
         email: email,
         password: hashedPassword,
-        phone: phone || null,
+        phone,
+        phoneVerified: null,
         role: "CUSTOMER",
       },
     });
+    const sendRes = await sendPhoneVerificationCode(phone);
+    if (!sendRes.success) {
+      console.warn("registerUser: user created but phone verification SMS failed");
+    }
+    await createAdminBroadcastNotification({
+      type: "NEW_USER",
+      titleAr: "مستخدم جديد",
+      titleEn: "New user registered",
+      bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
+      bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
+      link: "/admin",
+    });
 
-    return { success: true };
+    return { success: true, requiresPhoneVerification: true, phone };
   } catch (error) {
     console.error("Registration fatal error:", error);
     return { error: "Registration failed. Please try again later." };
