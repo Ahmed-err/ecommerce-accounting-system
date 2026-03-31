@@ -154,8 +154,8 @@ export default function NotificationBell({ customerOnly = false }) {
       </Button>
       {open ? (
         <div
-          className={`absolute z-[130] mt-2 w-[min(92vw,24rem)] rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:w-96 ${
-            isRTL ? "left-0" : "right-0"
+          className={`fixed inset-x-2 top-16 z-[130] mt-0 w-auto rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:top-auto sm:mt-2 sm:w-96 ${
+            isRTL ? "sm:left-0" : "sm:right-0"
           }`}
         >
           <div className="mb-2 flex items-center justify-between">
@@ -165,7 +165,7 @@ export default function NotificationBell({ customerOnly = false }) {
               {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all as read"}
             </Button>
           </div>
-          <div className="max-h-[65vh] overflow-y-auto space-y-2 pr-1">
+          <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto space-y-2 pr-1 sm:max-h-[65vh]">
             {rows.length ? rows.map((n) => (
               <button
                 key={n.id}

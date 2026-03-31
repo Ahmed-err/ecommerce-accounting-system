@@ -687,8 +687,8 @@ function PurchasesTab({ t, isRTL }) {
           </DialogHeader>
           {opts && (
             <div className="space-y-4 px-4 py-4 text-sm sm:px-6 sm:py-5">
-              <div>
-                <label className="text-xs text-gray-400">{t.suppliersColSupplier}</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-gray-400">{t.suppliersColSupplier}</label>
                 <select
                   className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 p-2"
                   value={pForm.supplierId}
@@ -701,8 +701,10 @@ function PurchasesTab({ t, isRTL }) {
                   ))}
                 </select>
               </div>
-              {lines.map((l, i) => (
-                <div key={i} className="grid gap-2 sm:grid-cols-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-gray-400">{t.suppliersAddLine}</p>
+                {lines.map((l, i) => (
+                <div key={i} className="grid gap-2 rounded-lg border border-white/10 bg-black/20 p-2 sm:grid-cols-4">
                   <select
                     className="rounded-lg border border-white/10 bg-black/40 p-2 sm:col-span-2"
                     value={l.productId}
@@ -725,6 +727,7 @@ function PurchasesTab({ t, isRTL }) {
                   </select>
                   <Input
                     type="number"
+                    min="1"
                     className="border-white/10 bg-black/40"
                     value={l.quantity}
                     onChange={(e) => {
@@ -735,6 +738,8 @@ function PurchasesTab({ t, isRTL }) {
                   />
                   <Input
                     type="number"
+                    min="0"
+                    step="0.01"
                     className="border-white/10 bg-black/40"
                     value={l.unitCost}
                     onChange={(e) => {
@@ -744,7 +749,8 @@ function PurchasesTab({ t, isRTL }) {
                     }}
                   />
                 </div>
-              ))}
+                ))}
+              </div>
               <Button
                 type="button"
                 variant="outline"
@@ -756,25 +762,38 @@ function PurchasesTab({ t, isRTL }) {
               <p className="font-bold text-amber-400">
                 {t.suppliersTotal}: {totalPreview.toLocaleString()}
               </p>
-              <Input
-                type="date"
-                className="border-white/10 bg-black/40"
-                value={pForm.dueDate}
-                onChange={(e) => setPForm((p) => ({ ...p, dueDate: e.target.value }))}
-              />
-              <Input
-                placeholder={t.suppliersInvoiceRef}
-                className="border-white/10 bg-black/40"
-                value={pForm.invoiceRef}
-                onChange={(e) => setPForm((p) => ({ ...p, invoiceRef: e.target.value }))}
-              />
-              <Input
-                type="number"
-                placeholder={t.suppliersPaidNow}
-                className="border-white/10 bg-black/40"
-                value={pForm.paidAmount}
-                onChange={(e) => setPForm((p) => ({ ...p, paidAmount: e.target.value }))}
-              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-gray-400">{t.suppliersColDue}</label>
+                  <Input
+                    type="date"
+                    className="border-white/10 bg-black/40"
+                    value={pForm.dueDate}
+                    onChange={(e) => setPForm((p) => ({ ...p, dueDate: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-gray-400">{t.suppliersInvoiceRef}</label>
+                  <Input
+                    placeholder={t.suppliersInvoiceRef}
+                    className="border-white/10 bg-black/40"
+                    value={pForm.invoiceRef}
+                    onChange={(e) => setPForm((p) => ({ ...p, invoiceRef: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-semibold text-gray-400">{t.suppliersPaidNow}</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder={t.suppliersPaidNow}
+                    className="border-white/10 bg-black/40"
+                    value={pForm.paidAmount}
+                    onChange={(e) => setPForm((p) => ({ ...p, paidAmount: e.target.value }))}
+                  />
+                </div>
+              </div>
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"

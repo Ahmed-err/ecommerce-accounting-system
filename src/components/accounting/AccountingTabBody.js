@@ -896,7 +896,7 @@ function ReportRow({ label, value, lang, t, strong }) {
   );
 }
 
-function DataTable({ title, rows, total, cols, t, isRTL, actions, extra }) {
+function DataTable({ title, rows, total, cols, t, lang, isRTL, actions, extra }) {
   return (
     <div className="rounded-2xl border border-white/5 bg-gray-900 flex flex-col">
       <div className={`flex flex-wrap items-center justify-between gap-2 border-b border-white/5 p-4 ${isRTL ? "flex-row-reverse" : ""}`}>
