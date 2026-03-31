@@ -487,10 +487,10 @@ export default function POSClient({ initialProducts }) {
       </header>
 
       {/* ── POS Layout ── */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         
         {/* LHS: Product Engine */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#080808]">
+        <main className="flex-1 min-h-0 flex flex-col min-w-0 bg-[#080808]">
           
           {/* Search & Tabs */}
           <div className="p-4 sm:p-6 pb-0 space-y-6">
@@ -569,7 +569,7 @@ export default function POSClient({ initialProducts }) {
         </main>
 
         {/* RHS: Transaction Desk */}
-        <aside className="w-full lg:w-[400px] xl:w-[440px] flex flex-col shrink-0 bg-gray-900/50 backdrop-blur-3xl border-l border-white/5 shadow-[-40px_0_60px_-15px_rgba(0,0,0,0.5)] z-40">
+        <aside className="h-[46vh] w-full border-t border-white/5 lg:h-auto lg:w-[400px] xl:w-[440px] lg:border-t-0 lg:border-l flex flex-col shrink-0 bg-gray-900/50 backdrop-blur-3xl shadow-none lg:shadow-[-40px_0_60px_-15px_rgba(0,0,0,0.5)] z-40">
           
           <div className="h-14 shrink-0 px-6 flex items-center justify-between border-b border-white/5 bg-black/40">
             <div className="flex items-center gap-2.5">

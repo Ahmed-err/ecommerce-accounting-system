@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { updateSettings } from "@/app/actions/settings";
+import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
 
 const TABS = ["store", "about", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
 
@@ -16,6 +16,19 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [isPending, startTransition] = useTransition();
   const [store, setStore] = useState(initialData.store);
   const [users, setUsers] = useState(initialData.users || []);
+  const [permissions, setPermissions] = useState(initialData.permissions || []);
+  const [usersSearch, setUsersSearch] = useState("");
+  const [usersRoleFilter, setUsersRoleFilter] = useState("all");
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersPages, setUsersPages] = useState(1);
+  const [usersTotal, setUsersTotal] = useState((initialData.users || []).length);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [rolesSearch, setRolesSearch] = useState("");
+  const [rolesRoleFilter, setRolesRoleFilter] = useState("all");
+  const [rolesPage, setRolesPage] = useState(1);
+  const [rolesPages, setRolesPages] = useState(1);
+  const [rolesTotal, setRolesTotal] = useState((initialData.permissions || []).length);
+  const [rolesLoading, setRolesLoading] = useState(false);
   const [legal, setLegal] = useState({
     termsAr: initialData.legal?.terms?.contentAr ?? "",
     termsEn: initialData.legal?.terms?.contentEn ?? "",
@@ -23,6 +36,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     privacyEn: initialData.legal?.privacy?.contentEn ?? "",
   });
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState("success");
 
   const currentTab = searchParams.get("tab") || initialTab;
   const activeTab = TABS.includes(currentTab) ? currentTab : "store";
@@ -37,7 +51,48 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       privacyAr: initialData.legal?.privacy?.contentAr ?? "",
       privacyEn: initialData.legal?.privacy?.contentEn ?? "",
     });
+    setPermissions(initialData.permissions || []);
   }, [initialData]);
+
+  const loadUsers = useCallback(async () => {
+    setUsersLoading(true);
+    const res = await getSettingsUsersPage({
+      page: usersPage,
+      take: 10,
+      search: usersSearch,
+      role: usersRoleFilter,
+    });
+    if (res?.success) {
+      setUsers(res.rows || []);
+      setUsersPages(res.pages || 1);
+      setUsersTotal(res.total || 0);
+    }
+    setUsersLoading(false);
+  }, [usersPage, usersSearch, usersRoleFilter]);
+
+  const loadRoles = useCallback(async () => {
+    setRolesLoading(true);
+    const res = await getSettingsRolesPage({
+      page: rolesPage,
+      take: 10,
+      search: rolesSearch,
+      role: rolesRoleFilter,
+    });
+    if (res?.success) {
+      setPermissions(res.rows || []);
+      setRolesPages(res.pages || 1);
+      setRolesTotal(res.total || 0);
+    }
+    setRolesLoading(false);
+  }, [rolesPage, rolesSearch, rolesRoleFilter]);
+
+  useEffect(() => {
+    if (activeTab === "users") loadUsers();
+  }, [activeTab, loadUsers]);
+
+  useEffect(() => {
+    if (activeTab === "users") loadRoles();
+  }, [activeTab, loadRoles]);
 
   const tabLabel = useMemo(
     () => ({
@@ -63,11 +118,13 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
 
   function save(tab, payload) {
     setStatus("");
+    setStatusType("success");
     startTransition(async () => {
       const res = await updateSettings({ tab, payload });
       if (res.success) {
         if (res.data?.store) setStore(res.data.store);
         if (res.data?.users) setUsers(res.data.users);
+        if (res.data?.permissions) setPermissions(res.data.permissions);
         if (res.data?.legal) {
           setLegal({
             termsAr: res.data.legal?.terms?.contentAr ?? "",
@@ -77,9 +134,11 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
           });
         }
         setStatus(lang === "ar" ? "تم الحفظ" : "Saved");
+        setStatusType("success");
         router.refresh();
       } else {
         setStatus(res.error || "Failed");
+        setStatusType("error");
       }
     });
   }
@@ -94,7 +153,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         ))}
       </div>
 
-      {status && <p className="text-sm text-emerald-500">{status}</p>}
+      {status && <p className={`text-sm ${statusType === "error" ? "text-red-500" : "text-emerald-500"}`}>{status}</p>}
 
       {activeTab === "about" && (
         <div className="grid grid-cols-1 gap-3">
@@ -270,33 +329,143 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       )}
 
       {activeTab === "users" && (
-        <div className="space-y-3">
-          {users.map((u) => (
-            <div key={u.id} className="flex flex-wrap items-center gap-2 border rounded-lg p-2">
-              <div className="min-w-48">
-                <p className="text-sm font-medium">{u.firstName} {u.lastName}</p>
-                <p className="text-xs text-muted-foreground">{u.email}</p>
-              </div>
-              <Select value={u.role} onValueChange={(v) => setUsers((prev) => prev.map((it) => it.id === u.id ? { ...it, role: v } : it))}>
+        <div className="space-y-6">
+          <div className="space-y-3 rounded-xl border p-3">
+            <div className="flex flex-wrap items-end gap-2">
+              <Input
+                value={usersSearch}
+                onChange={(e) => {
+                  setUsersSearch(e.target.value);
+                  setUsersPage(1);
+                }}
+                placeholder={lang === "ar" ? "بحث بالمستخدم/الإيميل" : "Search user/email"}
+                className="max-w-sm"
+              />
+              <Select value={usersRoleFilter} onValueChange={(v) => { setUsersRoleFilter(v); setUsersPage(1); }}>
                 <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">ALL</SelectItem>
                   <SelectItem value="ADMIN">ADMIN</SelectItem>
                   <SelectItem value="MANAGER">MANAGER</SelectItem>
                   <SelectItem value="CASHIER">CASHIER</SelectItem>
                   <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                size="sm"
-                onClick={() => {
-                  const selected = users.find((it) => it.id === u.id) || u;
-                  save("users", { updateUser: selected });
-                }}
-              >
-                {lang === "ar" ? "تحديث" : "Update"}
-              </Button>
             </div>
-          ))}
+
+            {usersLoading ? (
+              <p className="text-sm text-muted-foreground">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</p>
+            ) : users.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{lang === "ar" ? "لا يوجد مستخدمون" : "No users found"}</p>
+            ) : (
+              users.map((u) => (
+                <div key={u.id} className="flex flex-wrap items-center gap-2 rounded-lg border p-2">
+                  <div className="min-w-48">
+                    <p className="text-sm font-medium">{u.firstName} {u.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                  </div>
+                  <Select value={u.role} onValueChange={(v) => setUsers((prev) => prev.map((it) => it.id === u.id ? { ...it, role: v } : it))}>
+                    <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ADMIN">ADMIN</SelectItem>
+                      <SelectItem value="MANAGER">MANAGER</SelectItem>
+                      <SelectItem value="CASHIER">CASHIER</SelectItem>
+                      <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const selected = users.find((it) => it.id === u.id) || u;
+                      save("users", { updateUser: selected });
+                    }}
+                  >
+                    {lang === "ar" ? "تحديث" : "Update"}
+                  </Button>
+                </div>
+              ))
+            )}
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{usersTotal} {lang === "ar" ? "نتيجة" : "results"}</span>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" disabled={usersPage <= 1} onClick={() => setUsersPage((p) => p - 1)}>
+                  {lang === "ar" ? "السابق" : "Prev"}
+                </Button>
+                <span>{usersPage} / {usersPages}</span>
+                <Button size="sm" variant="outline" disabled={usersPage >= usersPages} onClick={() => setUsersPage((p) => p + 1)}>
+                  {lang === "ar" ? "التالي" : "Next"}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 rounded-xl border p-3">
+            <div className="flex flex-wrap items-end gap-2">
+              <Input
+                value={rolesSearch}
+                onChange={(e) => {
+                  setRolesSearch(e.target.value);
+                  setRolesPage(1);
+                }}
+                placeholder={lang === "ar" ? "بحث بالموديول" : "Search module"}
+                className="max-w-sm"
+              />
+              <Select value={rolesRoleFilter} onValueChange={(v) => { setRolesRoleFilter(v); setRolesPage(1); }}>
+                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ALL</SelectItem>
+                  <SelectItem value="ADMIN">ADMIN</SelectItem>
+                  <SelectItem value="MANAGER">MANAGER</SelectItem>
+                  <SelectItem value="CASHIER">CASHIER</SelectItem>
+                  <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/40 text-xs">
+                    <th className="p-2 text-start">Role</th>
+                    <th className="p-2 text-start">Module</th>
+                    <th className="p-2 text-center">View</th>
+                    <th className="p-2 text-center">Create</th>
+                    <th className="p-2 text-center">Edit</th>
+                    <th className="p-2 text-center">Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rolesLoading ? (
+                    <tr><td className="p-3 text-muted-foreground" colSpan={6}>{lang === "ar" ? "جاري التحميل..." : "Loading..."}</td></tr>
+                  ) : permissions.length === 0 ? (
+                    <tr><td className="p-3 text-muted-foreground" colSpan={6}>{lang === "ar" ? "لا توجد صلاحيات" : "No permissions found"}</td></tr>
+                  ) : (
+                    permissions.map((p) => (
+                      <tr key={p.id} className="border-b">
+                        <td className="p-2">{p.role}</td>
+                        <td className="p-2">{p.module}</td>
+                        <td className="p-2 text-center">{p.canView ? "✓" : "—"}</td>
+                        <td className="p-2 text-center">{p.canCreate ? "✓" : "—"}</td>
+                        <td className="p-2 text-center">{p.canEdit ? "✓" : "—"}</td>
+                        <td className="p-2 text-center">{p.canDelete ? "✓" : "—"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{rolesTotal} {lang === "ar" ? "نتيجة" : "results"}</span>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" disabled={rolesPage <= 1} onClick={() => setRolesPage((p) => p - 1)}>
+                  {lang === "ar" ? "السابق" : "Prev"}
+                </Button>
+                <span>{rolesPage} / {rolesPages}</span>
+                <Button size="sm" variant="outline" disabled={rolesPage >= rolesPages} onClick={() => setRolesPage((p) => p + 1)}>
+                  {lang === "ar" ? "التالي" : "Next"}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

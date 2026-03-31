@@ -40,6 +40,65 @@ export async function getAdminSettingsData() {
   return { store, users, permissions, legal };
 }
 
+export async function getSettingsUsersPage(input = {}) {
+  await ensureAdmin();
+  const page = Math.max(1, Number(input.page) || 1);
+  const take = Math.min(100, Math.max(5, Number(input.take) || 10));
+  const search = String(input.search || "").trim();
+  const role = String(input.role || "all").toUpperCase();
+
+  const where = {
+    ...(role !== "ALL" && role !== "all" ? { role } : {}),
+    ...(search
+      ? {
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+  };
+
+  const [rows, total] = await Promise.all([
+    db.user.findMany({
+      where,
+      select: { id: true, firstName: true, lastName: true, email: true, role: true, isActive: true, updatedAt: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * take,
+      take,
+    }),
+    db.user.count({ where }),
+  ]);
+
+  return { success: true, rows, total, page, take, pages: Math.max(1, Math.ceil(total / take)) };
+}
+
+export async function getSettingsRolesPage(input = {}) {
+  await ensureAdmin();
+  const page = Math.max(1, Number(input.page) || 1);
+  const take = Math.min(100, Math.max(5, Number(input.take) || 10));
+  const search = String(input.search || "").trim();
+  const role = String(input.role || "all").toUpperCase();
+
+  const where = {
+    ...(role !== "ALL" && role !== "all" ? { role } : {}),
+    ...(search ? { module: { contains: search, mode: "insensitive" } } : {}),
+  };
+
+  const [rows, total] = await Promise.all([
+    db.permission.findMany({
+      where,
+      orderBy: [{ role: "asc" }, { module: "asc" }],
+      skip: (page - 1) * take,
+      take,
+    }),
+    db.permission.count({ where }),
+  ]);
+
+  return { success: true, rows, total, page, take, pages: Math.max(1, Math.ceil(total / take)) };
+}
+
 export async function updateSettings(input) {
   await ensureAdmin();
   const parsed = updateStoreSchema.safeParse(input);
@@ -48,8 +107,22 @@ export async function updateSettings(input) {
   const { tab, payload } = parsed.data;
   const store = await getOrCreateStoreSettings();
 
+  try {
   if (tab === "store") {
-    await db.store.update({ where: { id: store.id }, data: payload });
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        nameAr: payload.nameAr || null,
+        nameEn: payload.nameEn || null,
+        sloganAr: payload.sloganAr || null,
+        sloganEn: payload.sloganEn || null,
+        contactPhone: payload.contactPhone || null,
+        contactEmail: payload.contactEmail || null,
+        defaultLanguage: payload.defaultLanguage || "ar",
+        currency: payload.currency || "SDG",
+        maintenanceMode: !!payload.maintenanceMode,
+      },
+    });
   } else if (tab === "shipping") {
     if (Array.isArray(payload.zones)) {
       await db.shippingZone.deleteMany({ where: { storeId: store.id } });
@@ -99,13 +172,33 @@ export async function updateSettings(input) {
     }
     await db.store.update({ where: { id: store.id }, data: { invoicePrefix: payload.invoicePrefix || "INV-", vatEnabled: !!payload.vatEnabled, vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null, vatLabelAr: payload.vatLabelAr || null, vatLabelEn: payload.vatLabelEn || null, minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null } });
   } else if (tab === "notifications") {
+    const notificationPayload = {
+      emailNewOrderAdmin: !!payload.emailNewOrderAdmin,
+      emailOrderStatusCustomer: !!payload.emailOrderStatusCustomer,
+      emailLowStockAdmin: !!payload.emailLowStockAdmin,
+      emailNewReturnAdmin: !!payload.emailNewReturnAdmin,
+      smsWhatsappEnabled: !!payload.smsWhatsappEnabled,
+      adminRecipients: payload.adminRecipients || null,
+    };
     await db.notificationConfig.upsert({
       where: { storeId: store.id },
-      update: payload,
-      create: { storeId: store.id, ...payload },
+      update: notificationPayload,
+      create: { storeId: store.id, ...notificationPayload },
     });
   } else if (tab === "seo") {
-    await db.store.update({ where: { id: store.id }, data: payload });
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        seoMetaTitleAr: payload.seoMetaTitleAr || null,
+        seoMetaTitleEn: payload.seoMetaTitleEn || null,
+        seoMetaDescriptionAr: payload.seoMetaDescriptionAr || null,
+        seoMetaDescriptionEn: payload.seoMetaDescriptionEn || null,
+        googleAnalyticsId: payload.googleAnalyticsId || null,
+        googleSearchConsoleVerification: payload.googleSearchConsoleVerification || null,
+        robotsTxt: payload.robotsTxt || null,
+        seoOgImageUrl: payload.seoOgImageUrl || null,
+      },
+    });
   } else if (tab === "legal") {
     try {
     const termsAr = sanitizeLegalHtml(String(payload.termsAr ?? ""));
@@ -153,10 +246,14 @@ export async function updateSettings(input) {
     revalidatePath("/about");
   } else if (tab === "users") {
     if (payload.updateUser?.id) {
+      const role = String(payload.updateUser.role || "").toUpperCase();
+      if (!["ADMIN", "MANAGER", "CASHIER", "CUSTOMER"].includes(role)) {
+        return { success: false, error: "Invalid role value" };
+      }
       await db.user.update({
         where: { id: payload.updateUser.id },
         data: {
-          role: payload.updateUser.role,
+          role,
           isActive: payload.updateUser.isActive,
         },
       });
@@ -176,4 +273,8 @@ export async function updateSettings(input) {
   revalidatePath("/admin/settings");
   const fresh = await getAdminSettingsData();
   return { success: true, data: fresh };
+  } catch (error) {
+    console.error("Settings save failed:", error);
+    return { success: false, error: error?.message || "Failed to save settings" };
+  }
 }
