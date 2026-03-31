@@ -62,12 +62,12 @@ export default async function InvoicePage({ params }) {
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <PrintButton />
+        <PrintButton targetId="invoice-print-area" />
       </div>
 
       {/* 80mm Thermal Receipt Container */}
       {/* 80mm is ~302px but safely we use max-w-[300px] or exactly 80mm class */}
-      <div className="w-full max-w-[80mm] bg-white text-black p-4 rounded-xl shadow-2xl print:shadow-none print:rounded-none mx-auto font-mono text-sm">
+      <div id="invoice-print-area" className="w-full max-w-[80mm] bg-white text-black p-4 rounded-xl shadow-2xl print:shadow-none print:rounded-none mx-auto font-mono text-sm">
         
         {/* Header Section */}
         <div className="text-center mb-4">

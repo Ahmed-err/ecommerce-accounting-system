@@ -1,12 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { cookies } from "next/headers";
 import Image from "next/image";
 import { translations } from "@/lib/translations";
+import { useLanguage } from "@/context/LanguageContext";
 
-export default async function AboutTeaser() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const isRTL = lang === "ar";
+export default function AboutTeaser() {
+  const { lang, isRTL } = useLanguage();
   const t = translations[lang] || translations.en;
 
   return (

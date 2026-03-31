@@ -289,12 +289,12 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="max-w-md border-white/10 bg-gray-900 text-white"
+        className="max-h-[90dvh] w-[95vw] max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
       >
-        <DialogHeader>
+        <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryReceiveStock}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
+        <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
           <div className="space-y-1">
             <label className="text-xs text-gray-400">{t.inventorySearchPlaceholder}</label>
             <Input
@@ -318,7 +318,7 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <label className="text-xs text-gray-400">{t.inventoryColStock}</label>
               <Input
@@ -362,11 +362,11 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-gray-800 border-white/10" />
           </div>
         </div>
-        <DialogFooter className="border-t-0 bg-transparent p-0 pt-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} type="button">
+        <DialogFooter className={cn("border-t border-white/10 bg-gray-900/80 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} type="button" className="w-full sm:w-auto">
             {t.cancel}
           </Button>
-          <Button onClick={submit} disabled={busy} className="bg-emerald-600 text-white">
+          <Button onClick={submit} disabled={busy} className="w-full bg-emerald-600 text-white hover:bg-emerald-700 sm:w-auto">
             {busy ? t.saving : t.save}
           </Button>
         </DialogFooter>
@@ -432,12 +432,12 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="max-w-md border-white/10 bg-gray-900 text-white"
+        className="max-h-[90dvh] w-[95vw] max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
       >
-        <DialogHeader>
+        <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryIssueStock}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
+        <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
           <div className="space-y-1">
             <label className="text-xs text-gray-400">{t.inventorySearchPlaceholder}</label>
             <Input
@@ -480,11 +480,11 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-gray-800 border-white/10" />
           </div>
         </div>
-        <DialogFooter className="border-t-0 bg-transparent p-0 pt-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} type="button">
+        <DialogFooter className={cn("border-t border-white/10 bg-gray-900/80 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} type="button" className="w-full sm:w-auto">
             {t.cancel}
           </Button>
-          <Button onClick={submit} disabled={busy} variant="destructive">
+          <Button onClick={submit} disabled={busy} variant="destructive" className="w-full sm:w-auto">
             {busy ? t.saving : t.save}
           </Button>
         </DialogFooter>

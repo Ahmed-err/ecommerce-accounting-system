@@ -324,7 +324,7 @@ function SuppliersTab({ t, isRTL }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersSearch}
           value={q}
@@ -406,11 +406,11 @@ function SuppliersTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto border-white/10 bg-gray-900 text-white">
-          <DialogHeader>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
+          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{edit ? t.suppliersEdit : t.suppliersAdd}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-5">
             {["name", "companyName", "phone", "email", "category", "taxId", "address", "notes"].map((f) => (
               <div key={f} className={f === "address" || f === "notes" ? "sm:col-span-2" : ""}>
                 <label className="text-xs text-gray-400">{t[`suppliersField_${f}`] || f}</label>
@@ -451,10 +451,15 @@ function SuppliersTab({ t, isRTL }) {
               />
               {t.active}
             </label>
+            <div className={cn("sm:col-span-2 flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+              <Button variant="ghost" onClick={() => setOpen(false)} type="button" className="w-full sm:w-auto">
+                {t.cancel}
+              </Button>
+              <Button className="w-full bg-amber-500 text-black sm:w-auto" onClick={save}>
+                {t.save}
+              </Button>
+            </div>
           </div>
-          <Button className="w-full bg-amber-500 text-black" onClick={save}>
-            {t.save}
-          </Button>
         </DialogContent>
       </Dialog>
 
@@ -578,7 +583,7 @@ function PurchasesTab({ t, isRTL }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersPurchaseSearch}
           value={q}
@@ -676,12 +681,12 @@ function PurchasesTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto border-white/10 bg-gray-900 text-white">
-          <DialogHeader>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-3xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
+          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersAddPurchase}</DialogTitle>
           </DialogHeader>
           {opts && (
-            <div className="space-y-3 text-sm">
+            <div className="space-y-4 px-4 py-4 text-sm sm:px-6 sm:py-5">
               <div>
                 <label className="text-xs text-gray-400">{t.suppliersColSupplier}</label>
                 <select
@@ -778,34 +783,46 @@ function PurchasesTab({ t, isRTL }) {
                 />
                 {t.suppliersReceiveNow}
               </label>
-              <Button className="w-full bg-amber-500 text-black" onClick={submitPurchase}>
-                {t.save}
-              </Button>
+              <div className={cn("flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+                <Button variant="ghost" onClick={() => setOpen(false)} type="button" className="w-full sm:w-auto">
+                  {t.cancel}
+                </Button>
+                <Button className="w-full bg-amber-500 text-black sm:w-auto" onClick={submitPurchase}>
+                  {t.save}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!payOpen} onOpenChange={(o) => !o && setPayOpen(null)}>
-        <DialogContent className="border-white/10 bg-gray-900 text-white">
-          <DialogHeader>
+        <DialogContent className="w-[95vw] max-w-md border-white/10 bg-gray-900 p-0 text-white">
+          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersRecordPayment}</DialogTitle>
           </DialogHeader>
-          <Input
-            placeholder={t.suppliersPayAmount}
-            className="border-white/10 bg-black/40"
-            value={payForm.amount}
-            onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
-          />
-          <Input
-            placeholder={t.suppliersPayMethod}
-            className="border-white/10 bg-black/40"
-            value={payForm.method}
-            onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
-          />
-          <Button className="bg-amber-500 text-black" onClick={pay}>
-            {t.save}
-          </Button>
+          <div className="space-y-3 px-4 py-4 sm:px-6 sm:py-5">
+            <Input
+              placeholder={t.suppliersPayAmount}
+              className="border-white/10 bg-black/40"
+              value={payForm.amount}
+              onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
+            />
+            <Input
+              placeholder={t.suppliersPayMethod}
+              className="border-white/10 bg-black/40"
+              value={payForm.method}
+              onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
+            />
+            <div className={cn("flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+              <Button variant="ghost" onClick={() => setPayOpen(null)} type="button" className="w-full sm:w-auto">
+                {t.cancel}
+              </Button>
+              <Button className="w-full bg-amber-500 text-black sm:w-auto" onClick={pay}>
+                {t.save}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -861,7 +878,7 @@ function ReportsTab({ t, isRTL }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
         <div>
           <label className="text-xs text-gray-400">{t.suppliersReportFrom}</label>
           <Input type="date" className="border-white/10 bg-gray-900 text-white" value={from} onChange={(e) => setFrom(e.target.value)} />

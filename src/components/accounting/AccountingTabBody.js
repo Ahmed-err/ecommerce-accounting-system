@@ -29,6 +29,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { printElementById } from "@/lib/print";
 import { createTransaction, deleteTransaction, bulkDeleteTransactions, createLedgerInvoice, markLedgerInvoicePaid } from "@/app/actions/accounting";
 import { toast } from "sonner";
 import { UploadButton } from "@/lib/uploader";
@@ -390,7 +391,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </div>
         </div>
         <div className="accounting-no-print flex gap-2">
-          <Button type="button" variant="outline" className="border-white/10" onClick={() => window.print()}>
+          <Button type="button" variant="outline" className="border-white/10" onClick={() => printElementById("accounting-tab-print")}>
             {t.accExportPdf}
           </Button>
         </div>
@@ -778,7 +779,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           >
             {t.accExportCsv}
           </Button>
-          <Button variant="outline" className="border-white/10" onClick={() => window.print()}>
+          <Button variant="outline" className="border-white/10" onClick={() => printElementById("accounting-report-print")}>
             {t.accPrint}
           </Button>
         </div>

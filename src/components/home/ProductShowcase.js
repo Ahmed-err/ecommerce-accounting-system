@@ -35,8 +35,8 @@ export default function ProductShowcase({ products }) {
           <div
             className={cn(
               "flex flex-col gap-6 mb-10 sm:mb-12 lg:mb-16",
-              "md:flex-row md:items-end md:justify-between",
-              isRTL && "md:flex-row-reverse"
+              "xl:flex-row xl:items-end xl:justify-between",
+              isRTL && "xl:flex-row-reverse"
             )}
           >
             {/* Heading */}
@@ -54,7 +54,7 @@ export default function ProductShowcase({ products }) {
               <h2
                 className={cn(
                   "font-black uppercase tracking-tighter italic text-foreground leading-[0.95]",
-                  "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+                  "text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
                 )}
               >
                 {t.popularProducts || "TOP PRODUCTS"}
@@ -71,8 +71,9 @@ export default function ProductShowcase({ products }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.15 }}
+              className={cn("w-full xl:w-auto", isRTL ? "xl:mr-auto" : "xl:ml-auto")}
             >
-              <TabsList className="flex w-full flex-wrap justify-center gap-1 rounded-xl border border-foreground/10 bg-foreground/5 p-1 shadow-inner sm:w-auto sm:justify-end sm:gap-0 sm:rounded-2xl sm:p-1.5 md:flex-nowrap">
+              <TabsList className="flex w-full flex-wrap justify-center gap-1 rounded-xl border border-foreground/10 bg-foreground/5 p-1 shadow-inner sm:justify-end sm:gap-0 sm:rounded-2xl sm:p-1.5 md:flex-nowrap xl:w-auto">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
