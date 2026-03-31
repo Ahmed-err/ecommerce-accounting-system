@@ -13,6 +13,7 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export const revalidate = 60;
 
@@ -31,6 +32,8 @@ export async function generateMetadata({ params }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
 
   if (!product) {
     return { title: lang === "ar" ? "المنتج غير موجود" : "Product Not Found" };
@@ -46,7 +49,7 @@ export async function generateMetadata({ params }) {
   const summary = await getProductReviewSummary(product.id).catch(() => ({ total: 0, average: 0 }));
   const description =
     displayDesc?.slice(0, 160) ||
-    (lang === "ar" ? `اشتري ${displayName} من ${t.brandName}.` : `Buy ${displayName} from ${t.brandName}.`);
+    (lang === "ar" ? `اشتري ${displayName} من ${b.brandName}.` : `Buy ${displayName} from ${b.brandName}.`);
 
   const h = await headers();
   const host = h.get("x-forwarded-host") || h.get("host") || "";
@@ -57,7 +60,7 @@ export async function generateMetadata({ params }) {
     (host ? `${proto}://${host}` : "");
 
   return {
-    title: `${displayName} | ${t.brandName}`,
+    title: `${displayName} | ${b.brandName}`,
     description,
     alternates: base ? { canonical: `${base.replace(/\/$/, "")}/products/${slug}` } : undefined,
     openGraph: {

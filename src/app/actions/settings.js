@@ -28,6 +28,7 @@ export async function getAdminSettingsData() {
   });
   const permissions = await db.permission.findMany({ orderBy: [{ role: "asc" }, { module: "asc" }] });
   let legal = { terms: null, privacy: null };
+  let homepage = { banners: [], offers: [] };
   try {
     const legalRows = await db.legalPage.findMany();
     legal = {
@@ -37,7 +38,16 @@ export async function getAdminSettingsData() {
   } catch {
     /* table may not exist before migration */
   }
-  return { store, users, permissions, legal };
+  try {
+    const [banners, offers] = await Promise.all([
+      db.banner.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] }),
+      db.offer.findMany({ orderBy: { createdAt: "desc" } }),
+    ]);
+    homepage = { banners, offers };
+  } catch {
+    /* optional homepage tables */
+  }
+  return { store, users, permissions, legal, homepage };
 }
 
 export async function getSettingsUsersPage(input = {}) {
@@ -109,17 +119,31 @@ export async function updateSettings(input) {
 
   try {
   if (tab === "store") {
+    const nameAr = String(payload.nameAr ?? "").trim();
+    const nameEn = String(payload.nameEn ?? "").trim();
+    if (!nameAr || !nameEn) {
+      return { success: false, error: "Store Arabic and English names are required." };
+    }
     await db.store.update({
       where: { id: store.id },
       data: {
-        nameAr: payload.nameAr || null,
-        nameEn: payload.nameEn || null,
-        sloganAr: payload.sloganAr || null,
-        sloganEn: payload.sloganEn || null,
-        contactPhone: payload.contactPhone || null,
-        contactEmail: payload.contactEmail || null,
-        defaultLanguage: payload.defaultLanguage || "ar",
-        currency: payload.currency || "SDG",
+        nameAr,
+        nameEn,
+        sloganAr: String(payload.sloganAr ?? "").trim() || null,
+        sloganEn: String(payload.sloganEn ?? "").trim() || null,
+        contactPhone: String(payload.contactPhone ?? "").trim() || null,
+        contactEmail: String(payload.contactEmail ?? "").trim() || null,
+        addressAr: String(payload.addressAr ?? "").trim() || null,
+        addressEn: String(payload.addressEn ?? "").trim() || null,
+        googleMapsLink: String(payload.googleMapsLink ?? "").trim() || null,
+        whatsappUrl: String(payload.whatsappUrl ?? "").trim() || null,
+        facebookUrl: String(payload.facebookUrl ?? "").trim() || null,
+        instagramUrl: String(payload.instagramUrl ?? "").trim() || null,
+        tiktokUrl: String(payload.tiktokUrl ?? "").trim() || null,
+        defaultLanguage: payload.defaultLanguage === "en" ? "en" : "ar",
+        currency: ["SDG", "EGP", "USD", "SAR"].includes(String(payload.currency || ""))
+          ? String(payload.currency)
+          : "SDG",
         maintenanceMode: !!payload.maintenanceMode,
       },
     });
@@ -267,6 +291,138 @@ export async function updateSettings(input) {
         backupSchedule: payload.backupSchedule || "OFF",
       },
     });
+  } else if (tab === "homepage") {
+    const type = String(payload.type || "").toLowerCase();
+    const action = String(payload.action || "").toLowerCase();
+    const id = String(payload.id || "").trim();
+
+    if (type === "banner") {
+      if (action === "delete") {
+        if (!id) return { success: false, error: "Missing banner id" };
+        await db.banner.delete({ where: { id } });
+      } else if (action === "create") {
+        const titleAr = String(payload.titleAr ?? "").trim();
+        const titleEn = String(payload.titleEn ?? "").trim();
+        const subtitleAr = String(payload.subtitleAr ?? "").trim();
+        const subtitleEn = String(payload.subtitleEn ?? "").trim();
+        const image = String(payload.image ?? "").trim();
+        const ctaTextAr = String(payload.ctaTextAr ?? "").trim();
+        const ctaTextEn = String(payload.ctaTextEn ?? "").trim();
+        const ctaLink = String(payload.ctaLink ?? "").trim() || "/products";
+        if (!titleAr || !titleEn || !subtitleAr || !subtitleEn || !image || !ctaTextAr || !ctaTextEn) {
+          return { success: false, error: "Please fill all required banner fields." };
+        }
+        await db.banner.create({
+          data: {
+            titleAr,
+            titleEn,
+            subtitleAr,
+            subtitleEn,
+            image,
+            ctaTextAr,
+            ctaTextEn,
+            ctaLink,
+            order: Number.isFinite(Number(payload.order)) ? Number(payload.order) : 0,
+            isActive: payload.isActive !== false,
+          },
+        });
+      } else if (action === "update") {
+        if (!id) return { success: false, error: "Missing banner id" };
+        const titleAr = String(payload.titleAr ?? "").trim();
+        const titleEn = String(payload.titleEn ?? "").trim();
+        const subtitleAr = String(payload.subtitleAr ?? "").trim();
+        const subtitleEn = String(payload.subtitleEn ?? "").trim();
+        const image = String(payload.image ?? "").trim();
+        const ctaTextAr = String(payload.ctaTextAr ?? "").trim();
+        const ctaTextEn = String(payload.ctaTextEn ?? "").trim();
+        const ctaLink = String(payload.ctaLink ?? "").trim() || "/products";
+        if (!titleAr || !titleEn || !subtitleAr || !subtitleEn || !image || !ctaTextAr || !ctaTextEn) {
+          return { success: false, error: "Please fill all required banner fields." };
+        }
+        await db.banner.update({
+          where: { id },
+          data: {
+            titleAr,
+            titleEn,
+            subtitleAr,
+            subtitleEn,
+            image,
+            ctaTextAr,
+            ctaTextEn,
+            ctaLink,
+            order: Number.isFinite(Number(payload.order)) ? Number(payload.order) : 0,
+            isActive: payload.isActive !== false,
+          },
+        });
+      }
+    } else if (type === "offer") {
+      if (action === "delete") {
+        if (!id) return { success: false, error: "Missing offer id" };
+        await db.offer.delete({ where: { id } });
+      } else if (action === "create") {
+        const titleAr = String(payload.titleAr ?? "").trim();
+        const titleEn = String(payload.titleEn ?? "").trim();
+        const subtitleAr = String(payload.subtitleAr ?? "").trim();
+        const subtitleEn = String(payload.subtitleEn ?? "").trim();
+        const image = String(payload.image ?? "").trim();
+        const ctaTextAr = String(payload.ctaTextAr ?? "").trim();
+        const ctaTextEn = String(payload.ctaTextEn ?? "").trim();
+        const ctaLink = String(payload.ctaLink ?? "").trim() || "/products";
+        if (!titleAr || !titleEn || !subtitleAr || !subtitleEn || !image || !ctaTextAr || !ctaTextEn) {
+          return { success: false, error: "Please fill all required offer fields." };
+        }
+        const expiresAt =
+          payload.expiresAt && String(payload.expiresAt).trim()
+            ? new Date(String(payload.expiresAt))
+            : null;
+        await db.offer.create({
+          data: {
+            titleAr,
+            titleEn,
+            subtitleAr,
+            subtitleEn,
+            image,
+            ctaTextAr,
+            ctaTextEn,
+            ctaLink,
+            expiresAt: expiresAt && !Number.isNaN(expiresAt.getTime()) ? expiresAt : null,
+            isActive: payload.isActive !== false,
+          },
+        });
+      } else if (action === "update") {
+        if (!id) return { success: false, error: "Missing offer id" };
+        const titleAr = String(payload.titleAr ?? "").trim();
+        const titleEn = String(payload.titleEn ?? "").trim();
+        const subtitleAr = String(payload.subtitleAr ?? "").trim();
+        const subtitleEn = String(payload.subtitleEn ?? "").trim();
+        const image = String(payload.image ?? "").trim();
+        const ctaTextAr = String(payload.ctaTextAr ?? "").trim();
+        const ctaTextEn = String(payload.ctaTextEn ?? "").trim();
+        const ctaLink = String(payload.ctaLink ?? "").trim() || "/products";
+        if (!titleAr || !titleEn || !subtitleAr || !subtitleEn || !image || !ctaTextAr || !ctaTextEn) {
+          return { success: false, error: "Please fill all required offer fields." };
+        }
+        const expiresAt =
+          payload.expiresAt && String(payload.expiresAt).trim()
+            ? new Date(String(payload.expiresAt))
+            : null;
+        await db.offer.update({
+          where: { id },
+          data: {
+            titleAr,
+            titleEn,
+            subtitleAr,
+            subtitleEn,
+            image,
+            ctaTextAr,
+            ctaTextEn,
+            ctaLink,
+            expiresAt: expiresAt && !Number.isNaN(expiresAt.getTime()) ? expiresAt : null,
+            isActive: payload.isActive !== false,
+          },
+        });
+      }
+    }
   }
 
   revalidatePath("/", "layout");

@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-36 min-h-[9rem] sm:h-40 sm:min-h-[10rem] md:h-44 lg:h-48 xl:h-52"
+      ? "h-52 min-h-[13rem] sm:h-56 sm:min-h-[14rem] md:h-60 lg:h-64 xl:h-72"
       : "h-64";
 
   const quickBody = (
@@ -347,7 +347,7 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5",
               compactRail && "p-3",
-              homeShowcase && "p-3 pt-3 sm:p-4 lg:p-5",
+              homeShowcase && "p-4 pt-4 sm:p-5 lg:p-6",
               isRTL ? "text-right" : "text-left"
             )}
           >
@@ -364,7 +364,7 @@ export default function ProductCard({
               <h3
                 className={cn(
                   "mt-1 mb-2 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug",
-                  compactRail ? "text-sm" : homeShowcase ? "text-sm sm:text-base lg:text-lg" : "text-lg"
+                  compactRail ? "text-sm" : homeShowcase ? "text-base sm:text-lg lg:text-xl" : "text-lg"
                 )}
               >
                 {product.name}
@@ -380,7 +380,7 @@ export default function ProductCard({
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
-                  compactRail ? "text-base" : homeShowcase ? "text-xs max-[380px]:text-[11px] sm:text-sm md:text-base lg:text-lg" : "text-xl"
+                  compactRail ? "text-base" : homeShowcase ? "text-sm sm:text-base md:text-lg lg:text-xl" : "text-xl"
                 )}
               >
                 {selling.toLocaleString()} {t.currency}
@@ -395,11 +395,11 @@ export default function ProductCard({
                 disabled={isOutOfStock}
                 className={cn(
                   "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
-                  homeShowcase ? "p-2 sm:p-2.5" : "p-2.5"
+                  homeShowcase ? "p-2.5 sm:p-3" : "p-2.5"
                 )}
                 title={t.addToCart}
               >
-                <ShoppingCart className={cn(homeShowcase ? "h-3.5 w-3.5 sm:h-4 sm:w-4" : "h-4 w-4")} />
+                <ShoppingCart className={cn(homeShowcase ? "h-4 w-4 sm:h-5 sm:w-5" : "h-4 w-4")} />
               </button>
             </div>
           </div>

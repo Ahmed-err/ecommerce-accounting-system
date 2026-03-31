@@ -7,7 +7,7 @@ import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
 export default function Footer() {
-    const { lang, isRTL } = useLanguage();
+    const { lang, isRTL, brandName } = useLanguage();
     const t = translations[lang];
 
     const quickLinks = [
@@ -40,7 +40,7 @@ export default function Footer() {
                                 "text-base font-black text-zinc-100 leading-snug max-w-[16rem]",
                                 isRTL ? "text-right" : "uppercase tracking-tight"
                             )}>
-                                {t.brandName}
+                                {brandName}
                             </span>
                         </Link>
                         <p className={cn("text-zinc-400 text-sm leading-relaxed font-medium", isRTL && "text-right")}>
@@ -152,7 +152,7 @@ export default function Footer() {
                         "text-zinc-400 text-xs font-semibold tracking-tight text-center md:text-left max-w-3xl leading-relaxed",
                         isRTL && "md:text-right"
                     )}>
-                        &copy; {new Date().getFullYear()} {t.brandName}. {t.allRightsReserved}
+                        &copy; {new Date().getFullYear()} {brandName}. {t.allRightsReserved}
                     </p>
                     <div className="flex items-center gap-8">
                          <Link href="/privacy" className="text-zinc-500 hover:text-zinc-100 text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacyPolicy}</Link>

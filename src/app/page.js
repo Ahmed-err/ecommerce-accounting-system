@@ -9,6 +9,7 @@ import PromoOffer from "@/components/PromoOffer";
 import AboutTeaser from "@/components/AboutTeaser";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import { translations } from "@/lib/translations";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { cookies } from "next/headers";
 
 const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
@@ -22,13 +23,15 @@ export default async function HomePage() {
   const isRTL = lang === "ar";
 
   const { banners, categories, products, featuredOffer } = await getHomepageData();
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
 
   const t = translations[lang];
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Store",
-    name: t.brandName,
+    name: b.brandName,
     description: t.brandDesc,
     url: process.env.NEXT_PUBLIC_URL || "https://essamnasr.com",
     address: { "@type": "PostalAddress", addressLocality: "Khartoum", addressCountry: "SD" },
@@ -36,13 +39,16 @@ export default async function HomePage() {
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: t.brandName,
+    name: b.brandName,
     url: process.env.NEXT_PUBLIC_URL || "https://essamnasr.com",
     inLanguage: lang,
   };
 
   return (
-    <div className={`min-h-screen bg-background text-foreground flex flex-col ${isRTL ? 'font-arabic' : 'font-sans'}`}>
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className={`min-h-screen bg-background text-foreground flex flex-col ${isRTL ? "font-arabic text-right" : "font-sans text-left"}`}
+    >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <a
@@ -53,7 +59,7 @@ export default async function HomePage() {
       </a>
       <Navbar />
       
-      <main id="home-main" className="relative z-0 flex-grow">
+      <main id="home-main" className={`relative z-0 flex-grow ${isRTL ? "text-right" : "text-left"}`}>
         {/* 1. Hero Slider */}
         <section aria-label={isRTL ? "العروض الرئيسية" : "Hero banners"}>
           <HeroSlider banners={banners} />

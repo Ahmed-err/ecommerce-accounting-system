@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { STORE_VAT_NUMBER, CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { ensureOrderInvoice } from "@/lib/orders";
+import { getOrCreateStoreSettings } from "@/lib/settings";
 
 // Currency symbol - SDG for Sudanese Pound
 const CURRENCY = "SDG";
@@ -17,8 +18,9 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
-  const t = translations[lang];
-  return { title: `Invoice - ${id.slice(-8).toUpperCase()} | ${t.brandName}` };
+  const store = await getOrCreateStoreSettings();
+  const brandName = lang === "ar" ? store.nameAr || store.nameEn : store.nameEn || store.nameAr;
+  return { title: `Invoice - ${id.slice(-8).toUpperCase()} | ${brandName}` };
 }
 
 export default async function InvoicePage({ params }) {
@@ -28,6 +30,8 @@ export default async function InvoicePage({ params }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
+  const store = await getOrCreateStoreSettings();
+  const brandName = lang === "ar" ? store.nameAr || store.nameEn : store.nameEn || store.nameAr;
   
   // Fetch order first to check ownership
   const order = await db.order.findUnique({
@@ -72,7 +76,7 @@ export default async function InvoicePage({ params }) {
         {/* Header Section */}
         <div className="text-center mb-4">
           <h1 className="text-xl font-black mb-1">
-            {t.brandName}
+            {brandName}
           </h1>
           <p className="text-xs text-gray-600">Tax Invoice / الفاتورة الضريبية</p>
           <p className="text-xs text-gray-600">VAT: {STORE_VAT_NUMBER}</p>

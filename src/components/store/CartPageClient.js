@@ -60,7 +60,7 @@ function CartSkeleton() {
 }
 
 export default function CartPageClient() {
-  const { lang, isRTL } = useLanguage();
+  const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang] || translations.ar;
   const {
     cart,
@@ -237,7 +237,7 @@ export default function CartPageClient() {
         </div>
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           <Sparkles className="h-3 w-3 text-amber-500" />
-          {t.brandName}
+          {brandName}
         </div>
         <h2 className="mb-2 text-xl font-bold text-foreground sm:text-2xl">
           {t.cartEmpty}

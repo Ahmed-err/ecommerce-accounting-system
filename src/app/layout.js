@@ -3,8 +3,12 @@ import "./globals.css";
 import { translations } from "@/lib/translations";
 import PWAInstallPrompt from "@/components/store/PWAInstallPrompt";
 import ServiceWorkerRegistration from "@/components/store/ServiceWorkerRegistration";
+import { Providers } from "@/components/Providers";
+import { CartProvider } from "@/components/store/CartProvider";
+import { cookies } from "next/headers";
 import { validateEnv } from "@/lib/env";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -29,18 +33,20 @@ export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
-  const title = `${t.brandName} — ${t.brandTagline}`;
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
+  const title = `${b.brandName} — ${b.brandTagline}`;
   const description = t.brandDesc;
 
   return {
     metadataBase: new URL(`${getAbsoluteSiteUrl()}/`),
-    title: { default: title, template: `%s | ${t.brandName}` },
+    title: { default: title, template: `%s | ${b.brandName}` },
     description,
     robots: { index: true, follow: true },
     openGraph: {
       type: "website",
       locale: lang === "ar" ? "ar_SD" : "en_US",
-      siteName: t.brandName,
+      siteName: b.brandName,
       title,
       description,
     },
@@ -61,23 +67,19 @@ export async function generateMetadata() {
   };
 }
 
-import { Providers } from "@/components/Providers";
-import { CartProvider } from "@/components/store/CartProvider";
-
-import { cookies } from "next/headers";
-
 export default async function RootLayout({ children }) {
   validateEnv();
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const dir = lang === "ar" ? "rtl" : "ltr";
+  const branding = await getStoreBranding();
 
   return (
     <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overscroll-none">
       <body
         className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none`}
       >
-        <Providers lang={lang}>
+        <Providers lang={lang} branding={branding}>
           <CartProvider>
             {children}
             <ServiceWorkerRegistration />

@@ -1,4 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## E-Commerce Accounting System
+
+Electrical supplies e-commerce platform with ERP modules, built with Next.js (App Router), Prisma, and PostgreSQL.
+
+## Documentation
+
+- Training guide (AR/EN): `docs/TRAINING_GUIDE_AR_EN.md`
+- Full system reference (AR/EN): `docs/SYSTEM_REFERENCE_AR_EN.md`
+- Agent coding guidelines: `AGENTS.md`
 
 ## Getting Started
 

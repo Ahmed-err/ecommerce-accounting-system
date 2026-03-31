@@ -30,7 +30,7 @@ const fieldBase =
 const insetClass = "rounded-xl border border-border bg-muted/30 p-3 sm:p-4";
 
 export default function CheckoutClient() {
-  const { lang, isRTL } = useLanguage();
+  const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang] || translations['ar'];
   const {
     cart,
@@ -94,8 +94,8 @@ export default function CheckoutClient() {
   const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}`;
   const whatsappMessage = encodeURIComponent(
     lang === "ar"
-      ? `مرحبا، قمت بعمل طلب من ${t.brandName}. الاسم: ${guestInfo.name || "-"}، الهاتف: ${guestInfo.phone || "-"}`
-      : `Hello, I placed an order from ${t.brandName}. Name: ${guestInfo.name || "-"}, Phone: ${guestInfo.phone || "-"}`
+      ? `مرحبا، قمت بعمل طلب من ${brandName}. الاسم: ${guestInfo.name || "-"}، الهاتف: ${guestInfo.phone || "-"}`
+      : `Hello, I placed an order from ${brandName}. Name: ${guestInfo.name || "-"}, Phone: ${guestInfo.phone || "-"}`
   );
 
   const formatStockIssue = (issue) => {

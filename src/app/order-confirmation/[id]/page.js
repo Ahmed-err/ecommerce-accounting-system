@@ -8,6 +8,7 @@ import { translations } from "@/lib/translations";
 import { Check, Package } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +17,10 @@ export async function generateMetadata({ params }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
   return {
-    title: `${t.orderConfirmationThanks} | ${t.brandName}`,
+    title: `${t.orderConfirmationThanks} | ${b.brandName}`,
     description: t.orderConfirmationGuestLine,
     robots: { index: false, follow: false },
   };

@@ -37,7 +37,7 @@ import {
  * can change the useId call order between SSR and the first client render, which
  * mismatches the mobile trigger id. Mount the sheet only after hydration.
  */
-function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks }) {
+function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -82,11 +82,11 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks }) {
                                     <Zap className="h-4 w-4 text-white" />
                                 </div>
                                 <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
-                                    <span className={cn("text-sm font-black text-foreground", isRTL ? "text-right" : "uppercase tracking-tight")}>
-                                        {isRTL ? "عصام الدين نصر" : "Essam El-Din Nasr"}
+                                    <span className={cn("text-sm font-black text-foreground", isRTL ? "text-right" : "tracking-tight")}>
+                                        {brandName}
                                     </span>
-                                    <span className="text-[9px] font-bold text-amber-500 tracking-widest uppercase mt-0.5">
-                                        {isRTL ? "للأدوات الكهربائية" : "Electrical Tools"}
+                                    <span className="mt-0.5 text-[9px] font-bold text-amber-500 tracking-wide">
+                                        {brandTagline}
                                     </span>
                                 </div>
                             </SheetTitle>
@@ -156,7 +156,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks }) {
 export default function Navbar() {
     const { data: session } = useSession();
     const { cartCount, loaded } = useCart();
-    const { lang, setLang, isRTL } = useLanguage();
+    const { lang, setLang, isRTL, brandName, brandTagline } = useLanguage();
     const t = translations[lang];
     const [scrolled, setScrolled] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
@@ -227,15 +227,15 @@ export default function Navbar() {
                         <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
                             <span className={cn(
                                 "text-sm font-black tracking-tight text-foreground",
-                                isRTL ? "text-right" : "uppercase"
+                                isRTL ? "text-right" : ""
                             )}>
-                                {isRTL ? "عصام الدين نصر" : "Essam El-Din Nasr"}
+                                {brandName}
                             </span>
                             <span className={cn(
-                                "text-[9px] font-bold text-amber-500 tracking-widest uppercase mt-0.5",
+                                "mt-0.5 text-[9px] font-bold text-amber-500 tracking-wide",
                                 isRTL && "text-right"
                             )}>
-                                {isRTL ? "للأدوات الكهربائية" : "Electrical Tools"}
+                                {brandTagline}
                             </span>
                         </div>
                     </Link>
@@ -422,6 +422,8 @@ export default function Navbar() {
                             t={t}
                             session={session}
                             navLinks={navLinks}
+                            brandName={brandName}
+                            brandTagline={brandTagline}
                         />
                     </div>
                 </div>

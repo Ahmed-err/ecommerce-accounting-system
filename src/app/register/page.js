@@ -10,7 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
 export default function RegisterPage() {
-  const { lang, isRTL } = useLanguage();
+  const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang];
 
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function RegisterPage() {
                   </div>
                   <h2 className="text-5xl font-black text-white leading-tight tracking-tighter">
                      {lang === 'ar' ? 'ابدأ رحلتك مع' : 'Start your journey with'} <br/>
-                     <span className="text-amber-500">{t.brandName}</span>
+                     <span className="text-amber-500">{brandName}</span>
                   </h2>
               </div>
 
