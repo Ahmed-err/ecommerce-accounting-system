@@ -20,7 +20,6 @@ import { translations } from "@/lib/translations";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
   bulkMarkAttendance, getAllStaff, deleteEmployee } from "@/app/actions/employees";
-import EmployeeForm from "./EmployeeForm";
 
 const TABS = ["overview", "employees", "attendance", "salaries", "leaves", "roles", "reports"];
 
@@ -179,10 +178,11 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
           ) : <Empty t={t} />}
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.empChartDepts}</h3>
+        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 sm:p-5 lg:p-6">
+          <h3 className="mb-3 text-sm font-semibold text-white sm:mb-4">{t.empChartDepts}</h3>
           {deptBreakdown.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
+            <div className="rounded-lg bg-white/[0.02] p-2 sm:p-3">
+              <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie data={deptBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" nameKey="name">
                   {deptBreakdown.map((_, i) => <Cell key={i} fill={DEPT_COLORS[i % DEPT_COLORS.length]} />)}
@@ -190,7 +190,8 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
                 <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff10", borderRadius: 8 }} />
                 <Legend iconType="circle" iconSize={8} />
               </PieChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           ) : <Empty t={t} />}
         </div>
       </div>
@@ -954,8 +955,6 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
   const activeTab = searchParams.get("tab") || initialTab || "overview";
   const [tabData, setTabData] = useState({ [activeTab]: initialData });
   const [staff, setStaff] = useState(initialStaff || []);
-  const [empFormOpen, setEmpFormOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState(null);
   const skipRef = useRef(true);
 
   const setTab = (tab) => {
@@ -1014,13 +1013,7 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
           {!isPending && (
             <>
               {activeTab === "overview" && <OverviewTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
-              {activeTab === "employees" && (
-                <div className="flex justify-end accounting-no-print">
-                  <Button onClick={() => { setEditingEmployee(null); setEmpFormOpen(true); }} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-                    <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />{t.employeesAddEmployee}
-                  </Button>
-                </div>
-              )}
+              {activeTab === "employees" && null}
               {activeTab === "attendance" && <AttendanceTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
               {activeTab === "salaries" && <SalariesTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
               {activeTab === "leaves" && <LeavesTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
@@ -1031,13 +1024,6 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
         </motion.div>
       </AnimatePresence>
 
-      {empFormOpen && (
-        <EmployeeForm
-          isOpen={empFormOpen}
-          onClose={() => setEmpFormOpen(false)}
-          employee={editingEmployee}
-        />
-      )}
     </div>
   );
 }

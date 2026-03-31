@@ -160,11 +160,36 @@ export default function Navbar() {
     const t = translations[lang];
     const [scrolled, setScrolled] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (!event.target.closest("[data-user-menu]")) {
+                setShowUserMenu(false);
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === "Escape") {
+                setShowUserMenu(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        document.addEventListener("touchstart", handleOutsideClick);
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+            document.removeEventListener("touchstart", handleOutsideClick);
+            document.removeEventListener("keydown", handleEscape);
+        };
     }, []);
 
     const categories = [
@@ -313,13 +338,22 @@ export default function Navbar() {
 
                         {/* Account or Auth */}
                         {session ? (
-                            <div className="relative group/user">
+                            <div
+                                className="relative group/user"
+                                data-user-menu
+                                onMouseEnter={() => setShowUserMenu(true)}
+                                onMouseLeave={() => setShowUserMenu(false)}
+                            >
                                 <Button
                                     variant="ghost"
                                     className={cn(
                                         "h-10 px-1 !rounded-full bg-foreground/5 hover:bg-foreground/10 transition-all border border-foreground/5",
                                         isRTL ? "pl-3" : "pr-3"
                                     )}
+                                    onClick={() => setShowUserMenu((prev) => !prev)}
+                                    aria-haspopup="menu"
+                                    aria-expanded={showUserMenu}
+                                    type="button"
                                 >
                                     <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xs shrink-0">
                                         {session.user.name?.charAt(0) || "U"}
@@ -332,7 +366,8 @@ export default function Navbar() {
 
                                 {/* Dropdown */}
                                 <div className={cn(
-                                    "absolute top-full mt-2 w-56 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 invisible group-hover/user:visible scale-95 group-hover/user:scale-100 opacity-0 group-hover/user:opacity-100 transition-all duration-200 z-[110] origin-top",
+                                    "absolute top-full mt-2 w-56 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-200 z-[110] origin-top",
+                                    showUserMenu ? "visible scale-100 opacity-100" : "invisible scale-95 opacity-0",
                                     isRTL ? "left-0" : "right-0"
                                 )}>
                                     <div className="p-3 mb-1 border-b border-foreground/5">

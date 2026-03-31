@@ -27,7 +27,9 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
   const searchParams = useSearchParams();
 
   const tab = validTab(searchParams.get("tab") || initialTab || "dashboard");
-  const [data, setData] = useState(initialPayload);
+  const [tabData, setTabData] = useState(() => ({
+    [validTab(initialTab || "dashboard")]: initialPayload,
+  }));
   const [overdue, setOverdue] = useState(initialOverdue ?? 0);
   const [pending, startTransition] = useTransition();
 
@@ -37,14 +39,15 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
   const [plGranularity, setPlGranularity] = useState(searchParams.get("plg") || "monthly");
 
   const refresh = useCallback(() => {
+    const targetTab = tab;
     startTransition(async () => {
-      const res = await getAccountingTabData(tab, {
+      const res = await getAccountingTabData(targetTab, {
         rangePreset,
         customFrom: rangePreset === "custom" ? customFrom : undefined,
         customTo: rangePreset === "custom" ? customTo : undefined,
-        plGranularity: tab === "pl" ? plGranularity : undefined,
+        plGranularity: targetTab === "pl" ? plGranularity : undefined,
       });
-      setData(res);
+      setTabData((prev) => ({ ...prev, [targetTab]: res }));
       if (res?.overdueCount != null) setOverdue(res.overdueCount);
     });
   }, [tab, rangePreset, customFrom, customTo, plGranularity]);
@@ -55,8 +58,11 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
       skipNextFetch.current = false;
       return;
     }
+    if (tabData[tab]) {
+      return;
+    }
     refresh();
-  }, [refresh]);
+  }, [tab, tabData, refresh]);
 
   const setTab = (next) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -89,6 +95,8 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
     { id: "reports", label: t.accTabReports },
   ];
 
+  const currentData = tabData[tab];
+
   return (
     <div className={`accounting-page-print space-y-6 max-w-[1440px] mx-auto w-full ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className={`accounting-no-print flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between`}>
@@ -97,7 +105,7 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
           <p className="text-gray-400 mt-1">{t.adminAccountingDesc}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <PrintReportButton label={t.adminPrintReport} isRTL={isRTL} />
+          <PrintReportButton label={t.adminPrintReport} isRTL={isRTL} targetId="accounting-tab-print" />
         </div>
       </div>
 
@@ -169,17 +177,23 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
         <div className="rounded-xl border border-white/5 bg-gray-900/50 p-4 text-center text-sm text-gray-500 animate-pulse">{t.saving}</div>
       )}
 
-      <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-        <AccountingTabBody
-          tab={tab}
-          data={data}
-          t={t}
-          lang={lang}
-          isRTL={isRTL}
-          permissions={permissions}
-          onRefresh={refresh}
-        />
-      </motion.div>
+      {!currentData ? (
+        <div className="rounded-xl border border-white/5 bg-gray-900/50 p-8 text-center text-sm text-gray-500 animate-pulse">
+          {t.loading}
+        </div>
+      ) : (
+        <motion.div id="accounting-tab-print" key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+          <AccountingTabBody
+            tab={tab}
+            data={currentData}
+            t={t}
+            lang={lang}
+            isRTL={isRTL}
+            permissions={permissions}
+            onRefresh={refresh}
+          />
+        </motion.div>
+      )}
     </div>
   );
 }

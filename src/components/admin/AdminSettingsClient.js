@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateSettings } from "@/app/actions/settings";
 
-const TABS = ["store", "about", "shipping", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
+const TABS = ["store", "about", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
 
 export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const router = useRouter();
@@ -24,8 +24,20 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   });
   const [status, setStatus] = useState("");
 
-  const activeTab = TABS.includes(initialTab) ? initialTab : "store";
+  const currentTab = searchParams.get("tab") || initialTab;
+  const activeTab = TABS.includes(currentTab) ? currentTab : "store";
   const isRTL = lang === "ar";
+
+  useEffect(() => {
+    setStore(initialData.store);
+    setUsers(initialData.users || []);
+    setLegal({
+      termsAr: initialData.legal?.terms?.contentAr ?? "",
+      termsEn: initialData.legal?.terms?.contentEn ?? "",
+      privacyAr: initialData.legal?.privacy?.contentAr ?? "",
+      privacyEn: initialData.legal?.privacy?.contentEn ?? "",
+    });
+  }, [initialData]);
 
   const tabLabel = useMemo(
     () => ({
@@ -53,7 +65,22 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     setStatus("");
     startTransition(async () => {
       const res = await updateSettings({ tab, payload });
-      setStatus(res.success ? (lang === "ar" ? "تم الحفظ" : "Saved") : res.error || "Failed");
+      if (res.success) {
+        if (res.data?.store) setStore(res.data.store);
+        if (res.data?.users) setUsers(res.data.users);
+        if (res.data?.legal) {
+          setLegal({
+            termsAr: res.data.legal?.terms?.contentAr ?? "",
+            termsEn: res.data.legal?.terms?.contentEn ?? "",
+            privacyAr: res.data.legal?.privacy?.contentAr ?? "",
+            privacyEn: res.data.legal?.privacy?.contentEn ?? "",
+          });
+        }
+        setStatus(lang === "ar" ? "تم الحفظ" : "Saved");
+        router.refresh();
+      } else {
+        setStatus(res.error || "Failed");
+      }
     });
   }
 
@@ -176,15 +203,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         </div>
       )}
 
-      {activeTab === "shipping" && (
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">{lang === "ar" ? "إدارة الشحن العام ومناطق الشحن محفوظة في قاعدة البيانات." : "Manage global shipping and zones stored in database."}</p>
-          <Button disabled={isPending} onClick={() => save("shipping", { zones: store.shippingZones || [], globalFreeShippingEnabled: !!store.globalFreeShippingEnabled, globalFreeShippingAmount: store.globalFreeShippingAmount, cashOnDeliveryEnabled: !!store.cashOnDeliveryEnabled, deliveryNotesAr: store.deliveryNotesAr, deliveryNotesEn: store.deliveryNotesEn, defaultDeliveryEstimateAr: store.defaultDeliveryEstimateAr, defaultDeliveryEstimateEn: store.defaultDeliveryEstimateEn })}>
-            {lang === "ar" ? "حفظ إعدادات الشحن" : "Save Shipping"}
-          </Button>
-        </div>
-      )}
-
       {activeTab === "payment" && (
         <div className="space-y-3">
           <Input value={store.invoicePrefix || ""} onChange={(e) => setStore((p) => ({ ...p, invoicePrefix: e.target.value }))} placeholder={lang === "ar" ? "بادئة الفاتورة" : "Invoice Prefix"} />
@@ -268,17 +286,40 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                   <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
                 </SelectContent>
               </Select>
-              <Button size="sm" onClick={() => save("users", { updateUser: u })}>{lang === "ar" ? "تحديث" : "Update"}</Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const selected = users.find((it) => it.id === u.id) || u;
+                  save("users", { updateUser: selected });
+                }}
+              >
+                {lang === "ar" ? "تحديث" : "Update"}
+              </Button>
             </div>
           ))}
         </div>
       )}
 
-      {activeTab === "backup" && <p className="text-sm text-muted-foreground">{lang === "ar" ? "النسخ الاحتياطي التلقائي متاح عبر إعدادات الجدولة." : "Auto backup can be configured with schedule settings."}</p>}
+      {activeTab === "backup" && (
+        <div className="space-y-3">
+          <Select value={store.backupSchedule || "OFF"} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="OFF">{lang === "ar" ? "إيقاف" : "Off"}</SelectItem>
+              <SelectItem value="DAILY">{lang === "ar" ? "يومي" : "Daily"}</SelectItem>
+              <SelectItem value="WEEKLY">{lang === "ar" ? "أسبوعي" : "Weekly"}</SelectItem>
+              <SelectItem value="MONTHLY">{lang === "ar" ? "شهري" : "Monthly"}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button disabled={isPending} onClick={() => save("backup", { backupSchedule: store.backupSchedule || "OFF" })}>
+            {lang === "ar" ? "حفظ النسخ الاحتياطي" : "Save Backup"}
+          </Button>
+        </div>
+      )}
 
       {activeTab === "system" && (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">Next.js 16.1.6</p>
+          <p className="text-sm text-muted-foreground">App version: {store.appVersion || "0.1.0"}</p>
           <Button disabled={isPending} onClick={() => save("system", { maintenanceMode: !store.maintenanceMode })}>
             {store.maintenanceMode ? (lang === "ar" ? "إلغاء وضع الصيانة" : "Disable Maintenance") : (lang === "ar" ? "تفعيل وضع الصيانة" : "Enable Maintenance")}
           </Button>

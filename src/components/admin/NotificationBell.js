@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCheck } from "lucide-react";
@@ -25,10 +25,11 @@ export default function NotificationBell({ customerOnly = false }) {
   const lastSeenRef = useRef(null);
   const timerRef = useRef(null);
   const sourceRef = useRef(null);
+  const rootRef = useRef(null);
 
   const typeQuery = customerOnly ? "&type=ORDER_STATUS" : "";
 
-  const fetchList = async () => {
+  const fetchList = useCallback(async () => {
     try {
       const res = await fetch(`/api/notifications?limit=20${typeQuery}`, { cache: "no-store" });
       const json = await res.json();
@@ -39,11 +40,11 @@ export default function NotificationBell({ customerOnly = false }) {
         lastSeenRef.current = json.rows[0].createdAt;
       }
     } catch {}
-  };
+  }, [typeQuery]);
 
   useEffect(() => {
     fetchList();
-  }, []);
+  }, [fetchList]);
 
   useEffect(() => {
     let canceled = false;
@@ -94,6 +95,27 @@ export default function NotificationBell({ customerOnly = false }) {
       fetchList();
     }, 30000);
     return () => clearInterval(poll);
+  }, [fetchList]);
+
+  useEffect(() => {
+    const handleOutside = (event) => {
+      if (!rootRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
 
   const markOne = async (id, link) => {
@@ -113,12 +135,15 @@ export default function NotificationBell({ customerOnly = false }) {
   const title = useMemo(() => (lang === "ar" ? "الإشعارات" : "Notifications"), [lang]);
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setOpen((v) => !v)}
         className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 text-white relative"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        type="button"
       >
         <Bell className="h-5 w-5" />
         {unread > 0 ? (
@@ -128,20 +153,25 @@ export default function NotificationBell({ customerOnly = false }) {
         ) : null}
       </Button>
       {open ? (
-        <div className={`absolute z-[130] mt-2 w-80 rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl ${isRTL ? "left-0" : "right-0"}`}>
+        <div
+          className={`absolute z-[130] mt-2 w-[min(92vw,24rem)] rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:w-96 ${
+            isRTL ? "left-0" : "right-0"
+          }`}
+        >
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-bold text-white">{title}</p>
-            <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-gray-300" onClick={markAll}>
+            <Button size="sm" variant="ghost" className="h-8 px-2 text-[11px] text-gray-300" onClick={markAll} type="button">
               <CheckCheck className="h-4 w-4 me-1" />
               {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all as read"}
             </Button>
           </div>
-          <div className="max-h-96 overflow-y-auto space-y-2">
+          <div className="max-h-[65vh] overflow-y-auto space-y-2 pr-1">
             {rows.length ? rows.map((n) => (
               <button
                 key={n.id}
                 onClick={() => markOne(n.id, n.link)}
-                className={`w-full rounded-xl border p-3 text-start transition ${n.read ? "border-white/5 bg-white/[0.02]" : "border-amber-500/30 bg-amber-500/10"}`}
+                className={`w-full rounded-xl border p-3 transition ${isRTL ? "text-right" : "text-left"} ${n.read ? "border-white/5 bg-white/[0.02]" : "border-amber-500/30 bg-amber-500/10"}`}
+                type="button"
               >
                 <p className="text-sm font-semibold text-white">{lang === "ar" ? n.titleAr : n.titleEn}</p>
                 <p className="mt-1 text-xs text-gray-300">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>

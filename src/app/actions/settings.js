@@ -163,9 +163,17 @@ export async function updateSettings(input) {
     }
   } else if (tab === "system") {
     await db.store.update({ where: { id: store.id }, data: { maintenanceMode: !!payload.maintenanceMode } });
+  } else if (tab === "backup") {
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        backupSchedule: payload.backupSchedule || "OFF",
+      },
+    });
   }
 
   revalidatePath("/", "layout");
   revalidatePath("/admin/settings");
-  return { success: true };
+  const fresh = await getAdminSettingsData();
+  return { success: true, data: fresh };
 }
