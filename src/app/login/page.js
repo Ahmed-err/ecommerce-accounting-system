@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
 export default function LoginPage() {
-  const { lang, isRTL } = useLanguage();
+  const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang];
 
   const [email, setEmail] = useState("");
@@ -62,7 +62,7 @@ export default function LoginPage() {
                   </div>
                   <h2 className="text-6xl font-black text-white leading-tight tracking-tighter">
                      {lang === 'ar' ? 'مرحباً بك مجدداً في' : 'Welcome back to'} <br/>
-                     <span className="text-amber-500">{t.brandName}</span>
+                     <span className="text-amber-500">{brandName}</span>
                   </h2>
                   <p className="text-xl text-gray-400 font-medium leading-relaxed">
                      {t.loginToManage}

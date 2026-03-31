@@ -1,10 +1,13 @@
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export default async function Loading() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
 
   return (
     <div
@@ -12,7 +15,7 @@ export default async function Loading() {
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       <div className="animate-pulse text-center">
-        <p className="text-2xl font-black tracking-tight text-amber-500">{t.brandName}</p>
+        <p className="text-2xl font-black tracking-tight text-amber-500">{b.brandName}</p>
         <p className="mt-2 text-sm text-muted-foreground">{t.loadingStore}</p>
       </div>
       <div className="w-full max-w-md space-y-3">

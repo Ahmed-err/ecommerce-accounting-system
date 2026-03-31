@@ -14,6 +14,7 @@ import InventoryStockSection from "@/components/inventory/InventoryStockSection"
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,10 @@ export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
   return {
-    title: `${t.adminInventoryTitle} | ${t.brandName}`,
+    title: `${t.adminInventoryTitle} | ${b.brandName}`,
   };
 }
 
@@ -52,6 +55,8 @@ export default async function InventoryPage({ searchParams }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
   const isRTL = lang === "ar";
 
   return (
@@ -61,7 +66,7 @@ export default async function InventoryPage({ searchParams }) {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
-          <p className="text-sm font-semibold text-amber-500/90">{t.brandName}</p>
+          <p className="text-sm font-semibold text-amber-500/90">{b.brandName}</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
             {t.adminInventoryTitle}
           </h1>

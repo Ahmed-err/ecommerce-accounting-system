@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const LanguageContext = createContext();
 
-export function LanguageProvider({ children, initialLang = "ar" }) {
+export function LanguageProvider({ children, initialLang = "ar", branding }) {
   const [lang, setLang] = useState(initialLang); // Use server-side initial language
 
   useEffect(() => {
@@ -33,9 +33,21 @@ export function LanguageProvider({ children, initialLang = "ar" }) {
   };
 
   const isRTL = lang === "ar";
+  const brandNameAr = branding?.nameAr || "أعمال عصام الدين نصر للأدوات الكهربائية";
+  const brandNameEn = branding?.nameEn || "Essam El-Din Nasr Electrical Tools";
+  const brandTaglineAr = branding?.taglineAr || "الأدوات الكهربائية + حلول الطاقة الشمسية";
+  const brandTaglineEn = branding?.taglineEn || "Electrical Tools + Solar Solutions";
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang: switchLanguage, isRTL }}>
+    <LanguageContext.Provider
+      value={{
+        lang,
+        setLang: switchLanguage,
+        isRTL,
+        brandName: isRTL ? brandNameAr : brandNameEn,
+        brandTagline: isRTL ? brandTaglineAr : brandTaglineEn,
+      }}
+    >
       <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : "font-sans"}>
         {children}
       </div>

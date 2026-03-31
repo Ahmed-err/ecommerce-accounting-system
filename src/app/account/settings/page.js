@@ -9,6 +9,7 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { verifyEmailFromToken } from "@/app/actions/user";
 import AccountSettingsClient from "@/components/account/AccountSettingsClient";
 import { Suspense } from "react";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,9 @@ export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang] || translations.en;
-  return { title: `${t.accountSettingsTitle} | ${t.brandName}` };
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
+  return { title: `${t.accountSettingsTitle} | ${b.brandName}` };
 }
 
 function TabSkeleton() {

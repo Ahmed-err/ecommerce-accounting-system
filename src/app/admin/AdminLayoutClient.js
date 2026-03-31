@@ -13,7 +13,7 @@ import { translations } from "@/lib/translations";
 export default function AdminLayoutClient({ children, unreadContactCount = 0 }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { isRTL, lang } = useLanguage();
+  const { isRTL, lang, brandName } = useLanguage();
   const t = translations[lang];
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
             )}
           </div>
           <h2 className="min-w-0 truncate text-center text-sm font-bold leading-tight text-white">
-            {t.brandName}
+            {brandName}
           </h2>
           <div className="flex justify-end">
             <NotificationBell />

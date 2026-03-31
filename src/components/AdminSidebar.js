@@ -25,7 +25,7 @@ import { translations } from "@/lib/translations";
 export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { lang, isRTL } = useLanguage();
+  const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang];
 
   const userRole = session?.user?.role || "CASHIER";
@@ -61,7 +61,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
           </div>
           <div className="min-w-0 flex-1">
             <span className="block text-sm font-extrabold leading-snug tracking-tight line-clamp-3">
-              {t.brandName}
+              {brandName}
             </span>
             <div
               className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 ${isRTL ? "text-right" : "text-left"}`}

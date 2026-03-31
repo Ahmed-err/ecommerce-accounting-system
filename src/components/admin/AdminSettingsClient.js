@@ -7,7 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
 
-const TABS = ["store", "about", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
+const TABS = ["store", "homepage", "about", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
+
+function formatDateTimeLocal(value) {
+  if (!value) return "";
+  if (typeof value === "string" && value.includes("T") && value.length >= 16) {
+    return value.slice(0, 16);
+  }
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const router = useRouter();
@@ -17,6 +28,10 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [store, setStore] = useState(initialData.store);
   const [users, setUsers] = useState(initialData.users || []);
   const [permissions, setPermissions] = useState(initialData.permissions || []);
+  const [homepage, setHomepage] = useState({
+    banners: initialData.homepage?.banners || [],
+    offers: initialData.homepage?.offers || [],
+  });
   const [usersSearch, setUsersSearch] = useState("");
   const [usersRoleFilter, setUsersRoleFilter] = useState("all");
   const [usersPage, setUsersPage] = useState(1);
@@ -52,6 +67,10 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       privacyEn: initialData.legal?.privacy?.contentEn ?? "",
     });
     setPermissions(initialData.permissions || []);
+    setHomepage({
+      banners: initialData.homepage?.banners || [],
+      offers: initialData.homepage?.offers || [],
+    });
   }, [initialData]);
 
   const loadUsers = useCallback(async () => {
@@ -98,6 +117,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     () => ({
       store: lang === "ar" ? "المتجر" : "Store",
       about: lang === "ar" ? "من نحن" : "About page",
+      homepage: lang === "ar" ? "محتوى الرئيسية" : "Homepage content",
       shipping: lang === "ar" ? "الشحن" : "Shipping",
       payment: lang === "ar" ? "الدفع" : "Payment",
       notifications: lang === "ar" ? "الإشعارات" : "Notifications",
@@ -125,6 +145,12 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         if (res.data?.store) setStore(res.data.store);
         if (res.data?.users) setUsers(res.data.users);
         if (res.data?.permissions) setPermissions(res.data.permissions);
+        if (res.data?.homepage) {
+          setHomepage({
+            banners: res.data.homepage?.banners || [],
+            offers: res.data.homepage?.offers || [],
+          });
+        }
         if (res.data?.legal) {
           setLegal({
             termsAr: res.data.legal?.terms?.contentAr ?? "",
@@ -154,6 +180,227 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       </div>
 
       {status && <p className={`text-sm ${statusType === "error" ? "text-red-500" : "text-emerald-500"}`}>{status}</p>}
+
+      {activeTab === "homepage" && (
+        <div className="space-y-8">
+          <div className="space-y-3 rounded-xl border p-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">{lang === "ar" ? "السلايدر الرئيسي (Banners)" : "Hero banners"}</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setHomepage((p) => ({
+                    ...p,
+                    banners: [
+                      ...p.banners,
+                      {
+                        id: `new-banner-${Date.now()}`,
+                        titleAr: "",
+                        titleEn: "",
+                        subtitleAr: "",
+                        subtitleEn: "",
+                        image: "",
+                        ctaTextAr: "",
+                        ctaTextEn: "",
+                        ctaLink: "/products",
+                        order: p.banners.length,
+                        isActive: true,
+                        _isNew: true,
+                      },
+                    ],
+                  }))
+                }
+              >
+                {lang === "ar" ? "إضافة بانر" : "Add banner"}
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {homepage.banners.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{lang === "ar" ? "لا توجد بانرات حالياً" : "No banners yet"}</p>
+              ) : (
+                homepage.banners.map((b) => (
+                  <div key={b.id} className="rounded-lg border p-3 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <Input value={b.titleAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, titleAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "العنوان عربي" : "Title AR"} />
+                      <Input value={b.titleEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, titleEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "العنوان إنجليزي" : "Title EN"} />
+                      <Input value={b.subtitleAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, subtitleAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "وصف قصير عربي" : "Subtitle AR"} />
+                      <Input value={b.subtitleEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, subtitleEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "وصف قصير إنجليزي" : "Subtitle EN"} />
+                      <Input value={b.image || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, image: e.target.value } : it) }))} placeholder={lang === "ar" ? "رابط الصورة" : "Image URL"} />
+                      <Input value={b.ctaLink || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, ctaLink: e.target.value } : it) }))} placeholder={lang === "ar" ? "رابط الزر (/products)" : "CTA link (/products)"} />
+                      <Input value={b.ctaTextAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, ctaTextAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "نص الزر عربي" : "CTA text AR"} />
+                      <Input value={b.ctaTextEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, ctaTextEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "نص الزر إنجليزي" : "CTA text EN"} />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Input
+                        type="number"
+                        value={b.order ?? 0}
+                        onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, order: e.target.value } : it) }))}
+                        placeholder={lang === "ar" ? "الترتيب" : "Order"}
+                        className="w-32"
+                      />
+                      <label className="inline-flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={!!b.isActive}
+                          onChange={(e) => setHomepage((p) => ({ ...p, banners: p.banners.map((it) => it.id === b.id ? { ...it, isActive: e.target.checked } : it) }))}
+                        />
+                        {lang === "ar" ? "نشط" : "Active"}
+                      </label>
+                      <Button
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() =>
+                          save("homepage", {
+                            type: "banner",
+                            action: b._isNew ? "create" : "update",
+                            id: b._isNew ? undefined : b.id,
+                            titleAr: b.titleAr,
+                            titleEn: b.titleEn,
+                            subtitleAr: b.subtitleAr,
+                            subtitleEn: b.subtitleEn,
+                            image: b.image,
+                            ctaTextAr: b.ctaTextAr,
+                            ctaTextEn: b.ctaTextEn,
+                            ctaLink: b.ctaLink,
+                            order: b.order,
+                            isActive: !!b.isActive,
+                          })
+                        }
+                      >
+                        {lang === "ar" ? "حفظ البانر" : "Save banner"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={isPending}
+                        onClick={() => {
+                          if (b._isNew) {
+                            setHomepage((p) => ({ ...p, banners: p.banners.filter((it) => it.id !== b.id) }));
+                            return;
+                          }
+                          save("homepage", { type: "banner", action: "delete", id: b.id });
+                        }}
+                      >
+                        {lang === "ar" ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-3 rounded-xl border p-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">{lang === "ar" ? "العروض الخاصة (Offers)" : "Special offers"}</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setHomepage((p) => ({
+                    ...p,
+                    offers: [
+                      ...p.offers,
+                      {
+                        id: `new-offer-${Date.now()}`,
+                        titleAr: "",
+                        titleEn: "",
+                        subtitleAr: "",
+                        subtitleEn: "",
+                        image: "",
+                        ctaTextAr: "",
+                        ctaTextEn: "",
+                        ctaLink: "/products",
+                        expiresAt: "",
+                        isActive: true,
+                        _isNew: true,
+                      },
+                    ],
+                  }))
+                }
+              >
+                {lang === "ar" ? "إضافة عرض" : "Add offer"}
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {homepage.offers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{lang === "ar" ? "لا توجد عروض حالياً" : "No offers yet"}</p>
+              ) : (
+                homepage.offers.map((o) => (
+                  <div key={o.id} className="rounded-lg border p-3 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <Input value={o.titleAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, titleAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "عنوان العرض عربي" : "Offer title AR"} />
+                      <Input value={o.titleEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, titleEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "عنوان العرض إنجليزي" : "Offer title EN"} />
+                      <Input value={o.subtitleAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, subtitleAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "وصف العرض عربي" : "Offer subtitle AR"} />
+                      <Input value={o.subtitleEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, subtitleEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "وصف العرض إنجليزي" : "Offer subtitle EN"} />
+                      <Input value={o.image || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, image: e.target.value } : it) }))} placeholder={lang === "ar" ? "رابط صورة العرض" : "Offer image URL"} />
+                      <Input value={o.ctaLink || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, ctaLink: e.target.value } : it) }))} placeholder={lang === "ar" ? "رابط الزر" : "CTA link"} />
+                      <Input value={o.ctaTextAr || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, ctaTextAr: e.target.value } : it) }))} placeholder={lang === "ar" ? "نص الزر عربي" : "CTA text AR"} />
+                      <Input value={o.ctaTextEn || ""} onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, ctaTextEn: e.target.value } : it) }))} placeholder={lang === "ar" ? "نص الزر إنجليزي" : "CTA text EN"} />
+                      <Input
+                        type="datetime-local"
+                        value={formatDateTimeLocal(o.expiresAt)}
+                        onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, expiresAt: e.target.value } : it) }))}
+                        placeholder={lang === "ar" ? "تاريخ الانتهاء" : "Expires at"}
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <label className="inline-flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={!!o.isActive}
+                          onChange={(e) => setHomepage((p) => ({ ...p, offers: p.offers.map((it) => it.id === o.id ? { ...it, isActive: e.target.checked } : it) }))}
+                        />
+                        {lang === "ar" ? "نشط" : "Active"}
+                      </label>
+                      <Button
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() =>
+                          save("homepage", {
+                            type: "offer",
+                            action: o._isNew ? "create" : "update",
+                            id: o._isNew ? undefined : o.id,
+                            titleAr: o.titleAr,
+                            titleEn: o.titleEn,
+                            subtitleAr: o.subtitleAr,
+                            subtitleEn: o.subtitleEn,
+                            image: o.image,
+                            ctaTextAr: o.ctaTextAr,
+                            ctaTextEn: o.ctaTextEn,
+                            ctaLink: o.ctaLink,
+                            expiresAt: o.expiresAt,
+                            isActive: !!o.isActive,
+                          })
+                        }
+                      >
+                        {lang === "ar" ? "حفظ العرض" : "Save offer"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={isPending}
+                        onClick={() => {
+                          if (o._isNew) {
+                            setHomepage((p) => ({ ...p, offers: p.offers.filter((it) => it.id !== o.id) }));
+                            return;
+                          }
+                          save("homepage", { type: "offer", action: "delete", id: o.id });
+                        }}
+                      >
+                        {lang === "ar" ? "حذف" : "Delete"}
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeTab === "about" && (
         <div className="grid grid-cols-1 gap-3">
@@ -238,6 +485,13 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
           <Input value={store.sloganEn || ""} onChange={(e) => setStore((p) => ({ ...p, sloganEn: e.target.value }))} placeholder={lang === "ar" ? "الشعار (إنجليزي)" : "Slogan (EN)"} />
           <Input value={store.contactPhone || ""} onChange={(e) => setStore((p) => ({ ...p, contactPhone: e.target.value }))} placeholder={lang === "ar" ? "الهاتف" : "Phone"} />
           <Input value={store.contactEmail || ""} onChange={(e) => setStore((p) => ({ ...p, contactEmail: e.target.value }))} placeholder={lang === "ar" ? "البريد الإلكتروني" : "Email"} />
+          <Input value={store.addressAr || ""} onChange={(e) => setStore((p) => ({ ...p, addressAr: e.target.value }))} placeholder={lang === "ar" ? "العنوان (عربي)" : "Address (AR)"} />
+          <Input value={store.addressEn || ""} onChange={(e) => setStore((p) => ({ ...p, addressEn: e.target.value }))} placeholder={lang === "ar" ? "العنوان (إنجليزي)" : "Address (EN)"} />
+          <Input value={store.googleMapsLink || ""} onChange={(e) => setStore((p) => ({ ...p, googleMapsLink: e.target.value }))} placeholder={lang === "ar" ? "رابط خرائط Google للمحل" : "Google Maps location URL"} />
+          <Input value={store.whatsappUrl || ""} onChange={(e) => setStore((p) => ({ ...p, whatsappUrl: e.target.value }))} placeholder={lang === "ar" ? "رابط واتساب (اختياري)" : "WhatsApp URL (optional)"} />
+          <Input value={store.facebookUrl || ""} onChange={(e) => setStore((p) => ({ ...p, facebookUrl: e.target.value }))} placeholder={lang === "ar" ? "رابط فيسبوك" : "Facebook URL"} />
+          <Input value={store.instagramUrl || ""} onChange={(e) => setStore((p) => ({ ...p, instagramUrl: e.target.value }))} placeholder={lang === "ar" ? "رابط إنستغرام" : "Instagram URL"} />
+          <Input value={store.tiktokUrl || ""} onChange={(e) => setStore((p) => ({ ...p, tiktokUrl: e.target.value }))} placeholder={lang === "ar" ? "رابط تيك توك" : "TikTok URL"} />
           <Select value={store.defaultLanguage || "ar"} onValueChange={(v) => setStore((p) => ({ ...p, defaultLanguage: v }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -255,7 +509,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             </SelectContent>
           </Select>
           <div className="md:col-span-2">
-            <Button disabled={isPending} onClick={() => save("store", { nameAr: store.nameAr, nameEn: store.nameEn, sloganAr: store.sloganAr, sloganEn: store.sloganEn, contactPhone: store.contactPhone, contactEmail: store.contactEmail, defaultLanguage: store.defaultLanguage, currency: store.currency, maintenanceMode: !!store.maintenanceMode })}>
+            <Button disabled={isPending} onClick={() => save("store", { nameAr: store.nameAr, nameEn: store.nameEn, sloganAr: store.sloganAr, sloganEn: store.sloganEn, contactPhone: store.contactPhone, contactEmail: store.contactEmail, addressAr: store.addressAr, addressEn: store.addressEn, googleMapsLink: store.googleMapsLink, whatsappUrl: store.whatsappUrl, facebookUrl: store.facebookUrl, instagramUrl: store.instagramUrl, tiktokUrl: store.tiktokUrl, defaultLanguage: store.defaultLanguage, currency: store.currency, maintenanceMode: !!store.maintenanceMode })}>
               {isPending ? (lang === "ar" ? "جاري الحفظ..." : "Saving...") : lang === "ar" ? "حفظ" : "Save"}
             </Button>
           </div>
@@ -300,25 +554,25 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
           </p>
           <p className="text-xs font-semibold text-foreground">{lang === "ar" ? "شروط الخدمة — عربي" : "Terms — Arabic"}</p>
           <textarea
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm leading-6"
             value={legal.termsAr}
             onChange={(e) => setLegal((p) => ({ ...p, termsAr: e.target.value }))}
           />
           <p className="text-xs font-semibold text-foreground">{lang === "ar" ? "شروط الخدمة — English" : "Terms — English"}</p>
           <textarea
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm leading-6"
             value={legal.termsEn}
             onChange={(e) => setLegal((p) => ({ ...p, termsEn: e.target.value }))}
           />
           <p className="text-xs font-semibold text-foreground">{lang === "ar" ? "سياسة الخصوصية — عربي" : "Privacy — Arabic"}</p>
           <textarea
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm leading-6"
             value={legal.privacyAr}
             onChange={(e) => setLegal((p) => ({ ...p, privacyAr: e.target.value }))}
           />
           <p className="text-xs font-semibold text-foreground">{lang === "ar" ? "سياسة الخصوصية — English" : "Privacy — English"}</p>
           <textarea
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm leading-6"
             value={legal.privacyEn}
             onChange={(e) => setLegal((p) => ({ ...p, privacyEn: e.target.value }))}
           />

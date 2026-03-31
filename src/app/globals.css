@@ -148,6 +148,15 @@
   html {
     @apply font-sans bg-background;
   }
+  :lang(ar) {
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+  :lang(ar).uppercase,
+  :lang(ar) .uppercase {
+    text-transform: none;
+    letter-spacing: normal;
+  }
   .sticky {
     position: -webkit-sticky;
     position: sticky;

@@ -1,11 +1,11 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { LanguageProvider } from "@/context/LanguageContext";
 
-export function Providers({ children, lang }) {
+export function Providers({ children, lang, branding }) {
   return (
     <SessionProvider basePath="/api/auth">
       <ThemeProvider
@@ -15,7 +15,7 @@ export function Providers({ children, lang }) {
         disableTransitionOnChange={false}
         enableColorScheme
       >
-        <LanguageProvider initialLang={lang}>
+        <LanguageProvider initialLang={lang} branding={branding}>
           {children}
           <Toaster richColors closeButton />
         </LanguageProvider>

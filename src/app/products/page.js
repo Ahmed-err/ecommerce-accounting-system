@@ -8,17 +8,20 @@ import {
 import ProductGrid from "@/components/store/ProductGrid";
 import { cookies, headers } from "next/headers";
 import { translations, translateCategory } from "@/lib/translations";
+import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export async function generateMetadata({ searchParams }) {
   const params = await searchParams;
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
+  const branding = await getStoreBranding();
+  const b = getBrandingForLang(branding, lang);
   const category = params?.category;
   const titleBase =
     category && category !== "all"
       ? `${translateCategory(category, t)} | ${t.catalog}`
-      : `${t.allProducts} | ${t.brandName}`;
+      : `${t.allProducts} | ${b.brandName}`;
 
   let ogImage;
   try {
