@@ -980,11 +980,11 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
-        <DialogHeader>
+      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md px-5 pt-6 pb-0 sm:px-6">
+        <DialogHeader className="pr-8">
           <DialogTitle>{t.accAddExpense}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
+        <div className="space-y-4 py-3 sm:py-4">
           <Input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className="bg-gray-800 border-white/10" />
           <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
             <SelectTrigger className="bg-gray-800 border-white/10">
@@ -1011,7 +1011,7 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
               <SelectItem value="CARD">CARD</SelectItem>
             </SelectContent>
           </Select>
-          <div className="rounded-xl border border-dashed border-white/10 p-3">
+          <div className="rounded-xl border border-dashed border-white/10 px-4 py-4">
             <UploadButton
               endpoint="expenseReceipt"
               content={{
@@ -1026,7 +1026,12 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
             />
           </div>
         </div>
-        <DialogFooter className={cn(isRTL && "flex-row-reverse")}>
+        <DialogFooter
+          className={cn(
+            "-mx-5 -mb-5 mt-2 rounded-b-xl border-white/10 bg-gray-950/50 sm:-mx-6 sm:-mb-6",
+            isRTL && "flex-row-reverse"
+          )}
+        >
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t.accClose}
           </Button>
@@ -1063,11 +1068,11 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
-        <DialogHeader>
+      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md px-5 pt-6 pb-0 sm:px-6">
+        <DialogHeader className="pr-8">
           <DialogTitle>{t.accAddInvoice}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
+        <div className="space-y-4 py-3 sm:py-4">
           <Select value={form.direction} onValueChange={(v) => setForm((f) => ({ ...f, direction: v }))}>
             <SelectTrigger className="bg-gray-800 border-white/10">
               <SelectValue />
@@ -1080,9 +1085,14 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
           <Input placeholder={t.accColParty} value={form.partyName} onChange={(e) => setForm((f) => ({ ...f, partyName: e.target.value }))} className="bg-gray-800 border-white/10" />
           <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-gray-800 border-white/10 tabular-nums" dir="ltr" />
           <Input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} className="bg-gray-800 border-white/10" />
-          <textarea placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full min-h-[80px] rounded-md bg-gray-800 border border-white/10 p-2 text-sm" />
+          <textarea placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full min-h-[80px] rounded-md bg-gray-800 border border-white/10 px-3 py-2.5 text-sm" />
         </div>
-        <DialogFooter className={cn(isRTL && "flex-row-reverse")}>
+        <DialogFooter
+          className={cn(
+            "-mx-5 -mb-5 mt-2 rounded-b-xl border-white/10 bg-gray-950/50 sm:-mx-6 sm:-mb-6",
+            isRTL && "flex-row-reverse"
+          )}
+        >
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t.accClose}
           </Button>

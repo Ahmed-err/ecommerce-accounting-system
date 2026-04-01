@@ -20,12 +20,31 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
 
   const address = lang === "ar" ? store.addressAr || store.addressEn : store.addressEn || store.addressAr;
   const phone = store.contactPhone || "";
-  const email = store.contactEmail || t.businessEmail;
+  const emailDisplay = store.contactEmail?.trim() || t.businessEmail;
+  const mailtoHref = store.contactEmail?.trim() ? `mailto:${store.contactEmail.trim()}` : null;
+
   const waHref = useMemo(() => {
-    if (store.whatsappUrl) return store.whatsappUrl;
+    const url = store.whatsappUrl?.trim();
+    if (url) return url;
     const digits = String(phone).replace(/\D/g, "");
-    return digits ? `https://wa.me/${digits}` : "#";
+    return digits ? `https://wa.me/${digits}` : null;
   }, [store.whatsappUrl, phone]);
+
+  const whatsappDisplay = useMemo(() => {
+    if (phone) return phone;
+    const url = store.whatsappUrl?.trim();
+    if (!url) return "—";
+    try {
+      const u = new URL(url);
+      const path = u.pathname.replace(/^\//, "");
+      if (path) return path.split("/")[0] || t.whatsappSales;
+    } catch {
+      /* ignore */
+    }
+    return t.whatsappSales;
+  }, [phone, store.whatsappUrl, t.whatsappSales]);
+
+  const telHref = phone ? `tel:${phone.replace(/\s/g, "")}` : null;
 
   const hours = store.businessHoursJson && typeof store.businessHoursJson === "object" ? store.businessHoursJson : {};
 
@@ -64,20 +83,20 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
             icon: Phone,
             label: t.contactCardCall,
             value: phone || "—",
-            href: phone ? `tel:${phone.replace(/\s/g, "")}` : null,
+            href: telHref,
             cta: t.contactCardCall,
           },
           {
             icon: Mail,
             label: t.contactCardEmail,
-            value: email,
-            href: email ? `mailto:${email}` : null,
+            value: emailDisplay,
+            href: mailtoHref,
             cta: t.contactCardEmail,
           },
           {
             icon: MessageCircle,
             label: t.contactCardWhatsapp,
-            value: t.whatsappSales,
+            value: whatsappDisplay,
             href: waHref,
             cta: t.contactCardWhatsapp,
           },
@@ -96,13 +115,21 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
             <p className="mt-2 text-sm text-muted-foreground" dir="ltr">
               {c.value}
             </p>
-            {c.href && c.href !== "#" ? (
+            {c.href ? (
               <Button asChild className="mt-4 w-full bg-amber-500 text-black hover:bg-amber-400">
-                <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                <a
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
                   {c.cta}
                 </a>
               </Button>
-            ) : null}
+            ) : (
+              <Button disabled variant="outline" className="mt-4 w-full border-border text-muted-foreground">
+                {t.contactChannelUnavailable}
+              </Button>
+            )}
           </motion.div>
         ))}
       </div>

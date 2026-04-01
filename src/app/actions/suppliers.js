@@ -292,14 +292,34 @@ export async function createPurchaseAction(raw) {
 export async function markPurchaseReceivedAction(purchaseId) {
   try {
     await ensure();
-    const p = await db.purchase.findUnique({
-      where: { id: purchaseId },
-      include: { items: true },
-    });
-    if (!p) return { ok: false, error: "not_found" };
-    if (p.deliveryStatus === "RECEIVED") return { ok: false, error: "already" };
+    if (!purchaseId || typeof purchaseId !== "string") {
+      return { ok: false, error: "validation" };
+    }
 
     await db.$transaction(async (tx) => {
+      const p = await tx.purchase.findUnique({
+        where: { id: purchaseId },
+        include: { items: true },
+      });
+      if (!p) {
+        throw Object.assign(new Error("not_found"), { code: "NOT_FOUND" });
+      }
+
+      if (p.deliveryStatus === "RECEIVED") {
+        return;
+      }
+
+      const moved = await tx.stockMovement.count({
+        where: { purchaseId, type: "IN", reason: "PURCHASE" },
+      });
+      if (moved > 0) {
+        await tx.purchase.update({
+          where: { id: purchaseId },
+          data: { deliveryStatus: "RECEIVED" },
+        });
+        return;
+      }
+
       for (const line of p.items) {
         await tx.product.update({
           where: { id: line.productId },
@@ -329,6 +349,9 @@ export async function markPurchaseReceivedAction(purchaseId) {
     return { ok: true };
   } catch (e) {
     console.error(e);
+    if (e?.code === "NOT_FOUND" || e?.message === "not_found") {
+      return { ok: false, error: "not_found" };
+    }
     return { ok: false, error: e.message };
   }
 }
@@ -346,9 +369,19 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
 
     const p = await db.purchase.findUnique({ where: { id: purchaseId } });
     if (!p) return { ok: false, error: "not_found" };
-    const total = Number(p.totalAmount);
-    const paid = Number(p.paidAmount);
-    const next = Math.min(total, Math.round((paid + parsed.data.amount) * 100) / 100);
+    const total = Math.round(Number(p.totalAmount) * 100) / 100;
+    const paid = Math.round(Number(p.paidAmount) * 100) / 100;
+    const remaining = Math.round((total - paid) * 100) / 100;
+
+    if (total <= 0) return { ok: false, error: "invalid_total" };
+    if (remaining <= 0.005) return { ok: false, error: "fully_paid" };
+
+    const amount = Math.round(parsed.data.amount * 100) / 100;
+    if (amount > remaining + 0.0001) {
+      return { ok: false, error: "amount_over_remaining", remaining };
+    }
+
+    const next = Math.min(total, Math.round((paid + amount) * 100) / 100);
 
     await db.purchase.update({
       where: { id: purchaseId },
@@ -373,11 +406,19 @@ export async function deletePurchaseAction(purchaseId) {
     await ensure();
     const p = await db.purchase.findUnique({ where: { id: purchaseId } });
     if (!p) return { ok: false, error: "not_found" };
-    if (p.deliveryStatus !== "PENDING" || Number(p.paidAmount) > 0.005) {
+    if (p.deliveryStatus !== "PENDING") {
       return { ok: false, error: "blocked" };
+    }
+    if (Number(p.paidAmount) > 0.005) {
+      return { ok: false, error: "has_payment" };
+    }
+    const movements = await db.stockMovement.count({ where: { purchaseId } });
+    if (movements > 0) {
+      return { ok: false, error: "has_movements" };
     }
     await db.purchase.delete({ where: { id: purchaseId } });
     revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/inventory");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message };

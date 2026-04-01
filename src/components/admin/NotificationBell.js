@@ -47,6 +47,10 @@ export default function NotificationBell({ customerOnly = false }) {
   }, [fetchList]);
 
   useEffect(() => {
+    if (open) fetchList();
+  }, [open, fetchList]);
+
+  useEffect(() => {
     let canceled = false;
 
     const startSse = () => {
@@ -154,7 +158,7 @@ export default function NotificationBell({ customerOnly = false }) {
       </Button>
       {open ? (
         <div
-          className={`fixed inset-x-2 top-16 z-[130] mt-0 w-auto rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:top-auto sm:mt-2 sm:w-96 ${
+          className={`fixed inset-x-2 top-16 z-[200] mt-0 w-auto rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:mt-2 sm:w-96 ${
             isRTL ? "sm:left-0" : "sm:right-0"
           }`}
         >

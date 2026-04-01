@@ -33,7 +33,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* --- MOBILE HEADER --- */}
-        <header className="md:hidden sticky top-0 z-40 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 border-b border-white/5 bg-gray-900/80 p-4 backdrop-blur-xl">
+        <header className="md:hidden sticky top-0 z-50 isolate grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 border-b border-white/5 bg-gray-900/80 p-4 backdrop-blur-xl">
           <div className="flex justify-start">
             {mounted ? (
               <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
@@ -73,7 +73,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
           </div>
         </header>
 
-        <div className="hidden md:flex items-center justify-end border-b border-white/5 bg-gray-900/70 px-6 py-3 backdrop-blur-xl">
+        <div className="relative z-50 isolate hidden md:flex items-center justify-end border-b border-white/5 bg-gray-900/70 px-6 py-3 backdrop-blur-xl">
           <NotificationBell />
         </div>
 

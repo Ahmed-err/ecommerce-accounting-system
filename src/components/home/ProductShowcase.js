@@ -104,7 +104,7 @@ export default function ProductShowcase({ products }) {
                   className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7 xl:grid-cols-4 xl:gap-8"
                 >
                   {tab.data.map((product, i) => (
-                    <div key={product.id} className="flex min-h-0 min-w-0">
+                    <div key={product.id} className="flex min-h-0 min-w-0 w-full">
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
                   ))}

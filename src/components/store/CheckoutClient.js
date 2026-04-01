@@ -283,7 +283,13 @@ export default function CheckoutClient() {
         return;
       }
 
-      const res = await placeOrder(session?.user?.id || null, cart, {
+      const cartForOrder = cart.map((item) => ({
+        id: item.id,
+        name: typeof item.name === "string" ? item.name : "Product",
+        quantity: item.quantity,
+      }));
+
+      const res = await placeOrder(session?.user?.id || null, cartForOrder, {
         ...guestInfo,
         couponCode: appliedCoupon?.code || "",
         shippingCost,
@@ -299,8 +305,13 @@ export default function CheckoutClient() {
         toast.error(res.error || t.orderFailed);
       }
     } catch (err) {
-      setError(t.checkoutError || "An error occurred during checkout. Please try again.");
-      toast.error(t.checkoutError || "An error occurred during checkout. Please try again.");
+      const fallback = t.checkoutError || "An error occurred during checkout. Please try again.";
+      const msg =
+        err instanceof Error && typeof err.message === "string" && err.message.trim()
+          ? err.message.trim()
+          : fallback;
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
       setIsProcessing(false);

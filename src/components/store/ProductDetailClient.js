@@ -455,7 +455,13 @@ export default function ProductDetailClient({
 
           <button
             type="button"
-            onClick={() => setDetailTab("reviews")}
+            onClick={() => {
+              onTabChange("reviews");
+              document.getElementById("pdp-detail-tabs")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }}
             className="mt-4 flex flex-wrap items-center gap-2 text-start transition-opacity hover:opacity-80"
           >
             <span className="flex items-center gap-0.5" dir="ltr">

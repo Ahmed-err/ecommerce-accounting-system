@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Star, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
     breakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
   });
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     rating: 0,
     title: "",
@@ -50,6 +51,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
     images: [],
   });
   const [err, setErr] = useState("");
+  const [votedIds, setVotedIds] = useState({});
 
   const canMore = rows.length < total;
 
@@ -83,29 +85,35 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
     ? "bg-muted text-foreground hover:bg-muted/80"
     : "bg-gray-800 text-white hover:bg-gray-700";
 
-  const load = async ({ reset = false } = {}) => {
+  const load = useCallback(async ({ reset = false, pageValue = 1 } = {}) => {
     setLoading(true);
-    const targetPage = reset ? 1 : page;
-    const res = await getProductReviewsAction({
-      productId,
-      page: targetPage,
-      limit: 5,
-      sort,
-      rating: ratingFilter,
-    });
-    if (res?.ok) {
-      setSummary(res.summary);
-      setTotal(res.total);
-      setRows(reset ? res.rows : [...rows, ...res.rows]);
-      if (reset) setPage(1);
+    try {
+      const targetPage = reset ? 1 : pageValue;
+      const res = await getProductReviewsAction({
+        productId,
+        page: targetPage,
+        limit: 5,
+        sort,
+        rating: ratingFilter,
+      });
+      if (res?.ok) {
+        setSummary(res.summary);
+        setTotal(res.total);
+        if (reset) {
+          setRows(res.rows);
+          setPage(1);
+        } else {
+          setRows((prev) => [...prev, ...res.rows]);
+        }
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [productId, ratingFilter, sort]);
 
   useEffect(() => {
     load({ reset: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId, sort, ratingFilter]);
+  }, [load]);
 
   const bars = useMemo(
     () =>
@@ -119,12 +127,32 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
 
   const submit = async () => {
     setErr("");
+    if (form.title.trim().length < 2) {
+      setErr(lang === "ar" ? "العنوان قصير جداً" : "Title is too short");
+      return;
+    }
+    if (form.body.trim().length < 20) {
+      setErr(lang === "ar" ? "المراجعة قصيرة جداً" : "Review is too short");
+      return;
+    }
     if (!form.rating) return setErr(lang === "ar" ? "اختر التقييم" : "Rating is required");
-    const res = await submitReviewAction({ productId, ...form });
+    setSubmitting(true);
+    const res = await submitReviewAction({
+      productId,
+      ...form,
+      title: form.title.trim(),
+      body: form.body.trim(),
+      guestName: form.guestName.trim(),
+      guestEmail: form.guestEmail.trim(),
+    });
+    setSubmitting(false);
     if (!res.success)
       return setErr(res.error || (lang === "ar" ? "فشل الإرسال" : "Submission failed"));
     setOpen(false);
     setForm({ rating: 0, title: "", body: "", guestName: "", guestEmail: "", images: [] });
+    setSort("recent");
+    setRatingFilter("all");
+    await load({ reset: true });
   };
 
   return (
@@ -154,30 +182,55 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" className={filterBtn} onClick={() => setSort("recent")}>
+        <Button
+          size="sm"
+          variant={sort === "recent" ? "default" : "outline"}
+          className={sort === "recent" ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
+          onClick={() => setSort("recent")}
+        >
           {lang === "ar" ? "الأحدث" : "Most Recent"}
         </Button>
-        <Button size="sm" variant="outline" className={filterBtn} onClick={() => setSort("helpful")}>
+        <Button
+          size="sm"
+          variant={sort === "helpful" ? "default" : "outline"}
+          className={sort === "helpful" ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
+          onClick={() => setSort("helpful")}
+        >
           {lang === "ar" ? "الأكثر فائدة" : "Most Helpful"}
         </Button>
-        <Button size="sm" variant="outline" className={filterBtn} onClick={() => setSort("highest")}>
+        <Button
+          size="sm"
+          variant={sort === "highest" ? "default" : "outline"}
+          className={sort === "highest" ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
+          onClick={() => setSort("highest")}
+        >
           {lang === "ar" ? "الأعلى تقييماً" : "Highest Rated"}
         </Button>
-        <Button size="sm" variant="outline" className={filterBtn} onClick={() => setSort("lowest")}>
+        <Button
+          size="sm"
+          variant={sort === "lowest" ? "default" : "outline"}
+          className={sort === "lowest" ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
+          onClick={() => setSort("lowest")}
+        >
           {lang === "ar" ? "الأقل تقييماً" : "Lowest Rated"}
         </Button>
         {[5, 4, 3, 2, 1].map((n) => (
           <Button
             key={n}
             size="sm"
-            variant="outline"
-            className={filterBtn}
+            variant={ratingFilter === String(n) ? "default" : "outline"}
+            className={ratingFilter === String(n) ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
             onClick={() => setRatingFilter(String(n))}
           >
             {n}★
           </Button>
         ))}
-        <Button size="sm" variant="outline" className={filterBtn} onClick={() => setRatingFilter("all")}>
+        <Button
+          size="sm"
+          variant={ratingFilter === "all" ? "default" : "outline"}
+          className={ratingFilter === "all" ? "bg-amber-500 text-black hover:bg-amber-600" : filterBtn}
+          onClick={() => setRatingFilter("all")}
+        >
           {lang === "ar" ? "الكل" : "All"}
         </Button>
       </div>
@@ -197,7 +250,8 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                 <Stars value={r.rating} embedded={embedded} />
                 <p className={cn("mt-1 text-sm font-semibold", titleCls)}>{r.title}</p>
                 <p className={cn("text-xs", mutedCls)}>
-                  {r.reviewerName} - {new Date(r.createdAt).toLocaleDateString()}
+                  {r.reviewerName} -{" "}
+                  {new Date(r.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")}
                 </p>
               </div>
               {r.verified && (
@@ -230,13 +284,21 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
             <Button
               size="sm"
               variant="ghost"
+              disabled={!!votedIds[r.id]}
               className={cn(
                 "mt-2",
                 embedded ? "text-foreground hover:bg-muted" : "text-gray-300 hover:bg-white/10"
               )}
               onClick={async () => {
-                await toggleHelpfulAction(r.id);
-                load({ reset: true });
+                const res = await toggleHelpfulAction(r.id);
+                if (res?.success) {
+                  setVotedIds((prev) => ({ ...prev, [r.id]: true }));
+                  setRows((prev) =>
+                    prev.map((x) =>
+                      x.id === r.id ? { ...x, helpfulCount: (x.helpfulCount || 0) + 1 } : x
+                    )
+                  );
+                }
               }}
             >
               <ThumbsUp className="me-1 h-4 w-4" /> {lang === "ar" ? "مفيد؟" : "Helpful?"} (
@@ -356,7 +418,11 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               <Button variant="ghost" onClick={() => setOpen(false)}>
                 {t.cancel}
               </Button>
-              <Button className="bg-amber-500 text-black hover:bg-amber-600" onClick={submit}>
+              <Button
+                disabled={submitting}
+                className="bg-amber-500 text-black hover:bg-amber-600"
+                onClick={submit}
+              >
                 {lang === "ar" ? "إرسال" : "Submit"}
               </Button>
             </div>

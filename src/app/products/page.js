@@ -65,7 +65,7 @@ export default async function ProductsPage({ searchParams }) {
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
 
-  const [{ products, total }, categories, priceBounds] = await Promise.all([
+  const [{ products, total }, categories, priceBounds, { total: allProductsTotal }] = await Promise.all([
     getCatalogProducts({
       search,
       category,
@@ -77,6 +77,7 @@ export default async function ProductsPage({ searchParams }) {
     }),
     getCatalogCategories(),
     getCatalogPriceBounds(),
+    getCatalogProducts({ page: 1, limit: 1 }),
   ]);
 
   const headersList = await headers();
@@ -115,6 +116,7 @@ export default async function ProductsPage({ searchParams }) {
         <ProductGrid
           initialProducts={products}
           total={total}
+          allProductsTotal={allProductsTotal}
           categories={categories}
           priceBounds={priceBounds}
         />

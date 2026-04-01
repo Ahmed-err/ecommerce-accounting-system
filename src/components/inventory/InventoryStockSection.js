@@ -305,11 +305,15 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
           </div>
           <div className="space-y-1">
             <label className="text-xs text-gray-400">{t.inventorySelectProduct}</label>
-            <Select value={productId} onValueChange={setProductId}>
+            <Select
+              modal={false}
+              value={productId || null}
+              onValueChange={(v) => setProductId(typeof v === "string" ? v : "")}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder="—" />
               </SelectTrigger>
-              <SelectContent className="max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -343,11 +347,15 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
           </div>
           <div className="space-y-1">
             <label className="text-xs text-gray-400">{t.inventorySupplier}</label>
-            <Select value={supplierId || "none"} onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}>
+            <Select
+              modal={false}
+              value={supplierId || "none"}
+              onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] bg-gray-800 border-white/10 text-white">
                 <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -448,11 +456,15 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
           </div>
           <div className="space-y-1">
             <label className="text-xs text-gray-400">{t.inventorySelectProduct}</label>
-            <Select value={productId} onValueChange={setProductId}>
+            <Select
+              modal={false}
+              value={productId || null}
+              onValueChange={(v) => setProductId(typeof v === "string" ? v : "")}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder="—" />
               </SelectTrigger>
-              <SelectContent className="max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}

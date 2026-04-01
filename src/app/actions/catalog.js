@@ -359,24 +359,28 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         const validatedItems = [];
 
         for (const [productId, quantity] of normalizedCart.entries()) {
-          const product = await tx.$queryRaw`
+          const rows = await tx.$queryRaw`
             SELECT id, name, stock, "sellingPrice" FROM "Product"
             WHERE id = ${productId} AND "isActive" = true
             FOR UPDATE
           `;
 
-          if (!product || product.length === 0) {
+          if (!rows || rows.length === 0) {
             throw new Error(`Product no longer exists or is not available.`);
           }
 
-          const prod = product[0];
-          if (prod.stock < quantity) {
+          const prod = rows[0];
+          const stock = Number(prod.stock);
+          if (!Number.isFinite(stock) || stock < quantity) {
             throw new Error(
-              `Not enough stock for "${prod.name}". Available: ${prod.stock}, Requested: ${quantity}`
+              `Not enough stock for "${prod.name}". Available: ${Number.isFinite(stock) ? stock : 0}, Requested: ${quantity}`
             );
           }
 
           const unitPrice = Number(prod.sellingPrice);
+          if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+            throw new Error(`Invalid price for "${prod.name}".`);
+          }
           validatedItems.push({
             productId: prod.id,
             productName: prod.name,
@@ -449,7 +453,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             WHERE id = ${vi.productId} AND stock >= ${vi.quantity}
           `;
 
-          if (result === 0) {
+          if (Number(result) === 0) {
             throw new Error(
               `Out of stock during checkout for ${vi.productName}. Please try again.`
             );
@@ -486,45 +490,56 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         };
       },
       {
-        // Transaction options: higher isolation level and longer timeout
-        isolationLevel: "Serializable",
+        // RepeatableRead + row locks reduces serialization failures vs Serializable (Neon / concurrent traffic).
+        isolationLevel: "RepeatableRead",
         maxWait: 10000,
         timeout: 20000,
       }
     );
 
-    revalidatePath("/admin");
-    revalidatePath("/admin/accounting");
-    revalidatePath("/products");
-    await createAdminBroadcastNotification({
-      type: "NEW_ORDER",
-      titleAr: "طلب جديد من المتجر",
-      titleEn: "New store order",
-      bodyAr: `تم استلام طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
-      bodyEn: `New order received: ${order.id.slice(-8).toUpperCase()}.`,
-      link: `/admin/orders`,
-    });
-
-    // Generate QR code after transaction succeeds (doesn't affect stock integrity).
-    const { grandTotal, taxAmount } = totals;
-    const sellerName = translations.en.brandName;
-    const qrData = `Seller: ${sellerName}\nVAT: 310123456700003\nDate: ${new Date().toISOString()}\nTotal: ${grandTotal.toFixed(
-      2
-    )} SDG\nTax: ${taxAmount.toFixed(2)} SDG`;
-
-    let qrCodeBase64 = null;
     try {
-      qrCodeBase64 = await QRCode.toDataURL(qrData);
-    } catch (err) {
-      console.error("QR Code generation failed:", err);
+      revalidatePath("/admin");
+      revalidatePath("/admin/accounting");
+      revalidatePath("/products");
+    } catch (e) {
+      console.error("revalidatePath after checkout:", e);
     }
 
-    if (qrCodeBase64 && invoice?.orderId) {
-      // Invoice uses a unique orderId; update by orderId for simplicity.
-      await db.invoice.update({
-        where: { orderId: invoice.orderId },
-        data: { qrCode: qrCodeBase64 },
+    try {
+      await createAdminBroadcastNotification({
+        type: "NEW_ORDER",
+        titleAr: "طلب جديد من المتجر",
+        titleEn: "New store order",
+        bodyAr: `تم استلام طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
+        bodyEn: `New order received: ${order.id.slice(-8).toUpperCase()}.`,
+        link: `/admin/orders`,
       });
+    } catch (e) {
+      console.error("createAdminBroadcastNotification after checkout:", e);
+    }
+
+    try {
+      const { grandTotal, taxAmount } = totals;
+      const sellerName = translations.en.brandName;
+      const qrData = `Seller: ${sellerName}\nVAT: 310123456700003\nDate: ${new Date().toISOString()}\nTotal: ${grandTotal.toFixed(
+        2
+      )} SDG\nTax: ${taxAmount.toFixed(2)} SDG`;
+
+      let qrCodeBase64 = null;
+      try {
+        qrCodeBase64 = await QRCode.toDataURL(qrData);
+      } catch (err) {
+        console.error("QR Code generation failed:", err);
+      }
+
+      if (qrCodeBase64 && invoice?.orderId) {
+        await db.invoice.update({
+          where: { orderId: invoice.orderId },
+          data: { qrCode: qrCodeBase64 },
+        });
+      }
+    } catch (e) {
+      console.error("Invoice QR update after checkout:", e);
     }
 
     emitAlert("checkout_success", {
@@ -536,11 +551,17 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     return { success: true, orderId: order.id };
   } catch (error) {
     console.error("Failed to place order:", error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : "Checkout failed. Please try again.";
     emitAlert("checkout_failure", {
-      error: error?.message || "unknown_checkout_error",
+      error: message || "unknown_checkout_error",
       userId,
     }).catch(() => {});
-    return { success: false, error: error.message };
+    return { success: false, error: message || "Checkout failed. Please try again." };
   }
 }
 
