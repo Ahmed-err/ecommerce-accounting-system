@@ -304,8 +304,8 @@ export default function ProductCard({
                   className="object-cover"
                   sizes={
                     homeShowcase
-                      ? "(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 22vw"
-                      : "(max-w-768px) 100vw, (max-w-1200px) 50vw, 25vw"
+                      ? "(max-width: 640px) 92vw, (max-width: 1024px) 48vw, (max-width: 1440px) 24vw, 20vw"
+                      : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   }
                   onError={() => setImgError(true)}
                 />

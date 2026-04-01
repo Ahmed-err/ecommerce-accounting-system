@@ -54,7 +54,7 @@ export default function ProductShowcase({ products }) {
               <h2
                 className={cn(
                   "font-black uppercase tracking-tighter italic text-foreground leading-[0.95]",
-                  "text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
+                  "text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl"
                 )}
               >
                 {t.popularProducts || "TOP PRODUCTS"}
@@ -101,7 +101,7 @@ export default function ProductShowcase({ products }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-2 lg:gap-7 xl:grid-cols-3 xl:gap-8"
+                  className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7 xl:grid-cols-4 xl:gap-8"
                 >
                   {tab.data.map((product, i) => (
                     <div key={product.id} className="flex min-h-0 min-w-0">
@@ -113,7 +113,7 @@ export default function ProductShowcase({ products }) {
                   <Link
                     href="/products"
                     className={cn(
-                      "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-3",
+                      "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-4",
                       isRTL && "lg:flex-row-reverse"
                     )}
                   >

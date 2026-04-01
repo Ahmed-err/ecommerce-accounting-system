@@ -53,7 +53,7 @@ export default function NewsletterSection() {
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl font-black italic tracking-tighter text-foreground uppercase mb-4 sm:text-4xl md:text-5xl sm:mb-5">
+        <h2 className="text-3xl font-black italic tracking-tighter leading-[1.2] text-foreground uppercase mb-5 pb-1 sm:text-4xl md:text-5xl sm:mb-6">
           {t.newsletterTitle || "Subscribe to our Newsletter"}
         </h2>
 

@@ -2,12 +2,23 @@ import { translations } from "@/lib/translations";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 
 export async function getStoreBranding() {
-  const store = await getOrCreateStoreSettings();
+  try {
+    const store = await getOrCreateStoreSettings();
+    return {
+      nameAr: store.nameAr || translations.ar.brandName,
+      nameEn: store.nameEn || translations.en.brandName,
+      taglineAr: store.sloganAr || translations.ar.brandTagline,
+      taglineEn: store.sloganEn || translations.en.brandTagline,
+    };
+  } catch (error) {
+    console.error("Failed to load store branding, using translation defaults:", error);
+  }
+
   return {
-    nameAr: store.nameAr || translations.ar.brandName,
-    nameEn: store.nameEn || translations.en.brandName,
-    taglineAr: store.sloganAr || translations.ar.brandTagline,
-    taglineEn: store.sloganEn || translations.en.brandTagline,
+    nameAr: translations.ar.brandName,
+    nameEn: translations.en.brandName,
+    taglineAr: translations.ar.brandTagline,
+    taglineEn: translations.en.brandTagline,
   };
 }
 

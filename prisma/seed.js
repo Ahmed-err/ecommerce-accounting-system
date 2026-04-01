@@ -121,12 +121,12 @@ async function main() {
     // === 5. CREATE CATEGORIES ===
     const categories = [];
     const catData = [
-        { name: "Lighting", description: "LED panels, bulbs, fixtures, and smart lighting solutions", image: "/images/categories/lighting.jpg" },
-        { name: "Cables & Wires", description: "Power cables, data cables, and fiber optic wiring", image: "/images/categories/cables.jpg" },
-        { name: "Switches & Sockets", description: "Wall switches, power sockets, dimmers, and smart controls", image: "/images/categories/switches.jpg" },
-        { name: "Connectors", description: "Plugs, adapters, junction boxes, and terminal blocks", image: "/images/categories/connectors.jpg" },
-        { name: "Power Systems", description: "Generators, UPS units, inverters, and power distribution", image: "/images/categories/power.jpg" },
-        { name: "Safety Gear", description: "Circuit breakers, fuses, PPE, and safety equipment", image: "/images/categories/safety.jpg" },
+        { name: "Lighting", description: "LED panels, bulbs, fixtures, and smart lighting solutions", image: "https://images.unsplash.com/photo-1517999349371-c43520457b23?auto=format&fit=crop&w=900&q=80" },
+        { name: "Cables & Wires", description: "Power cables, data cables, and fiber optic wiring", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80" },
+        { name: "Switches & Sockets", description: "Wall switches, power sockets, dimmers, and smart controls", image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=900&q=80" },
+        { name: "Connectors", description: "Plugs, adapters, junction boxes, and terminal blocks", image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=900&q=80" },
+        { name: "Power Systems", description: "Generators, UPS units, inverters, and power distribution", image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80" },
+        { name: "Safety Gear", description: "Circuit breakers, fuses, PPE, and safety equipment", image: "https://images.unsplash.com/photo-1581092921461-39b9d08a9b2b?auto=format&fit=crop&w=900&q=80" },
     ];
     for (const cat of catData) {
         const created = await prisma.category.create({ data: cat });
@@ -144,14 +144,14 @@ async function main() {
 
     // === 6. CREATE PRODUCTS ===
     const productsData = [
-        { name: "LED Panel Light 60W", nameEn: "LED Panel Light 60W", nameAr: "كشاف LED لوح ٦٠ واط", description: "Ultra-slim LED panel light, 60W, warm white", sku: "LED-PNL-60W", barcode: "6281234567890", unit: "pcs", purchasePrice: 25.00, sellingPrice: 45.99, stock: 50, minStock: 10, images: ["/images/products/led-panel.png"], categoryId: categories[0].id, supplierId: supplierA.id },
-        { name: "Smart Switch 3-Gang", nameEn: "Smart Switch 3-Gang", nameAr: "مفتاح ذكي ٣ خطوط", description: "Touch-sensitive smart wall switch, 3-gang, WiFi", sku: "SW-SMART-3G", barcode: "6281234567891", unit: "pcs", purchasePrice: 18.00, sellingPrice: 34.99, stock: 75, minStock: 10, images: ["/images/products/smart-switch.png"], categoryId: categories[2].id, supplierId: supplierA.id },
-        { name: "Industrial Cable 100m", nameEn: "Industrial Cable 100m", nameAr: "كابل صناعي ١٠٠ م", description: "Heavy-duty industrial cable, 100m roll, 2.5mm²", sku: "CBL-IND-100M", barcode: "6281234567892", unit: "roll", purchasePrice: 55.00, sellingPrice: 89.99, stock: 30, minStock: 5, images: ["/images/home/hero-cables.png"], categoryId: categories[1].id, supplierId: supplierB.id },
-        { name: "Smart LED Bulb RGB", nameEn: "Smart LED Bulb RGB", nameAr: "لمبة LED ذكية RGB", description: "WiFi-enabled smart LED bulb with RGB color control", sku: "LED-SMART-RGB", barcode: "6281234567893", unit: "pcs", purchasePrice: 8.00, sellingPrice: 18.99, stock: 200, minStock: 20, images: ["/images/products/smartbulb.jpg"], categoryId: categories[0].id, supplierId: supplierA.id },
-        { name: "Ethernet Cable Cat6 50m", nameEn: "Ethernet Cable Cat6 50m", nameAr: "كابل إيثرنت Cat6 ٥٠ م", description: "High-speed Cat6 ethernet cable, 50m, shielded", sku: "CBL-ETH-CAT6", barcode: "6281234567894", unit: "roll", purchasePrice: 12.00, sellingPrice: 24.99, stock: 100, minStock: 15, images: ["/images/products/ethernet.jpg"], categoryId: categories[1].id, supplierId: supplierB.id },
-        { name: "Circuit Breaker 32A", nameEn: "Circuit Breaker 32A", nameAr: "قاطع دائرة ٣٢ أمبير", description: "Miniature circuit breaker, 32A, single pole", sku: "CB-MCB-32A", barcode: "6281234567895", unit: "pcs", purchasePrice: 12.00, sellingPrice: 24.99, stock: 120, minStock: 20, images: ["/images/products/circuit.jpg"], categoryId: categories[5].id, supplierId: supplierA.id },
-        { name: "Power Inverter 3000W", nameEn: "Power Inverter 3000W", nameAr: "عاكس طاقة ٣٠٠٠ واط", description: "Pure sine wave power inverter, 3000W, 24V DC", sku: "PWR-INV-3000", barcode: "6281234567896", unit: "pcs", purchasePrice: 180.00, sellingPrice: 299.99, stock: 15, minStock: 3, images: ["/images/products/inverter.jpg"], categoryId: categories[4].id, supplierId: supplierB.id },
-        { name: "Voltage Tester Pro", nameEn: "Voltage Tester Pro", nameAr: "فاحص جهد احترافي", description: "Non-contact voltage tester with LED indicator", sku: "TL-VTESTER", barcode: "6281234567897", unit: "pcs", purchasePrice: 15.00, sellingPrice: 29.99, stock: 90, minStock: 10, images: ["/images/categories/safety.jpg"], categoryId: categories[5].id, supplierId: supplierA.id },
+        { name: "LED Panel Light 60W", nameEn: "LED Panel Light 60W", nameAr: "كشاف LED لوح ٦٠ واط", description: "Ultra-slim LED panel light, 60W, warm white", sku: "LED-PNL-60W", barcode: "6281234567890", unit: "pcs", purchasePrice: 25.00, sellingPrice: 45.99, stock: 50, minStock: 10, images: ["https://images.unsplash.com/photo-1517999349371-c43520457b23?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[0].id, supplierId: supplierA.id },
+        { name: "Smart Switch 3-Gang", nameEn: "Smart Switch 3-Gang", nameAr: "مفتاح ذكي ٣ خطوط", description: "Touch-sensitive smart wall switch, 3-gang, WiFi", sku: "SW-SMART-3G", barcode: "6281234567891", unit: "pcs", purchasePrice: 18.00, sellingPrice: 34.99, stock: 75, minStock: 10, images: ["https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[2].id, supplierId: supplierA.id },
+        { name: "Industrial Cable 100m", nameEn: "Industrial Cable 100m", nameAr: "كابل صناعي ١٠٠ م", description: "Heavy-duty industrial cable, 100m roll, 2.5mm²", sku: "CBL-IND-100M", barcode: "6281234567892", unit: "roll", purchasePrice: 55.00, sellingPrice: 89.99, stock: 30, minStock: 5, images: ["https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[1].id, supplierId: supplierB.id },
+        { name: "Smart LED Bulb RGB", nameEn: "Smart LED Bulb RGB", nameAr: "لمبة LED ذكية RGB", description: "WiFi-enabled smart LED bulb with RGB color control", sku: "LED-SMART-RGB", barcode: "6281234567893", unit: "pcs", purchasePrice: 8.00, sellingPrice: 18.99, stock: 200, minStock: 20, images: ["https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[0].id, supplierId: supplierA.id },
+        { name: "Ethernet Cable Cat6 50m", nameEn: "Ethernet Cable Cat6 50m", nameAr: "كابل إيثرنت Cat6 ٥٠ م", description: "High-speed Cat6 ethernet cable, 50m, shielded", sku: "CBL-ETH-CAT6", barcode: "6281234567894", unit: "roll", purchasePrice: 12.00, sellingPrice: 24.99, stock: 100, minStock: 15, images: ["https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[1].id, supplierId: supplierB.id },
+        { name: "Circuit Breaker 32A", nameEn: "Circuit Breaker 32A", nameAr: "قاطع دائرة ٣٢ أمبير", description: "Miniature circuit breaker, 32A, single pole", sku: "CB-MCB-32A", barcode: "6281234567895", unit: "pcs", purchasePrice: 12.00, sellingPrice: 24.99, stock: 120, minStock: 20, images: ["https://images.unsplash.com/photo-1581092921461-39b9d08a9b2b?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[5].id, supplierId: supplierA.id },
+        { name: "Power Inverter 3000W", nameEn: "Power Inverter 3000W", nameAr: "عاكس طاقة ٣٠٠٠ واط", description: "Pure sine wave power inverter, 3000W, 24V DC", sku: "PWR-INV-3000", barcode: "6281234567896", unit: "pcs", purchasePrice: 180.00, sellingPrice: 299.99, stock: 15, minStock: 3, images: ["https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[4].id, supplierId: supplierB.id },
+        { name: "Voltage Tester Pro", nameEn: "Voltage Tester Pro", nameAr: "فاحص جهد احترافي", description: "Non-contact voltage tester with LED indicator", sku: "TL-VTESTER", barcode: "6281234567897", unit: "pcs", purchasePrice: 15.00, sellingPrice: 29.99, stock: 90, minStock: 10, images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80"], categoryId: categories[5].id, supplierId: supplierA.id },
     ];
     const products = [];
     for (const prod of productsData) {
@@ -212,7 +212,7 @@ async function main() {
             titleEn: "New Year Special",
             subtitleAr: "خصم 25% على جميع المحولات",
             subtitleEn: "25% OFF on all inverters",
-            image: "/images/home/promo-offer.png",
+            image: "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=1600&q=85",
             ctaTextAr: "احصل على العرض",
             ctaTextEn: "Get Offer",
             ctaLink: "/products",
