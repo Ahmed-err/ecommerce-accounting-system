@@ -79,7 +79,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overscroll-none">
       <body
-        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none`}
+        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none min-w-0`}
       >
         <Providers lang={lang} branding={branding}>
           <CartProvider>

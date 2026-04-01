@@ -24,15 +24,15 @@ export default async function TrackOrderPage({ searchParams }) {
     <main className={`min-h-screen bg-background ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <Navbar />
       <div className="max-w-xl mx-auto p-4 py-10 space-y-4">
-        <h1 className="text-2xl font-bold text-white">{lang === "ar" ? "تتبع الطلب" : "Track Order"}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{lang === "ar" ? "تتبع الطلب" : "Track Order"}</h1>
         <form className="space-y-2">
-          <input name="orderNumber" defaultValue={orderNumber} placeholder={lang === "ar" ? "رقم الطلب" : "Order number"} className="h-10 w-full rounded-lg border border-input bg-transparent px-3" />
-          <input name="phone" defaultValue={phone} placeholder={lang === "ar" ? "رقم الهاتف" : "Phone number"} className="h-10 w-full rounded-lg border border-input bg-transparent px-3" />
+          <input name="orderNumber" defaultValue={orderNumber} placeholder={lang === "ar" ? "رقم الطلب" : "Order number"} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-foreground placeholder:text-muted-foreground" />
+          <input name="phone" defaultValue={phone} placeholder={lang === "ar" ? "رقم الهاتف" : "Phone number"} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-foreground placeholder:text-muted-foreground" />
           <button className="h-10 w-full rounded-lg bg-primary text-primary-foreground">{lang === "ar" ? "بحث" : "Lookup"}</button>
         </form>
         {result && !result.success && <p className="text-red-500 text-sm">{lang === "ar" ? "الطلب غير موجود" : "Order not found"}</p>}
         {result?.success && (
-          <div className="border border-white/10 rounded-xl p-3">
+          <div className="rounded-xl border border-border bg-card p-3 text-card-foreground">
             <p className="font-mono">#{result.order.id.slice(-8).toUpperCase()}</p>
             <p className="text-sm text-muted-foreground">{result.order.status}</p>
           </div>

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
 
-const TABS = ["store", "shipping", "homepage", "about", "payment", "notifications", "seo", "legal", "users", "backup", "system"];
+const TABS = ["store", "shipping", "homepage", "about", "payment", "pos", "notifications", "seo", "legal", "users", "backup", "system"];
 
 function cloneFromServer(value) {
   if (value == null) return value;
@@ -169,6 +169,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       homepage: lang === "ar" ? "محتوى الرئيسية" : "Homepage content",
       shipping: lang === "ar" ? "الشحن" : "Shipping",
       payment: lang === "ar" ? "الدفع" : "Payment",
+      pos: lang === "ar" ? "نقطة البيع / الطابعة" : "POS / Printer",
       notifications: lang === "ar" ? "الإشعارات" : "Notifications",
       seo: "SEO",
       legal: lang === "ar" ? "الشروط والخصوصية" : "Legal",
@@ -875,6 +876,116 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             }
           >
             {lang === "ar" ? "حفظ إعدادات الدفع" : "Save payment"}
+          </Button>
+        </div>
+      )}
+
+      {activeTab === "pos" && (
+        <div className="space-y-4 rounded-xl border p-4">
+          <p className="text-sm text-muted-foreground">
+            {lang === "ar"
+              ? "تُستخدم تسمية الضريبة ونسبتها من تبويب الدفع أعلاه."
+              : "Tax label and percentage are taken from the Payment tab."}
+          </p>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{lang === "ar" ? "نوع الطابعة" : "Printer output"}</p>
+            <select
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={store.posPrinterType === "PDF" ? "PDF" : "THERMAL"}
+              onChange={(e) =>
+                setStore((p) => ({ ...p, posPrinterType: e.target.value === "PDF" ? "PDF" : "THERMAL" }))
+              }
+            >
+              <option value="THERMAL">{lang === "ar" ? "طابعة حرارية" : "Thermal printer"}</option>
+              <option value="PDF">{lang === "ar" ? "PDF فقط" : "PDF only"}</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{lang === "ar" ? "الاتصال (حراري)" : "Thermal connection"}</p>
+            <select
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={store.posPrinterConnection === "BLUETOOTH" ? "BLUETOOTH" : "USB"}
+              onChange={(e) =>
+                setStore((p) => ({
+                  ...p,
+                  posPrinterConnection: e.target.value === "BLUETOOTH" ? "BLUETOOTH" : "USB",
+                }))
+              }
+            >
+              <option value="USB">USB</option>
+              <option value="BLUETOOTH">{lang === "ar" ? "بلوتوث" : "Bluetooth"}</option>
+            </select>
+          </div>
+          <label className="inline-flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={store.posPrinterAutoPrint !== false}
+              onChange={(e) => setStore((p) => ({ ...p, posPrinterAutoPrint: e.target.checked }))}
+            />
+            {lang === "ar" ? "طباعة تلقائية بعد الدفع" : "Auto-print after checkout"}
+          </label>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{lang === "ar" ? "عرض الورق" : "Paper width"}</p>
+            <select
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={store.posPrinterPaperWidth === "58" ? "58" : "80"}
+              onChange={(e) =>
+                setStore((p) => ({ ...p, posPrinterPaperWidth: e.target.value === "58" ? "58" : "80" }))
+              }
+            >
+              <option value="80">80mm</option>
+              <option value="58">58mm</option>
+            </select>
+          </div>
+          <Input
+            value={store.posReceiptFooterAr || ""}
+            onChange={(e) => setStore((p) => ({ ...p, posReceiptFooterAr: e.target.value }))}
+            placeholder={lang === "ar" ? "تذييل الإيصال (عربي)" : "Receipt footer (Arabic)"}
+          />
+          <Input
+            value={store.posReceiptFooterEn || ""}
+            onChange={(e) => setStore((p) => ({ ...p, posReceiptFooterEn: e.target.value }))}
+            placeholder={lang === "ar" ? "تذييل الإيصال (إنجليزي)" : "Receipt footer (English)"}
+          />
+          <label className="inline-flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={store.posReceiptShowLogo !== false}
+              onChange={(e) => setStore((p) => ({ ...p, posReceiptShowLogo: e.target.checked }))}
+            />
+            {lang === "ar" ? "إظهار الشعار في الإيصال" : "Show logo on receipt"}
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={store.posReceiptShowBarcode !== false}
+              onChange={(e) => setStore((p) => ({ ...p, posReceiptShowBarcode: e.target.checked }))}
+            />
+            {lang === "ar" ? "إظهار رمز الاستجابة السريعة" : "Show QR on receipt"}
+          </label>
+          <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{lang === "ar" ? "الضريبة" : "Tax"}: </span>
+            {(store.vatLabelAr || "—") + " / " + (store.vatLabelEn || "—")}
+            {store.vatPercentage != null && store.vatPercentage !== ""
+              ? ` (${toInputString(store.vatPercentage)}%)`
+              : ""}
+          </div>
+          <Button
+            disabled={saving}
+            onClick={() =>
+              save("pos", {
+                posPrinterType: store.posPrinterType,
+                posPrinterConnection: store.posPrinterConnection,
+                posPrinterAutoPrint: store.posPrinterAutoPrint !== false,
+                posPrinterPaperWidth: store.posPrinterPaperWidth,
+                posReceiptFooterAr: store.posReceiptFooterAr,
+                posReceiptFooterEn: store.posReceiptFooterEn,
+                posReceiptShowLogo: store.posReceiptShowLogo !== false,
+                posReceiptShowBarcode: store.posReceiptShowBarcode !== false,
+              })
+            }
+          >
+            {lang === "ar" ? "حفظ إعدادات نقطة البيع" : "Save POS / printer settings"}
           </Button>
         </div>
       )}

@@ -74,13 +74,13 @@ export default function VerifyPhonePage() {
 
   return (
     <main className={`min-h-screen bg-background flex items-center justify-center p-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-gray-900 p-8">
-        <h1 className="text-2xl font-black text-white">{labels.title}</h1>
-        <p className="mt-2 text-sm text-gray-400">{labels.desc}</p>
+      <div className="w-full max-w-md rounded-3xl border border-border bg-card p-8 text-card-foreground shadow-sm">
+        <h1 className="text-2xl font-black text-foreground">{labels.title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{labels.desc}</p>
         {phone ? <p className="mt-1 text-xs text-amber-400">{phone}</p> : null}
 
         <form onSubmit={onVerify} className="mt-6 space-y-4">
-          <label className="block text-xs font-bold uppercase tracking-widest text-gray-400">{labels.code}</label>
+          <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground">{labels.code}</label>
           <input
             type="text"
             inputMode="numeric"
@@ -88,7 +88,7 @@ export default function VerifyPhonePage() {
             maxLength={6}
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            className={`w-full h-12 rounded-xl bg-gray-800 border border-white/10 px-4 text-white outline-none focus:border-amber-500 ${isRTL ? "text-right" : "text-left"}`}
+            className={`h-12 w-full rounded-xl border border-input bg-background px-4 text-foreground outline-none placeholder:text-muted-foreground focus:border-amber-500 ${isRTL ? "text-right" : "text-left"}`}
             placeholder="123456"
             required
           />
@@ -109,12 +109,12 @@ export default function VerifyPhonePage() {
           type="button"
           onClick={onResend}
           disabled={isPending}
-          className="mt-3 w-full h-11 rounded-xl border border-white/15 text-white font-bold disabled:opacity-60"
+          className="mt-3 h-11 w-full rounded-xl border border-border bg-background font-bold text-foreground hover:bg-muted disabled:opacity-60"
         >
           {labels.resend}
         </button>
 
-        <Link href="/login" className="mt-5 block text-center text-xs text-gray-400 hover:text-white">
+        <Link href="/login" className="mt-5 block text-center text-xs text-muted-foreground hover:text-foreground">
           {labels.backToLogin}
         </Link>
       </div>

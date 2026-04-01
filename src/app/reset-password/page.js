@@ -89,13 +89,13 @@ export default function ResetPasswordPage() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center p-3 bg-white/5 rounded-2xl border border-white/10 mb-6 font-bold shadow-xl">
+          <div className="mb-6 inline-flex items-center justify-center rounded-2xl border border-border bg-card p-3 font-bold shadow-sm">
              <ShieldCheck className="w-8 h-8 text-amber-500" />
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-3">
+          <h1 className="mb-3 text-4xl font-black tracking-tight text-foreground">
              {lang === 'ar' ? 'إعادة ضبط كلمة المرور' : 'Reset Your Password'}
           </h1>
-          <p className="text-gray-400 font-medium">
+          <p className="font-medium text-muted-foreground">
              {lang === 'ar' ? 'يرجى إدخال كلمة المرور الجديدة أدناه.' : "Enter your new password below."}
           </p>
         </div>

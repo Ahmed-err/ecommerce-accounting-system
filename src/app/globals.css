@@ -216,7 +216,7 @@
       color 0.25s ease;
   }
   html {
-    @apply font-sans bg-background;
+    @apply font-sans bg-background overflow-x-clip;
   }
   :lang(ar) {
     letter-spacing: normal;
@@ -266,6 +266,12 @@
   textarea,
   select {
     font-size: 16px;
+  }
+  /* Default form text to theme foreground (fixes invisible typed text when color-scheme or parents omit color) */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]),
+  textarea,
+  select {
+    color: var(--foreground);
   }
   .overflow-auto,
   .overflow-scroll,

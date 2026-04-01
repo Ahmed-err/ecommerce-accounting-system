@@ -54,29 +54,29 @@ export default function LoginPage() {
       <div className="absolute bottom-0 right-0 w-[min(800px,90vw)] h-[min(800px,90vw)] bg-blue-500/5 rounded-full blur-[100px] sm:blur-[120px] translate-x-1/2 translate-y-1/2 animate-pulse transition-all duration-[15s]" />
 
       {/* LEFT SIDE: Hero Section (Desktop) */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-black/10 backdrop-blur-3xl relative z-10 border-white/5 border-r border-l">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-muted/40 backdrop-blur-3xl relative z-10 border-border/60 border-r border-l">
           <div className="max-w-md space-y-12">
               <div className="space-y-4">
                   <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl shadow-amber-500/20">
                       <ShieldCheck className="h-full w-full text-black" />
                   </div>
-                  <h2 className="text-6xl font-black text-white leading-tight tracking-tighter">
+                  <h2 className="text-6xl font-black text-foreground leading-tight tracking-tighter">
                      {lang === 'ar' ? 'مرحباً بك مجدداً في' : 'Welcome back to'} <br/>
-                     <span className="text-amber-500">{brandName}</span>
+                     <span className="text-amber-600 dark:text-amber-500">{brandName}</span>
                   </h2>
-                  <p className="text-xl text-gray-400 font-medium leading-relaxed">
+                  <p className="text-xl text-muted-foreground font-medium leading-relaxed">
                      {t.loginToManage}
                   </p>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
-                  <div className="p-6 bg-white/5 rounded-[32px] border border-white/10">
-                      <div className="text-2xl font-black text-amber-500 mb-1 leading-none font-mono regular-nums">10K+</div>
-                      <div className="text-sm text-gray-500 font-bold uppercase tracking-widest">{lang === 'ar' ? 'عميل نشط' : 'Active Users'}</div>
+                  <div className="p-6 rounded-[32px] border border-border bg-card/80 shadow-sm">
+                      <div className="text-2xl font-black text-amber-600 dark:text-amber-500 mb-1 leading-none font-mono regular-nums">10K+</div>
+                      <div className="text-sm text-muted-foreground font-bold uppercase tracking-widest">{lang === 'ar' ? 'عميل نشط' : 'Active Users'}</div>
                   </div>
-                  <div className="p-6 bg-white/5 rounded-[32px] border border-white/10">
-                      <div className="text-2xl font-black text-amber-500 mb-1 leading-none font-mono regular-nums">99.9%</div>
-                      <div className="text-sm text-gray-500 font-bold uppercase tracking-widest">{lang === 'ar' ? 'أداء النظام' : 'Uptime'}</div>
+                  <div className="p-6 rounded-[32px] border border-border bg-card/80 shadow-sm">
+                      <div className="text-2xl font-black text-amber-600 dark:text-amber-500 mb-1 leading-none font-mono regular-nums">99.9%</div>
+                      <div className="text-sm text-muted-foreground font-bold uppercase tracking-widest">{lang === 'ar' ? 'أداء النظام' : 'Uptime'}</div>
                   </div>
               </div>
           </div>
@@ -89,8 +89,8 @@ export default function LoginPage() {
               <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20 mb-4 group ring-8 ring-amber-500/5">
                 <ShieldCheck className="w-8 h-8 text-amber-500" />
               </div>
-              <h1 className="text-4xl font-black text-white tracking-tight">{t.welcomeBack}</h1>
-              <p className="text-gray-400 mt-2 font-medium">{t.loginToManage}</p>
+              <h1 className="text-4xl font-black text-foreground tracking-tight">{t.welcomeBack}</h1>
+              <p className="text-muted-foreground mt-2 font-medium">{t.loginToManage}</p>
           </div>
 
           <div className="bg-gray-900 border border-white/5 rounded-[40px] p-8 md:p-12 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
@@ -201,7 +201,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-8 text-center">
-              <Link href="/" className="text-gray-600 hover:text-white transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
                   <span>{t.backToStore}</span>
                   <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
               </Link>

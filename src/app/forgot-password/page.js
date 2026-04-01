@@ -47,10 +47,10 @@ export default function ForgotPasswordPage() {
             <ArrowLeft className={`w-4 h-4 transition-transform group-hover:-translate-x-1 ${isRTL ? 'rotate-180 group-hover:translate-x-1' : ''}`} />
             <span>{t.backToLogin || (lang === 'ar' ? 'العودة لتسجيل الدخول' : 'Back to Login')}</span>
           </Link>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-3">
+          <h1 className="text-4xl font-black text-foreground tracking-tight mb-3">
              {lang === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
           </h1>
-          <p className="text-gray-400 font-medium">
+          <p className="text-muted-foreground font-medium">
              {lang === 'ar' ? 'أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة ضبط كلمة المرور.' : "Enter your email and we'll send you a link to reset your password."}
           </p>
         </div>

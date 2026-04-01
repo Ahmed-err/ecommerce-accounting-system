@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/prisma";
+import { getPrinterSettings } from "@/lib/settings";
 import POSClient from "@/components/pos/POSClient";
 
 export const dynamic = "force-dynamic";
@@ -25,5 +26,14 @@ export default async function POSPage() {
     sku: p.sku ?? "",
   }));
 
-  return <POSClient initialProducts={JSON.parse(JSON.stringify(normalizedProducts))} />;
+  const printerSettings = await getPrinterSettings();
+
+  return (
+    <POSClient
+      initialProducts={JSON.parse(JSON.stringify(normalizedProducts))}
+      initialPrinterSettings={
+        printerSettings ? JSON.parse(JSON.stringify(printerSettings)) : null
+      }
+    />
+  );
 }

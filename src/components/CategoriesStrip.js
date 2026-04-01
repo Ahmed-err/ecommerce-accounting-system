@@ -38,23 +38,22 @@ export default function CategoriesStrip({ categories }) {
   };
 
   return (
-    <section className="py-10 bg-background border-y border-foreground/5 sm:py-12 lg:py-16">
+    <section
+      className="py-10 bg-background border-y border-foreground/5 sm:py-12 lg:py-16"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className={cn("flex items-center justify-between mb-6 sm:mb-8", isRTL && "flex-row-reverse")}>
-          <h2
-            className={cn(
-              "text-lg font-black uppercase tracking-tighter text-foreground underline underline-offset-8 decoration-amber-500 sm:text-2xl",
-              isRTL ? "text-right" : "text-left"
-            )}
-          >
+        {/* Header: DOM order h2 then link — in RTL, flex main-start is right so the title stays on the right */}
+        <div className="mb-6 flex items-center justify-between sm:mb-8">
+          <h2 className="text-start text-lg font-black uppercase tracking-tighter text-foreground underline decoration-amber-500 underline-offset-8 sm:text-2xl">
             {t.shopByCategory}
           </h2>
           <Link
             href="/products"
             className={cn(
-              "shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-wide sm:text-sm",
-              isRTL ? "flex-row-reverse text-right" : "text-left"
+              "inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-500 transition-colors hover:text-amber-400 sm:text-sm",
+              isRTL && "flex-row-reverse",
+              "text-start"
             )}
           >
             <span>{isRTL ? "عرض الكل" : "View All"}</span>

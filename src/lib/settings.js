@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/prisma";
+import { pickPrinterFieldsFromStore } from "@/lib/receipt";
 
 const DEFAULT_HOURS = {
   sunday: { open: true, from: "09:00", to: "17:00" },
@@ -43,4 +44,9 @@ export async function getOrCreateStoreSettings() {
   });
 
   return created;
+}
+
+export async function getPrinterSettings() {
+  const store = await getOrCreateStoreSettings();
+  return pickPrinterFieldsFromStore(store);
 }
