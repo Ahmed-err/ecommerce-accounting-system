@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { getCatalogProducts } from "@/app/actions/catalog";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -18,6 +19,7 @@ export default function GlobalSearch({ inputId }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const searchRef = useRef(null);
+  const router = useRouter();
   const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
@@ -57,26 +59,25 @@ export default function GlobalSearch({ inputId }) {
   return (
     <div ref={searchRef} className="relative w-full max-w-md group">
       <div className="relative">
-        <SearchIcon className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-amber-500 transition-colors`} />
-        <form
-          onSubmit={(e) => {
+        <SearchIcon className={`pointer-events-none absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-amber-500 transition-colors`} />
+        <Input
+          id={inputId}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            if (e.target.value.trim().length >= 2) setIsOpen(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
             e.preventDefault();
             const value = query.trim();
             if (!value) return;
-            window.location.href = `/products?search=${encodeURIComponent(value)}`;
+            setIsOpen(false);
+            router.push(`/products?search=${encodeURIComponent(value)}`);
           }}
-        >
-          <Input
-            id={inputId}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              if (e.target.value.trim().length >= 2) setIsOpen(true);
-            }}
-            placeholder={t.searchPlaceholder}
-            className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
-          />
-        </form>
+          placeholder={t.searchPlaceholder}
+          className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
+        />
         {query && (
           <button
             type="button"

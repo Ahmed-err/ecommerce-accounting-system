@@ -43,14 +43,16 @@ export default function AboutTeaser() {
 
             <div className="space-y-2">
               <p className="text-foreground font-bold text-sm sm:text-base">{t.servicesTitle}</p>
-              <ul className="space-y-2" dir={isRTL ? "rtl" : "ltr"}>
+              <ul
+                className={`space-y-2 text-xs leading-relaxed sm:text-sm ${isRTL ? "list-inside list-disc text-right" : "list-inside list-disc text-left"}`}
+                dir={isRTL ? "rtl" : "ltr"}
+              >
                 {t.services.slice(0, 3).map((s, idx) => (
                   <li
                     key={idx}
-                    className={`flex items-start gap-3 ${isRTL ? "flex-row-reverse justify-end text-right" : "text-left"}`}
+                    className="text-muted-foreground marker:text-amber-500"
                   >
-                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500 sm:h-2 sm:w-2" />
-                    <span className="text-xs leading-relaxed text-muted-foreground sm:text-sm">{s}</span>
+                    {s}
                   </li>
                 ))}
               </ul>
