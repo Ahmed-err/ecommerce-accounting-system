@@ -15,8 +15,35 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+function normalizeConnectionString(rawUrl) {
+  if (!rawUrl) return rawUrl;
+
+  try {
+    const url = new URL(rawUrl);
+    const sslmode = url.searchParams.get("sslmode");
+
+    // Avoid pg warning and preserve current secure behavior.
+    if (sslmode === "require") {
+      url.searchParams.set("sslmode", "verify-full");
+    }
+
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
+function resolveConnectionString() {
+  const primary = process.env.DATABASE_URL;
+  const direct = process.env.DIRECT_URL;
+  return normalizeConnectionString(primary || direct);
+}
+
+const connectionString = resolveConnectionString();
+const pool = new Pool({
+  connectionString,
+  connectionTimeoutMillis: Number(process.env.DB_CONNECT_TIMEOUT_MS || 15000),
+});
 const adapter = new PrismaPg(pool);
 
 // In production: always create a new PrismaClient

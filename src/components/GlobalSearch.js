@@ -34,15 +34,21 @@ export default function GlobalSearch({ inputId }) {
     if (debouncedQuery.trim().length < 2) {
       setResults([]);
       setLoading(false);
+      setIsOpen(false);
       return;
     }
 
     const search = async () => {
-      setLoading(true);
-      const res = await getCatalogProducts({ search: debouncedQuery, limit: 5 });
-      setResults(res.products);
-      setLoading(false);
-      setIsOpen(true);
+      try {
+        setLoading(true);
+        const res = await getCatalogProducts({ search: debouncedQuery.trim(), limit: 5 });
+        setResults(Array.isArray(res?.products) ? res.products : []);
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+        setIsOpen(true);
+      }
     };
 
     search();
@@ -52,18 +58,28 @@ export default function GlobalSearch({ inputId }) {
     <div ref={searchRef} className="relative w-full max-w-md group">
       <div className="relative">
         <SearchIcon className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-amber-500 transition-colors`} />
-        <Input
-          id={inputId}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setIsOpen(true);
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const value = query.trim();
+            if (!value) return;
+            window.location.href = `/products?search=${encodeURIComponent(value)}`;
           }}
-          placeholder={t.searchPlaceholder}
-          className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
-        />
+        >
+          <Input
+            id={inputId}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (e.target.value.trim().length >= 2) setIsOpen(true);
+            }}
+            placeholder={t.searchPlaceholder}
+            className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
+          />
+        </form>
         {query && (
           <button
+            type="button"
             onClick={() => {
               setQuery("");
               setResults([]);
@@ -100,7 +116,7 @@ export default function GlobalSearch({ inputId }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{product.category.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{product.category?.name || ""}</p>
                   </div>
                   <div className="text-sm font-black text-amber-500 whitespace-nowrap">
                     {product.sellingPrice.toLocaleString()} {t.currency}
