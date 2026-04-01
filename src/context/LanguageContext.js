@@ -6,10 +6,9 @@ import { useRouter } from "next/navigation";
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children, initialLang = "ar", branding }) {
-  const [lang, setLang] = useState(initialLang); // Use server-side initial language
+  const [lang, setLang] = useState(initialLang);
 
   useEffect(() => {
-    // Sync with localStorage on client load
     const saved = localStorage.getItem("lang");
     if (saved && saved !== lang) {
       setLang(saved);
@@ -21,14 +20,11 @@ export function LanguageProvider({ children, initialLang = "ar", branding }) {
   const switchLanguage = (newLang) => {
     setLang(newLang);
     localStorage.setItem("lang", newLang);
-    // Set cookie for SSR
     document.cookie = `lang=${newLang}; path=/; max-age=${60 * 60 * 24 * 365}`;
-    
-    // Update HTML attributes immediately
+
     document.documentElement.lang = newLang;
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
-    
-    // Refresh to update server components
+
     router.refresh();
   };
 

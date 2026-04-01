@@ -1,7 +1,9 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { translations } from "@/lib/translations";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 
 export async function getStoreBranding() {
+  noStore();
   try {
     const store = await getOrCreateStoreSettings();
     return {

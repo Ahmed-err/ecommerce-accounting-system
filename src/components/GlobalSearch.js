@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Search as SearchIcon, X, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { getCatalogProducts } from "@/app/actions/catalog";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,13 +66,19 @@ export default function GlobalSearch({ inputId }) {
   }, [debouncedQuery]);
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-md group">
-      <div className="relative">
-        <SearchIcon className={`pointer-events-none absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-amber-500 transition-colors`} />
-        <Input
+    <div ref={searchRef} className="relative w-full max-w-md group isolate">
+      <div className="relative z-10">
+        <SearchIcon
+          className={cn(
+            "pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
+            isRTL ? "right-3" : "left-3"
+          )}
+        />
+        <input
           id={inputId}
+          type="search"
+          enterKeyHint="search"
           value={query}
-          onValueChange={handleQueryChange}
           onChange={(e) => handleQueryChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
@@ -83,9 +89,16 @@ export default function GlobalSearch({ inputId }) {
             router.push(`/products?search=${encodeURIComponent(value)}`);
           }}
           autoComplete="off"
+          spellCheck={false}
           placeholder={searchPlaceholder}
-          className={`h-11 ${isRTL ? "pr-10" : "pl-10"} bg-white/5 border-white/10 text-foreground dark:text-white caret-foreground text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all placeholder:opacity-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400`}
-          style={{ WebkitTextFillColor: "currentColor", opacity: 1 }}
+          className={cn(
+            "h-11 w-full min-w-0 rounded-full border text-sm shadow-inner outline-none transition-all",
+            "border-zinc-300/80 bg-white text-zinc-900 caret-zinc-900",
+            "placeholder:text-zinc-500 placeholder:opacity-100",
+            "focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30",
+            "dark:border-white/15 dark:bg-zinc-900/80 dark:text-white dark:caret-amber-400 dark:placeholder:text-zinc-400",
+            isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+          )}
         />
         {query && (
           <button
@@ -94,9 +107,12 @@ export default function GlobalSearch({ inputId }) {
               setQuery("");
               setResults([]);
             }}
-            className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full`}
+            className={cn(
+              "absolute top-1/2 z-20 -translate-y-1/2 rounded-full p-1 hover:bg-zinc-200/80 dark:hover:bg-white/10",
+              isRTL ? "left-3" : "right-3"
+            )}
           >
-            <X className="h-4 w-4 text-gray-400" />
+            <X className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
           </button>
         )}
       </div>
