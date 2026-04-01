@@ -76,7 +76,7 @@ export default function GlobalSearch({ inputId }) {
             router.push(`/products?search=${encodeURIComponent(value)}`);
           }}
           placeholder={t.searchPlaceholder}
-          className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
+          className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-foreground caret-foreground placeholder:text-muted-foreground text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
         />
         {query && (
           <button
