@@ -369,22 +369,27 @@ export default function ProductGrid({
         <div className="relative isolate z-0 w-full md:w-80">
           <Search
             className={cn(
-              "pointer-events-none absolute inset-y-0 z-10 my-auto h-4 w-4 text-zinc-500 dark:text-zinc-400",
+              "pointer-events-none absolute inset-y-0 z-[1] my-auto h-4 w-4 text-zinc-500 dark:text-zinc-400",
               isRTL ? "right-3" : "left-3"
             )}
           />
           <input
-            type="search"
+            type="text"
+            inputMode="search"
             enterKeyHint="search"
+            role="searchbox"
             placeholder={t.searchPlaceholder}
             autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
             spellCheck={false}
             className={cn(
-              "h-9 w-full min-w-0 rounded-lg border px-3 py-1 text-sm shadow-sm outline-none transition-colors",
-              "border-zinc-300/80 bg-white text-zinc-900 caret-zinc-900",
+              "relative z-[2] h-9 w-full min-w-0 rounded-lg border px-3 py-1 text-sm shadow-sm outline-none transition-colors",
+              "[color-scheme:light] [-webkit-text-fill-color:#18181b]",
+              "border-zinc-300/80 bg-white !text-zinc-900 caret-zinc-900",
               "placeholder:text-zinc-500 placeholder:opacity-100",
               "focus-visible:border-amber-500/60 focus-visible:ring-2 focus-visible:ring-amber-500/30",
-              "dark:border-white/15 dark:bg-zinc-900/90 dark:text-white dark:caret-amber-400 dark:placeholder:text-zinc-400",
+              "dark:[color-scheme:dark] dark:border-white/15 dark:bg-zinc-900/90 dark:!text-white dark:[-webkit-text-fill-color:#fff] dark:caret-amber-400 dark:placeholder:text-zinc-400",
               isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"
             )}
             value={searchValue}

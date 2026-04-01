@@ -66,18 +66,23 @@ export default function GlobalSearch({ inputId }) {
   }, [debouncedQuery]);
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-md group isolate">
+    <div ref={searchRef} className="relative w-full max-w-md min-w-0 group [transform:translateZ(0)]">
       <div className="relative z-10">
         <SearchIcon
           className={cn(
-            "pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
+            "pointer-events-none absolute top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
             isRTL ? "right-3" : "left-3"
           )}
         />
         <input
           id={inputId}
-          type="search"
+          type="text"
+          inputMode="search"
           enterKeyHint="search"
+          autoCapitalize="off"
+          autoCorrect="off"
+          role="searchbox"
+          aria-label={searchPlaceholder}
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           onKeyDown={(e) => {
@@ -92,11 +97,12 @@ export default function GlobalSearch({ inputId }) {
           spellCheck={false}
           placeholder={searchPlaceholder}
           className={cn(
-            "h-11 w-full min-w-0 rounded-full border text-sm shadow-inner outline-none transition-all",
-            "border-zinc-300/80 bg-white text-zinc-900 caret-zinc-900",
+            "relative z-[2] h-11 w-full min-w-0 rounded-full border text-sm shadow-inner outline-none transition-all",
+            "[color-scheme:light] [-webkit-text-fill-color:#18181b]",
+            "border-zinc-300/80 bg-white !text-zinc-900 caret-zinc-900",
             "placeholder:text-zinc-500 placeholder:opacity-100",
             "focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30",
-            "dark:border-white/15 dark:bg-zinc-900/80 dark:text-white dark:caret-amber-400 dark:placeholder:text-zinc-400",
+            "dark:[color-scheme:dark] dark:border-white/15 dark:bg-zinc-900/80 dark:!text-white dark:[-webkit-text-fill-color:#fff] dark:caret-amber-400 dark:placeholder:text-zinc-400",
             isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
           )}
         />
