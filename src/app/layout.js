@@ -10,6 +10,8 @@ import { validateEnv } from "@/lib/env";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
+export const dynamic = "force-dynamic";
+
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],

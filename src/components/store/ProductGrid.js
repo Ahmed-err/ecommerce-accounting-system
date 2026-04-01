@@ -366,18 +366,26 @@ export default function ProductGrid({
       {/* Toolbar */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Search */}
-        <div className="relative w-full md:w-80">
+        <div className="relative isolate z-0 w-full md:w-80">
           <Search
             className={cn(
-              "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-muted-foreground",
+              "pointer-events-none absolute inset-y-0 z-10 my-auto h-4 w-4 text-zinc-500 dark:text-zinc-400",
               isRTL ? "right-3" : "left-3"
             )}
           />
-          <Input
+          <input
+            type="search"
+            enterKeyHint="search"
             placeholder={t.searchPlaceholder}
+            autoComplete="off"
+            spellCheck={false}
             className={cn(
-              isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left",
-              "focus:border-amber-500/50"
+              "h-9 w-full min-w-0 rounded-lg border px-3 py-1 text-sm shadow-sm outline-none transition-colors",
+              "border-zinc-300/80 bg-white text-zinc-900 caret-zinc-900",
+              "placeholder:text-zinc-500 placeholder:opacity-100",
+              "focus-visible:border-amber-500/60 focus-visible:ring-2 focus-visible:ring-amber-500/30",
+              "dark:border-white/15 dark:bg-zinc-900/90 dark:text-white dark:caret-amber-400 dark:placeholder:text-zinc-400",
+              isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"
             )}
             value={searchValue}
             onChange={handleSearch}
@@ -387,7 +395,7 @@ export default function ProductGrid({
               type="button"
               onClick={clearSearch}
               className={cn(
-                "absolute inset-y-0 my-auto text-muted-foreground hover:text-foreground",
+                "absolute inset-y-0 z-10 my-auto text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white",
                 isRTL ? "left-3" : "right-3"
               )}
             >

@@ -12,6 +12,7 @@ const DEFAULT_HOURS = {
 
 export async function getOrCreateStoreSettings() {
   const existing = await db.store.findFirst({
+    orderBy: { createdAt: "asc" },
     include: {
       shippingZones: { orderBy: { createdAt: "asc" } },
       paymentMethods: { orderBy: { createdAt: "asc" } },
