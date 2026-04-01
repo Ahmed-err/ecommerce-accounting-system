@@ -869,7 +869,7 @@ export default function CheckoutClient() {
           {currentStep === 2 && (
             <motion.div 
               key="step2"
-              className="bg-white/5 border border-white/10 rounded-xl p-6 mb-6 space-y-4"
+              className={cn(panelClass, "mb-6 space-y-4 p-4 sm:p-6")}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
@@ -940,7 +940,7 @@ export default function CheckoutClient() {
                   )}
                 >
                   <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">{t.bankTransferInstructions}</p>
-                  <p className="text-sm text-gray-300">{t.transferToFollowing}</p>
+                  <p className="text-sm text-foreground/90">{t.transferToFollowing}</p>
                   <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 text-sm space-y-1">
                     <p><span className="text-gray-500">{t.bankLabel}:</span> <span className="text-white font-medium">{lang === 'ar' ? STORE_BANK_DETAILS.arBankName : STORE_BANK_DETAILS.bankName}</span></p>
                     <p><span className="text-gray-500">{t.accountNumberLabel}:</span> <span className="text-white font-mono font-bold">{STORE_BANK_DETAILS.accountNumber}</span></p>
@@ -1002,7 +1002,7 @@ export default function CheckoutClient() {
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 italic font-medium">{t.sendScreenshotNotice}</p>
+                  <p className="text-xs text-muted-foreground italic font-medium">{t.sendScreenshotNotice}</p>
                 </div>
               )}
               
@@ -1168,7 +1168,7 @@ export default function CheckoutClient() {
         {/* Cart Items - Show on all steps for reference */}
         <div className="space-y-3 sm:space-y-4">
           {currentStep !== 3 && (
-            <h2 className="text-lg font-bold text-white flex items-center gap-2 px-2">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2 px-2">
               <Package className="h-5 w-5 text-amber-500" />
               {lang === "ar" ? "منتجات في السلة" : "Cart Items"}
             </h2>
@@ -1177,11 +1177,10 @@ export default function CheckoutClient() {
           {cart.map((item, index) => (
             <motion.div 
               key={item.id} 
-              className={`bg-white/5 border rounded-xl p-3 sm:p-4 ${
-                stockIssuesById[item.id]
-                  ? "border-red-500/35"
-                  : "border-white/10"
-              }`}
+              className={cn(
+                "rounded-xl border border-border bg-muted/25 p-3 sm:p-4",
+                stockIssuesById[item.id] && "border-destructive/40"
+              )}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}

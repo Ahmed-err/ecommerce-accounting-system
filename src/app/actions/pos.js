@@ -54,7 +54,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
       const productIds = cartItems.map(item => item.id);
       const dbProducts = await tx.product.findMany({
         where: { id: { in: productIds }, isActive: true },
-        select: { id: true, stock: true, sellingPrice: true, name: true },
+        select: { id: true, stock: true, sellingPrice: true, name: true, sku: true },
       });
 
       const productMap = new Map(dbProducts.map(p => [p.id, p]));
@@ -105,7 +105,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
         });
       }
 
-      await tx.invoice.create({
+      const inv = await tx.invoice.create({
         data: {
           invoiceNumber: `POS-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           orderId: newOrder.id,
@@ -125,22 +125,47 @@ export async function createPOSOrder(cartItems, paymentDetails) {
         }
       });
 
-      return newOrder;
+      const itemsForReceipt = validatedItems.map((item) => {
+        const p = productMap.get(item.id);
+        return {
+          name: p?.name || "Item",
+          sku: p?.sku || "",
+          qty: item.quantity,
+          unitPrice: item.price,
+          subtotal: item.price * item.quantity,
+        };
+      });
+
+      return {
+        newOrder,
+        receipt: {
+          orderId: newOrder.id,
+          createdAt: newOrder.createdAt.toISOString(),
+          invoiceNumber: inv.invoiceNumber,
+          paymentMethod: paymentDetails.paymentMethod,
+          guestName: paymentDetails.customerName || "",
+          guestPhone: paymentDetails.customerPhone || "",
+          totalAmount: finalTotalAmount,
+          taxAmount: paymentDetails.taxAmount || 0,
+          discountAmount: paymentDetails.discountAmount || 0,
+          items: itemsForReceipt,
+        },
+      };
     });
 
-    await logAction("POS_SALE", { orderId: order.id, staffId: staff.id });
+    await logAction("POS_SALE", { orderId: order.newOrder.id, staffId: staff.id });
     await createAdminBroadcastNotification({
       type: "NEW_ORDER",
       titleAr: "طلب جديد من نقطة البيع",
       titleEn: "New POS order",
-      bodyAr: `تم إنشاء طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
-      bodyEn: `A new POS order was created: ${order.id.slice(-8).toUpperCase()}.`,
+      bodyAr: `تم إنشاء طلب جديد برقم ${order.newOrder.id.slice(-8).toUpperCase()}.`,
+      bodyEn: `A new POS order was created: ${order.newOrder.id.slice(-8).toUpperCase()}.`,
       link: `/admin/orders`,
     });
 
     revalidatePath("/pos");
-    emitAlert("pos_checkout_success", { orderId: order.id, staffId: staff.id }).catch(() => {});
-    return { success: true, orderId: order.id };
+    emitAlert("pos_checkout_success", { orderId: order.newOrder.id, staffId: staff.id }).catch(() => {});
+    return { success: true, orderId: order.newOrder.id, receipt: order.receipt };
   } catch (error) {
     console.error("POS Order Error:", error);
     emitAlert("pos_checkout_failure", { error: error?.message || "pos_order_error" }).catch(() => {});

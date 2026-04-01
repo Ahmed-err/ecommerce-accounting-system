@@ -627,6 +627,14 @@ model Store {
   aboutVisionEn                   String?  @db.Text
   aboutImageUrl                   String?
   aboutFoundedYear                Int?
+  posPrinterType                  String   @default("THERMAL")
+  posPrinterConnection            String   @default("USB")
+  posPrinterAutoPrint             Boolean  @default(true)
+  posPrinterPaperWidth            String   @default("80")
+  posReceiptFooterAr              String?  @db.Text
+  posReceiptFooterEn              String?  @db.Text
+  posReceiptShowLogo              Boolean  @default(true)
+  posReceiptShowBarcode           Boolean  @default(true)
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime @updatedAt
 

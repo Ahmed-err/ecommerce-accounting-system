@@ -36,20 +36,20 @@ export default async function AccountOrdersPage({ searchParams }) {
     s === "SHIPPED" ? "bg-blue-500/10 text-blue-500" :
     s === "DELIVERED" ? "bg-emerald-500/10 text-emerald-500" :
     s === "CANCELLED" ? "bg-red-500/10 text-red-500" :
-    "bg-white/10 text-white";
+    "bg-muted text-foreground";
 
   return (
     <main className={`min-h-screen bg-background ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">{t.myOrdersTitle}</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t.myOrdersTitle}</h1>
           <p className="text-muted-foreground">{t.trackManageOrders}</p>
         </div>
 
         <form className="grid grid-cols-1 md:grid-cols-5 gap-2">
           <Input name="search" defaultValue={search} placeholder={lang === "ar" ? "بحث برقم الطلب" : "Search order #"} />
-          <select name="status" defaultValue={status} className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm">
+          <select name="status" defaultValue={status} className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm text-foreground">
             {STATUS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <Input type="date" name="from" defaultValue={dateFrom} />
@@ -58,14 +58,14 @@ export default async function AccountOrdersPage({ searchParams }) {
         </form>
 
         {orders.length === 0 ? (
-          <div className="border border-white/10 rounded-xl p-12 text-center">
-            <p className="text-white font-semibold">{t.noOrdersFound}</p>
+          <div className="rounded-xl border border-border bg-card/30 p-12 text-center">
+            <p className="font-semibold text-foreground">{t.noOrdersFound}</p>
             <Link href="/products" className="text-amber-500 text-sm">{t.startShopping}</Link>
           </div>
         ) : (
-          <div className="border border-white/10 rounded-xl overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-border">
             <table className="w-full text-sm hidden md:table">
-              <thead className="bg-white/5">
+              <thead className="bg-muted/50 text-foreground">
                 <tr>
                   <th className="p-3">{lang === "ar" ? "الطلب" : "Order"}</th>
                   <th>{lang === "ar" ? "التاريخ" : "Date"}</th>
@@ -78,7 +78,7 @@ export default async function AccountOrdersPage({ searchParams }) {
               </thead>
               <tbody>
                 {orders.map((o) => (
-                  <tr key={o.id} className="border-t border-white/5">
+                  <tr key={o.id} className="border-t border-border">
                     <td className="p-3 font-mono">#{o.id.slice(-8).toUpperCase()}</td>
                     <td>{new Date(o.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")}</td>
                     <td>{o.items.length}</td>
@@ -90,7 +90,7 @@ export default async function AccountOrdersPage({ searchParams }) {
                 ))}
               </tbody>
             </table>
-            <div className="md:hidden divide-y divide-white/5">
+            <div className="md:hidden divide-y divide-border">
               {orders.map((o) => (
                 <Link href={`/account/orders/${o.id}`} key={o.id} className="block p-3">
                   <p className="font-mono text-sm">#{o.id.slice(-8).toUpperCase()}</p>

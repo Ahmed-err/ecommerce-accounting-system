@@ -40,7 +40,7 @@ export default async function ComparePage({ searchParams }) {
     >
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h1 className="mb-8 text-2xl font-bold text-white">
+        <h1 className="mb-8 text-2xl font-bold text-foreground">
           {translations[lang].catalogComparePage}
         </h1>
         <ComparePageClient products={products} />

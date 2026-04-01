@@ -5,17 +5,20 @@ import {
   Search, ShoppingCart, Trash2, Plus, Minus,
   CreditCard, Banknote, Printer, ArrowLeft,
   Package, X, CheckCircle, AlertTriangle,
-  ChevronDown, Zap, Tag, RotateCcw,
+  Zap, Tag, RotateCcw,
   User, Percent, Wallet, DollarSign,
-  Keyboard, ScanLine, XCircle, LayoutGrid
+  XCircle, LayoutGrid, Download, FileText,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { useLanguage } from "@/context/LanguageContext";
 
 import { createPOSOrder, getProductStock } from "@/app/actions/pos";
+import { buildReceiptData } from "@/lib/receipt";
+import PrinterStatus from "@/components/pos/PrinterStatus";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -168,9 +171,35 @@ function CartItem({ item, onUpdateQty, onRemove, t, isArabic }) {
   );
 }
 
+function mergePrinter(initial) {
+  const base = {
+    printerType: "THERMAL",
+    printerConnection: "USB",
+    autoPrint: true,
+    paperWidth: "80",
+    receiptFooterAr: "",
+    receiptFooterEn: "",
+    showLogo: true,
+    showBarcode: true,
+    vatLabelAr: "",
+    vatLabelEn: "",
+    vatPercentage: null,
+    vatEnabled: false,
+    nameAr: "",
+    nameEn: "",
+    addressAr: "",
+    addressEn: "",
+    logoUrl: "",
+    contactPhone: "",
+    currency: "SDG",
+  };
+  return { ...base, ...(initial && typeof initial === "object" ? initial : {}) };
+}
+
 // ─── Main POS Client ──────────────────────────────────────────────────────────
-export default function POSClient({ initialProducts }) {
+export default function POSClient({ initialProducts, initialPrinterSettings }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const searchInputRef = useRef(null);
   const { lang, isRTL } = useLanguage();
   const isArabic = lang === "ar";
@@ -214,6 +243,30 @@ export default function POSClient({ initialProducts }) {
       lastSync: "آخر تحديث",
       discountFixed: "ج.س",
       discountPercent: "%",
+      printReceipt: "طباعة الإيصال",
+      downloadPdf: "تنزيل PDF",
+      openInvoice: "فتح الفاتورة",
+      doneSuccess: "تم",
+      checkoutDoneTitle: "اكتمل الدفع",
+      reprintLast: "إعادة طباعة آخر إيصال",
+      printerSetup: "إعداد الطابعة",
+      printerBrowserNote:
+        "تعمل Web USB / Serial / Bluetooth بشكل أفضل في Chrome أو Edge. المتصفحات الأخرى تستخدم نافذة الطباعة / PDF.",
+      paperWidth: "عرض الورق",
+      fromStoreSettings: "من إعدادات المتجر",
+      connectUsbSerial: "ربط USB (تسلسلي)",
+      connectWebUsb: "ربط WebUSB",
+      connectBluetooth: "ربط بلوتوث",
+      testPrint: "طباعة تجريبية",
+      close: "إغلاق",
+      noPrinterConnected: "لا توجد طابعة متصلة",
+      printTimeout: "انتهت مهلة الطباعة",
+      printerOffline: "الطابعة غير متصلة",
+      thermalFallback: "الطابعة الحرارية غير متاحة — تم فتح الطباعة / PDF",
+      printOpened: "الإيصال جاهز للطباعة أو الحفظ كـ PDF",
+      printSuccess: "تم الإرسال للطابعة",
+      downloadPdfHint: "استخدم طباعة المتصفح واختر حفظ كـ PDF",
+      printFailed: "فشلت الطباعة",
     },
     en: {
       low: "LOW",
@@ -253,10 +306,57 @@ export default function POSClient({ initialProducts }) {
       lastSync: "Last Sync",
       discountFixed: "SDG",
       discountPercent: "%",
+      printReceipt: "Print receipt",
+      downloadPdf: "Download PDF",
+      openInvoice: "Open invoice",
+      doneSuccess: "Done",
+      checkoutDoneTitle: "Checkout complete",
+      reprintLast: "Reprint last receipt",
+      printerSetup: "Printer setup",
+      printerBrowserNote:
+        "Web USB / Serial / Bluetooth work best in Chrome or Edge. Other browsers use the print dialog / PDF.",
+      paperWidth: "Paper width",
+      fromStoreSettings: "from store settings",
+      connectUsbSerial: "Connect USB (Serial)",
+      connectWebUsb: "Connect WebUSB printer",
+      connectBluetooth: "Connect Bluetooth",
+      testPrint: "Test print",
+      close: "Close",
+      noPrinterConnected: "No printer connected",
+      printTimeout: "Print timed out",
+      printerOffline: "Printer offline",
+      thermalFallback: "Thermal printer unavailable — opened print / PDF",
+      printOpened: "Receipt ready to print or save as PDF",
+      printSuccess: "Sent to printer",
+      downloadPdfHint: "Use the browser print dialog and choose Save as PDF",
+      printFailed: "Print failed",
     }
   };
 
   const t = translations[lang] || translations.en;
+
+  const printMessages = useMemo(
+    () => ({
+      noPrinterConnected: t.noPrinterConnected,
+      printTimeout: t.printTimeout,
+      printerOffline: t.printerOffline,
+      thermalFallback: t.thermalFallback,
+      printOpened: t.printOpened,
+      printSuccess: t.printSuccess,
+      downloadPdfHint: t.downloadPdfHint,
+      printFailed: t.printFailed,
+      printerSetup: t.printerSetup,
+      printerBrowserNote: t.printerBrowserNote,
+      paperWidth: t.paperWidth,
+      fromStoreSettings: t.fromStoreSettings,
+      connectUsbSerial: t.connectUsbSerial,
+      connectWebUsb: t.connectWebUsb,
+      connectBluetooth: t.connectBluetooth,
+      testPrint: t.testPrint,
+      close: t.close,
+    }),
+    [t]
+  );
 
   const [products, setProducts] = useState(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
@@ -276,6 +376,11 @@ export default function POSClient({ initialProducts }) {
   const [discountValue, setDiscountValue] = useState(0);
   const [discountType, setDiscountType] = useState("fixed"); // 'fixed' or 'percent'
   const [checkoutError, setCheckoutError] = useState("");
+  const [printerSettings, setPrinterSettings] = useState(() => mergePrinter(initialPrinterSettings));
+  const [checkoutSuccessOpen, setCheckoutSuccessOpen] = useState(false);
+  const [lastReceipt, setLastReceipt] = useState(null);
+  const [lastOrderId, setLastOrderId] = useState(null);
+  const [printLoading, setPrintLoading] = useState(false);
 
   const barcodeBuffer = useRef("");
   const barcodeTimeout = useRef(null);
@@ -337,11 +442,28 @@ export default function POSClient({ initialProducts }) {
     }
   }, [cart, mounted]);
 
+  useEffect(() => {
+    setPrinterSettings(mergePrinter(initialPrinterSettings));
+  }, [initialPrinterSettings]);
+
+  // State Mutators
+  const addToCart = useCallback((product) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === product.id);
+      if (existing) {
+        if (existing.quantity >= product.stock) return prev;
+        return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...product, quantity: 1, price: product.sellingPrice }];
+    });
+    setSearchTerm("");
+  }, []);
+
   // Keyboard Shortcuts & Barcode Handler
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Barcode detection (simple heuristic: rapid keystrokes ending with Enter)
-      if (document.activeElement.tagName !== "INPUT") {
+      if (document.activeElement?.tagName !== "INPUT") {
         if (/^[a-zA-Z0-9]$/.test(e.key)) {
           barcodeBuffer.current += e.key;
           if (barcodeTimeout.current) clearTimeout(barcodeTimeout.current);
@@ -359,25 +481,17 @@ export default function POSClient({ initialProducts }) {
       // Hotkeys
       if (e.key === "F2") { e.preventDefault(); searchInputRef.current?.focus(); }
       if (e.key === "F10") { e.preventDefault(); if (cart.length > 0) setIsCheckoutOpen(true); }
-      if (e.key === "Escape") { e.preventDefault(); if (isCheckoutOpen) setIsCheckoutOpen(false); else setSearchTerm(""); }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (checkoutSuccessOpen) setCheckoutSuccessOpen(false);
+        else if (isCheckoutOpen) setIsCheckoutOpen(false);
+        else setSearchTerm("");
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [products, cart.length, isCheckoutOpen]);
-
-  // State Mutators
-  const addToCart = useCallback((product) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === product.id);
-      if (existing) {
-        if (existing.quantity >= product.stock) return prev;
-        return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
-      return [...prev, { ...product, quantity: 1, price: product.sellingPrice }];
-    });
-    setSearchTerm("");
-  }, []);
+  }, [products, cart.length, isCheckoutOpen, checkoutSuccessOpen, addToCart]);
 
   const updateQuantity = useCallback((productId, delta) => {
     setCart(prev => prev.map(i => {
@@ -407,9 +521,35 @@ export default function POSClient({ initialProducts }) {
     });
   }, [products, searchTerm, activeCategory]);
 
+  const handlePrintLastReceipt = useCallback(async () => {
+    if (!lastReceipt) return;
+    setPrintLoading(true);
+    try {
+      const { printReceipt } = await import("@/lib/print-service");
+      await printReceipt(lastReceipt, mergePrinter(printerSettings), printMessages, {});
+    } catch (err) {
+      console.error("POS print:", err);
+    } finally {
+      setPrintLoading(false);
+    }
+  }, [lastReceipt, printerSettings, printMessages]);
+
+  const handleDownloadReceiptPdf = useCallback(async () => {
+    if (!lastReceipt) return;
+    try {
+      const { downloadReceiptPdf } = await import("@/lib/print-service");
+      await downloadReceiptPdf(lastReceipt, printMessages);
+    } catch (err) {
+      console.error("POS PDF:", err);
+    }
+  }, [lastReceipt, printMessages]);
+
   const handleCheckout = async () => {
     setLoading(true);
     setCheckoutError("");
+    const subAtCheckout = subtotal;
+    const tenderedNum = paymentMethod === "CASH" ? parseFloat(amountTendered) || 0 : null;
+    const changeAtCheckout = paymentMethod === "CASH" ? changeAmount : null;
     try {
       const payloadItems = cart.map(i => ({ id: i.id, quantity: i.quantity, price: i.price }));
       const payloadDetails = {
@@ -421,13 +561,46 @@ export default function POSClient({ initialProducts }) {
       };
 
       const res = await createPOSOrder(payloadItems, payloadDetails);
-      if (res.success) {
+      if (res.success && !res.receipt) {
         setCart([]);
         localStorage.removeItem("pos_cart");
         setIsCheckoutOpen(false);
         setAmountTendered("");
         setDiscountValue(0);
-        router.push(`/admin/orders/${res.orderId}/invoice`);
+        if (res.orderId) router.push(`/admin/orders/${res.orderId}/invoice`);
+        return;
+      }
+      if (res.success && res.receipt) {
+        const store = mergePrinter(printerSettings);
+        const receiptData = buildReceiptData({
+          receiptFromServer: res.receipt,
+          store,
+          cashier: { name: session?.user?.name, email: session?.user?.email },
+          lang: isArabic ? "ar" : "en",
+          subtotalBeforeDiscount: subAtCheckout,
+          discountType,
+          amountTendered: paymentMethod === "CASH" ? tenderedNum : null,
+          change: paymentMethod === "CASH" ? changeAtCheckout : null,
+        });
+        setLastReceipt(receiptData);
+        setLastOrderId(res.orderId);
+        setCart([]);
+        localStorage.removeItem("pos_cart");
+        setIsCheckoutOpen(false);
+        setAmountTendered("");
+        setDiscountValue(0);
+        setCheckoutSuccessOpen(true);
+
+        if (store.autoPrint) {
+          queueMicrotask(async () => {
+            try {
+              const { printReceipt } = await import("@/lib/print-service");
+              await printReceipt(receiptData, store, printMessages, { quietToast: true });
+            } catch (err) {
+              console.error("POS auto-print:", err);
+            }
+          });
+        }
       } else {
         setCheckoutError(res.error || t.error);
       }
@@ -473,6 +646,29 @@ export default function POSClient({ initialProducts }) {
 
         {/* Global Toolbar */}
         <div className="flex items-center gap-3">
+          <PrinterStatus
+            printerSettings={mergePrinter(printerSettings)}
+            lang={lang}
+            cashierName={session?.user?.name || session?.user?.email || ""}
+            messages={printMessages}
+          />
+          {lastReceipt && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              disabled={printLoading}
+              onClick={handlePrintLastReceipt}
+              className="rounded-xl border border-white/5 hover:bg-white/5 text-gray-400"
+              title={t.reprintLast}
+            >
+              {printLoading ? (
+                <RotateCcw className="w-4 h-4 animate-spin text-amber-500" />
+              ) : (
+                <Printer className="w-4 h-4" />
+              )}
+            </Button>
+          )}
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-white/5 text-[10px] font-black uppercase text-white/50">
              <div className={cn("w-1.5 h-1.5 rounded-full", refreshing ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
              {t.lastSync}: {mounted && lastSync ? lastSync.toLocaleTimeString([]) : "--:--:--"}
@@ -790,6 +986,70 @@ export default function POSClient({ initialProducts }) {
                  {loading ? t.processing : t.completeCheckout}
                </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={checkoutSuccessOpen} onOpenChange={setCheckoutSuccessOpen}>
+        <DialogContent className="max-w-md bg-gray-900 border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-tight text-emerald-400">
+              <CheckCircle className="w-6 h-6" />
+              {t.checkoutDoneTitle}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 text-sm text-gray-300">
+            <p>
+              {isArabic ? "رقم الفاتورة:" : "Invoice:"}{" "}
+              <span className="font-mono font-bold text-white">{lastReceipt?.invoiceNumber}</span>
+            </p>
+            <p className="text-xs text-gray-500">{t.success}</p>
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button
+              type="button"
+              className="w-full bg-amber-500 font-black text-black hover:bg-amber-400"
+              disabled={printLoading || !lastReceipt}
+              onClick={handlePrintLastReceipt}
+            >
+              {printLoading ? (
+                <RotateCcw className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Printer className="w-4 h-4 mr-2" />
+              )}
+              {t.printReceipt}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full font-bold"
+              disabled={!lastReceipt}
+              onClick={handleDownloadReceiptPdf}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {t.downloadPdf}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-white/20 font-bold"
+              disabled={!lastOrderId}
+              onClick={() => {
+                setCheckoutSuccessOpen(false);
+                router.push(`/admin/orders/${lastOrderId}/invoice`);
+              }}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              {t.openInvoice}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setCheckoutSuccessOpen(false)}
+            >
+              {t.doneSuccess}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       

@@ -33,22 +33,22 @@ export default async function AccountOrderDetailPage({ params }) {
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">#{order.id.slice(-8).toUpperCase()}</h1>
+            <h1 className="text-2xl font-bold text-foreground">#{order.id.slice(-8).toUpperCase()}</h1>
             <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</p>
           </div>
-          <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs">{order.status}</span>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs text-foreground">{order.status}</span>
         </div>
 
-        <div className="border border-white/10 rounded-xl p-4 space-y-2">
+        <div className="space-y-2 rounded-xl border border-border p-4">
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
-              <p className="text-sm text-white">{item.product?.name || t.deletedProduct} x {item.quantity}</p>
-              <p className="text-sm">{(item.price * item.quantity).toLocaleString()} {t.currency}</p>
+              <p className="text-sm text-foreground">{item.product?.name || t.deletedProduct} x {item.quantity}</p>
+              <p className="text-sm text-foreground">{(item.price * item.quantity).toLocaleString()} {t.currency}</p>
             </div>
           ))}
         </div>
 
-        <div className="border border-white/10 rounded-xl p-4 space-y-1 text-sm">
+        <div className="space-y-1 rounded-xl border border-border p-4 text-sm text-foreground">
           <div className="flex justify-between"><span>{t.subtotal}</span><span>{subtotal.toLocaleString()} {t.currency}</span></div>
           <div className="flex justify-between"><span>{lang === "ar" ? "الخصم" : "Discount"}</span><span>{discount.toLocaleString()} {t.currency}</span></div>
           <div className="flex justify-between"><span>{t.delivery}</span><span>{order.shippingCost.toLocaleString()} {t.currency}</span></div>
@@ -57,8 +57,8 @@ export default async function AccountOrderDetailPage({ params }) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {order.status === "DELIVERED" && <Link className="px-3 py-2 rounded-lg bg-white/10" href="/products">{lang === "ar" ? "إعادة الطلب" : "Reorder"}</Link>}
-          <Link className="px-3 py-2 rounded-lg bg-white/10" href={`/api/orders/${order.id}/invoice`} target="_blank">{lang === "ar" ? "تحميل الفاتورة PDF" : "Download Invoice PDF"}</Link>
+          {order.status === "DELIVERED" && <Link className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground hover:bg-muted" href="/products">{lang === "ar" ? "إعادة الطلب" : "Reorder"}</Link>}
+          <Link className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground hover:bg-muted" href={`/api/orders/${order.id}/invoice`} target="_blank">{lang === "ar" ? "تحميل الفاتورة PDF" : "Download Invoice PDF"}</Link>
           <button disabled={!returnOpen} className="px-3 py-2 rounded-lg bg-amber-500 text-black disabled:opacity-50">{returnOpen ? (lang === "ar" ? "طلب إرجاع" : "Request Return") : (lang === "ar" ? "انتهت فترة الإرجاع" : "Return period ended")}</button>
         </div>
       </div>

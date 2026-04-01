@@ -206,6 +206,21 @@ export async function updateSettings(input) {
         minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null,
       },
     });
+  } else if (tab === "pos") {
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        posPrinterType: payload.posPrinterType === "PDF" ? "PDF" : "THERMAL",
+        posPrinterConnection: payload.posPrinterConnection === "BLUETOOTH" ? "BLUETOOTH" : "USB",
+        posPrinterAutoPrint: payload.posPrinterAutoPrint !== false,
+        posPrinterPaperWidth: payload.posPrinterPaperWidth === "58" ? "58" : "80",
+        posReceiptFooterAr: String(payload.posReceiptFooterAr ?? "").trim() || null,
+        posReceiptFooterEn: String(payload.posReceiptFooterEn ?? "").trim() || null,
+        posReceiptShowLogo: payload.posReceiptShowLogo !== false,
+        posReceiptShowBarcode: payload.posReceiptShowBarcode !== false,
+      },
+    });
+    revalidatePath("/pos");
   } else if (tab === "notifications") {
     const prev = store.notificationConfig || {};
     const notificationPayload = {

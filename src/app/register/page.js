@@ -68,20 +68,20 @@ export default function RegisterPage() {
       <div className="absolute bottom-0 left-0 w-[min(800px,90vw)] h-[min(800px,90vw)] bg-blue-500/5 rounded-full blur-[100px] sm:blur-[120px] -translate-x-1/2 translate-y-1/2 animate-pulse transition-all duration-[15s]" />
 
       {/* LEFT SIDE: Side Info (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-black/10 backdrop-blur-3xl relative z-10 border-white/5 border-r border-l">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-muted/40 backdrop-blur-3xl relative z-10 border-border/60 border-r border-l">
           <div className="max-w-md space-y-12">
               <div className="space-y-4">
                   <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl shadow-amber-500/20">
                       <UserPlus className="h-full w-full text-black" />
                   </div>
-                  <h2 className="text-5xl font-black text-white leading-tight tracking-tighter">
+                  <h2 className="text-5xl font-black text-foreground leading-tight tracking-tighter">
                      {lang === 'ar' ? 'ابدأ رحلتك مع' : 'Start your journey with'} <br/>
-                     <span className="text-amber-500">{brandName}</span>
+                     <span className="text-amber-600 dark:text-amber-500">{brandName}</span>
                   </h2>
               </div>
 
               <div className="space-y-8">
-                  <h3 className="text-xl font-bold text-gray-400 uppercase tracking-widest px-1">
+                  <h3 className="text-xl font-bold text-muted-foreground uppercase tracking-widest px-1">
                      {t.registerBenefitsTitle}
                   </h3>
                   <div className="space-y-6">
@@ -89,12 +89,12 @@ export default function RegisterPage() {
                           const Icon = b.icon;
                           return (
                               <div key={idx} className="flex items-start gap-4 group">
-                                  <div className="p-3 bg-white/5 rounded-2xl border border-white/10 group-hover:bg-amber-500/10 group-hover:border-amber-500/50 transition-all duration-300">
-                                      <Icon className="h-6 w-6 text-amber-500" />
+                                  <div className="p-3 rounded-2xl border border-border bg-card/80 group-hover:bg-amber-500/10 group-hover:border-amber-500/50 transition-all duration-300">
+                                      <Icon className="h-6 w-6 text-amber-600 dark:text-amber-500" />
                                   </div>
                                   <div>
-                                      <h4 className="text-white font-bold text-lg mb-1">{b.title}</h4>
-                                      <p className="text-gray-500 text-sm leading-relaxed">{b.desc}</p>
+                                      <h4 className="text-foreground font-bold text-lg mb-1">{b.title}</h4>
+                                      <p className="text-muted-foreground text-sm leading-relaxed">{b.desc}</p>
                                   </div>
                               </div>
                           );
@@ -102,7 +102,7 @@ export default function RegisterPage() {
                   </div>
               </div>
 
-              <div className="pt-8 flex items-center gap-2 text-gray-600 text-sm font-medium">
+              <div className="pt-8 flex items-center gap-2 text-muted-foreground text-sm font-medium">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   {lang === 'ar' ? 'نظام مشفر بالكامل وآمن ٢٥٦-بت' : 'Full 256-bit AES encryption enabled'}
               </div>
@@ -116,8 +116,8 @@ export default function RegisterPage() {
               <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20 mb-4 group ring-8 ring-amber-500/5">
                 <UserPlus className="w-8 h-8 text-amber-500" />
               </div>
-              <h1 className="text-4xl font-black text-white tracking-tight">{t.createNewAccount}</h1>
-              <p className="text-gray-400 mt-2 font-medium">{t.joinPowerStore}</p>
+              <h1 className="text-4xl font-black text-foreground tracking-tight">{t.createNewAccount}</h1>
+              <p className="text-muted-foreground mt-2 font-medium">{t.joinPowerStore}</p>
           </div>
 
           <div className="bg-gray-900 border border-white/5 rounded-[28px] sm:rounded-[32px] md:rounded-[40px] p-5 sm:p-7 md:p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
@@ -275,7 +275,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="mt-8 text-center">
-              <Link href="/" className={`text-gray-600 hover:text-white transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest`}>
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
                   <span>{t.backToStore}</span>
                   <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
               </Link>
