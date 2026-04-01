@@ -21,35 +21,63 @@ export async function getEmployeeKpis() {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 7);
 
-  const [total, onLeaveToday, absentToday, upcomingLeaves] = await Promise.all([
-    db.user.count({ where: { role: STAFF_ROLES, isActive: true } }),
-    db.leaveRequest.count({
-      where: {
-        status: "APPROVED",
-        fromDate: { lte: todayEnd },
-        toDate: { gte: todayStart },
-      },
-    }),
-    db.attendance.count({
-      where: {
-        status: "ABSENT",
-        date: { gte: todayStart, lte: todayEnd },
-      },
-    }),
-    db.leaveRequest.findMany({
-      where: {
-        status: "APPROVED",
-        fromDate: { gte: now, lte: weekEnd },
-      },
-      include: { user: { select: { firstName: true, lastName: true, role: true, avatar: true } } },
-      orderBy: { fromDate: "asc" },
-      take: 8,
-    }),
-  ]);
+  const [total, leaveRows, absentToday, upcomingLeaves, staffRows, attendanceTodayDistinct] =
+    await Promise.all([
+      db.user.count({ where: { role: STAFF_ROLES, isActive: true } }),
+      db.leaveRequest.findMany({
+        where: {
+          status: "APPROVED",
+          fromDate: { lte: todayEnd },
+          toDate: { gte: todayStart },
+        },
+        select: { userId: true },
+        distinct: ["userId"],
+      }),
+      db.attendance.count({
+        where: {
+          status: "ABSENT",
+          date: { gte: todayStart, lte: todayEnd },
+        },
+      }),
+      db.leaveRequest.findMany({
+        where: {
+          status: "APPROVED",
+          fromDate: { gte: now, lte: weekEnd },
+        },
+        include: { user: { select: { firstName: true, lastName: true, role: true, avatar: true } } },
+        orderBy: { fromDate: "asc" },
+        take: 8,
+      }),
+      db.user.findMany({
+        where: { role: STAFF_ROLES, isActive: true },
+        select: { id: true },
+      }),
+      db.attendance.findMany({
+        where: { date: { gte: todayStart, lte: todayEnd } },
+        select: { userId: true },
+        distinct: ["userId"],
+      }),
+    ]);
 
-  const active = total - onLeaveToday;
+  const onLeaveToday = leaveRows.length;
+  const leaveUserIds = new Set(leaveRows.map((r) => r.userId));
+  const recordedUserIds = new Set(attendanceTodayDistinct.map((r) => r.userId));
+  let missingAttendanceToday = 0;
+  for (const { id } of staffRows) {
+    if (leaveUserIds.has(id)) continue;
+    if (!recordedUserIds.has(id)) missingAttendanceToday++;
+  }
 
-  return { total, active, onLeaveToday, absentToday, upcomingLeaves };
+  const active = Math.max(0, total - onLeaveToday);
+
+  return {
+    total,
+    active,
+    onLeaveToday,
+    absentToday,
+    missingAttendanceToday,
+    upcomingLeaves,
+  };
 }
 
 export async function getAttendanceLast30Days() {

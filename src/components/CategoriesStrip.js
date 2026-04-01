@@ -45,16 +45,20 @@ export default function CategoriesStrip({ categories }) {
           <h2
             className={cn(
               "text-lg font-black uppercase tracking-tighter text-foreground underline underline-offset-8 decoration-amber-500 sm:text-2xl",
-              isRTL && "text-right"
+              isRTL ? "text-right" : "text-left"
             )}
           >
             {t.shopByCategory}
           </h2>
           <Link
             href="/products"
-            className="shrink-0 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-wide sm:text-sm"
+            className={cn(
+              "shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-wide sm:text-sm",
+              isRTL ? "flex-row-reverse text-right" : "text-left"
+            )}
           >
-            {isRTL ? "← عرض الكل" : "View All →"}
+            <span>{isRTL ? "عرض الكل" : "View All"}</span>
+            <span aria-hidden>{isRTL ? "←" : "→"}</span>
           </Link>
         </div>
 

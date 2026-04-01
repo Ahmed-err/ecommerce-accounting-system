@@ -47,6 +47,40 @@ import { Plus, Pencil, Trash2, Download, Truck, CreditCard, FileText, RefreshCw 
 
 const TAB_KEYS = ["overview", "suppliers", "purchases", "reports"];
 
+function purchaseRowUi(r) {
+  const total = Number(r.totalAmount);
+  const paid = Number(r.paidAmount);
+  const fullyPaid = total > 0 && paid >= total - 0.005;
+  const canDelete = r.deliveryStatus === "PENDING" && paid <= 0.005;
+  const canPay = total > 0 && !fullyPaid;
+  const canReceive = r.deliveryStatus !== "RECEIVED";
+  const remaining = Math.max(0, Math.round((total - paid) * 100) / 100);
+  return { fullyPaid, canDelete, canPay, canReceive, remaining, total, paid };
+}
+
+function purchaseActionToastError(t, res) {
+  const code = typeof res?.error === "string" ? res.error : "";
+  if (
+    code === "amount_over_remaining" &&
+    res?.remaining != null &&
+    Number.isFinite(Number(res.remaining))
+  ) {
+    return `${t.suppliersPurchasePayOver} (${t.suppliersPurchaseRemaining}: ${Number(res.remaining).toLocaleString()})`;
+  }
+  const map = {
+    not_found: t.errGeneric,
+    validation: t.errGeneric,
+    already: t.suppliersPurchaseAlreadyReceived,
+    blocked: t.suppliersPoDeleteBlocked,
+    has_movements: t.suppliersPoDeleteHasMoves,
+    has_payment: t.suppliersPoDeleteHasPayment,
+    fully_paid: t.suppliersPurchaseFullyPaid,
+    amount_over_remaining: t.suppliersPurchasePayOver,
+    invalid_total: t.errGeneric,
+  };
+  return map[code] || res?.error || t.errGeneric;
+}
+
 function useDebounced(value, ms) {
   const [v, setV] = useState(value);
   useEffect(() => {
@@ -522,12 +556,28 @@ function PurchasesTab({ t, isRTL }) {
 
   const openCreate = async () => {
     const r = await loadPurchaseFormOptionsAction();
-    if (r.ok) {
-      setOpts(r);
-      setLines([{ productId: r.products[0]?.id || "", quantity: 1, unitCost: Number(r.products[0]?.purchasePrice) || 0 }]);
-      setPForm((f) => ({ ...f, supplierId: r.suppliers[0]?.id || "" }));
-      setOpen(true);
+    if (!r.ok) {
+      toast.error(purchaseActionToastError(t, r));
+      return;
     }
+    if (!r.suppliers?.length) {
+      toast.error(t.suppliersPurchaseNoSuppliers);
+      return;
+    }
+    if (!r.products?.length) {
+      toast.error(t.suppliersPurchaseNoProducts);
+      return;
+    }
+    setOpts(r);
+    setLines([
+      {
+        productId: r.products[0]?.id || "",
+        quantity: 1,
+        unitCost: Number(r.products[0]?.purchasePrice) || 0,
+      },
+    ]);
+    setPForm((f) => ({ ...f, supplierId: r.suppliers[0]?.id || "", paidAmount: 0 }));
+    setOpen(true);
   };
 
   const totalPreview = useMemo(() => {
@@ -535,21 +585,34 @@ function PurchasesTab({ t, isRTL }) {
   }, [lines]);
 
   const submitPurchase = async () => {
+    if (!pForm.supplierId) {
+      toast.error(t.suppliersPurchasePickSupplier);
+      return;
+    }
+    const cleanLines = lines
+      .filter((l) => l.productId)
+      .map((l) => ({
+        productId: l.productId,
+        quantity: Math.max(1, Math.floor(Number(l.quantity)) || 0),
+        unitCost: Math.max(0, Number(l.unitCost) || 0),
+      }));
+    if (!cleanLines.length) {
+      toast.error(t.suppliersPurchasePickProduct);
+      return;
+    }
+    const paidNum = Math.max(0, Number(pForm.paidAmount) || 0);
     const r = await createPurchaseAction({
       ...pForm,
-      items: lines
-        .filter((l) => l.productId)
-        .map((l) => ({
-          productId: l.productId,
-          quantity: Number(l.quantity),
-          unitCost: Number(l.unitCost),
-        })),
+      paidAmount: paidNum,
+      items: cleanLines,
     });
     if (r.ok) {
       toast.success(t.toastSaved);
       setOpen(false);
       load();
-    } else toast.error(r.error || t.errGeneric);
+    } else {
+      toast.error(purchaseActionToastError(t, r));
+    }
   };
 
   const pdf = async (id) => {
@@ -565,12 +628,30 @@ function PurchasesTab({ t, isRTL }) {
       a.download = r.filename;
       a.click();
       URL.revokeObjectURL(url);
-    } else toast.error(t.errGeneric);
+    } else {
+      toast.error(purchaseActionToastError(t, r));
+    }
+  };
+
+  const openPayDialog = (row) => {
+    const u = purchaseRowUi(row);
+    if (!u.canPay || u.remaining <= 0.005) return;
+    setPayForm({
+      amount: String(u.remaining),
+      method: row.paymentMethod || "",
+      notes: "",
+    });
+    setPayOpen(row.id);
   };
 
   const pay = async () => {
+    const amt = Number(payForm.amount);
+    if (!payOpen || !Number.isFinite(amt) || amt <= 0) {
+      toast.error(t.errGeneric);
+      return;
+    }
     const r = await recordPurchasePaymentAction(payOpen, {
-      amount: Number(payForm.amount),
+      amount: amt,
       method: payForm.method,
       notes: payForm.notes,
     });
@@ -578,8 +659,12 @@ function PurchasesTab({ t, isRTL }) {
       toast.success(t.toastSaved);
       setPayOpen(null);
       load();
-    } else toast.error(t.errGeneric);
+    } else {
+      toast.error(purchaseActionToastError(t, r));
+    }
   };
+
+  const activePayRow = useMemo(() => rows.find((x) => x.id === payOpen), [rows, payOpen]);
 
   return (
     <div className="space-y-4">
@@ -612,7 +697,9 @@ function PurchasesTab({ t, isRTL }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.map((r) => {
+              const u = purchaseRowUi(r);
+              return (
               <tr key={r.id} className="border-b border-white/5">
                 <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
                 <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
@@ -635,39 +722,68 @@ function PurchasesTab({ t, isRTL }) {
                 <td className="p-2">{r.deliveryStatus}</td>
                 <td className="p-2">
                   <div className={cn("flex flex-wrap gap-1", isRTL && "flex-row-reverse")}>
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => pdf(r.id)}>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      title={t.suppliersTooltipPdf}
+                      onClick={() => pdf(r.id)}
+                    >
                       <FileText className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setPayOpen(r.id)}>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      disabled={!u.canPay}
+                      title={u.canPay ? t.suppliersTooltipPay : t.suppliersPurchaseFullyPaid}
+                      onClick={() => openPayDialog(r)}
+                    >
                       <CreditCard className="h-4 w-4" />
                     </Button>
-                    {r.deliveryStatus !== "RECEIVED" && (
+                    {u.canReceive ? (
                       <Button
+                        type="button"
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-emerald-400"
+                        title={t.suppliersTooltipReceive}
                         onClick={async () => {
                           const x = await markPurchaseReceivedAction(r.id);
                           if (x.ok) {
                             toast.success(t.toastSaved);
                             load();
-                          } else toast.error(x.error || t.errGeneric);
+                          } else {
+                            toast.error(purchaseActionToastError(t, x));
+                          }
                         }}
                       >
                         <Truck className="h-4 w-4" />
                       </Button>
-                    )}
+                    ) : null}
                     <Button
+                      type="button"
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-red-400"
+                      className="h-8 w-8 text-red-400 disabled:opacity-30"
+                      disabled={!u.canDelete}
+                      title={
+                        u.canDelete
+                          ? t.suppliersTooltipDelete
+                          : t.suppliersPoDeleteBlocked
+                      }
                       onClick={async () => {
+                        if (!u.canDelete) return;
                         if (!confirm(t.suppliersConfirmDeletePo)) return;
                         const x = await deletePurchaseAction(r.id);
                         if (x.ok) {
                           toast.success(t.toastDeleted);
                           load();
-                        } else toast.error(t.suppliersPoDeleteBlocked);
+                        } else {
+                          toast.error(purchaseActionToastError(t, x));
+                        }
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -675,7 +791,8 @@ function PurchasesTab({ t, isRTL }) {
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
@@ -821,6 +938,18 @@ function PurchasesTab({ t, isRTL }) {
             <DialogTitle>{t.suppliersRecordPayment}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 px-4 py-4 sm:px-6 sm:py-5">
+            {activePayRow ? (
+              <div className="rounded-lg border border-white/10 bg-black/30 p-3 text-xs text-gray-400">
+                <p className="font-mono text-white">{activePayRow.purchaseNumber}</p>
+                <p className="mt-1">
+                  {t.suppliersColTotal}: {Number(activePayRow.totalAmount).toLocaleString()} · {t.suppliersColPaid}:{" "}
+                  {Number(activePayRow.paidAmount).toLocaleString()}
+                </p>
+                <p className="mt-1 font-semibold text-amber-400">
+                  {t.suppliersPurchaseRemaining}: {purchaseRowUi(activePayRow).remaining.toLocaleString()}
+                </p>
+              </div>
+            ) : null}
             <Input
               placeholder={t.suppliersPayAmount}
               className="border-white/10 bg-black/40"

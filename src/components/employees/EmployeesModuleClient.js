@@ -48,6 +48,28 @@ function fmtTime(d) {
   return new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function timeInputFromDate(d) {
+  if (!d) return "";
+  const x = new Date(d);
+  const h = String(x.getHours()).padStart(2, "0");
+  const m = String(x.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function attendanceSaveError(res, t) {
+  if (!res?.error) return "Error";
+  const key = {
+    ONE_CLOCK: "empAttendanceErrOneClock",
+    BAD_TIME: "empAttendanceErrBadTime",
+    CHECKOUT_ORDER: "empAttendanceErrCheckoutOrder",
+    LEAVE_ABSENT: "empAttendanceErrLeaveAbsent",
+    LEAVE_PRESENT: "empAttendanceErrLeavePresent",
+    INVALID_DATE: "empAttendanceErrInvalidDate",
+    INVALID_EMPLOYEE: "empAttendanceErrInvalidEmployee",
+  }[res.errorCode];
+  return key ? t[key] : res.error;
+}
+
 function diffHours(cin, cout) {
   if (!cin || !cout) return "—";
   const diff = (new Date(cout) - new Date(cin)) / 3600000;
@@ -148,7 +170,7 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
     { label: t.empKpiTotal, value: kpis.total || 0, icon: Users, color: "bg-blue-500/10 text-blue-400" },
     { label: t.empKpiActive, value: kpis.active || 0, icon: CheckCircle, color: "bg-emerald-500/10 text-emerald-400" },
     { label: t.empKpiOnLeave, value: kpis.onLeaveToday || 0, icon: Clock, color: "bg-amber-500/10 text-amber-400" },
-    { label: t.empKpiAbsent, value: kpis.absentToday || 0, icon: XCircle, color: "bg-red-500/10 text-red-400" },
+    { label: t.empKpiMissingSheet, value: kpis.missingAttendanceToday ?? 0, icon: XCircle, color: "bg-red-500/10 text-red-400" },
   ];
 
   const chartData = attendance30d.map((d) => ({ ...d, date: d.date.slice(5) }));
@@ -262,13 +284,27 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
   const alert3 = tabData?.alert3Absent || [];
 
   const openAdd = () => { setEditRec(null); setForm({ userId: "", date: new Date().toISOString().split("T")[0], checkIn: "", checkOut: "", status: "PRESENT", notes: "" }); setErr(""); setDialogOpen(true); };
-  const openEdit = (r) => { setEditRec(r); setForm({ userId: r.userId, date: r.date.split("T")[0], checkIn: r.checkIn ? fmtTime(r.checkIn) : "", checkOut: r.checkOut ? fmtTime(r.checkOut) : "", status: r.status, notes: r.notes || "" }); setErr(""); setDialogOpen(true); };
+  const openEdit = (r) => {
+    setEditRec(r);
+    setForm({
+      userId: r.userId,
+      date: r.date.split("T")[0],
+      checkIn: timeInputFromDate(r.checkIn),
+      checkOut: timeInputFromDate(r.checkOut),
+      status: r.status,
+      notes: r.notes || "",
+    });
+    setErr("");
+    setDialogOpen(true);
+  };
 
   const handleSave = async () => {
     setSaving(true); setErr("");
     const res = editRec ? await updateAttendance(editRec.id, form) : await createAttendance(form);
-    if (res.success) { setDialogOpen(false); load(month, year); }
-    else setErr(res.error || "Error");
+    if (res.success) {
+      setDialogOpen(false);
+      load(month, year);
+    } else setErr(attendanceSaveError(res, t));
     setSaving(false);
   };
 
@@ -404,7 +440,16 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColStatus}</label>
-            <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v }))}>
+            <Select
+              value={form.status}
+              onValueChange={(v) =>
+                setForm((p) => ({
+                  ...p,
+                  status: v,
+                  ...(v === "ABSENT" || v === "HOLIDAY" ? { checkIn: "", checkOut: "" } : {}),
+                }))
+              }
+            >
               <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
               <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
                 {["PRESENT","ABSENT","LATE","HALF_DAY","HOLIDAY"].map((s) => (

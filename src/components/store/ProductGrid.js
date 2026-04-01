@@ -77,6 +77,7 @@ function RecentViewedStrip() {
 export default function ProductGrid({
   initialProducts,
   total,
+  allProductsTotal = total,
   categories,
   searchParams: initialSearchParams,
   priceBounds = { min: 0, max: 0 },
@@ -241,7 +242,7 @@ export default function ProductGrid({
               )}
             >
               {t.allProducts}{" "}
-              <span className="mx-1 text-muted-foreground/60">({total})</span>
+                <span className="mx-1 text-muted-foreground/60">({allProductsTotal})</span>
             </button>
             {categories.map((cat) => (
               <button

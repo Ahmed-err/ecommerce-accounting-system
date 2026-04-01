@@ -16,6 +16,104 @@ const attendanceSchema = z.object({
   notes: z.string().max(500).optional().nullable(),
 });
 
+function normalizeAttendanceCalendarDate(dateStr) {
+  if (!dateStr || typeof dateStr !== "string") return null;
+  const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  if (y < 1970 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  const cal = new Date(y, mo - 1, d, 12, 0, 0, 0);
+  if (cal.getFullYear() !== y || cal.getMonth() !== mo - 1 || cal.getDate() !== d) return null;
+  return cal;
+}
+
+function dayBoundsFromCalendarDate(calDate) {
+  const y = calDate.getFullYear();
+  const m = calDate.getMonth();
+  const d = calDate.getDate();
+  return {
+    dayStart: new Date(y, m, d, 0, 0, 0, 0),
+    dayEnd: new Date(y, m, d, 23, 59, 59, 999),
+  };
+}
+
+function dateToLocalHHMM(dt) {
+  if (!dt) return "";
+  const x = new Date(dt);
+  const h = String(x.getHours()).padStart(2, "0");
+  const min = String(x.getMinutes()).padStart(2, "0");
+  return `${h}:${min}`;
+}
+
+function parseClockOnDay(calDate, timeOrIso) {
+  if (timeOrIso == null) return null;
+  const s = String(timeOrIso).trim();
+  if (!s) return null;
+  if (s.includes("T")) {
+    const dt = new Date(s);
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+  const hm = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (!hm) return null;
+  const h = Number(hm[1]);
+  const min = Number(hm[2]);
+  if (h > 23 || min > 59) return null;
+  return new Date(calDate.getFullYear(), calDate.getMonth(), calDate.getDate(), h, min, 0, 0);
+}
+
+function resolveStatusAndClocks(status, calDate, rawIn, rawOut) {
+  if (status === "ABSENT" || status === "HOLIDAY") {
+    return { checkIn: null, checkOut: null, errorCode: null };
+  }
+  const hasIn = rawIn != null && String(rawIn).trim() !== "";
+  const hasOut = rawOut != null && String(rawOut).trim() !== "";
+  if (hasIn !== hasOut) {
+    return { checkIn: null, checkOut: null, errorCode: "ONE_CLOCK" };
+  }
+  if (!hasIn && !hasOut) {
+    return { checkIn: null, checkOut: null, errorCode: null };
+  }
+  const checkIn = parseClockOnDay(calDate, rawIn);
+  const checkOut = parseClockOnDay(calDate, rawOut);
+  if (!checkIn || !checkOut) {
+    return { checkIn: null, checkOut: null, errorCode: "BAD_TIME" };
+  }
+  if (checkOut.getTime() <= checkIn.getTime()) {
+    return { checkIn: null, checkOut: null, errorCode: "CHECKOUT_ORDER" };
+  }
+  return { checkIn, checkOut, errorCode: null };
+}
+
+async function ensureAttendanceStaffUser(userId) {
+  const u = await db.user.findFirst({
+    where: { id: userId, role: { not: "CUSTOMER" }, isActive: true },
+    select: { id: true },
+  });
+  return u;
+}
+
+async function hasApprovedLeaveOnCalendarDay(userId, calDate) {
+  const { dayStart, dayEnd } = dayBoundsFromCalendarDate(calDate);
+  const n = await db.leaveRequest.count({
+    where: {
+      userId,
+      status: "APPROVED",
+      fromDate: { lte: dayEnd },
+      toDate: { gte: dayStart },
+    },
+  });
+  return n > 0;
+}
+
+function attendanceLeaveConflict(status, onLeave) {
+  if (!onLeave) return null;
+  if (status === "ABSENT") return "LEAVE_ABSENT";
+  if (status === "PRESENT" || status === "LATE") return "LEAVE_PRESENT";
+  return null;
+}
+
 const salarySchema = z.object({
   userId: z.string().min(1),
   month: z.coerce.number().int().min(1).max(12),
@@ -293,23 +391,46 @@ export async function createAttendance(raw) {
     if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
 
     const p = parsed.data;
-    const dateOnly = new Date(p.date);
-    dateOnly.setHours(12, 0, 0, 0);
+    const dateOnly = normalizeAttendanceCalendarDate(p.date);
+    if (!dateOnly) {
+      return { success: false, error: "Invalid date.", errorCode: "INVALID_DATE" };
+    }
+
+    const staff = await ensureAttendanceStaffUser(p.userId);
+    if (!staff) {
+      return { success: false, error: "Invalid or inactive employee.", errorCode: "INVALID_EMPLOYEE" };
+    }
+
+    const { checkIn, checkOut, errorCode } = resolveStatusAndClocks(
+      p.status,
+      dateOnly,
+      p.checkIn,
+      p.checkOut
+    );
+    if (errorCode) {
+      return { success: false, error: "Attendance validation failed.", errorCode };
+    }
+
+    const onLeave = await hasApprovedLeaveOnCalendarDay(p.userId, dateOnly);
+    const leaveErr = attendanceLeaveConflict(p.status, onLeave);
+    if (leaveErr) {
+      return { success: false, error: "Conflicts with approved leave.", errorCode: leaveErr };
+    }
 
     const record = await db.attendance.upsert({
       where: { userId_date: { userId: p.userId, date: dateOnly } },
       update: {
         status: p.status,
-        checkIn: p.checkIn ? new Date(p.checkIn) : null,
-        checkOut: p.checkOut ? new Date(p.checkOut) : null,
+        checkIn,
+        checkOut,
         notes: p.notes || null,
       },
       create: {
         userId: p.userId,
         date: dateOnly,
         status: p.status,
-        checkIn: p.checkIn ? new Date(p.checkIn) : null,
-        checkOut: p.checkOut ? new Date(p.checkOut) : null,
+        checkIn,
+        checkOut,
         notes: p.notes || null,
       },
     });
@@ -329,15 +450,55 @@ export async function updateAttendance(id, raw) {
     const parsed = attendanceSchema.partial().safeParse(raw);
     if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
     const p = parsed.data;
+
+    const existing = await db.attendance.findUnique({ where: { id } });
+    if (!existing) {
+      return { success: false, error: "Attendance record not found." };
+    }
+
+    const calFromExisting = new Date(existing.date);
+    const dateOnly =
+      p.date != null && p.date !== ""
+        ? normalizeAttendanceCalendarDate(p.date)
+        : new Date(calFromExisting.getFullYear(), calFromExisting.getMonth(), calFromExisting.getDate(), 12, 0, 0, 0);
+    if (!dateOnly) {
+      return { success: false, error: "Invalid date.", errorCode: "INVALID_DATE" };
+    }
+
+    const status = p.status ?? existing.status;
+    const rawIn =
+      p.checkIn !== undefined ? p.checkIn : dateToLocalHHMM(existing.checkIn);
+    const rawOut =
+      p.checkOut !== undefined ? p.checkOut : dateToLocalHHMM(existing.checkOut);
+
+    const { checkIn, checkOut, errorCode } = resolveStatusAndClocks(status, dateOnly, rawIn, rawOut);
+    if (errorCode) {
+      return { success: false, error: "Attendance validation failed.", errorCode };
+    }
+
+    const userId = existing.userId;
+    const staff = await ensureAttendanceStaffUser(userId);
+    if (!staff) {
+      return { success: false, error: "Invalid or inactive employee.", errorCode: "INVALID_EMPLOYEE" };
+    }
+
+    const onLeave = await hasApprovedLeaveOnCalendarDay(userId, dateOnly);
+    const leaveErr = attendanceLeaveConflict(status, onLeave);
+    if (leaveErr) {
+      return { success: false, error: "Conflicts with approved leave.", errorCode: leaveErr };
+    }
+
     const record = await db.attendance.update({
       where: { id },
       data: {
-        ...(p.status ? { status: p.status } : {}),
-        ...(p.checkIn !== undefined ? { checkIn: p.checkIn ? new Date(p.checkIn) : null } : {}),
-        ...(p.checkOut !== undefined ? { checkOut: p.checkOut ? new Date(p.checkOut) : null } : {}),
+        status,
+        checkIn,
+        checkOut,
         ...(p.notes !== undefined ? { notes: p.notes || null } : {}),
       },
     });
+
+    await logAction("UPDATE_ATTENDANCE", { attendanceId: id, userId });
     revalidatePath("/admin/employees");
     return { success: true, record };
   } catch (error) {
@@ -461,10 +622,10 @@ export async function reviewLeaveRequest(id, action, notes) {
 export async function bulkMarkAttendance(entries) {
   try {
     await ensureAdmin();
-    const results = await Promise.allSettled(
-      entries.map((e) => createAttendance(e))
-    );
-    const failed = results.filter((r) => r.status === "rejected" || !r.value?.success).length;
+    const results = await Promise.allSettled(entries.map((e) => createAttendance(e)));
+    const failed = results.filter(
+      (r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value?.success)
+    ).length;
     revalidatePath("/admin/employees");
     return { success: true, total: entries.length, failed };
   } catch (error) {

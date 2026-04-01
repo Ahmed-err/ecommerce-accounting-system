@@ -1,7 +1,6 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { Zap, Shield, Cpu, Activity, Lightbulb, Battery, Power } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function BrandsMarquee() {
@@ -12,13 +11,13 @@ export default function BrandsMarquee() {
       : "Trusted by industry leaders and premium brands";
 
   const brands = [
-    { name: "GlobalElectric", icon: Zap },
-    { name: "PowerPro", icon: Battery },
-    { name: "LumiSmart", icon: Lightbulb },
-    { name: "SafeWire", icon: Shield },
-    { name: "TechVolt", icon: Cpu },
-    { name: "EcoEnergy", icon: Activity },
-    { name: "MegaConnect", icon: Power },
+    { name: "GlobalElectric" },
+    { name: "PowerPro" },
+    { name: "LumiSmart" },
+    { name: "SafeWire" },
+    { name: "TechVolt" },
+    { name: "EcoEnergy" },
+    { name: "MegaConnect" },
   ];
 
   /* Four copies for a seamless 50% translate loop */
@@ -59,9 +58,8 @@ export default function BrandsMarquee() {
           {marqueeItems.map((brand, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2.5 sm:gap-3.5 text-foreground/20 hover:text-amber-500 transition-colors duration-500 grayscale hover:grayscale-0 shrink-0"
+              className="flex items-center text-foreground/20 hover:text-amber-500 transition-colors duration-500 grayscale hover:grayscale-0 shrink-0"
             >
-              <brand.icon className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 shrink-0" />
               <span className="text-lg font-black tracking-tighter italic whitespace-nowrap sm:text-2xl lg:text-3xl">
                 {brand.name}
               </span>

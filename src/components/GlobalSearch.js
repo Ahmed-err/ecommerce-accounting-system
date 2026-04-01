@@ -17,10 +17,19 @@ export default function GlobalSearch({ inputId }) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = translations[lang] || translations.en;
+  const searchPlaceholder =
+    t.searchPlaceholder ||
+    (lang === "ar" ? "بحث عن منتجات..." : "Search products...");
   const searchRef = useRef(null);
   const router = useRouter();
   const debouncedQuery = useDebounce(query, 300);
+
+  const handleQueryChange = (nextValue) => {
+    const value = typeof nextValue === "string" ? nextValue : "";
+    setQuery(value);
+    if (value.trim().length >= 2) setIsOpen(true);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -63,10 +72,8 @@ export default function GlobalSearch({ inputId }) {
         <Input
           id={inputId}
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (e.target.value.trim().length >= 2) setIsOpen(true);
-          }}
+          onValueChange={handleQueryChange}
+          onChange={(e) => handleQueryChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
             e.preventDefault();
@@ -75,8 +82,10 @@ export default function GlobalSearch({ inputId }) {
             setIsOpen(false);
             router.push(`/products?search=${encodeURIComponent(value)}`);
           }}
-          placeholder={t.searchPlaceholder}
-          className={`h-11 ${isRTL ? 'pr-10' : 'pl-10'} bg-white/5 border-white/10 text-foreground caret-foreground placeholder:text-muted-foreground text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all`}
+          autoComplete="off"
+          placeholder={searchPlaceholder}
+          className={`h-11 ${isRTL ? "pr-10" : "pl-10"} bg-white/5 border-white/10 text-foreground dark:text-white caret-foreground text-sm focus:ring-1 focus:ring-amber-500/50 rounded-full transition-all placeholder:opacity-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400`}
+          style={{ WebkitTextFillColor: "currentColor", opacity: 1 }}
         />
         {query && (
           <button

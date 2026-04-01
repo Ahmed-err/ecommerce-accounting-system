@@ -4,7 +4,14 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { uploadImage } from "@/lib/cloudinary";
 
 const ACCEPTED = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
-const ALLOWED_FOLDERS = new Set(["avatars", "employees", "store", "products", "reviews"]);
+const ALLOWED_FOLDERS = new Set([
+  "avatars",
+  "employees",
+  "store",
+  "products",
+  "reviews",
+  "expenses",
+]);
 
 function maxSizeForFolder(folder) {
   if (folder === "avatars" || folder === "employees") return 2 * 1024 * 1024;

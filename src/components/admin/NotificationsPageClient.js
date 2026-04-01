@@ -47,36 +47,63 @@ export default function NotificationsPageClient() {
         <p className="mt-1 text-sm text-gray-400 sm:text-base">{lang === "ar" ? "متابعة إشعارات النظام والطلبات." : "Track system and order notifications."}</p>
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4 sm:p-5 lg:grid-cols-2 xl:grid-cols-5">
-        <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="h-10 bg-gray-900 border-white/10 text-white"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="NEW_ORDER">NEW_ORDER</SelectItem>
-            <SelectItem value="LOW_STOCK">LOW_STOCK</SelectItem>
-            <SelectItem value="NEW_REVIEW">NEW_REVIEW</SelectItem>
-            <SelectItem value="NEW_MESSAGE">NEW_MESSAGE</SelectItem>
-            <SelectItem value="ORDER_STATUS">ORDER_STATUS</SelectItem>
-            <SelectItem value="NEW_USER">NEW_USER</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={read} onValueChange={setRead}>
-          <SelectTrigger className="h-10 bg-gray-900 border-white/10 text-white"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="unread">Unread</SelectItem>
-            <SelectItem value="read">Read</SelectItem>
-          </SelectContent>
-        </Select>
-        <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-10 rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white" />
-        <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-10 rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white" />
-        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end xl:col-span-1 xl:items-center">
-          <Button onClick={markAll} className="w-full bg-amber-500 text-black hover:bg-amber-600 sm:w-auto" type="button">
-            {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all read"}
-          </Button>
-          <Button variant="outline" onClick={cleanup} className="w-full border-white/10 text-white sm:w-auto" type="button">
-            {lang === "ar" ? "حذف الأقدم من 30 يوماً" : "Delete >30d"}
-          </Button>
+      <div className="rounded-2xl border border-white/10 bg-gray-900/70 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger className="h-10 w-full min-w-[10rem] bg-gray-900 border-white/10 text-white sm:w-[11rem]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="NEW_ORDER">NEW_ORDER</SelectItem>
+                <SelectItem value="LOW_STOCK">LOW_STOCK</SelectItem>
+                <SelectItem value="NEW_REVIEW">NEW_REVIEW</SelectItem>
+                <SelectItem value="NEW_MESSAGE">NEW_MESSAGE</SelectItem>
+                <SelectItem value="ORDER_STATUS">ORDER_STATUS</SelectItem>
+                <SelectItem value="NEW_USER">NEW_USER</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={read} onValueChange={setRead}>
+              <SelectTrigger className="h-10 w-full min-w-[9rem] bg-gray-900 border-white/10 text-white sm:w-[10rem]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="unread">Unread</SelectItem>
+                <SelectItem value="read">Read</SelectItem>
+              </SelectContent>
+            </Select>
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="h-10 w-full min-w-[10rem] rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white sm:w-auto"
+            />
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="h-10 w-full min-w-[10rem] rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white sm:w-auto"
+            />
+          </div>
+          <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
+            <Button
+              onClick={markAll}
+              className="h-10 w-full whitespace-nowrap bg-amber-500 text-black hover:bg-amber-600 sm:w-auto"
+              type="button"
+            >
+              {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all read"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={cleanup}
+              className="h-10 w-full whitespace-nowrap border-white/10 text-white sm:w-auto"
+              type="button"
+            >
+              {lang === "ar" ? "حذف الأقدم من 30 يوماً" : "Delete >30d"}
+            </Button>
+          </div>
         </div>
       </div>
 

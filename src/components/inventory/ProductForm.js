@@ -331,7 +331,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             </div>
 
             {formData.barcode || formData.sku ? (
-              <div className="rounded-lg border border-white/10 bg-white p-3">
+              <div className="rounded-lg border border-white/10 bg-white p-3" dir="ltr">
                 <InventoryBarcode value={formData.barcode || formData.sku} />
               </div>
             ) : null}

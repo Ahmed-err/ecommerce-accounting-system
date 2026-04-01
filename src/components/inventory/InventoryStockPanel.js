@@ -294,11 +294,15 @@ export default function InventoryStockPanel({
               onChange={(e) => setProductQuery(e.target.value)}
               className="bg-gray-800 border-white/10"
             />
-            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+            <Select
+              modal={false}
+              value={selectedProductId || null}
+              onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue placeholder={t.inventorySelectProduct} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white max-h-56">
+              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
                 {productHits.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -313,11 +317,15 @@ export default function InventoryStockPanel({
               onChange={(e) => setQty(Number(e.target.value) || 1)}
               className="bg-gray-800 border-white/10"
             />
-            <Select value={supplierId || "none"} onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}>
+            <Select
+              modal={false}
+              value={supplierId || "none"}
+              onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue placeholder={t.inventorySupplier} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] bg-gray-800 border-white/10 text-white">
                 <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -367,11 +375,15 @@ export default function InventoryStockPanel({
               onChange={(e) => setProductQuery(e.target.value)}
               className="bg-gray-800 border-white/10"
             />
-            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+            <Select
+              modal={false}
+              value={selectedProductId || null}
+              onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
+            >
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue placeholder={t.inventorySelectProduct} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white max-h-56">
+              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
                 {productHits.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}

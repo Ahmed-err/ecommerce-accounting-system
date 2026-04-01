@@ -9,13 +9,14 @@ import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
 
 async function ensureAdmin() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized");
+  const role = String(session?.user?.role ?? "").toUpperCase();
+  if (!session?.user?.id || role !== "ADMIN") throw new Error("Unauthorized");
   return session;
 }
 
 const updateStoreSchema = z.object({
   tab: z.string(),
-  payload: z.record(z.string(), z.unknown()),
+  payload: z.any(),
 });
 
 export async function getAdminSettingsData() {
@@ -110,14 +111,14 @@ export async function getSettingsRolesPage(input = {}) {
 }
 
 export async function updateSettings(input) {
-  await ensureAdmin();
-  const parsed = updateStoreSchema.safeParse(input);
-  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
-
-  const { tab, payload } = parsed.data;
-  const store = await getOrCreateStoreSettings();
-
   try {
+    await ensureAdmin();
+    const parsed = updateStoreSchema.safeParse(input);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
+
+    const { tab, payload } = parsed.data;
+    const store = await getOrCreateStoreSettings();
+
   if (tab === "store") {
     const nameAr = String(payload.nameAr ?? "").trim();
     const nameEn = String(payload.nameEn ?? "").trim();
@@ -176,15 +177,15 @@ export async function updateSettings(input) {
       },
     });
   } else if (tab === "payment") {
-    if (Array.isArray(payload.methods)) {
+    if (payload.syncPaymentMethods === true && Array.isArray(payload.methods)) {
       await db.paymentMethod.deleteMany({ where: { storeId: store.id } });
       if (payload.methods.length) {
         await db.paymentMethod.createMany({
           data: payload.methods.map((m) => ({
             storeId: store.id,
-            code: m.code,
-            labelAr: m.labelAr,
-            labelEn: m.labelEn,
+            code: String(m.code || "").trim() || "METHOD",
+            labelAr: String(m.labelAr || "").trim() || String(m.code || "Method"),
+            labelEn: String(m.labelEn || "").trim() || String(m.code || "Method"),
             isEnabled: !!m.isEnabled,
             apiKey: m.apiKey || null,
             apiSecret: m.apiSecret || null,
@@ -194,15 +195,42 @@ export async function updateSettings(input) {
         });
       }
     }
-    await db.store.update({ where: { id: store.id }, data: { invoicePrefix: payload.invoicePrefix || "INV-", vatEnabled: !!payload.vatEnabled, vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null, vatLabelAr: payload.vatLabelAr || null, vatLabelEn: payload.vatLabelEn || null, minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null } });
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        invoicePrefix: payload.invoicePrefix || "INV-",
+        vatEnabled: !!payload.vatEnabled,
+        vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null,
+        vatLabelAr: payload.vatLabelAr || null,
+        vatLabelEn: payload.vatLabelEn || null,
+        minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null,
+      },
+    });
   } else if (tab === "notifications") {
+    const prev = store.notificationConfig || {};
     const notificationPayload = {
-      emailNewOrderAdmin: !!payload.emailNewOrderAdmin,
-      emailOrderStatusCustomer: !!payload.emailOrderStatusCustomer,
-      emailLowStockAdmin: !!payload.emailLowStockAdmin,
-      emailNewReturnAdmin: !!payload.emailNewReturnAdmin,
-      smsWhatsappEnabled: !!payload.smsWhatsappEnabled,
-      adminRecipients: payload.adminRecipients || null,
+      emailNewOrderAdmin:
+        payload.emailNewOrderAdmin !== undefined
+          ? !!payload.emailNewOrderAdmin
+          : (prev.emailNewOrderAdmin ?? true),
+      emailOrderStatusCustomer:
+        payload.emailOrderStatusCustomer !== undefined
+          ? !!payload.emailOrderStatusCustomer
+          : (prev.emailOrderStatusCustomer ?? true),
+      emailLowStockAdmin:
+        payload.emailLowStockAdmin !== undefined
+          ? !!payload.emailLowStockAdmin
+          : (prev.emailLowStockAdmin ?? true),
+      emailNewReturnAdmin:
+        payload.emailNewReturnAdmin !== undefined
+          ? !!payload.emailNewReturnAdmin
+          : (prev.emailNewReturnAdmin ?? true),
+      smsWhatsappEnabled:
+        payload.smsWhatsappEnabled !== undefined
+          ? !!payload.smsWhatsappEnabled
+          : (prev.smsWhatsappEnabled ?? false),
+      adminRecipients:
+        payload.adminRecipients !== undefined ? payload.adminRecipients || null : prev.adminRecipients ?? null,
     };
     await db.notificationConfig.upsert({
       where: { storeId: store.id },
@@ -278,7 +306,8 @@ export async function updateSettings(input) {
         where: { id: payload.updateUser.id },
         data: {
           role,
-          isActive: payload.updateUser.isActive,
+          isActive:
+            payload.updateUser.isActive !== undefined ? !!payload.updateUser.isActive : true,
         },
       });
     }
@@ -423,12 +452,14 @@ export async function updateSettings(input) {
         });
       }
     }
+  } else {
+    return { success: false, error: "Unknown settings tab." };
   }
 
-  revalidatePath("/", "layout");
-  revalidatePath("/admin/settings");
-  const fresh = await getAdminSettingsData();
-  return { success: true, data: fresh };
+    revalidatePath("/", "layout");
+    revalidatePath("/admin/settings");
+    const fresh = await getAdminSettingsData();
+    return { success: true, data: fresh };
   } catch (error) {
     console.error("Settings save failed:", error);
     return { success: false, error: error?.message || "Failed to save settings" };
