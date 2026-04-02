@@ -210,14 +210,20 @@ export default function Navbar() {
     ];
 
     return (
+        <>
         <header className={cn(
-            "sticky top-0 z-50 w-full max-w-full transition-all duration-300",
+            "fixed inset-x-0 top-0 z-50 w-full max-w-full transition-all duration-300",
             scrolled 
                 ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-foreground/5"
-                : "bg-background"
+                : "bg-background border-b border-transparent"
         )}>
             <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
-                <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-6 h-16 sm:h-[4.5rem]">
+                <div
+                  className={cn(
+                    "flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-6 transition-[height] duration-300",
+                    scrolled ? "h-[60px]" : "h-[72px]"
+                  )}
+                >
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[240px] sm:gap-2.5">
                         <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
@@ -306,7 +312,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* Search + theme + language: large screens only; smaller viewports use mobile sheet */}
-                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[6rem] lg:max-w-sm lg:mx-3 xl:mx-6">
+                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[10rem] lg:max-w-[26rem] lg:mx-3 xl:mx-6">
                         <GlobalSearch inputId="global-search-desktop" />
                     </div>
 
@@ -432,5 +438,13 @@ export default function Navbar() {
                 </div>
             </div>
         </header>
+        <div
+          aria-hidden
+          className={cn(
+            "transition-[height] duration-300",
+            scrolled ? "h-[60px]" : "h-[72px]"
+          )}
+        />
+        </>
     );
 }

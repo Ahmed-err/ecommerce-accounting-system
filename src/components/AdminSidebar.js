@@ -18,6 +18,7 @@ import {
   Truck,
   Mail,
   Bell,
+  TicketPercent,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -45,6 +46,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
       badge: unreadContactCount,
     },
     { name: t.adminNotifications || "Notifications", href: "/admin/notifications", icon: Bell, roles: ["ADMIN", "MANAGER"] },
+    { name: t.adminCoupons || "Coupons", href: "/admin/coupons", icon: TicketPercent, roles: ["ADMIN"] },
     { name: t.adminEmployees, href: "/admin/employees", icon: Users, roles: ["ADMIN"] },
     { name: t.adminAccounting, href: "/admin/accounting", icon: CreditCard, roles: ["ADMIN"] },
     { name: t.adminSettings, href: "/admin/settings", icon: Settings, roles: ["ADMIN", "MANAGER", "CASHIER"] },

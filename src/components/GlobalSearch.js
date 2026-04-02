@@ -20,7 +20,7 @@ export default function GlobalSearch({ inputId }) {
   const t = translations[lang] || translations.en;
   const searchPlaceholder =
     t.searchPlaceholder ||
-    (lang === "ar" ? "بحث عن منتجات..." : "Search products...");
+    (lang === "ar" ? "بحث عن منتج" : "Search products");
   const searchRef = useRef(null);
   const router = useRouter();
   const debouncedQuery = useDebounce(query, 300);
@@ -70,7 +70,7 @@ export default function GlobalSearch({ inputId }) {
       <div className="relative z-10">
         <SearchIcon
           className={cn(
-            "pointer-events-none absolute top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
+            "pointer-events-none absolute top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-zinc-700 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
             isRTL ? "right-3" : "left-3"
           )}
         />
@@ -103,7 +103,7 @@ export default function GlobalSearch({ inputId }) {
             "placeholder:text-zinc-500 placeholder:opacity-100",
             "focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/30",
             "dark:[color-scheme:dark] dark:border-white/15 dark:bg-zinc-900/80 dark:!text-white dark:[-webkit-text-fill-color:#fff] dark:caret-amber-400 dark:placeholder:text-zinc-400",
-            isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+            isRTL ? "pr-10 pl-10" : "pl-10 pr-10"
           )}
         />
         {query && (

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/components/store/CartProvider";
 import { useSession } from "next-auth/react";
-import { placeOrder } from "@/app/actions/catalog";
+import { placeOrder, getCheckoutShippingOptions } from "@/app/actions/catalog";
 import { validateCartStock } from "@/app/actions/cart";
 import { previewCoupon } from "@/app/actions/coupon";
 import { listUserAddresses } from "@/app/actions/addresses";
@@ -67,11 +67,17 @@ export default function CheckoutClient() {
   const [currentStep, setCurrentStep] = useState(1);
   const [stockValidation, setStockValidation] = useState({ valid: true, issues: [] });
   const [couponBusy, setCouponBusy] = useState(false);
+  const [shippingOptions, setShippingOptions] = useState(
+    SUDAN_CITIES.map((c) => ({ name: c.name, arName: c.arName, rate: c.rate }))
+  );
 
   const shippingCost = useMemo(() => {
-    const city = SUDAN_CITIES.find(c => c.name === guestInfo.city);
-    return city ? city.rate : 0;
-  }, [guestInfo.city]);
+    const selected = shippingOptions.find(
+      (c) =>
+        String(c.name || "").toLowerCase() === String(guestInfo.city || "").toLowerCase()
+    );
+    return selected ? Number(selected.rate || 0) : 0;
+  }, [guestInfo.city, shippingOptions]);
 
   const discountAmount = useMemo(() => {
     if (!appliedCoupon?.percentOff) return 0;
@@ -167,6 +173,19 @@ export default function CheckoutClient() {
       defaultAddressAppliedRef.current = true;
     }
   }, [session?.user?.id, savedAddresses]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCheckoutShippingOptions().then((res) => {
+      if (cancelled) return;
+      if (Array.isArray(res?.options) && res.options.length > 0) {
+        setShippingOptions(res.options);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Reset stock validation UI when cart totals change.
   useEffect(() => {
@@ -441,70 +460,39 @@ export default function CheckoutClient() {
                 .replace("{total}", "3")}
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 sm:gap-2">
+          <div className="grid grid-cols-3 items-start gap-2">
             {[1, 2, 3].map((step) => (
-              <div key={step} className="flex items-center flex-1">
+              <div key={step} className="relative flex flex-col items-center">
+                {step < 3 && (
+                  <div
+                    className={cn(
+                      "absolute top-[18px] left-1/2 h-1 w-[calc(100%-1.5rem)] translate-x-4 rounded-full sm:top-5 sm:translate-x-5",
+                      step < currentStep ? "bg-amber-500" : "bg-muted"
+                    )}
+                    aria-hidden
+                  />
+                )}
                 <motion.div
                   className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10",
-                    step <= currentStep
-                      ? "bg-amber-500 text-black"
-                      : "bg-muted text-muted-foreground"
+                    "relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10",
+                    step <= currentStep ? "bg-amber-500 text-black" : "bg-muted text-muted-foreground"
                   )}
                   initial={false}
                   animate={{ scale: step === currentStep ? 1.06 : 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 22 }}
                 >
-                  {step < currentStep ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    step
-                  )}
+                  {step < currentStep ? <Check className="h-4 w-4" /> : step}
                 </motion.div>
-                {step < 3 && (
-                  <div
-                    className={cn(
-                      "mx-1 h-1 min-w-[12px] flex-1 rounded-full sm:mx-2",
-                      step < currentStep ? "bg-amber-500" : "bg-muted"
-                    )}
-                  />
-                )}
+                <span
+                  className={cn(
+                    "mt-2 text-center text-[10px] font-medium sm:text-xs",
+                    currentStep >= step ? "font-semibold text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                  )}
+                >
+                  {step === 1 ? t.stepShippingShort : step === 2 ? t.stepPaymentShort : t.stepReviewShort}
+                </span>
               </div>
             ))}
-          </div>
-          <div
-            className="mt-3 grid grid-cols-3 gap-1 text-center text-[10px] font-medium sm:text-xs"
-          >
-            <span
-              className={cn(
-                "truncate px-0.5",
-                currentStep >= 1
-                  ? "font-semibold text-amber-600 dark:text-amber-400"
-                  : "text-muted-foreground"
-              )}
-            >
-              {t.stepShippingShort}
-            </span>
-            <span
-              className={cn(
-                "truncate px-0.5",
-                currentStep >= 2
-                  ? "font-semibold text-amber-600 dark:text-amber-400"
-                  : "text-muted-foreground"
-              )}
-            >
-              {t.stepPaymentShort}
-            </span>
-            <span
-              className={cn(
-                "truncate px-0.5",
-                currentStep >= 3
-                  ? "font-semibold text-amber-600 dark:text-amber-400"
-                  : "text-muted-foreground"
-              )}
-            >
-              {t.stepReviewShort}
-            </span>
           </div>
         </motion.div>
 
@@ -708,9 +696,9 @@ export default function CheckoutClient() {
                       }}
                     >
                       <option value="">{t.selectCity}</option>
-                      {SUDAN_CITIES.map(city => (
+                      {shippingOptions.map((city) => (
                         <option key={city.name} value={city.name}>
-                          {lang === 'ar' ? city.arName : city.name} ({city.rate.toLocaleString()} {t.currency})
+                          {lang === "ar" ? city.arName || city.name : city.name} ({Number(city.rate || 0).toLocaleString()} {t.currency})
                         </option>
                       ))}
                     </select>
@@ -1563,15 +1551,6 @@ export default function CheckoutClient() {
             </div>
           )}
 
-          <div
-            className={cn(
-              "flex items-center justify-center gap-2 text-xs text-muted-foreground",
-              isRTL && "flex-row-reverse"
-            )}
-          >
-            <Shield className="h-3 w-3 shrink-0" />
-            <span>{t.secureEncryptedPayment}</span>
-          </div>
         </motion.div>
       </motion.div>
 

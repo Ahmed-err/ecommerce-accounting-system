@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Lock, Mail, Save, AlertCircle, CheckCircle } from "lucide-react";
+import { User, Lock, Mail, Save, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateUserProfile } from "@/app/actions/user";
 import { useLanguage } from "@/context/LanguageContext";
@@ -22,6 +22,11 @@ export default function SettingsClient({ user }) {
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmNewPassword: false,
+  });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -167,38 +172,53 @@ export default function SettingsClient({ user }) {
           <div className="space-y-8">
             <div className="space-y-3 max-w-md">
               <label className="text-sm font-bold text-gray-300 uppercase tracking-widest px-1">{t.settingsCurrentPassword}</label>
-              <input
-                type="password"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
-              />
+              <div className="relative">
+                <input
+                  type={showPasswords.currentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  value={formData.currentPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 ${isRTL ? "pl-12" : "pr-12"} text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
+                />
+                <button type="button" onClick={() => setShowPasswords((p) => ({ ...p, currentPassword: !p.currentPassword }))} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-gray-400 hover:text-amber-500`} aria-label={showPasswords.currentPassword ? "Hide password" : "Show password"}>
+                  {showPasswords.currentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-white/5">
               <div className="space-y-3">
                 <label className="text-sm font-bold text-gray-300 uppercase tracking-widest px-1">{t.settingsNewPassword}</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  placeholder={t.settingsNewPasswordPlaceholder}
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
-                />
+                <div className="relative">
+                  <input
+                    type={showPasswords.newPassword ? "text" : "password"}
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    placeholder={t.settingsNewPasswordPlaceholder}
+                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 ${isRTL ? "pl-12" : "pr-12"} text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
+                  />
+                  <button type="button" onClick={() => setShowPasswords((p) => ({ ...p, newPassword: !p.newPassword }))} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-gray-400 hover:text-amber-500`} aria-label={showPasswords.newPassword ? "Hide password" : "Show password"}>
+                    {showPasswords.newPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-bold text-gray-300 uppercase tracking-widest px-1">{t.settingsConfirmPassword}</label>
-                <input
-                  type="password"
-                  name="confirmNewPassword"
-                  value={formData.confirmNewPassword}
-                  onChange={handleChange}
-                  placeholder={t.settingsConfirmPasswordPlaceholder}
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
-                />
+                <div className="relative">
+                  <input
+                    type={showPasswords.confirmNewPassword ? "text" : "password"}
+                    name="confirmNewPassword"
+                    value={formData.confirmNewPassword}
+                    onChange={handleChange}
+                    placeholder={t.settingsConfirmPasswordPlaceholder}
+                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl px-6 py-4 ${isRTL ? "pl-12" : "pr-12"} text-white placeholder:text-gray-600 focus:border-amber-500 group-hover/sec:bg-gray-800/80 transition-all outline-none ${isRTL ? 'text-right' : 'text-left'} font-semibold`}
+                  />
+                  <button type="button" onClick={() => setShowPasswords((p) => ({ ...p, confirmNewPassword: !p.confirmNewPassword }))} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-gray-400 hover:text-amber-500`} aria-label={showPasswords.confirmNewPassword ? "Hide password" : "Show password"}>
+                    {showPasswords.confirmNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

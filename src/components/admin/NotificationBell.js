@@ -144,7 +144,7 @@ export default function NotificationBell({ customerOnly = false }) {
         variant="ghost"
         size="icon"
         onClick={() => setOpen((v) => !v)}
-        className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 text-white relative"
+        className="relative h-10 w-10 rounded-full bg-foreground/5 text-foreground hover:bg-foreground/10"
         aria-haspopup="menu"
         aria-expanded={open}
         type="button"

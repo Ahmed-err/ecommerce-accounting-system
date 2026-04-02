@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createEmployee, updateEmployee } from "@/app/actions/employees";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { Eye, EyeOff } from "lucide-react";
 
 const ROLES = ["ADMIN", "MANAGER", "CASHIER"];
 const DEPARTMENTS = ["Management", "Sales", "Warehouse", "Support", "IT", "Finance"];
@@ -27,6 +28,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (employee) {
@@ -128,7 +130,12 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
               <label className="text-sm font-medium">
                 {t.employeesPassword} {isEditing && <span className="text-gray-600 text-xs">{t.employeesPasswordHint}</span>}
               </label>
-              <Input type="password" name="password" value={formData.password} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={isEditing ? "••••••" : t.employeesPasswordPlaceholder} required={!isEditing} />
+              <div className="relative">
+                <Input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? "pl-10 text-right" : "pr-10 text-left"}`} placeholder={isEditing ? "••••••" : t.employeesPasswordPlaceholder} required={!isEditing} />
+                <button type="button" onClick={() => setShowPassword((v) => !v)} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-3" : "right-3"} text-gray-400 hover:text-white`} aria-label={showPassword ? "Hide password" : "Show password"}>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
 
