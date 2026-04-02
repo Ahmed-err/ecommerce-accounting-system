@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-48 min-h-[12rem] sm:h-52 sm:min-h-[13rem] md:h-56 lg:h-60 xl:h-64"
+      ? "h-48 min-h-[12rem] sm:h-52 sm:min-h-[13rem] md:h-56 lg:h-72 xl:h-80 2xl:h-[22rem]"
       : "h-64";
 
   const quickBody = (
@@ -350,14 +350,14 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "p-3.5 pt-3.5 pb-5 sm:p-4 sm:pt-4 sm:pb-6 lg:p-5 lg:pb-7",
+              homeShowcase && "p-4 pt-4 pb-6 sm:p-5 sm:pt-5 sm:pb-7 lg:p-6 lg:pb-8 xl:p-7 xl:pb-9",
               isRTL ? "text-right" : "text-left"
             )}
           >
             <span
               className={cn(
                 "font-medium uppercase tracking-wider text-amber-500",
-                homeShowcase ? "text-[10px] sm:text-xs" : "text-xs"
+                homeShowcase ? "text-[10px] sm:text-xs lg:text-sm" : "text-xs"
               )}
             >
               {translateCategory(product.category?.name, t)}
@@ -367,7 +367,7 @@ export default function ProductCard({
               <h3
                 className={cn(
                   "mt-1 mb-2 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug",
-                  compactRail ? "text-sm" : homeShowcase ? "text-sm sm:text-base lg:text-lg" : "text-lg"
+                  compactRail ? "text-sm" : homeShowcase ? "text-sm sm:text-base lg:text-lg xl:text-xl" : "text-lg"
                 )}
               >
                 {product.name}
@@ -383,7 +383,7 @@ export default function ProductCard({
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
-                  compactRail ? "text-base" : homeShowcase ? "text-sm sm:text-base md:text-base lg:text-lg" : "text-xl"
+                  compactRail ? "text-base" : homeShowcase ? "text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl" : "text-xl"
                 )}
               >
                 {selling.toLocaleString()} {t.currency}
@@ -398,11 +398,11 @@ export default function ProductCard({
                 disabled={isOutOfStock}
                 className={cn(
                   "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
-                  homeShowcase ? "p-2 sm:p-2.5" : "p-2.5"
+                  homeShowcase ? "p-2.5 sm:p-3 lg:p-3.5" : "p-2.5"
                 )}
                 title={t.addToCart}
               >
-                <ShoppingCart className={cn(homeShowcase ? "h-4 w-4 sm:h-5 sm:w-5" : "h-4 w-4")} />
+                <ShoppingCart className={cn(homeShowcase ? "h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" : "h-4 w-4")} />
               </button>
             </div>
           </div>
