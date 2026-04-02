@@ -211,12 +211,12 @@ export default function Navbar() {
 
     return (
         <header className={cn(
-            "sticky top-0 z-[100] w-full transition-all duration-300",
+            "sticky top-0 z-50 w-full max-w-full h-16 transition-all duration-300",
             scrolled 
-                ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-foreground/5 py-2" 
-                : "bg-background py-4"
+                ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-foreground/5"
+                : "bg-background"
         )}>
-            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8 h-full">
                 <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-8">
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2.5 group shrink-0">
@@ -226,7 +226,7 @@ export default function Navbar() {
 
                         <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
                             <span className={cn(
-                                "text-sm font-black tracking-tight text-foreground whitespace-normal break-words leading-tight line-clamp-2 max-w-[7.5rem]",
+                                "text-sm font-black tracking-tight text-foreground whitespace-normal break-words leading-tight line-clamp-2 max-w-[120px] sm:max-w-[160px] overflow-hidden text-ellipsis",
                                 isRTL ? "text-right" : ""
                             )}>
                                 {brandName}

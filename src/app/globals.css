@@ -4,6 +4,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Global sizing primitives (prevents layout overflow on all pages) */
+:root {
+  --vh: 1vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -205,18 +216,24 @@
   body {
     background-color: var(--background);
     overscroll-behavior: none;
+    max-width: 100vw;
+    overflow-x: hidden;
     min-height: 100%;
     min-height: -webkit-fill-available;
   }
   body {
     @apply bg-background text-foreground min-h-screen;
+    overflow-x: hidden;
+    position: relative;
     min-height: -webkit-fill-available;
     transition:
       background-color 0.25s ease,
       color 0.25s ease;
   }
   html {
-    @apply font-sans bg-background overflow-x-clip;
+    @apply font-sans bg-background;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
   :lang(ar) {
     letter-spacing: normal;
