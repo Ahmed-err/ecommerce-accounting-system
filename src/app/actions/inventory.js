@@ -14,6 +14,8 @@ import {
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
 import {
   productMutationSchema,
+  productOriginUpdateSchema,
+  productOriginBulkSchema,
   receiveStockSchema,
   issueStockSchema,
   bulkIdsSchema,
@@ -79,6 +81,7 @@ export async function getProducts(params) {
       categoryId = "",
       supplierId = "",
       status = "all",
+      origin = "all",
       sort = "newest",
       page = 1,
       limit = INVENTORY_PAGE_SIZE,
@@ -88,6 +91,7 @@ export async function getProducts(params) {
       categoryId,
       supplierId,
       status,
+      origin,
       sort,
       page: Number(page) || 1,
       limit: Number(limit) || INVENTORY_PAGE_SIZE,
@@ -150,6 +154,11 @@ export async function createProduct(data) {
         unit: d.unit || "pcs",
         purchasePrice: d.purchasePrice,
         sellingPrice: d.sellingPrice,
+        origin: d.origin,
+        localPrice: d.localPrice ?? null,
+        importedPrice: d.importedPrice ?? null,
+        countryOfOrigin: d.countryOfOrigin || null,
+        importTaxRate: d.importTaxRate ?? null,
         stock: d.stock,
         minStock: d.minStock,
         categoryId: d.categoryId,
@@ -194,6 +203,11 @@ export async function updateProduct(id, data) {
         unit: d.unit || "pcs",
         purchasePrice: d.purchasePrice,
         sellingPrice: d.sellingPrice,
+        origin: d.origin,
+        localPrice: d.localPrice ?? null,
+        importedPrice: d.importedPrice ?? null,
+        countryOfOrigin: d.countryOfOrigin || null,
+        importTaxRate: d.importTaxRate ?? null,
         stock: d.stock,
         minStock: d.minStock,
         categoryId: d.categoryId,
@@ -412,6 +426,59 @@ export async function generateSkuSuggestion() {
     return { success: true, sku: `SKU-${n}` };
   } catch (e) {
     return { success: false, error: e.message };
+  }
+}
+
+export async function updateProductOriginAction(raw) {
+  try {
+    await ensureManager();
+    const parsed = productOriginUpdateSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const d = parsed.data;
+    if (d.origin === "IMPORTED" && !d.countryOfOrigin) {
+      return { success: false, error: "Country of origin is recommended for imported products." };
+    }
+    const product = await db.product.update({
+      where: { id: d.productId },
+      data: {
+        origin: d.origin,
+        countryOfOrigin: d.countryOfOrigin || null,
+        localPrice: d.localPrice ?? null,
+        importedPrice: d.importedPrice ?? null,
+        importTaxRate: d.importTaxRate ?? null,
+      },
+    });
+    await logAction("UPDATE_PRODUCT_ORIGIN", { productId: d.productId, origin: d.origin });
+    revalidatePath("/admin/inventory");
+    return { success: true, product };
+  } catch (error) {
+    console.error("updateProductOriginAction:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function bulkClassifyProductOriginAction(raw) {
+  try {
+    await ensureManager();
+    const parsed = productOriginBulkSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const { ids, origin } = parsed.data;
+    const valid = await getProductIdsForBulk(ids);
+    const idList = valid.map((x) => x.id);
+    const result = await db.product.updateMany({
+      where: { id: { in: idList } },
+      data: { origin },
+    });
+    await logAction("BULK_CLASSIFY_PRODUCT_ORIGIN", { count: result.count, origin });
+    revalidatePath("/admin/inventory");
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("bulkClassifyProductOriginAction:", error);
+    return { success: false, error: error.message };
   }
 }
 

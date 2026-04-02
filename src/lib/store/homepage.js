@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
+import { productPublicFields } from "@/lib/store/product-public-fields";
 
 function decimalToNumber(value) {
   if (value == null) return 0;
@@ -46,14 +47,7 @@ export async function getHomepageData() {
         orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
         take: 6,
         select: {
-          id: true,
-          name: true,
-          description: true,
-          sku: true,
-          purchasePrice: true,
-          sellingPrice: true,
-          stock: true,
-          images: true,
+          ...productPublicFields,
           category: { select: { name: true } },
         },
       }),
@@ -73,14 +67,7 @@ export async function getHomepageData() {
             orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
             take: 6,
             select: {
-              id: true,
-              name: true,
-              description: true,
-              sku: true,
-              purchasePrice: true,
-              sellingPrice: true,
-              stock: true,
-              images: true,
+              ...productPublicFields,
               category: { select: { name: true } },
             },
           });

@@ -1,10 +1,11 @@
 import { prisma as db } from "@/lib/prisma";
 import { serializeCatalogProduct } from "@/lib/catalog-serialize";
+import { productPublicFields } from "@/lib/store/product-public-fields";
 
 export async function getStorefrontProductBySlug(slug) {
   const product = await db.product.findFirst({
     where: { id: slug, isActive: true },
-    include: { category: true },
+    select: { ...productPublicFields, category: true },
   });
   return product ? serializeCatalogProduct(product) : null;
 }
@@ -18,7 +19,7 @@ export async function getRelatedStoreProducts(categoryId, excludeProductId, take
     },
     orderBy: { createdAt: "desc" },
     take,
-    include: { category: true },
+    select: { ...productPublicFields, category: true },
   });
   return rows.map(serializeCatalogProduct);
 }

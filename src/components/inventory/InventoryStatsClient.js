@@ -7,6 +7,8 @@ import {
   AlertTriangle,
   DollarSign,
   Ban,
+  Globe2,
+  Plane,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,8 @@ export default function InventoryStatsClient({
   lowStock,
   outOfStock,
   totalInventoryCostValue,
+  localProductsCount,
+  importedProductsCount,
   currency,
 }) {
   const base = "/admin/inventory";
@@ -49,6 +53,20 @@ export default function InventoryStatsClient({
       href: null,
       color: "emerald",
     },
+    {
+      label: t.inventoryLocalProducts,
+      value: localProductsCount,
+      icon: Globe2,
+      href: `${base}?origin=LOCAL`,
+      color: "local",
+    },
+    {
+      label: t.inventoryImportedProducts,
+      value: importedProductsCount,
+      icon: Plane,
+      href: `${base}?origin=IMPORTED`,
+      color: "imported",
+    },
   ];
 
   const colorMap = {
@@ -56,12 +74,14 @@ export default function InventoryStatsClient({
     amber: { bg: "bg-amber-500/10", icon: "text-amber-500" },
     emerald: { bg: "bg-emerald-500/10", icon: "text-emerald-500" },
     red: { bg: "bg-red-500/10", icon: "text-red-500" },
+    local: { bg: "bg-green-500/10", icon: "text-green-500" },
+    imported: { bg: "bg-blue-500/10", icon: "text-blue-500" },
   };
 
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-4 md:grid-cols-4",
+        "grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6",
         isRTL && "text-right"
       )}
     >

@@ -84,6 +84,10 @@ export function buildReceiptData({
   }));
 
   const d = receiptFromServer.createdAt ? new Date(receiptFromServer.createdAt) : new Date();
+  const shipping = Number(receiptFromServer.shippingAmount || 0);
+  const orderRef = receiptFromServer.orderRef || receiptFromServer.orderId || "";
+  const documentLabel =
+    receiptFromServer.documentLabel || (isAr ? "فاتورة ضريبية" : "Tax Invoice");
 
   return {
     storeName,
@@ -96,8 +100,11 @@ export function buildReceiptData({
     cashierName: cashier?.name || cashier?.email || (isAr ? "كاشير" : "Cashier"),
     customerName: receiptFromServer.guestName || "",
     customerPhone: receiptFromServer.guestPhone || "",
+    orderRef,
+    documentLabel,
     items,
     subtotal: Number(subtotalBeforeDiscount ?? 0),
+    shipping,
     discount: Number(receiptFromServer.discountAmount || 0),
     discountType: discountType === "percent" ? "percent" : "fixed",
     tax: Number(receiptFromServer.taxAmount || 0),
@@ -110,6 +117,8 @@ export function buildReceiptData({
     footerTextAr: footerAr,
     footerTextEn: footerEn,
     invoiceBarcode: String(receiptFromServer.invoiceNumber || receiptFromServer.orderId || ""),
+    vatNumber: receiptFromServer.vatNumber || "",
+    qrImage: receiptFromServer.qrImage || "",
     currency: store.currency || "SDG",
     lang,
     isRTL: isAr,
@@ -330,13 +339,16 @@ export function buildReceiptPrintHtml(data) {
     data.storeLogo
       ? `<div class="logo"><img src="${escapeHtml(data.storeLogo)}" alt="" crossorigin="anonymous" /></div>`
       : "";
-  return `<!DOCTYPE html><html lang="${data.lang}" dir="${data.isRTL ? "rtl" : "ltr"}"><head><meta charset="utf-8"/><link rel="stylesheet" href="/receipt-print.css"/><title>Receipt</title></head><body class="receipt-root"><div class="receipt-paper" id="pos-receipt-print">
+  const markup = `<div class="receipt-paper" id="pos-receipt-print">
   ${logoBlock}
   <div class="h1">${escapeHtml(data.storeName)}</div>
+  <div class="muted">${escapeHtml(data.documentLabel || (data.lang === "ar" ? "فاتورة ضريبية" : "Tax Invoice"))}</div>
   <div class="muted">${escapeHtml(data.storeAddress)}</div>
   <div class="muted">${escapeHtml(data.storePhone)}</div>
+  ${data.vatNumber ? `<div class="muted">${data.lang === "ar" ? "الرقم الضريبي" : "VAT"}: ${escapeHtml(data.vatNumber)}</div>` : ""}
   <hr/>
   <div class="row"><span>${data.lang === "ar" ? "فاتورة" : "Invoice"}</span><span class="n">${escapeHtml(data.invoiceNumber)}</span></div>
+  ${data.orderRef ? `<div class="row"><span>${data.lang === "ar" ? "مرجع الطلب" : "Order Ref"}</span><span class="n">${escapeHtml(data.orderRef)}</span></div>` : ""}
   <div class="row"><span>${data.lang === "ar" ? "التاريخ" : "Date"}</span><span class="n">${escapeHtml(data.date)} ${escapeHtml(data.time)}</span></div>
   <div class="row"><span>${data.lang === "ar" ? "كاشير" : "Cashier"}</span><span class="n">${escapeHtml(data.cashierName)}</span></div>
   <hr/>
@@ -347,16 +359,26 @@ export function buildReceiptPrintHtml(data) {
   <hr/>
   <div class="row"><span>${data.lang === "ar" ? "المجموع الفرعي" : "Subtotal"}</span><span class="n">${money(data.subtotal)}</span></div>
   ${data.discount > 0 ? `<div class="row"><span>${data.lang === "ar" ? "خصم" : "Discount"}</span><span class="n">-${money(data.discount)}</span></div>` : ""}
+  ${data.shipping > 0 ? `<div class="row"><span>${data.lang === "ar" ? "الشحن" : "Shipping"}</span><span class="n">${money(data.shipping)}</span></div>` : ""}
   ${data.tax > 0 ? `<div class="row"><span>${escapeHtml(data.taxLabel)}</span><span class="n">${money(data.tax)}</span></div>` : ""}
   <div class="row total"><span>${data.lang === "ar" ? "الإجمالي" : "TOTAL"}</span><span class="n">${money(data.total)}</span></div>
   <hr/>
   <div class="row"><span>${data.lang === "ar" ? "الدفع" : "Payment"}</span><span class="n">${escapeHtml(data.paymentMethod)}</span></div>
   ${data.amountTendered != null ? `<div class="row"><span>${data.lang === "ar" ? "المستلم" : "Tendered"}</span><span class="n">${money(data.amountTendered)}</span></div>` : ""}
   ${data.change != null ? `<div class="row"><span>${data.lang === "ar" ? "الباقي" : "Change"}</span><span class="n">${money(data.change)}</span></div>` : ""}
-  <div class="qr-host" id="receipt-qr"></div>
+  <div class="qr-host" id="receipt-qr">${data.qrImage ? `<img src="${escapeHtml(data.qrImage)}" alt="" width="160" height="160" />` : ""}</div>
   <hr/>
   <div class="footer">${escapeHtml(data.footerTextEn)}<br/>${escapeHtml(data.footerTextAr)}</div>
-</div></body></html>`;
+</div>`;
+  return `<!DOCTYPE html><html lang="${data.lang}" dir="${data.isRTL ? "rtl" : "ltr"}"><head><meta charset="utf-8"/><link rel="stylesheet" href="/receipt-print.css"/><title>Receipt</title></head><body class="receipt-root">${markup}</body></html>`;
+}
+
+export function buildReceiptMarkup(data) {
+  const html = buildReceiptPrintHtml(data);
+  const start = html.indexOf("<div class=\"receipt-paper\"");
+  const end = html.lastIndexOf("</div></body></html>");
+  if (start === -1 || end === -1) return "";
+  return html.slice(start, end + 6);
 }
 
 function escapeHtml(s) {

@@ -12,9 +12,22 @@ export function serializeCatalogProduct(p) {
   const discountPct = hasDiscount ? Math.min(99, Math.round((1 - sellingPrice / listPrice) * 100)) : 0;
 
   return {
-    ...p,
+    id: p.id,
+    name: p.name,
+    nameEn: p.nameEn,
+    nameAr: p.nameAr,
+    description: p.description,
+    descriptionEn: p.descriptionEn,
+    descriptionAr: p.descriptionAr,
+    sku: p.sku,
+    barcode: p.barcode,
+    unit: p.unit || "pcs",
     sellingPrice,
     purchasePrice,
+    stock: p.stock,
+    minStock: p.minStock,
+    images: p.images || [],
+    isActive: p.isActive,
     compareAtPrice: compareRaw,
     listPrice: hasDiscount ? listPrice : null,
     hasDiscount,
