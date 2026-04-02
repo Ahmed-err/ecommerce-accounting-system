@@ -348,9 +348,9 @@ export default function ProductCard({
 
           <div
             className={cn(
-              "relative z-10 flex min-h-0 flex-1 flex-col p-5",
-              compactRail && "p-3",
-              homeShowcase && "p-3.5 pt-3.5 sm:p-4 sm:pt-4 lg:p-5",
+              "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
+              compactRail && "p-3 pb-4",
+              homeShowcase && "p-3.5 pt-3.5 pb-5 sm:p-4 sm:pt-4 sm:pb-6 lg:p-5 lg:pb-7",
               isRTL ? "text-right" : "text-left"
             )}
           >
@@ -376,8 +376,8 @@ export default function ProductCard({
 
             <div
               className={cn(
-                "mt-auto flex items-center justify-between gap-2 pt-2 sm:pt-3",
-                homeShowcase && "pt-2"
+                "mt-auto flex items-center justify-between gap-2 pt-3 pb-1",
+                homeShowcase && "pt-2.5 pb-0.5"
               )}
             >
               <span

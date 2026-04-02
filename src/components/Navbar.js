@@ -46,7 +46,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 
     if (!mounted) {
         return (
-            <div className="flex items-center lg:hidden">
+            <div className="flex items-center">
                 <div
                     className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground"
                     aria-hidden
@@ -58,7 +58,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
     }
 
     return (
-        <div className="flex items-center lg:hidden">
+        <div className="flex items-center">
             <Sheet id="navbar-mobile-sheet">
                 <SheetTrigger asChild>
                     <Button
@@ -216,7 +216,7 @@ export default function Navbar() {
                 ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-foreground/5"
                 : "bg-background"
         )}>
-            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8 h-full">
+            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8 h-full pt-2 sm:pt-3">
                 <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-8">
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2.5 group shrink-0">
