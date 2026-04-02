@@ -207,7 +207,10 @@ export default function ProductCard({
     <>
       <motion.div
         className={cn(
-          "group relative flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          // `h-full` relies on the parent having an explicit height. On the home featured grid
+          // that isn't the case, which can clip the bottom price row.
+          homeShowcase ? "h-auto" : "h-full",
           compactRail && "rounded-2xl",
           homeShowcase && "rounded-2xl sm:rounded-3xl"
         )}
