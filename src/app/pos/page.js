@@ -5,10 +5,9 @@ import POSClient from "@/components/pos/POSClient";
 export const dynamic = "force-dynamic";
 
 export default async function POSPage() {
-  // Fetch all active products for the POS local memory
-  // This allows instant barcode scanning and search without hitting the DB every keystroke.
+  // Fetch products for POS regardless of storefront active flag.
+  // POS inventory can differ from storefront publication state.
   const products = await db.product.findMany({
-    where: { isActive: true },
     include: {
       category: { select: { id: true, name: true } },
     },

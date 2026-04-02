@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Edit, Plus, Trash2, TicketPercent } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,7 @@ export default function CouponsAdminClient({
     isActive: true,
   });
   const [isPending, startTransition] = useTransition();
+  const formWrapRef = useRef(null);
 
   const load = (next = {}) => {
     const q = {
@@ -130,13 +131,29 @@ export default function CouponsAdminClient({
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!editingId) return;
+    if (!editingId) {
+      setError(lang === "ar" ? "يرجى اختيار كوبون للتعديل أولاً." : "Please select a coupon to edit first.");
+      return;
+    }
     setError("");
     const res = await updateCouponAdmin(editingId, form);
     if (!res.success) {
       setError(res.error || "Failed to update coupon.");
       return;
     }
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === editingId
+          ? {
+              ...row,
+              code: String(form.code || "").trim().toUpperCase(),
+              percentOff: Math.round(Number(form.percentOff) || row.percentOff),
+              expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
+              isActive: form.isActive !== false,
+            }
+          : row
+      )
+    );
     resetForm();
     load();
     router.refresh();
@@ -161,6 +178,7 @@ export default function CouponsAdminClient({
       expiresAt: row.expiresAt ? new Date(row.expiresAt).toISOString().slice(0, 16) : "",
       isActive: !!row.isActive,
     });
+    formWrapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const isExpired = (row) => row.expiresAt && new Date(row.expiresAt) < new Date();
@@ -174,15 +192,22 @@ export default function CouponsAdminClient({
 
       {error ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
 
-      <CouponForm
-        value={form}
-        onChange={setForm}
-        onSubmit={editingId ? handleUpdate : handleCreate}
-        onCancel={resetForm}
-        saving={isPending}
-        t={t}
-        isEdit={!!editingId}
-      />
+      <div ref={formWrapRef} className="space-y-2">
+        {editingId ? (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+            {lang === "ar" ? "وضع التعديل مفعل" : "Edit mode is active"}
+          </div>
+        ) : null}
+        <CouponForm
+          value={form}
+          onChange={setForm}
+          onSubmit={editingId ? handleUpdate : handleCreate}
+          onCancel={resetForm}
+          saving={isPending}
+          t={t}
+          isEdit={!!editingId}
+        />
+      </div>
 
       <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-gray-900/70 p-3">
         <Input

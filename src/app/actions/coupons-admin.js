@@ -106,11 +106,16 @@ export async function updateCouponAdmin(id, payload = {}) {
     const code = normalizeCode(payload.code);
     const percentOff = Number(payload.percentOff);
     const expiresAt = parseExpiresAt(payload.expiresAt);
-    const isActive = !!payload.isActive;
+    const isActive = payload.isActive !== false;
 
     if (!code) return { success: false, error: "Coupon code is required." };
     if (!Number.isFinite(percentOff) || percentOff < 1 || percentOff > 100) {
       return { success: false, error: "Discount percent must be between 1 and 100." };
+    }
+
+    const existing = await db.coupon.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) {
+      return { success: false, error: "Coupon not found." };
     }
 
     await db.coupon.update({
@@ -131,7 +136,7 @@ export async function updateCouponAdmin(id, payload = {}) {
     if (String(error?.message || "").toLowerCase().includes("unique")) {
       return { success: false, error: "Coupon code already exists." };
     }
-    return { success: false, error: "Failed to update coupon." };
+    return { success: false, error: error?.message || "Failed to update coupon." };
   }
 }
 
