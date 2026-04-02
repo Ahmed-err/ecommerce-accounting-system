@@ -174,23 +174,23 @@ export async function registerUser(formData) {
       },
     });
 
-    // 5. Fire-and-forget: Send phone verification and admin notification in background
-    // Don't await these to avoid blocking the user's registration response
-    Promise.allSettled([
-      sendPhoneVerificationCode(phone).catch(err => 
-        console.warn("registerUser: phone verification SMS failed", err)
-      ),
-      createAdminBroadcastNotification({
-        type: "NEW_USER",
-        titleAr: "مستخدم جديد",
-        titleEn: "New user registered",
-        bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
-        bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
-        link: "/admin",
-      }).catch(err => 
-        console.warn("registerUser: admin notification failed", err)
-      ),
-    ]);
+    // 5. Ensure OTP is created/sent before returning, so verification page always works.
+    const sendRes = await sendPhoneVerificationCode(phone);
+    if (!sendRes.success) {
+      console.warn("registerUser: user created but phone verification SMS failed");
+    }
+
+    // 6. Admin notification should not block user registration response.
+    createAdminBroadcastNotification({
+      type: "NEW_USER",
+      titleAr: "مستخدم جديد",
+      titleEn: "New user registered",
+      bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
+      bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
+      link: "/admin",
+    }).catch((err) => {
+      console.warn("registerUser: admin notification failed", err);
+    });
 
     return { success: true, requiresPhoneVerification: true, phone };
   } catch (error) {
