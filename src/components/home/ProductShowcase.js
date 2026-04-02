@@ -13,11 +13,12 @@ export default function ProductShowcase({ products }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang] || translations.en;
 
-  if (!products || products.length === 0) return null;
+  const safeProducts = Array.isArray(products) ? products : [];
+  const hasProducts = safeProducts.length > 0;
 
-  const bestSellers = products.slice(0, 4);
-  const newArrivals = [...products].reverse().slice(0, 4);
-  const topRated = products.slice(0, 4);
+  const bestSellers = safeProducts.slice(0, 4);
+  const newArrivals = [...safeProducts].reverse().slice(0, 4);
+  const topRated = safeProducts.slice(0, 4);
 
   const tabs = [
     { value: "best-sellers", label: t.bestSellers || "Best Sellers", icon: TrendingUp, data: bestSellers },
@@ -108,6 +109,11 @@ export default function ProductShowcase({ products }) {
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
                   ))}
+                  {!hasProducts && (
+                    <div className="col-span-1 text-center text-sm text-muted-foreground sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                      {t.noProductsFound}
+                    </div>
+                  )}
 
                   {/* View All card */}
                   <Link
@@ -144,7 +150,7 @@ export default function ProductShowcase({ products }) {
                           {isRTL ? "اكتشف المجموعة" : "EXPLORE ALL"}
                         </h3>
                         <p className="hidden text-[9px] font-black uppercase tracking-widest text-black/65 sm:block sm:text-[10px]">
-                          {products.length}+ {isRTL ? "منتجات" : "PRODUCTS"}
+                          {safeProducts.length}+ {isRTL ? "منتجات" : "PRODUCTS"}
                         </p>
                       </div>
                     </div>
