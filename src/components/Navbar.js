@@ -217,7 +217,7 @@ export default function Navbar() {
                 : "bg-background py-4"
         )}>
             <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
-                <div className="flex min-w-0 max-w-full flex-wrap items-center justify-between gap-2 sm:gap-3 lg:gap-4">
+                <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-8">
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2.5 group shrink-0">
                         <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300">
@@ -226,7 +226,7 @@ export default function Navbar() {
 
                         <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
                             <span className={cn(
-                                "text-sm font-black tracking-tight text-foreground",
+                                "text-sm font-black tracking-tight text-foreground whitespace-normal break-words leading-tight line-clamp-2 max-w-[7.5rem]",
                                 isRTL ? "text-right" : ""
                             )}>
                                 {brandName}
@@ -250,7 +250,7 @@ export default function Navbar() {
                         >
                             <button 
                                 className={cn(
-                                    "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-bold transition-all sm:px-4",
+                                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all",
                                     showCategories ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                                 )}
                                 onClick={() => setShowCategories(!showCategories)}
@@ -292,7 +292,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="px-3 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all sm:px-4"
+                                className="px-4 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
                             >
                                 {link.name}
                             </Link>
