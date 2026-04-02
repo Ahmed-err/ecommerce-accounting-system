@@ -66,8 +66,7 @@ export default function HeroSlider({ banners }) {
   return (
     <section
       className="relative w-full overflow-hidden bg-neutral-950 text-white"
-      /* clamp: 360px (small phone) → 70vh → 760px max */
-      style={{ height: "clamp(320px, 62vh, 680px)" }}
+      style={{ height: "clamp(280px, 55vh, 580px)" }}
       tabIndex={0}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -122,9 +121,9 @@ export default function HeroSlider({ banners }) {
           {/* Content */}
           <div
             className={cn(
-              "relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-24",
+              "relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-20",
               "sm:justify-center sm:px-6 sm:pb-0 lg:px-8",
-              banners.length > 1 && "max-sm:pb-32"
+              banners.length > 1 && "max-sm:pb-28"
             )}
           >
             <motion.div
@@ -132,7 +131,7 @@ export default function HeroSlider({ banners }) {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: reduceMotion ? 0 : 0.15, duration: reduceMotion ? 0 : 0.4 }}
               className={cn(
-                "w-full max-w-xs space-y-3 sm:max-w-md md:max-w-xl sm:space-y-4 md:space-y-5",
+                "w-full max-w-xs space-y-2 sm:max-w-md md:max-w-xl sm:space-y-3 md:space-y-4",
                 isRTL ? "mr-auto ml-0 text-right" : "ml-auto mr-0 text-left",
                 /* On small screens centre the block */
                 "mx-auto sm:mx-0"

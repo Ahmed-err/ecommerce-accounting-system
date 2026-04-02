@@ -23,13 +23,13 @@ export default function Footer() {
              isRTL ? "font-arabic" : "font-sans"
         )}>
             <div className="bg-neutral-950 text-zinc-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-16">
                 <div className={cn(
-                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20",
+                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12",
                     isRTL ? "text-right" : "text-left"
                 )}>
                     {/* Brand Section */}
-                    <div className="space-y-8 flex flex-col items-center sm:items-start">
+                    <div className="space-y-6 flex flex-col items-center sm:items-start">
                         <Link href="/" className="flex items-center gap-2.5 group">
                             <div className="relative shrink-0">
                                 <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform duration-300">
