@@ -358,10 +358,7 @@ export default function Navbar() {
                                     <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xs shrink-0">
                                         {session.user.name?.charAt(0) || "U"}
                                     </div>
-                                    <span className="hidden sm:inline-block ml-2 text-sm font-bold truncate max-w-[80px]">
-                                        {session.user.name?.split(' ')[0]}
-                                    </span>
-                                    <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+                                    <ChevronDown className="h-4 w-4 opacity-50" />
                                 </Button>
 
                                 {/* Dropdown */}
