@@ -83,7 +83,7 @@ export default function AboutTeaser() {
                 alt={isRTL ? "ألواح طاقة شمسية" : "Solar panels"}
                 width={1200}
                 height={700}
-                className="w-full h-48 object-cover sm:h-64 md:h-72 lg:h-[300px] xl:h-[340px]"
+                className="w-full h-40 object-cover sm:h-56 md:h-64 lg:h-[260px] xl:h-[300px]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
@@ -100,7 +100,7 @@ export default function AboutTeaser() {
                   alt={isRTL ? "أدوات كهربائية" : "Electrical tools"}
                   width={900}
                   height={600}
-                  className="w-full h-36 object-cover sm:h-44 md:h-52"
+                  className="w-full h-32 object-cover sm:h-40 md:h-48"
                 />
               </div>
               <div className="relative rounded-xl overflow-hidden border border-border sm:rounded-2xl">
@@ -109,7 +109,7 @@ export default function AboutTeaser() {
                   alt={isRTL ? "كابلات وأسلاك" : "Cables and wires"}
                   width={900}
                   height={600}
-                  className="w-full h-36 object-cover sm:h-44 md:h-52"
+                  className="w-full h-32 object-cover sm:h-40 md:h-48"
                 />
               </div>
             </div>
