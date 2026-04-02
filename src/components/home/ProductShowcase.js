@@ -16,9 +16,9 @@ export default function ProductShowcase({ products }) {
   const safeProducts = Array.isArray(products) ? products : [];
   const hasProducts = safeProducts.length > 0;
 
-  const bestSellers = safeProducts.slice(0, 4);
-  const newArrivals = [...safeProducts].reverse().slice(0, 4);
-  const topRated = safeProducts.slice(0, 4);
+  const bestSellers = safeProducts.slice(0, 6);
+  const newArrivals = [...safeProducts].reverse().slice(0, 6);
+  const topRated = safeProducts.slice(0, 6);
 
   const tabs = [
     { value: "best-sellers", label: t.bestSellers || "Best Sellers", icon: TrendingUp, data: bestSellers },
@@ -102,7 +102,7 @@ export default function ProductShowcase({ products }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7 xl:grid-cols-4 xl:gap-8"
+                  className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-8 2xl:grid-cols-3 2xl:gap-10"
                 >
                   {tab.data.map((product, i) => (
                     <div key={product.id} className="flex min-h-0 min-w-0 w-full">
@@ -110,7 +110,7 @@ export default function ProductShowcase({ products }) {
                     </div>
                   ))}
                   {!hasProducts && (
-                    <div className="col-span-1 text-center text-sm text-muted-foreground sm:col-span-2 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                    <div className="col-span-1 text-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-2 xl:col-span-3 2xl:col-span-3">
                       {t.noProductsFound}
                     </div>
                   )}
@@ -119,7 +119,7 @@ export default function ProductShowcase({ products }) {
                   <Link
                     href="/products"
                     className={cn(
-                      "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-4",
+                      "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-3 2xl:col-span-3",
                       isRTL && "lg:flex-row-reverse"
                     )}
                   >

@@ -156,9 +156,8 @@ export async function registerUser(formData) {
       return { error: "An account with this information already exists." };
     }
 
-    // 3. Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // 3. Hash password with optimized salt rounds for better performance
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // 4. Create User
     // Note: The 'name' field is required by Auth.js and is present in our Prisma schema.
@@ -174,18 +173,24 @@ export async function registerUser(formData) {
         role: "CUSTOMER",
       },
     });
-    const sendRes = await sendPhoneVerificationCode(phone);
-    if (!sendRes.success) {
-      console.warn("registerUser: user created but phone verification SMS failed");
-    }
-    await createAdminBroadcastNotification({
-      type: "NEW_USER",
-      titleAr: "مستخدم جديد",
-      titleEn: "New user registered",
-      bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
-      bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
-      link: "/admin",
-    });
+
+    // 5. Fire-and-forget: Send phone verification and admin notification in background
+    // Don't await these to avoid blocking the user's registration response
+    Promise.allSettled([
+      sendPhoneVerificationCode(phone).catch(err => 
+        console.warn("registerUser: phone verification SMS failed", err)
+      ),
+      createAdminBroadcastNotification({
+        type: "NEW_USER",
+        titleAr: "مستخدم جديد",
+        titleEn: "New user registered",
+        bodyAr: `تم تسجيل مستخدم جديد: ${createdUser.name || createdUser.email}`,
+        bodyEn: `A new user registered: ${createdUser.name || createdUser.email}`,
+        link: "/admin",
+      }).catch(err => 
+        console.warn("registerUser: admin notification failed", err)
+      ),
+    ]);
 
     return { success: true, requiresPhoneVerification: true, phone };
   } catch (error) {
