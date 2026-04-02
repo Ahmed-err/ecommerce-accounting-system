@@ -46,7 +46,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 
     if (!mounted) {
         return (
-            <div className="flex items-center">
+            <div className="flex items-center lg:hidden">
                 <div
                     className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground"
                     aria-hidden
@@ -58,7 +58,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
     }
 
     return (
-        <div className="flex items-center">
+        <div className="flex items-center lg:hidden">
             <Sheet id="navbar-mobile-sheet">
                 <SheetTrigger asChild>
                     <Button
@@ -211,28 +211,28 @@ export default function Navbar() {
 
     return (
         <header className={cn(
-            "sticky top-0 z-50 w-full max-w-full h-16 transition-all duration-300",
+            "sticky top-0 z-50 w-full max-w-full transition-all duration-300",
             scrolled 
                 ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-foreground/5"
                 : "bg-background"
         )}>
-            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8 h-full pt-2 sm:pt-3">
-                <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-8">
+            <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
+                <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-6 h-16 sm:h-[4.5rem]">
                     {/* === Logo === */}
-                    <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-                        <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300">
-                            <Zap className="h-5 w-5 text-white drop-shadow" />
+                    <Link href="/" className="flex items-center gap-2 group shrink-0 sm:gap-2.5">
+                        <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
+                            <Zap className="h-4 w-4 text-white drop-shadow sm:h-5 sm:w-5" />
                         </div>
 
                         <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
                             <span className={cn(
-                                "text-sm font-black tracking-tight text-foreground whitespace-normal break-words leading-tight line-clamp-2 max-w-[120px] sm:max-w-[160px] overflow-hidden text-ellipsis",
+                                "text-xs font-black tracking-tight text-foreground line-clamp-1 max-w-[100px] overflow-hidden text-ellipsis sm:text-sm sm:max-w-[140px] lg:max-w-[180px]",
                                 isRTL ? "text-right" : ""
                             )}>
                                 {brandName}
                             </span>
                             <span className={cn(
-                                "mt-0.5 text-[9px] font-bold text-amber-500 tracking-wide",
+                                "mt-0.5 text-[8px] font-bold text-amber-500 tracking-wide sm:text-[9px]",
                                 isRTL && "text-right"
                             )}>
                                 {brandTagline}
@@ -241,7 +241,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* === Navigation (Desktop) === */}
-                    <nav className="hidden lg:flex items-center gap-1">
+                    <nav className="hidden lg:flex items-center gap-0.5">
                         {/* Categories Dropdown */}
                         <div 
                             className="relative group/cat"
@@ -250,7 +250,7 @@ export default function Navbar() {
                         >
                             <button 
                                 className={cn(
-                                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all",
+                                    "flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-bold transition-all",
                                     showCategories ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                                 )}
                                 onClick={() => setShowCategories(!showCategories)}
@@ -292,7 +292,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="px-4 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
+                                className="px-3 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
                             >
                                 {link.name}
                             </Link>
@@ -300,12 +300,12 @@ export default function Navbar() {
                     </nav>
 
                     {/* Search + theme + language: large screens only; smaller viewports use mobile sheet */}
-                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[8rem] lg:max-w-md lg:mx-4 xl:mx-8">
+                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[6rem] lg:max-w-sm lg:mx-3 xl:mx-6">
                         <GlobalSearch inputId="global-search-desktop" />
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                        <div className="hidden items-center gap-1 lg:flex">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <div className="hidden items-center gap-0.5 lg:flex">
                             <ThemeToggle />
                             <Button
                                 variant="ghost"
@@ -315,7 +315,7 @@ export default function Navbar() {
                                 aria-label={t.language}
                                 type="button"
                             >
-                                <Globe className="h-5 w-5" />
+                                <Globe className="h-4 w-4" />
                                 <span className="sr-only">Language</span>
                             </Button>
                         </div>
@@ -323,8 +323,8 @@ export default function Navbar() {
                         {session ? <StoreNotificationBell /> : null}
 
                         <Link href="/cart" className="relative group">
-                             <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full relative bg-foreground/5 hover:bg-amber-500 hover:text-black transition-all">
-                                <ShoppingCart className="h-5 w-5" />
+                             <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full relative bg-foreground/5 hover:bg-amber-500 hover:text-black transition-all sm:w-10 sm:h-10">
+                                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                                 {loaded && cartCount > 0 && (
                                     <span className={cn(
                                         "absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-black ring-2 ring-background animate-in zoom-in-0 duration-300",
@@ -347,18 +347,18 @@ export default function Navbar() {
                                 <Button
                                     variant="ghost"
                                     className={cn(
-                                        "h-10 px-1 !rounded-full bg-foreground/5 hover:bg-foreground/10 transition-all border border-foreground/5",
-                                        isRTL ? "pl-3" : "pr-3"
+                                        "h-9 px-1 !rounded-full bg-foreground/5 hover:bg-foreground/10 transition-all border border-foreground/5 sm:h-10",
+                                        isRTL ? "pl-2 sm:pl-3" : "pr-2 sm:pr-3"
                                     )}
                                     onClick={() => setShowUserMenu((prev) => !prev)}
                                     aria-haspopup="menu"
                                     aria-expanded={showUserMenu}
                                     type="button"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xs shrink-0">
+                                    <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xs shrink-0 sm:w-8 sm:h-8">
                                         {session.user.name?.charAt(0) || "U"}
                                     </div>
-                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                    <ChevronDown className="h-3.5 w-3.5 opacity-50 sm:h-4 sm:w-4" />
                                 </Button>
 
                                 {/* Dropdown */}
@@ -405,8 +405,8 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <Link href="/login">
-                                <Button className="h-10 px-6 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-black text-sm shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
-                                    <User className="h-4 w-4 mr-2" />
+                                <Button className="h-9 px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-black text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition-all sm:h-10 sm:px-5 sm:text-sm">
+                                    <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
                                     <span className="hidden sm:inline">{t.login}</span>
                                 </Button>
                             </Link>
