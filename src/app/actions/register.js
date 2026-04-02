@@ -40,6 +40,15 @@ function generateOtpCode() {
 
 const otpIdentifier = (phone) => `phone_verify:${phone}`;
 
+function withTimeout(promise, ms, label = "operation") {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    }),
+  ]);
+}
+
 export async function sendPhoneVerificationCode(rawPhone) {
   try {
     const phone = normalizePhone(rawPhone);
@@ -64,7 +73,11 @@ export async function sendPhoneVerificationCode(rawPhone) {
       },
     });
 
-    const sent = await sendPhoneVerificationOTP(phone, code);
+    const sent = await withTimeout(
+      sendPhoneVerificationOTP(phone, code),
+      8000,
+      "sendPhoneVerificationOTP"
+    );
     if (!sent) return { success: false, error: "Could not send verification SMS. Check Twilio settings." };
     return { success: true };
   } catch (error) {
