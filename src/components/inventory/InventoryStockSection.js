@@ -289,7 +289,7 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="max-h-[90dvh] w-[95vw] max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
+          className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
       >
         <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryReceiveStock}</DialogTitle>
@@ -440,7 +440,7 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="max-h-[90dvh] w-[95vw] max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
+        className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
       >
         <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryIssueStock}</DialogTitle>

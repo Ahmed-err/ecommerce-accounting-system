@@ -440,7 +440,7 @@ function SuppliersTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
+        <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
           <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{edit ? t.suppliersEdit : t.suppliersAdd}</DialogTitle>
           </DialogHeader>
@@ -798,7 +798,7 @@ function PurchasesTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-3xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
+        <DialogContent className="max-h-[90vh] w-full max-w-3xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
           <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersAddPurchase}</DialogTitle>
           </DialogHeader>
@@ -933,7 +933,7 @@ function PurchasesTab({ t, isRTL }) {
       </Dialog>
 
       <Dialog open={!!payOpen} onOpenChange={(o) => !o && setPayOpen(null)}>
-        <DialogContent className="w-[95vw] max-w-md border-white/10 bg-gray-900 p-0 text-white">
+        <DialogContent className="w-full max-w-md border-white/10 bg-gray-900 p-0 text-white">
           <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersRecordPayment}</DialogTitle>
           </DialogHeader>
