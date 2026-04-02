@@ -30,7 +30,7 @@ function serializeProductForClient(row) {
 
 export async function getHomepageData() {
   try {
-    const [banners, categories, products, offers] = await Promise.all([
+    const [banners, categories, activeProducts, offers] = await Promise.all([
       db.banner.findMany({
         where: { isActive: true },
         orderBy: { order: "asc" },
@@ -63,6 +63,27 @@ export async function getHomepageData() {
         orderBy: { createdAt: "desc" },
       }),
     ]);
+
+    // If there are no active products, fall back to any products so the homepage
+    // featured section doesn't look broken in dev/empty DB scenarios.
+    const products =
+      activeProducts && activeProducts.length > 0
+        ? activeProducts
+        : await db.product.findMany({
+            orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
+            take: 6,
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              sku: true,
+              purchasePrice: true,
+              sellingPrice: true,
+              stock: true,
+              images: true,
+              category: { select: { name: true } },
+            },
+          });
 
     const resolvedBanners =
       banners.length > 0
