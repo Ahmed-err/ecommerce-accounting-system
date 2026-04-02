@@ -22,10 +22,13 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
   }, []);
 
   return (
-    <div className={`flex min-h-screen bg-gray-950 text-gray-100 selection:bg-amber-500/30 ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`} dir={isRTL ? "rtl" : "ltr"}>
+    <div
+      className={`flex min-h-dvh bg-gray-950 text-gray-100 selection:bg-amber-500/30 overflow-x-hidden ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       
       {/* --- SIDEBAR --- */}
-      <aside className="hidden md:block w-64 flex-shrink-0 sticky top-0 h-screen">
+      <aside className="hidden md:block w-64 max-w-full flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
         <AdminSidebar unreadContactCount={unreadContactCount} />
       </aside>
 
@@ -43,7 +46,10 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
                     <span className="sr-only">{t.adminToggleMenu}</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side={isRTL ? "right" : "left"} className={`w-72 border-white/5 bg-gray-900 p-0 pt-0 ${isRTL ? "border-l" : "border-r"}`}>
+                <SheetContent
+                  side={isRTL ? "right" : "left"}
+                  className={`w-full max-w-[calc(100vw-2rem)] border-white/5 bg-gray-900 p-0 pt-0 ${isRTL ? "border-l" : "border-r"} overflow-x-hidden`}
+                >
                   <SheetHeader className="sr-only">
                     <SheetTitle>{t.adminNavMenu}</SheetTitle>
                   </SheetHeader>

@@ -77,9 +77,9 @@ export default async function RootLayout({ children }) {
   const branding = await getStoreBranding();
 
   return (
-    <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overscroll-none">
+    <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overscroll-none overflow-x-hidden">
       <body
-        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none min-w-0 overflow-x-hidden`}
+        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background overscroll-none min-w-0 overflow-x-hidden min-h-dvh`}
       >
         <Providers lang={lang} branding={branding}>
           <CartProvider>

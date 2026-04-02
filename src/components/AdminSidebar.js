@@ -53,7 +53,10 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
   const navItems = allItems.filter(item => item.roles.includes(userRole));
 
   return (
-    <div className={`flex h-full flex-col bg-gray-950/95 backdrop-blur-xl ${isRTL ? 'border-l' : 'border-r'} border-white/5 text-gray-300 w-full md:w-64 ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`} dir={isRTL ? "rtl" : "ltr"}>
+    <div
+      className={`flex h-full flex-col bg-gray-950/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-white/5 text-gray-300 w-64 max-w-full overflow-x-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       <div className="p-8">
         <h2 className="flex items-start gap-2 text-white drop-shadow-sm">
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500">
@@ -101,7 +104,9 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
                     : "opacity-60 group-hover:scale-110 group-hover:text-amber-400 group-hover:opacity-100"
                 }`}
               />
-              <span className="min-w-0 flex-1 tracking-wide">{item.name}</span>
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap tracking-wide">
+                {item.name}
+              </span>
               {item.badge > 0 ? (
                 <span className="shrink-0 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-black text-black">
                   {item.badge > 99 ? "99+" : item.badge}
