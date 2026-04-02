@@ -67,7 +67,7 @@ export default function HeroSlider({ banners }) {
     <section
       className="relative w-full overflow-hidden bg-neutral-950 text-white"
       /* clamp: 360px (small phone) → 70vh → 760px max */
-      style={{ height: "clamp(360px, 70vh, 760px)" }}
+      style={{ height: "clamp(320px, 62vh, 680px)" }}
       tabIndex={0}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -122,7 +122,7 @@ export default function HeroSlider({ banners }) {
           {/* Content */}
           <div
             className={cn(
-              "relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-28",
+              "relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-24",
               "sm:justify-center sm:px-6 sm:pb-0 lg:px-8",
               banners.length > 1 && "max-sm:pb-32"
             )}

@@ -39,7 +39,7 @@ export default function PromoOffer({ offer }) {
   const showTimer   = offer.expiresAt && timeLeft.seconds !== undefined;
 
   return (
-    <section className="relative overflow-hidden bg-card text-foreground border-y border-foreground/5 py-14 sm:py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-card text-foreground border-y border-foreground/5 py-12 sm:py-16 lg:py-20">
       {/* Decorative glow */}
       <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none" />
 
@@ -106,7 +106,7 @@ export default function PromoOffer({ offer }) {
           </div>
 
           {/* ── Image side ────────────────────────────────────────────── */}
-          <div className="relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl shadow-amber-500/10 group sm:h-80 md:h-96 lg:h-[480px] xl:h-[540px]">
+          <div className="relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl shadow-amber-500/10 group sm:h-72 md:h-80 lg:h-[420px] xl:h-[460px]">
             <Image
               src={offer.image}
               alt={offerTitle}
