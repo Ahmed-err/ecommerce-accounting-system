@@ -21,6 +21,7 @@ const cairo = Cairo({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const viewport = {
