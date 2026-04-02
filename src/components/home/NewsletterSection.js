@@ -38,7 +38,7 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-card border-t border-foreground/5 py-16 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden bg-card border-t border-foreground/5 py-12 sm:py-14 lg:py-16">
       {/* Decorative line */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
       {/* Glow blob */}

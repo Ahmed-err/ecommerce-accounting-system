@@ -39,12 +39,12 @@ export default function CategoriesStrip({ categories }) {
 
   return (
     <section
-      className="py-10 bg-background border-y border-foreground/5 sm:py-12 lg:py-16"
+      className="py-8 bg-background border-y border-foreground/5 sm:py-10 lg:py-12"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header: DOM order h2 then link — in RTL, flex main-start is right so the title stays on the right */}
-        <div className="mb-6 flex items-center justify-between sm:mb-8">
+        <div className="mb-5 flex items-center justify-between sm:mb-6">
           <h2 className="text-start text-lg font-black uppercase tracking-tighter text-foreground underline decoration-amber-500 underline-offset-8 sm:text-2xl">
             {t.shopByCategory}
           </h2>

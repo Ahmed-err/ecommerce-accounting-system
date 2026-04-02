@@ -32,13 +32,13 @@ export default function TrustBadges() {
   ];
 
   return (
-    <section className="py-10 bg-background sm:py-12 lg:py-16">
+    <section className="py-8 bg-background sm:py-10 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6 xl:gap-8">
           {badges.map((badge, i) => (
             <div
               key={i}
-              className={`flex items-center gap-3 p-4 rounded-2xl bg-card border border-foreground/5 hover:border-amber-500/50 transition-all duration-300 group shadow-premium hover:shadow-xl sm:gap-4 sm:p-5 lg:p-6 xl:p-8 xl:rounded-3xl ${isRTL ? "flex-row-reverse" : ""}`}
+              className={`flex items-center gap-3 p-3 rounded-2xl bg-card border border-foreground/5 hover:border-amber-500/50 transition-all duration-300 group shadow-premium hover:shadow-xl sm:gap-3 sm:p-4 lg:p-5 xl:p-6 xl:rounded-3xl ${isRTL ? "flex-row-reverse" : ""}`}
             >
               <div className="h-10 w-10 shrink-0 rounded-xl bg-amber-500 flex items-center justify-center text-black group-hover:scale-110 transition-transform shadow-md shadow-amber-500/20 sm:h-12 sm:w-12 sm:rounded-2xl lg:h-14 lg:w-14">
                 <badge.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />

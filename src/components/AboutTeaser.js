@@ -10,7 +10,7 @@ export default function AboutTeaser() {
   const t = translations[lang] || translations.en;
 
   return (
-    <section className="py-14 bg-muted dark:bg-neutral-950/60 border-y border-border sm:py-20 lg:py-28">
+    <section className="py-10 bg-muted dark:bg-neutral-950/60 border-y border-border sm:py-14 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className="grid grid-cols-1 gap-10 items-start lg:grid-cols-3 lg:gap-14"
@@ -83,7 +83,7 @@ export default function AboutTeaser() {
                 alt={isRTL ? "ألواح طاقة شمسية" : "Solar panels"}
                 width={1200}
                 height={700}
-                className="w-full h-40 object-cover sm:h-56 md:h-64 lg:h-[260px] xl:h-[300px]"
+                className="w-full h-36 object-cover sm:h-48 md:h-56 lg:h-[240px] xl:h-[280px]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
@@ -100,7 +100,7 @@ export default function AboutTeaser() {
                   alt={isRTL ? "أدوات كهربائية" : "Electrical tools"}
                   width={900}
                   height={600}
-                  className="w-full h-32 object-cover sm:h-40 md:h-48"
+                  className="w-full h-28 object-cover sm:h-36 md:h-44"
                 />
               </div>
               <div className="relative rounded-xl overflow-hidden border border-border sm:rounded-2xl">
@@ -109,7 +109,7 @@ export default function AboutTeaser() {
                   alt={isRTL ? "كابلات وأسلاك" : "Cables and wires"}
                   width={900}
                   height={600}
-                  className="w-full h-32 object-cover sm:h-40 md:h-48"
+                  className="w-full h-28 object-cover sm:h-36 md:h-44"
                 />
               </div>
             </div>

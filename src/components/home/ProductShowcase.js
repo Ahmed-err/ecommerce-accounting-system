@@ -27,7 +27,7 @@ export default function ProductShowcase({ products }) {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-background border-t border-foreground/5 py-12 sm:py-16 lg:py-20">
+    <section className="relative overflow-hidden bg-background border-t border-foreground/5 py-10 sm:py-12 lg:py-16">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
       <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
@@ -35,7 +35,7 @@ export default function ProductShowcase({ products }) {
           {/* ── Section header + tabs ── */}
           <div
             className={cn(
-              "flex flex-col gap-6 mb-8 sm:mb-10 lg:mb-12",
+              "flex flex-col gap-6 mb-6 sm:mb-8 lg:mb-10",
               "xl:flex-row xl:items-end xl:justify-between",
               isRTL && "xl:flex-row-reverse"
             )}
