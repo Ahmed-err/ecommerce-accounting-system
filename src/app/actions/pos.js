@@ -19,7 +19,6 @@ export async function getProductStock() {
   try {
     await ensureStaff();
     const products = await prisma.product.findMany({
-      where: { isActive: true },
       select: {
         id: true,
         stock: true,
@@ -53,7 +52,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
     const order = await prisma.$transaction(async (tx) => {
       const productIds = cartItems.map(item => item.id);
       const dbProducts = await tx.product.findMany({
-        where: { id: { in: productIds }, isActive: true },
+        where: { id: { in: productIds } },
         select: { id: true, stock: true, sellingPrice: true, name: true, sku: true },
       });
 
@@ -65,7 +64,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
       for (const item of cartItems) {
         const product = productMap.get(item.id);
         if (!product) {
-          throw new Error(`Product ${item.id} not found or inactive.`);
+          throw new Error(`Product ${item.id} not found.`);
         }
         if (product.stock < item.quantity) {
           throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}`);

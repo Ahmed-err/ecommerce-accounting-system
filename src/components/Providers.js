@@ -10,8 +10,8 @@ export function Providers({ children, lang, branding }) {
     <SessionProvider basePath="/api/auth">
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
+        defaultTheme="light"
+        enableSystem={false}
         disableTransitionOnChange={false}
         enableColorScheme
       >

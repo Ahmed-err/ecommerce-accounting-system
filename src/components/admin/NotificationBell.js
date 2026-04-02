@@ -144,12 +144,12 @@ export default function NotificationBell({ customerOnly = false }) {
         variant="ghost"
         size="icon"
         onClick={() => setOpen((v) => !v)}
-        className="relative h-10 w-10 rounded-full bg-foreground/5 text-foreground hover:bg-foreground/10"
+        className="relative h-10 w-10 rounded-full border border-border bg-muted text-foreground hover:bg-accent"
         aria-haspopup="menu"
         aria-expanded={open}
         type="button"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-5 w-5 text-foreground" />
         {unread > 0 ? (
           <span className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} h-5 min-w-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center`}>
             {unread > 99 ? "99+" : unread}
@@ -158,13 +158,13 @@ export default function NotificationBell({ customerOnly = false }) {
       </Button>
       {open ? (
         <div
-          className={`fixed inset-x-2 top-16 z-[200] mt-0 w-auto rounded-2xl border border-white/10 bg-gray-900/95 p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:mt-2 sm:w-96 ${
+          className={`fixed inset-x-2 top-16 z-[200] mt-0 w-auto rounded-2xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:mt-2 sm:w-96 ${
             isRTL ? "sm:left-0" : "sm:right-0"
           }`}
         >
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-bold text-white">{title}</p>
-            <Button size="sm" variant="ghost" className="h-8 px-2 text-[11px] text-gray-300" onClick={markAll} type="button">
+            <p className="text-sm font-bold text-foreground">{title}</p>
+            <Button size="sm" variant="ghost" className="h-8 px-2 text-[11px] text-muted-foreground hover:text-foreground" onClick={markAll} type="button">
               <CheckCheck className="h-4 w-4 me-1" />
               {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all as read"}
             </Button>
@@ -174,20 +174,20 @@ export default function NotificationBell({ customerOnly = false }) {
               <button
                 key={n.id}
                 onClick={() => markOne(n.id, n.link)}
-                className={`w-full rounded-xl border p-3 transition ${isRTL ? "text-right" : "text-left"} ${n.read ? "border-white/5 bg-white/[0.02]" : "border-amber-500/30 bg-amber-500/10"}`}
+                className={`w-full rounded-xl border p-3 transition ${isRTL ? "text-right" : "text-left"} ${n.read ? "border-border bg-muted/50" : "border-amber-500/40 bg-amber-500/10"}`}
                 type="button"
               >
-                <p className="text-sm font-semibold text-white">{lang === "ar" ? n.titleAr : n.titleEn}</p>
-                <p className="mt-1 text-xs text-gray-300">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
-                <p className="mt-1 text-[10px] text-gray-500">{timeAgo(n.createdAt, lang)}</p>
+                <p className="text-sm font-semibold text-foreground">{lang === "ar" ? n.titleAr : n.titleEn}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
+                <p className="mt-1 text-[10px] text-muted-foreground/80">{timeAgo(n.createdAt, lang)}</p>
               </button>
             )) : (
-              <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-xs text-gray-400">
+              <div className="rounded-xl border border-border bg-muted/50 p-4 text-xs text-muted-foreground">
                 {lang === "ar" ? "لا توجد إشعارات" : "No notifications"}
               </div>
             )}
           </div>
-          <Link href="/admin/notifications" className="mt-2 block text-center text-xs text-amber-400 hover:text-amber-300">
+          <Link href="/admin/notifications" className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500">
             {lang === "ar" ? "عرض الكل" : "View all"}
           </Link>
         </div>
