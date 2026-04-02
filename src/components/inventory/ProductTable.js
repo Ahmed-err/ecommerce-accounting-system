@@ -35,6 +35,7 @@ import {
   updateStockQuantity,
   bulkDeleteProducts,
   bulkSetCategory,
+  updateProductOriginAction,
 } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -91,6 +92,7 @@ export default function ProductTable({
   suppliers = [],
   canManage = true,
   isCashier = false,
+  unclassifiedCount = 0,
 }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
@@ -103,6 +105,7 @@ export default function ProductTable({
   const [mounted, setMounted] = useState(false);
   const [selected, setSelected] = useState(() => new Set());
   const [bulkCategoryId, setBulkCategoryId] = useState("");
+  const [hideClassifyBanner, setHideClassifyBanner] = useState(false);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -112,6 +115,9 @@ export default function ProductTable({
   useEffect(() => {
     setSelected(new Set());
   }, [searchParamsHook.toString()]);
+  useEffect(() => {
+    setHideClassifyBanner(localStorage.getItem("inventory-origin-banner-dismissed") === "1");
+  }, []);
 
   const currentPage = Number(searchParamsHook.get("page")) || 1;
   const currentSort = searchParamsHook.get("sort") || "newest";
@@ -158,6 +164,14 @@ export default function ProductTable({
     pushParams((p) => {
       if (val && val !== "all") p.set("supplier", val);
       else p.delete("supplier");
+      p.set("page", "1");
+    });
+  };
+
+  const handleOriginChange = (val) => {
+    pushParams((p) => {
+      if (val && val !== "all") p.set("origin", val);
+      else p.delete("origin");
       p.set("page", "1");
     });
   };
@@ -326,7 +340,7 @@ export default function ProductTable({
     } else toast.error(res.error || t.genericError);
   };
 
-  const colCount = (canManage ? 1 : 0) + 10 + (isCashier ? 0 : 2);
+  const colCount = (canManage ? 1 : 0) + 11 + (isCashier ? 0 : 2);
 
   return (
     <div
@@ -437,6 +451,19 @@ export default function ProductTable({
                 ))}
               </SelectContent>
             </Select>
+            <Select
+              value={searchParamsHook.get("origin") || "all"}
+              onValueChange={handleOriginChange}
+            >
+              <SelectTrigger className="h-10 w-full bg-gray-800/50 border-white/5 text-white sm:w-[160px] rounded-xl">
+                <SelectValue placeholder={t.inventoryOriginLabel} />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-gray-800 text-white rounded-xl">
+                <SelectItem value="all">{t.inventoryOriginAll}</SelectItem>
+                <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
+                <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
+              </SelectContent>
+            </Select>
 
             <Button
               type="button"
@@ -466,6 +493,29 @@ export default function ProductTable({
               <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} /> {t.inventoryAddProduct}
             </Button>
           )}
+        </div>
+      )}
+      {canManage && !hideClassifyBanner && unclassifiedCount > 0 && (
+        <div className="mx-4 mt-4 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
+          <span className="text-amber-100">
+            {t.inventoryUnclassifiedBanner.replace("{count}", String(unclassifiedCount))}
+          </span>
+          <div className="flex gap-2">
+            <Button size="sm" className="bg-amber-500 text-black" onClick={() => handleOriginChange("all")}>
+              {t.inventoryClassifyNow}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-amber-100"
+              onClick={() => {
+                localStorage.setItem("inventory-origin-banner-dismissed", "1");
+                setHideClassifyBanner(true);
+              }}
+            >
+              {t.dismiss}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -536,6 +586,7 @@ export default function ProductTable({
                   isRTL={isRTL}
                 />
               </th>
+              <th className="px-4 py-3">{t.inventoryOriginLabel}</th>
               <th className="px-4 py-3">{t.inventoryColBarcode}</th>
               <th className="px-4 py-3">{t.categoriesTab}</th>
               <th className="px-4 py-3">
@@ -644,6 +695,44 @@ export default function ProductTable({
                     </td>
                     <td className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-gray-400">
                       {p.sku}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        title={p.countryOfOrigin || ""}
+                        className={cn(
+                          "rounded-full px-2 py-1 text-[10px] font-bold uppercase",
+                          p.origin === "IMPORTED"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900"
+                            : "bg-green-100 text-green-800 dark:bg-green-900"
+                        )}
+                      >
+                        {p.origin === "IMPORTED" ? t.inventoryOriginImportedBadge : t.inventoryOriginLocalBadge}
+                      </span>
+                      {canManage && (
+                        <Select
+                          value={p.origin || "LOCAL"}
+                          onValueChange={async (val) => {
+                            const res = await updateProductOriginAction({
+                              productId: p.id,
+                              origin: val,
+                              countryOfOrigin: p.countryOfOrigin || null,
+                              localPrice: p.localPrice ?? null,
+                              importedPrice: p.importedPrice ?? null,
+                              importTaxRate: p.importTaxRate ?? null,
+                            });
+                            if (!res.success) toast.error(res.error || t.genericError);
+                            else router.refresh();
+                          }}
+                        >
+                          <SelectTrigger className="mt-2 h-7 w-[124px] border-white/10 bg-gray-800 text-[11px] text-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-white/10 bg-gray-800 text-white">
+                            <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
+                            <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-400">{p.barcode || "—"}</td>
                     <td className="px-4 py-3 text-gray-400">{p.category?.name}</td>

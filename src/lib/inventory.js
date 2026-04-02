@@ -24,6 +24,11 @@ function mapRawProductRow(row) {
     unit: row.unit,
     purchasePrice: row.purchasePrice,
     sellingPrice: row.sellingPrice,
+    origin: row.origin,
+    localPrice: row.localPrice,
+    importedPrice: row.importedPrice,
+    countryOfOrigin: row.countryOfOrigin,
+    importTaxRate: row.importTaxRate,
     stock: row.stock,
     minStock: row.minStock,
     images: row.images,
@@ -53,6 +58,11 @@ export function serializeProduct(p, { redactPricing = false } = {}) {
     sku: p.sku,
     barcode: p.barcode,
     unit: p.unit || "pcs",
+    origin: p.origin || "LOCAL",
+    localPrice: toNum(p.localPrice),
+    importedPrice: toNum(p.importedPrice),
+    countryOfOrigin: p.countryOfOrigin || null,
+    importTaxRate: p.importTaxRate == null ? null : toNum(p.importTaxRate),
     stock: p.stock,
     minStock: p.minStock,
     images: p.images || [],
@@ -118,13 +128,14 @@ function searchSql(search) {
   )`;
 }
 
-function categorySupplierSql(categoryId, supplierId) {
+function categorySupplierSql(categoryId, supplierId, origin) {
+  const originSql = origin && origin !== "all" ? Prisma.sql`AND p."origin" = ${origin}` : Prisma.empty;
   if (categoryId && supplierId) {
-    return Prisma.sql`AND p."categoryId" = ${categoryId} AND p."supplierId" = ${supplierId}`;
+    return Prisma.sql`AND p."categoryId" = ${categoryId} AND p."supplierId" = ${supplierId} ${originSql}`;
   }
-  if (categoryId) return Prisma.sql`AND p."categoryId" = ${categoryId}`;
-  if (supplierId) return Prisma.sql`AND p."supplierId" = ${supplierId}`;
-  return Prisma.empty;
+  if (categoryId) return Prisma.sql`AND p."categoryId" = ${categoryId} ${originSql}`;
+  if (supplierId) return Prisma.sql`AND p."supplierId" = ${supplierId} ${originSql}`;
+  return originSql;
 }
 
 export async function getInventoryProducts({
@@ -132,13 +143,14 @@ export async function getInventoryProducts({
   categoryId = "",
   supplierId = "",
   status = "all",
+  origin = "all",
   sort = "newest",
   page = 1,
   limit = INVENTORY_PAGE_SIZE,
 }) {
   const skip = (page - 1) * limit;
   const orderSql = sortClause(sort);
-  const catSup = categorySupplierSql(categoryId || null, supplierId || null);
+  const catSup = categorySupplierSql(categoryId || null, supplierId || null, origin);
   const sSql = searchSql(search);
 
   if (status === "low") {
@@ -190,6 +202,7 @@ export async function getInventoryProducts({
   const where = {
     isActive: true,
     ...(status === "out" ? { stock: 0 } : {}),
+    ...(origin !== "all" ? { origin } : {}),
     ...(categoryId ? { categoryId } : {}),
     ...(supplierId ? { supplierId } : {}),
   };
@@ -261,6 +274,10 @@ export async function getInventorySummary() {
     receiptMonths,
     topQty,
     movementMonths,
+    localProducts,
+    importedProducts,
+    originCategoryMargins,
+    originRevenueRows,
   ] = await Promise.all([
     db.product.count({ where: { isActive: true } }),
     db.$queryRaw`SELECT COUNT(*)::int as c FROM "Product" WHERE "isActive" = true AND "stock" = 0`,
@@ -293,12 +310,92 @@ export async function getInventorySummary() {
       ORDER BY 1 ASC
       LIMIT 18
     `,
+    db.product.findMany({
+      where: { isActive: true, origin: "LOCAL" },
+      select: {
+        id: true,
+        name: true,
+        stock: true,
+        purchasePrice: true,
+        sellingPrice: true,
+        localPrice: true,
+        countryOfOrigin: true,
+        category: { select: { name: true } },
+      },
+    }),
+    db.product.findMany({
+      where: { isActive: true, origin: "IMPORTED" },
+      select: {
+        id: true,
+        name: true,
+        stock: true,
+        sellingPrice: true,
+        importedPrice: true,
+        importTaxRate: true,
+        countryOfOrigin: true,
+        category: { select: { name: true } },
+      },
+    }),
+    db.product.findMany({
+      where: { isActive: true },
+      select: {
+        origin: true,
+        purchasePrice: true,
+        sellingPrice: true,
+        category: { select: { name: true } },
+      },
+    }),
+    db.$queryRaw`
+      SELECT p."origin" as origin, COALESCE(SUM(oi.quantity * oi.price), 0)::float as revenue
+      FROM "OrderItem" oi
+      JOIN "Order" o ON o.id = oi."orderId"
+      JOIN "Product" p ON p.id = oi."productId"
+      WHERE o."createdAt" >= NOW() - INTERVAL '365 days'
+      GROUP BY p."origin"
+    `,
   ]);
 
   const totalInventoryCostValue = productsForValue.reduce(
     (acc, p) => acc + p.stock * toNum(p.purchasePrice),
     0
   );
+
+  const localStockValue = localProducts.reduce(
+    (acc, p) => acc + Number(p.stock || 0) * (toNum(p.localPrice) || toNum(p.purchasePrice)),
+    0
+  );
+  const importedStockValue = importedProducts.reduce(
+    (acc, p) => acc + Number(p.stock || 0) * toNum(p.importedPrice),
+    0
+  );
+  const importedTaxPaid = importedProducts.reduce((acc, p) => {
+    const base = toNum(p.importedPrice);
+    const taxRate = toNum(p.importTaxRate);
+    return acc + Number(p.stock || 0) * base * (taxRate / 100);
+  }, 0);
+  const marginByCategory = {};
+  for (const row of originCategoryMargins) {
+    const sale = toNum(row.sellingPrice);
+    const cost = toNum(row.purchasePrice);
+    const margin = sale > 0 ? ((sale - cost) / sale) * 100 : 0;
+    const category = row.category?.name || "Other";
+    if (!marginByCategory[category]) {
+      marginByCategory[category] = { category, LOCAL: [], IMPORTED: [] };
+    }
+    marginByCategory[category][row.origin || "LOCAL"].push(margin);
+  }
+  const marginChart = Object.values(marginByCategory).map((item) => ({
+    category: item.category,
+    local: item.LOCAL.length ? item.LOCAL.reduce((a, b) => a + b, 0) / item.LOCAL.length : 0,
+    imported: item.IMPORTED.length ? item.IMPORTED.reduce((a, b) => a + b, 0) / item.IMPORTED.length : 0,
+  }));
+  const revenueByOrigin = { LOCAL: 0, IMPORTED: 0 };
+  for (const row of originRevenueRows || []) {
+    revenueByOrigin[row.origin] = Number(row.revenue || 0);
+  }
+  const unclassifiedCount = await db.product.count({
+    where: { isActive: true, countryOfOrigin: null },
+  });
 
   return {
     totalProducts,
@@ -315,6 +412,41 @@ export async function getInventorySummary() {
       in: Number(r.ins || 0),
       out: Number(r.outs || 0),
     })),
+    localProductsCount: localProducts.length,
+    importedProductsCount: importedProducts.length,
+    unclassifiedCount,
+    originAnalysis: {
+      local: localProducts.map((p) => ({
+        ...p,
+        purchasePrice: toNum(p.purchasePrice),
+        sellingPrice: toNum(p.sellingPrice),
+        localPrice: toNum(p.localPrice),
+      })),
+      imported: importedProducts.map((p) => ({
+        ...p,
+        sellingPrice: toNum(p.sellingPrice),
+        importedPrice: toNum(p.importedPrice),
+        importTaxRate: toNum(p.importTaxRate),
+      })),
+      localStockValue,
+      importedStockValue,
+      importedTaxPaid,
+      marginChart,
+      distribution: {
+        byCount: [
+          { name: "LOCAL", value: localProducts.length },
+          { name: "IMPORTED", value: importedProducts.length },
+        ],
+        byValue: [
+          { name: "LOCAL", value: localStockValue },
+          { name: "IMPORTED", value: importedStockValue },
+        ],
+        byRevenue: [
+          { name: "LOCAL", value: revenueByOrigin.LOCAL },
+          { name: "IMPORTED", value: revenueByOrigin.IMPORTED },
+        ],
+      },
+    },
   };
 }
 

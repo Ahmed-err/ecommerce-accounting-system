@@ -35,6 +35,7 @@ export default async function InventoryPage({ searchParams }) {
   const search = params?.search || "";
   const categoryId = params?.category || "";
   const supplierId = params?.supplier || "";
+  const origin = params?.origin || "all";
   const status = params?.status || "all";
   const sort = params?.sort || "newest";
 
@@ -44,13 +45,18 @@ export default async function InventoryPage({ searchParams }) {
   const isCashier = role === "CASHIER";
   const canStockOps = canManage || isCashier;
 
-  const [{ products, total }, categories, suppliers, summary, movData] = await Promise.all([
-    getProducts({ search, categoryId, supplierId, status, sort, page }),
+  const [productsResult, categories, suppliers, summary, movData] = await Promise.all([
+    getProducts({ search, categoryId, supplierId, status, origin, sort, page }),
     getCategories(),
     getSuppliers(),
     getInventorySummaryAction(),
     getStockMovementsAction({ page: 1, limit: 15 }),
   ]);
+  const recoveredProductsResult =
+    productsResult.products.length === 0 && productsResult.total > 0 && page > 1
+      ? await getProducts({ search, categoryId, supplierId, status, origin, sort, page: 1 })
+      : productsResult;
+  const { products, total } = recoveredProductsResult;
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
@@ -90,6 +96,8 @@ export default async function InventoryPage({ searchParams }) {
         lowStock={summary.lowStock}
         outOfStock={summary.outOfStock}
         totalInventoryCostValue={summary.totalInventoryCostValue}
+        localProductsCount={summary.localProductsCount}
+        importedProductsCount={summary.importedProductsCount}
         currency={t.currency}
       />
 
@@ -101,6 +109,7 @@ export default async function InventoryPage({ searchParams }) {
           suppliers={suppliers}
           canManage={canManage}
           isCashier={isCashier}
+          unclassifiedCount={summary.unclassifiedCount}
         />
       </Suspense>
 
@@ -109,6 +118,7 @@ export default async function InventoryPage({ searchParams }) {
           receiptValueByMonth={summary.receiptValueByMonth}
           topByQuantity={summary.topByQuantity}
           movementByMonth={summary.movementByMonth}
+          originAnalysis={summary.originAnalysis}
         />
       </Suspense>
 

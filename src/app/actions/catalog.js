@@ -11,6 +11,7 @@ import { createAdminBroadcastNotification, createNotification } from "@/lib/noti
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
 import { getOrCreateStoreSettings } from "@/lib/settings";
+import { productPublicFields } from "@/lib/store/product-public-fields";
 
 async function ensureStaff() {
   const session = await auth();
@@ -119,12 +120,12 @@ export async function getCatalogProductsByIds(ids) {
     if (clean.length === 0) return [];
     let products = await db.product.findMany({
       where: { id: { in: clean }, isActive: true },
-      include: { category: true },
+      select: { ...productPublicFields, category: true },
     });
     if (products.length === 0) {
       products = await db.product.findMany({
         where: { id: { in: clean } },
-        include: { category: true },
+        select: { ...productPublicFields, category: true },
       });
     }
     const order = new Map(clean.map((id, i) => [id, i]));
@@ -207,7 +208,7 @@ export async function getCatalogProducts({
           orderBy: ob,
           skip,
           take: limit,
-          include: { category: true },
+          select: { ...productPublicFields, category: true },
         }),
         db.product.count({ where }),
       ]);
@@ -244,7 +245,7 @@ export async function getProductById(id) {
   try {
     const product = await db.product.findFirst({
       where: { id, isActive: true },
-      include: { category: true },
+      select: { ...productPublicFields, category: true },
     });
     return product ? serializeCatalogProduct(product) : null;
   } catch (error) {
@@ -309,7 +310,7 @@ export async function getFeaturedProducts(limit = 8) {
       where: { isActive: true, stock: { gt: 0 } },
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { category: true },
+      select: { ...productPublicFields, category: true },
     });
     return products;
   } catch (error) {

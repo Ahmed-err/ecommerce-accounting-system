@@ -26,6 +26,18 @@ import { cn } from "@/lib/utils";
 import InventoryBarcode from "./InventoryBarcode";
 
 const MAX_PRODUCT_IMAGES = 4;
+const COUNTRY_OPTIONS = [
+  "Egypt",
+  "China",
+  "Turkey",
+  "Germany",
+  "Italy",
+  "USA",
+  "South Korea",
+  "Japan",
+  "Taiwan",
+  "Other",
+];
 
 function formatServerError(res) {
   if (!res?.error) return "";
@@ -81,6 +93,11 @@ const emptyForm = {
   minStock: 5,
   categoryId: "",
   supplierId: "",
+  origin: "LOCAL",
+  localPrice: "",
+  importedPrice: "",
+  countryOfOrigin: "",
+  importTaxRate: "",
   images: [],
   isActive: true,
 };
@@ -113,6 +130,11 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         minStock: product.minStock ?? 5,
         categoryId: product.categoryId || "",
         supplierId: product.supplierId || "",
+        origin: product.origin || "LOCAL",
+        localPrice: product.localPrice ?? "",
+        importedPrice: product.importedPrice ?? "",
+        countryOfOrigin: product.countryOfOrigin || "",
+        importTaxRate: product.importTaxRate ?? "",
         images: product.images || [],
         isActive: product.isActive !== false,
       });
@@ -162,6 +184,11 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         minStock: parseInt(formData.minStock, 10),
         categoryId: formData.categoryId,
         supplierId: formData.supplierId || null,
+        origin: formData.origin || "LOCAL",
+        localPrice: formData.localPrice === "" ? null : Number(formData.localPrice),
+        importedPrice: formData.importedPrice === "" ? null : Number(formData.importedPrice),
+        countryOfOrigin: formData.countryOfOrigin || null,
+        importTaxRate: formData.importTaxRate === "" ? null : Number(formData.importTaxRate),
         images: formData.images || [],
         isActive: formData.isActive,
       };
@@ -399,6 +426,100 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
               />
               {t.inventoryActive}
             </label>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {t.inventoryProductOriginSection}
+            </h4>
+            {isEditing && product?.origin && product.origin !== formData.origin ? (
+              <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                {t.inventoryOriginChangeWarning}
+              </div>
+            ) : null}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryOriginLabel}</label>
+                <Select
+                  value={formData.origin}
+                  onValueChange={(v) => setFormData((p) => ({ ...p, origin: v }))}
+                >
+                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                    <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
+                    <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryCountryOfOrigin}</label>
+                <Input
+                  name="countryOfOrigin"
+                  list="origin-country-list"
+                  value={formData.countryOfOrigin}
+                  onChange={handleChange}
+                  required={formData.origin === "IMPORTED"}
+                  className="bg-gray-800 border-white/10"
+                />
+                <datalist id="origin-country-list">
+                  {COUNTRY_OPTIONS.map((country) => (
+                    <option key={country} value={country} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t.inventoryLocalPrice}</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  name="localPrice"
+                  value={formData.localPrice}
+                  onChange={handleChange}
+                  className="bg-gray-800 border-white/10"
+                />
+              </div>
+              {formData.origin === "IMPORTED" ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t.inventoryImportedPrice}</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      name="importedPrice"
+                      value={formData.importedPrice}
+                      onChange={handleChange}
+                      className="bg-gray-800 border-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t.inventoryImportTaxRate}</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      name="importTaxRate"
+                      value={formData.importTaxRate}
+                      onChange={handleChange}
+                      className="bg-gray-800 border-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <label className="text-sm font-medium">{t.inventoryLandedCost}</label>
+                    <Input
+                      readOnly
+                      value={(
+                        Number(formData.importedPrice || 0) *
+                        (1 + Number(formData.importTaxRate || 0) / 100)
+                      ).toFixed(2)}
+                      className="bg-gray-800 border-white/10"
+                    />
+                  </div>
+                </>
+              ) : null}
+            </div>
           </div>
 
           <div className="space-y-4">
