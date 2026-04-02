@@ -219,20 +219,26 @@ export default function Navbar() {
             <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
                 <div className="flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-6 h-16 sm:h-[4.5rem]">
                     {/* === Logo === */}
-                    <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 sm:gap-2.5">
+                    <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[240px] sm:gap-2.5">
                         <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
                             <Zap className="h-4 w-4 text-white drop-shadow sm:h-5 sm:w-5" />
                         </div>
 
-                        <div className={cn("flex flex-col leading-none min-w-0", isRTL && "items-end")}>
+                        <div className={cn("flex flex-col leading-none min-w-0 flex-1", isRTL && "items-end")}>
                             <span className={cn(
-                                "text-xs font-black tracking-tight text-foreground max-w-[90px] sm:text-sm sm:max-w-[120px] lg:max-w-[200px] whitespace-normal break-words leading-tight",
+                                "text-xs font-black tracking-tight text-foreground whitespace-normal break-words leading-[1.15] sm:text-sm",
                                 isRTL ? "text-right" : ""
-                            )}>
+                            )} style={{ 
+                                display: '-webkit-box',
+                                WebkitLineClamp: '2',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                wordBreak: 'break-word'
+                            }}>
                                 {brandName}
                             </span>
                             <span className={cn(
-                                "mt-0.5 text-[8px] font-bold text-amber-500 tracking-wide truncate max-w-[90px] sm:text-[9px] sm:max-w-[120px] lg:max-w-[200px]",
+                                "mt-0.5 text-[8px] font-bold text-amber-500 tracking-wide truncate w-full sm:text-[9px]",
                                 isRTL && "text-right"
                             )}>
                                 {brandTagline}
