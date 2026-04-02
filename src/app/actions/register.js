@@ -205,7 +205,7 @@ export async function registerUser(formData) {
       console.warn("registerUser: admin notification failed", err);
     });
 
-    return { success: true, requiresPhoneVerification: true, phone };
+    return { success: true, requiresPhoneVerification: !!sendRes.success, phone };
   } catch (error) {
     console.error("Registration fatal error:", error);
     return { error: "Registration failed. Please try again later." };

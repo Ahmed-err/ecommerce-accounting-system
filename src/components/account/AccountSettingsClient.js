@@ -45,6 +45,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { SUDAN_CITIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
 
 const TABS = ["profile", "addresses", "security", "notifications", "preferences"];
 
@@ -107,6 +108,10 @@ export default function AccountSettingsClient({
   const [curPwd, setCurPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [confPwd, setConfPwd] = useState("");
+  const [showCurPwd, setShowCurPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [showConfPwd, setShowConfPwd] = useState(false);
+  const [showDeletePwd, setShowDeletePwd] = useState(false);
   const [pwdFieldErr, setPwdFieldErr] = useState({});
 
   const [addrOpen, setAddrOpen] = useState(false);
@@ -487,14 +492,24 @@ export default function AccountSettingsClient({
                     <form onSubmit={handleChangePassword} className="max-w-md space-y-3">
                       <div>
                         <label className="text-sm text-muted-foreground">{t.accountCurrentPassword}</label>
-                        <Input type="password" value={curPwd} onChange={(e) => setCurPwd(e.target.value)} className={pwdFieldErr.currentPassword ? "border-destructive" : ""} />
+                        <div className="relative">
+                          <Input type={showCurPwd ? "text" : "password"} value={curPwd} onChange={(e) => setCurPwd(e.target.value)} className={cn(isRTL ? "pl-10" : "pr-10", pwdFieldErr.currentPassword ? "border-destructive" : "")} />
+                          <button type="button" onClick={() => setShowCurPwd((v) => !v)} className={cn("absolute inset-y-0 end-2 flex items-center text-muted-foreground hover:text-foreground", isRTL && "start-2 end-auto")} aria-label={showCurPwd ? "Hide password" : "Show password"}>
+                            {showCurPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                         {pwdFieldErr.currentPassword && (
                           <p className="text-xs text-destructive mt-1">{pwdFieldErr.currentPassword}</p>
                         )}
                       </div>
                       <div>
                         <label className="text-sm text-muted-foreground">{t.accountNewPassword}</label>
-                        <Input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} className={pwdFieldErr.newPassword ? "border-destructive" : ""} />
+                        <div className="relative">
+                          <Input type={showNewPwd ? "text" : "password"} value={newPwd} onChange={(e) => setNewPwd(e.target.value)} className={cn(isRTL ? "pl-10" : "pr-10", pwdFieldErr.newPassword ? "border-destructive" : "")} />
+                          <button type="button" onClick={() => setShowNewPwd((v) => !v)} className={cn("absolute inset-y-0 end-2 flex items-center text-muted-foreground hover:text-foreground", isRTL && "start-2 end-auto")} aria-label={showNewPwd ? "Hide password" : "Show password"}>
+                            {showNewPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                         {pwdLabel && (
                           <div className="mt-1 h-1.5 w-full overflow-hidden rounded bg-muted">
                             <div className="h-full bg-amber-500 transition-all" style={{ width: strengthWidth }} />
@@ -504,7 +519,12 @@ export default function AccountSettingsClient({
                       </div>
                       <div>
                         <label className="text-sm text-muted-foreground">{t.accountConfirmPassword}</label>
-                        <Input type="password" value={confPwd} onChange={(e) => setConfPwd(e.target.value)} className={pwdFieldErr.confirmPassword ? "border-destructive" : ""} />
+                        <div className="relative">
+                          <Input type={showConfPwd ? "text" : "password"} value={confPwd} onChange={(e) => setConfPwd(e.target.value)} className={cn(isRTL ? "pl-10" : "pr-10", pwdFieldErr.confirmPassword ? "border-destructive" : "")} />
+                          <button type="button" onClick={() => setShowConfPwd((v) => !v)} className={cn("absolute inset-y-0 end-2 flex items-center text-muted-foreground hover:text-foreground", isRTL && "start-2 end-auto")} aria-label={showConfPwd ? "Hide password" : "Show password"}>
+                            {showConfPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </div>
                       <Button type="submit" className="bg-amber-500 text-black hover:bg-amber-600">{t.save}</Button>
                     </form>
@@ -580,7 +600,12 @@ export default function AccountSettingsClient({
                     <p className="text-sm text-muted-foreground">{t.accountDeleteHint}</p>
                     <Input value={deletePhrase} onChange={(e) => setDeletePhrase(e.target.value)} placeholder={t.accountDeleteConfirmPhrase} />
                     {user?.hasPassword && (
-                      <Input type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} placeholder={t.accountDeletePassword} />
+                      <div className="relative">
+                        <Input type={showDeletePwd ? "text" : "password"} value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} placeholder={t.accountDeletePassword} className={isRTL ? "pl-10" : "pr-10"} />
+                        <button type="button" onClick={() => setShowDeletePwd((v) => !v)} className={cn("absolute inset-y-0 end-2 flex items-center text-muted-foreground hover:text-foreground", isRTL && "start-2 end-auto")} aria-label={showDeletePwd ? "Hide password" : "Show password"}>
+                          {showDeletePwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                     )}
                   </div>
                   <DialogFooter className="gap-2">

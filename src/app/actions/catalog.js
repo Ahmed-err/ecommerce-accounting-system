@@ -10,6 +10,7 @@ import { serializeCatalogProduct } from "@/lib/catalog-serialize";
 import { createAdminBroadcastNotification, createNotification } from "@/lib/notifications";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
+import { getOrCreateStoreSettings } from "@/lib/settings";
 
 async function ensureStaff() {
   const session = await auth();
@@ -18,13 +19,91 @@ async function ensureStaff() {
   }
 }
 
+function getShippingRateForCity(cityName, shippingZones = []) {
+  const normalized = String(cityName || "").trim().toLowerCase();
+  if (!normalized) return null;
+
+  const fromZones = (Array.isArray(shippingZones) ? shippingZones : []).find((zone) =>
+    Array.isArray(zone.governorates) &&
+    zone.governorates.some((g) => String(g || "").trim().toLowerCase() === normalized)
+  );
+  if (fromZones) return Number(fromZones.shippingCost ?? 0);
+
+  const fallback = SUDAN_CITIES.find(
+    (c) => String(c.name || "").trim().toLowerCase() === normalized
+  );
+  return fallback ? Number(fallback.rate ?? 0) : null;
+}
+
+export async function getCheckoutShippingOptions() {
+  try {
+    const store = await getOrCreateStoreSettings();
+    const zones = Array.isArray(store?.shippingZones) ? store.shippingZones : [];
+
+    const zoneOptions = zones.flatMap((zone) =>
+      (Array.isArray(zone.governorates) ? zone.governorates : [])
+        .map((name) => String(name || "").trim())
+        .filter(Boolean)
+        .map((name) => ({
+          name,
+          rate: Number(zone.shippingCost ?? 0),
+          zoneName: String(zone.zoneName || "").trim(),
+          deliveryDaysEstimate: String(zone.deliveryDaysEstimate || "").trim(),
+        }))
+    );
+
+    const seen = new Set();
+    const deduped = [];
+    for (const option of zoneOptions) {
+      const key = option.name.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(option);
+      }
+    }
+
+    if (deduped.length > 0) {
+      return { options: deduped };
+    }
+
+    return {
+      options: SUDAN_CITIES.map((c) => ({
+        name: c.name,
+        arName: c.arName,
+        rate: Number(c.rate ?? 0),
+        zoneName: "",
+        deliveryDaysEstimate: "",
+      })),
+    };
+  } catch (error) {
+    console.error("getCheckoutShippingOptions:", error);
+    return {
+      options: SUDAN_CITIES.map((c) => ({
+        name: c.name,
+        arName: c.arName,
+        rate: Number(c.rate ?? 0),
+        zoneName: "",
+        deliveryDaysEstimate: "",
+      })),
+    };
+  }
+}
+
 export async function getCatalogPriceBounds() {
   try {
-    const agg = await db.product.aggregate({
+    const aggActive = await db.product.aggregate({
       where: { isActive: true },
       _min: { sellingPrice: true },
       _max: { sellingPrice: true },
     });
+    const hasActiveBounds =
+      aggActive?._min?.sellingPrice !== null || aggActive?._max?.sellingPrice !== null;
+    const agg = hasActiveBounds
+      ? aggActive
+      : await db.product.aggregate({
+          _min: { sellingPrice: true },
+          _max: { sellingPrice: true },
+        });
     return {
       min: Number(agg._min.sellingPrice ?? 0),
       max: Number(agg._max.sellingPrice ?? 0),
@@ -38,10 +117,16 @@ export async function getCatalogProductsByIds(ids) {
   try {
     const clean = Array.isArray(ids) ? ids.filter(Boolean).slice(0, 12) : [];
     if (clean.length === 0) return [];
-    const products = await db.product.findMany({
+    let products = await db.product.findMany({
       where: { id: { in: clean }, isActive: true },
       include: { category: true },
     });
+    if (products.length === 0) {
+      products = await db.product.findMany({
+        where: { id: { in: clean } },
+        include: { category: true },
+      });
+    }
     const order = new Map(clean.map((id, i) => [id, i]));
     return products
       .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
@@ -82,8 +167,7 @@ export async function getCatalogProducts({
           }
         : {};
 
-    const where = {
-      isActive: true,
+    const whereBase = {
       ...priceFilter,
       ...(inStockOnly === true || inStockOnly === "true" || inStockOnly === "1"
         ? { stock: { gt: 0 } }
@@ -116,7 +200,7 @@ export async function getCatalogProducts({
 
     const skip = (page - 1) * limit;
 
-    const runQuery = (ob) =>
+    const runQuery = (where, ob) =>
       Promise.all([
         db.product.findMany({
           where,
@@ -131,10 +215,16 @@ export async function getCatalogProducts({
     let products;
     let total;
     try {
-      [products, total] = await runQuery(orderBy);
+      [products, total] = await runQuery({ ...whereBase, isActive: true }, orderBy);
+      if (total === 0) {
+        [products, total] = await runQuery(whereBase, orderBy);
+      }
     } catch (e) {
       if (sort === "best_selling") {
-        [products, total] = await runQuery({ stock: "desc" });
+        [products, total] = await runQuery({ ...whereBase, isActive: true }, { stock: "desc" });
+        if (total === 0) {
+          [products, total] = await runQuery(whereBase, { stock: "desc" });
+        }
       } else {
         throw e;
       }
@@ -304,10 +394,8 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     // - Customers/Guests: derive shipping from SUDAN_CITIES (never trust shippingCost from client).
     // - Staff/POS: shipping is 0 (POS UI currently treats it as local walk-in).
     const normalizedCity = typeof guest.city === "string" ? guest.city.trim() : "";
-    const cityRate =
-      SUDAN_CITIES.find(
-        (c) => c.name === normalizedCity || c.arName === normalizedCity
-      )?.rate ?? null;
+    const storeSettings = await getOrCreateStoreSettings();
+    const cityRate = getShippingRateForCity(normalizedCity, storeSettings?.shippingZones);
 
     if (isCustomerCheckout) {
       // Store checkout rules

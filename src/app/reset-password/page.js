@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Loader2, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Lock, Loader2, ArrowRight, ShieldCheck, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { resetPassword } from "../actions/reset-password";
@@ -20,6 +20,8 @@ export default function ResetPasswordPage() {
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -113,13 +115,21 @@ export default function ResetPasswordPage() {
               <div className="relative group">
                 <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300`} />
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6' : 'pl-14 pr-6'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((v) => !v)}
+                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-500`}
+                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                >
+                  {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
@@ -128,13 +138,21 @@ export default function ResetPasswordPage() {
               <div className="relative group">
                 <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300`} />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6' : 'pl-14 pr-6'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-500`}
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 

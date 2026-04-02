@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Phone, Loader2, ArrowRight, UserPlus, ShieldCheck, Package, Zap } from "lucide-react";
+import { Mail, Lock, User, Phone, Loader2, ArrowRight, UserPlus, ShieldCheck, Package, Zap, Eye, EyeOff } from "lucide-react";
 import { registerUser } from "../actions/register";
 import { signIn } from "next-auth/react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,33 +26,39 @@ export default function RegisterPage() {
     const formData = new FormData(e.target);
     const email = formData.get("email");
     const password = formData.get("password");
+    try {
+      const result = await Promise.race([
+        registerUser(formData),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Registration request timed out.")), 20000)
+        ),
+      ]);
 
-    const result = await registerUser(formData);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
 
-    if (result.error) {
-      setError(result.error);
+      if (result.requiresPhoneVerification && result.phone) {
+        router.push(`/verify-phone?phone=${encodeURIComponent(result.phone)}`);
+        return;
+      }
+
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        setError(t.autoLoginFailed);
+      } else {
+        router.push("/");
+      }
+    } catch (err) {
+      setError(err?.message || "Registration failed. Please try again.");
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    if (result.requiresPhoneVerification && result.phone) {
-      router.push(`/verify-phone?phone=${encodeURIComponent(result.phone)}`);
-      router.refresh();
-      return;
-    }
-
-    const signInResult = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (signInResult?.error) {
-      setError(t.autoLoginFailed);
-      setLoading(false);
-    } else {
-      router.push("/");
-      router.refresh();
     }
   };
 
@@ -213,13 +220,21 @@ export default function RegisterPage() {
                     <Lock className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     required
                     minLength={8}
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-12 sm:pl-14 text-right' : 'pl-12 sm:pl-14 pr-12 sm:pr-14 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className={`absolute inset-y-0 ${isRTL ? "left-4 sm:left-5" : "right-4 sm:right-5"} flex items-center text-gray-400 hover:text-amber-500`}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
 
