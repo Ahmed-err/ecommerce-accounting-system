@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import ProductForm from "./ProductForm";
 import InventoryBarcode from "./InventoryBarcode";
+import InventoryReportActions from "./InventoryReportActions";
 import {
   deleteProduct,
   updateStockQuantity,
@@ -498,6 +499,19 @@ export default function ProductTable({
               <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               {t.inventoryExportCsv}
             </Button>
+            <InventoryReportActions
+              products={initialProducts}
+              total={total}
+              categories={categories}
+              suppliers={suppliers}
+              lang={lang}
+              isRTL={isRTL}
+              t={t}
+              isCashier={isCashier}
+              getParam={(k) => searchParamsHook.get(k)}
+              currentPage={currentPage}
+              totalPages={totalPages}
+            />
           </div>
 
           {canManage && (
