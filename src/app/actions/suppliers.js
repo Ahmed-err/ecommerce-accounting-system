@@ -487,13 +487,16 @@ async function buildPurchasePdfBuffer(purchase) {
     doc.moveDown();
     doc.fontSize(12).text("Items", { underline: true });
     purchase.items?.forEach((it, i) => {
+      if (doc.y > doc.page.height - 120) {
+        doc.addPage();
+      }
       doc.fontSize(10).text(
-        `${i + 1}. ${it.product?.name || it.productId} × ${it.quantity} @ ${Number(it.unitCost)} = ${Number(it.lineTotal)}`
+        `${i + 1}. ${it.product?.name || it.productId} × ${it.quantity} @ ${Number(it.unitCost).toLocaleString()} = ${Number(it.lineTotal).toLocaleString()}`
       );
     });
     doc.moveDown();
-    doc.fontSize(12).text(`Total: ${Number(purchase.totalAmount)}`);
-    doc.text(`Paid: ${Number(purchase.paidAmount)}`);
+    doc.fontSize(12).text(`Total: ${Number(purchase.totalAmount).toLocaleString()}`);
+    doc.text(`Paid: ${Number(purchase.paidAmount).toLocaleString()}`);
     doc.end();
   });
 }
@@ -504,7 +507,8 @@ export async function exportPurchasePdfAction(purchaseId) {
     const p = await getPurchaseDetailAdmin(purchaseId);
     if (!p) return { ok: false, error: "not_found" };
     const buf = await buildPurchasePdfBuffer(p);
-    return { ok: true, base64: buf.toString("base64"), filename: `${p.purchaseNumber}.pdf` };
+    const safeName = String(p.purchaseNumber || "purchase").replace(/[/\\?%*:|"<>]/g, "-");
+    return { ok: true, base64: buf.toString("base64"), filename: `${safeName}.pdf` };
   } catch (e) {
     console.error(e);
     return { ok: false, error: e.message };

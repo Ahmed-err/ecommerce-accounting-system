@@ -801,7 +801,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 orders-reports-print">
       <div className="flex items-center justify-between accounting-no-print">
         <h2 className="text-white font-semibold">{t.ordTabReports}</h2>
         <div className="flex gap-2">

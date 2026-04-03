@@ -23,17 +23,14 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
 
   return (
     <div
-      className={`flex min-h-dvh bg-gray-950 text-gray-100 selection:bg-amber-500/30 overflow-x-hidden ${isRTL ? 'text-right font-arabic' : 'text-left font-sans'}`}
+      className={`flex min-h-dvh w-full flex-col bg-gray-950 text-gray-100 selection:bg-amber-500/30 md:h-dvh md:max-h-dvh md:flex-row md:overflow-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
-      
-      {/* --- SIDEBAR --- */}
-      <aside className="hidden md:block w-64 max-w-full flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden h-full min-h-0 w-64 max-w-full shrink-0 overflow-y-auto md:block">
         <AdminSidebar unreadContactCount={unreadContactCount} />
       </aside>
 
-      {/* --- MAIN CONTENT CONTAINER --- */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-hidden">
         
         {/* --- MOBILE HEADER --- */}
         <header className="md:hidden sticky top-0 z-50 isolate grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 border-b border-white/5 bg-gray-900/80 p-4 backdrop-blur-xl">
@@ -79,15 +76,12 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
           </div>
         </header>
 
-        <div className="relative z-50 isolate hidden md:flex items-center justify-end border-b border-white/5 bg-gray-900/70 px-6 py-3 backdrop-blur-xl">
+        <div className="relative z-50 isolate hidden shrink-0 border-b border-white/5 bg-gray-900/70 px-6 py-3 backdrop-blur-xl md:flex md:items-center md:justify-end">
           <NotificationBell />
         </div>
 
-        {/* --- PAGE CONTENT --- */}
-        <main className="flex-1 overflow-x-auto p-4 md:p-8 lg:px-10">
-          <div className="mx-auto max-w-6xl w-full">
-            {children}
-          </div>
+        <main className="flex-1 overflow-x-auto overflow-y-auto p-4 md:min-h-0 md:p-8 lg:px-10">
+          <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
       </div>
     </div>

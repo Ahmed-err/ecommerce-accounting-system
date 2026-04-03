@@ -173,9 +173,16 @@ export function generateInvoicePdfBuffer(receipt) {
 
   doc.moveDown(0.8);
   doc.font(body).fontSize(8).fillColor("#64748b");
-  doc.text(receipt.footerTextAr, left, doc.y, { width: pageInnerW, align: "center" });
-  doc.moveDown(0.2);
-  doc.text(receipt.footerTextEn, left, doc.y, { width: pageInnerW, align: "center" });
+  if (receipt.footerTextAr) {
+    doc.text(receipt.footerTextAr, left, doc.y, {
+      width: pageInnerW,
+      align: lang === "ar" ? "right" : "center",
+    });
+    doc.moveDown(0.2);
+  }
+  if (receipt.footerTextEn) {
+    doc.text(receipt.footerTextEn, left, doc.y, { width: pageInnerW, align: "left" });
+  }
 
   doc.end();
   return done;

@@ -409,7 +409,7 @@ export async function buildEscPosReceipt(data, settings) {
   return printer.getData();
 }
 
-export function buildReceiptInnerHtml(data, { paper = "thermal" } = {}) {
+export function buildReceiptInnerHtml(data, { paper = "thermal", paperWidth = "80" } = {}) {
   const L = data.labels || getInvoiceLabels(data.lang === "ar");
   const money = (n) =>
     `${Number(n).toLocaleString(data.lang === "ar" ? "ar-SD" : "en-US", { maximumFractionDigits: 2 })} ${data.currency}`;
@@ -514,7 +514,8 @@ export function buildReceiptInnerHtml(data, { paper = "thermal" } = {}) {
     ? `<div class="logo"><img src="${escapeHtml(data.storeLogo)}" alt="" crossorigin="anonymous" /></div>`
     : "";
 
-  return `<div class="receipt-paper receipt-paper--thermal" id="pos-receipt-print" dir="${data.isRTL ? "rtl" : "ltr"}" lang="${data.lang === "ar" ? "ar" : "en"}">
+  const thermalPaperClass = paperWidth === "58" ? "paper-58" : "";
+  return `<div class="receipt-paper receipt-paper--thermal ${thermalPaperClass}" id="pos-receipt-print" dir="${data.isRTL ? "rtl" : "ltr"}" lang="${data.lang === "ar" ? "ar" : "en"}">
   ${logoBlock}
   <div class="h1">${escapeHtml(data.storeName)}</div>
   <div class="muted">${escapeHtml(data.documentLabel || L.documentTitle)}</div>
