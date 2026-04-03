@@ -309,131 +309,182 @@ export default function ProductDetailClient({
       </Link>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-        <div className="space-y-4">
-          <div
-            className="group relative aspect-square overflow-hidden rounded-3xl border border-border bg-muted/20"
-            onTouchStart={(e) => {
-              touchStartX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              if (touchStartX.current == null) return;
-              const dx = e.changedTouches[0].clientX - touchStartX.current;
-              if (dx > 56) goPrevImage();
-              if (dx < -56) goNextImage();
-              touchStartX.current = null;
-            }}
-          >
-            {product.hasDiscount && (
-              <span
-                className={cn(
-                  "absolute top-3 z-20 rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white",
-                  isRTL ? "right-3" : "left-3"
-                )}
-              >
-                −{product.discountPct}% {t.discountBadge}
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={onToggleWishlist}
-              className={cn(
-                "absolute top-3 z-20 rounded-full border border-border bg-background/80 p-2.5 shadow-sm backdrop-blur-sm transition-colors hover:bg-muted",
-                isRTL ? "left-3" : "right-3"
-              )}
-              aria-label={wish ? t.removeFromWishlist : t.addToWishlist}
-            >
-              <Heart className={cn("h-5 w-5", wish && "fill-red-500 text-red-500")} />
-            </button>
-
-            {!inStock && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/70 backdrop-blur-[2px]">
-                <Badge variant="destructive" className="text-sm font-bold">
-                  {t.outOfStock}
-                </Badge>
-              </div>
-            )}
-
-            {images.length > 0 ? (
-              <div className="relative h-full w-full overflow-hidden">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeImageIndex}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="absolute inset-0"
-                  >
-                    <div className="relative h-full w-full origin-center transition-transform duration-500 md:group-hover:scale-110">
-                      <Image
-                        src={images[activeImageIndex]}
-                        alt={`${displayN} ${activeImageIndex + 1}`}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        className="object-cover"
-                        priority
-                      />
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center text-8xl opacity-20">📦</div>
-            )}
-
-            {images.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={goPrevImage}
-                  className={cn(
-                    "absolute top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/90 p-2 shadow-md md:hidden",
-                    isRTL ? "right-2" : "left-2"
-                  )}
-                  aria-label="Previous"
-                >
-                  <ChevronLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
-                </button>
-                <button
-                  type="button"
-                  onClick={goNextImage}
-                  className={cn(
-                    "absolute top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/90 p-2 shadow-md md:hidden",
-                    isRTL ? "left-2" : "right-2"
-                  )}
-                  aria-label="Next"
-                >
-                  <ChevronRight className={cn("h-5 w-5", isRTL && "rotate-180")} />
-                </button>
-                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white md:hidden">
-                  {t.pdpImageCounter
-                    .replace("{current}", String(activeImageIndex + 1))
-                    .replace("{total}", String(images.length))}
-                </div>
-              </>
-            )}
-          </div>
-
+        <div
+          className={cn(
+            "flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-4",
+            isRTL && "lg:flex-row-reverse"
+          )}
+        >
+          {/* Thumbnail rail: all images; horizontal scroll on mobile, vertical on lg+ */}
           {images.length > 1 && (
-            <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 md:grid-cols-8">
+            <div
+              className={cn(
+                "order-2 flex gap-2 overflow-x-auto overflow-y-hidden pb-1 [-ms-overflow-style:none] [scrollbar-width:thin] lg:order-none lg:w-[4.75rem] lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-0 lg:pr-0.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5",
+                "snap-x snap-mandatory lg:snap-none"
+              )}
+              role="tablist"
+              aria-label={lang === "ar" ? "صور المنتج" : "Product images"}
+            >
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   type="button"
+                  role="tab"
+                  aria-selected={activeImageIndex === idx}
+                  aria-label={`${lang === "ar" ? "صورة" : "Image"} ${idx + 1}`}
                   onClick={() => setActiveImageIndex(idx)}
                   className={cn(
-                    "relative aspect-square overflow-hidden rounded-xl border-2 transition-all",
+                    "relative aspect-square w-[4.25rem] shrink-0 snap-center overflow-hidden rounded-xl border-2 transition-all sm:w-[4.5rem] lg:w-full lg:snap-none",
                     activeImageIndex === idx
-                      ? "border-amber-500 shadow-md shadow-amber-500/20"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                      ? "border-amber-500 shadow-md shadow-amber-500/25 ring-2 ring-amber-500/20"
+                      : "border-border/60 opacity-80 hover:border-border hover:opacity-100"
                   )}
                 >
-                  <Image src={img} alt="" fill sizes="80px" className="object-cover" />
+                  <Image src={img} alt="" fill sizes="(max-width: 1024px) 72px, 76px" className="object-cover" />
                 </button>
               ))}
             </div>
           )}
+
+          <div className="order-1 min-w-0 flex-1 space-y-3 lg:order-none">
+            <div
+              role="region"
+              aria-roledescription="carousel"
+              aria-label={displayN}
+              tabIndex={0}
+              className="group relative aspect-square overflow-hidden rounded-3xl border border-border bg-muted/30 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-amber-500/50"
+              onTouchStart={(e) => {
+                touchStartX.current = e.touches[0].clientX;
+              }}
+              onTouchEnd={(e) => {
+                if (touchStartX.current == null) return;
+                const dx = e.changedTouches[0].clientX - touchStartX.current;
+                if (dx > 56) goPrevImage();
+                if (dx < -56) goNextImage();
+                touchStartX.current = null;
+              }}
+              onKeyDown={(e) => {
+                if (images.length <= 1) return;
+                if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  isRTL ? goNextImage() : goPrevImage();
+                }
+                if (e.key === "ArrowRight") {
+                  e.preventDefault();
+                  isRTL ? goPrevImage() : goNextImage();
+                }
+              }}
+            >
+              {product.hasDiscount && (
+                <span
+                  className={cn(
+                    "absolute top-3 z-20 rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white",
+                    isRTL ? "right-3" : "left-3"
+                  )}
+                >
+                  −{product.discountPct}% {t.discountBadge}
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={onToggleWishlist}
+                className={cn(
+                  "absolute top-3 z-20 rounded-full border border-border bg-background/80 p-2.5 shadow-sm backdrop-blur-sm transition-colors hover:bg-muted",
+                  isRTL ? "left-3" : "right-3"
+                )}
+                aria-label={wish ? t.removeFromWishlist : t.addToWishlist}
+              >
+                <Heart className={cn("h-5 w-5", wish && "fill-red-500 text-red-500")} />
+              </button>
+
+              {!inStock && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/70 backdrop-blur-[2px]">
+                  <Badge variant="destructive" className="text-sm font-bold">
+                    {t.outOfStock}
+                  </Badge>
+                </div>
+              )}
+
+              {images.length > 0 ? (
+                <div className="relative h-full w-full overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeImageIndex}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="absolute inset-0"
+                    >
+                      <div className="relative h-full w-full p-2 sm:p-4">
+                        <div className="relative h-full w-full origin-center transition-transform duration-500 lg:group-hover:scale-[1.02]">
+                          <Image
+                            src={images[activeImageIndex]}
+                            alt={`${displayN} — ${lang === "ar" ? "صورة" : "image"} ${activeImageIndex + 1} / ${images.length}`}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            className="object-contain"
+                            priority={activeImageIndex === 0}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="flex h-full items-center justify-center text-8xl opacity-20">📦</div>
+              )}
+
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={goPrevImage}
+                    className={cn(
+                      "absolute top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/95 p-2.5 shadow-lg backdrop-blur-sm transition hover:bg-muted",
+                      isRTL ? "right-2 sm:right-3" : "left-2 sm:left-3"
+                    )}
+                    aria-label={lang === "ar" ? "الصورة السابقة" : "Previous image"}
+                  >
+                    <ChevronLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goNextImage}
+                    className={cn(
+                      "absolute top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/95 p-2.5 shadow-lg backdrop-blur-sm transition hover:bg-muted",
+                      isRTL ? "left-2 sm:left-3" : "right-2 sm:right-3"
+                    )}
+                    aria-label={lang === "ar" ? "الصورة التالية" : "Next image"}
+                  >
+                    <ChevronRight className={cn("h-5 w-5", isRTL && "rotate-180")} />
+                  </button>
+                  <div
+                    className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+                    aria-hidden
+                  >
+                    <span>
+                      {t.pdpImageCounter
+                        .replace("{current}", String(activeImageIndex + 1))
+                        .replace("{total}", String(images.length))}
+                    </span>
+                    <span className="hidden opacity-70 sm:inline">
+                      · {images.length} {lang === "ar" ? "صور" : "photos"}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {images.length > 1 && (
+              <p className="text-center text-[11px] text-muted-foreground lg:text-start">
+                {lang === "ar"
+                  ? "اضغط الصور المصغّرة أو استخدم الأسهم لتصفح كل الصور."
+                  : "Tap thumbnails or use arrows to browse all images."}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col lg:sticky lg:top-24 lg:self-start">

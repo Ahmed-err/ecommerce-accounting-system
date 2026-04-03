@@ -89,6 +89,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
   const [votedIds, setVotedIds] = useState({});
   const firstFetchDone = useRef(false);
   const [showContent, setShowContent] = useState(false);
+  const [reviewLightbox, setReviewLightbox] = useState(null);
 
   const canMore = rows.length < total;
 
@@ -215,27 +216,37 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.pdpReviewsDistribution || (lang === "ar" ? "توزيع التقييمات" : "Rating breakdown")}
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-3.5">
                 {bars.map((b) => (
-                  <li key={b.s} className="flex items-center gap-3 text-sm">
-                    <span className="w-9 shrink-0 tabular-nums text-muted-foreground">
-                      {b.s}★
-                    </span>
+                  <li key={b.s}>
                     <div
-                      className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
-                      role="presentation"
+                      className={cn(
+                        "flex items-center gap-2 text-sm sm:gap-3",
+                        isRTL && "flex-row-reverse"
+                      )}
                     >
+                      <span className="w-8 shrink-0 text-center tabular-nums text-muted-foreground sm:w-9">
+                        {b.s}★
+                      </span>
                       <div
-                        className="h-full rounded-full bg-amber-500 transition-[width] duration-500 ease-out"
-                        style={{ width: `${b.pct}%` }}
-                      />
+                        className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
+                        role="presentation"
+                      >
+                        <div
+                          className="h-full rounded-full bg-amber-500 transition-[width] duration-500 ease-out"
+                          style={{ width: `${b.pct}%` }}
+                        />
+                      </div>
+                      <div
+                        className={cn(
+                          "flex shrink-0 items-center gap-2 text-xs tabular-nums text-muted-foreground",
+                          isRTL && "flex-row-reverse"
+                        )}
+                      >
+                        <span className="min-w-[2.25rem] text-end sm:text-start">{Math.round(b.pct)}%</span>
+                        <span className="text-muted-foreground/70">({b.count})</span>
+                      </div>
                     </div>
-                    <span className="w-10 shrink-0 text-end text-xs tabular-nums text-muted-foreground">
-                      {Math.round(b.pct)}%
-                    </span>
-                    <span className="hidden w-8 shrink-0 text-end text-xs tabular-nums text-muted-foreground/70 sm:inline">
-                      ({b.count})
-                    </span>
                   </li>
                 ))}
               </ul>
@@ -347,26 +358,28 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                   key={r.id}
                   className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
                 >
-                  <div className="flex gap-4">
+                  <div
+                    className={cn(
+                      "flex gap-4 sm:gap-5",
+                      isRTL ? "flex-row-reverse" : "flex-row"
+                    )}
+                  >
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-sm font-bold text-amber-800 dark:text-amber-200"
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-sm font-bold text-amber-800 dark:text-amber-200"
                       aria-hidden
                     >
                       {initial}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div
-                        className={cn(
-                          "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between",
-                          isRTL && "sm:flex-row-reverse"
-                        )}
-                      >
-                        <div>
-                          <Stars value={r.rating} className="mb-1" />
-                          <h4 className="text-base font-semibold text-foreground">{r.title}</h4>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            <span className="font-medium text-foreground/80">{r.reviewerName}</span>
-                            <span className="mx-1.5 text-muted-foreground/50">·</span>
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-x-4 sm:gap-y-2">
+                        <div className="min-w-0">
+                          <Stars value={r.rating} className="mb-1.5" />
+                          <h4 className="text-base font-semibold leading-snug text-foreground">{r.title}</h4>
+                          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground/85">{r.reviewerName}</span>
+                            <span className="text-muted-foreground/45" aria-hidden>
+                              ·
+                            </span>
                             <time dateTime={r.createdAt}>
                               {new Date(r.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
                                 year: "numeric",
@@ -376,45 +389,64 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                             </time>
                           </p>
                         </div>
-                        {r.verified && (
-                          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                        {r.verified ? (
+                          <span className="inline-flex w-fit shrink-0 items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
                             <Check className="h-3 w-3" strokeWidth={2.5} />
                             {lang === "ar" ? "شراء موثق" : "Verified purchase"}
                           </span>
-                        )}
+                        ) : null}
                       </div>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                         {r.body}
                       </p>
-                      {r.images?.length > 0 && (
+
+                      {r.images?.length > 0 ? (
+                        <div>
+                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            {lang === "ar" ? "صور العميل" : "Customer photos"}
+                          </p>
+                          <div
+                            className={cn(
+                              "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3",
+                              r.images.length === 1 && "sm:grid-cols-1 sm:max-w-xs",
+                              r.images.length === 2 && "sm:grid-cols-2 sm:max-w-md"
+                            )}
+                          >
+                            {r.images.map((img, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => setReviewLightbox(img)}
+                                className="relative aspect-square w-full overflow-hidden rounded-xl border border-border bg-muted/20 text-start ring-offset-background transition hover:ring-2 hover:ring-amber-500/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                              >
+                                <Image
+                                  src={img}
+                                  alt=""
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width:640px) 45vw, 200px"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {r.adminReply ? (
                         <div
                           className={cn(
-                            "mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]",
-                            isRTL && "flex-row-reverse"
+                            "rounded-xl border border-amber-500/20 border-s-4 border-s-amber-500 bg-amber-500/[0.08] p-4 ps-5 text-sm text-amber-950 dark:text-amber-50"
                           )}
                         >
-                          {r.images.map((img, i) => (
-                            <a
-                              href={img}
-                              target="_blank"
-                              rel="noreferrer"
-                              key={i}
-                              className="relative block h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-border ring-offset-background transition hover:ring-2 hover:ring-amber-500/40"
-                            >
-                              <Image src={img} alt="" fill className="object-cover" sizes="96px" />
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                      {r.adminReply && (
-                        <div className="mt-4 rounded-xl border border-amber-500/25 border-s-4 border-s-amber-500 bg-amber-500/8 p-4 text-sm text-amber-950 dark:text-amber-50">
                           <p className="text-xs font-bold uppercase tracking-wide text-amber-800/90 dark:text-amber-200/90">
                             {lang === "ar" ? "رد المتجر" : "Store response"}
                           </p>
-                          <p className="mt-1 leading-relaxed">{r.adminReply}</p>
+                          <p className="mt-2 leading-relaxed">{r.adminReply}</p>
                         </div>
-                      )}
-                      <div className={cn("mt-4 flex", isRTL ? "justify-start" : "justify-end")}>
+                      ) : null}
+
+                      <div className={cn("flex pt-1", isRTL ? "justify-start" : "justify-end")}>
                         <Button
                           type="button"
                           size="sm"
@@ -511,6 +543,25 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
         ) : null}
         {inner}
       </div>
+
+      <Dialog open={!!reviewLightbox} onOpenChange={(o) => !o && setReviewLightbox(null)}>
+        <DialogContent
+          showCloseButton
+          className="max-h-[min(92dvh,880px)] w-[min(96vw,920px)] gap-0 overflow-hidden border-border bg-zinc-950 p-0 text-white"
+        >
+          <div className="relative aspect-square w-full bg-black">
+            {reviewLightbox ? (
+              <Image
+                src={reviewLightbox}
+                alt=""
+                fill
+                className="object-contain"
+                sizes="min(96vw, 920px)"
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent

@@ -22,19 +22,36 @@ async function ensureAdmin() {
   return session;
 }
 
+const returnItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.coerce.number().int().positive(),
+  price: z.coerce.number().positive(),
+});
+
 const returnSchema = z.object({
-  orderId: z.string().min(1),
-  reason: z.string().min(2).max(2000),
+  orderId: z.string().min(1, { message: "RETURN_ORDER_ID" }),
+  reason: z.string().min(2, { message: "RETURN_REASON" }).max(2000),
   refundMethod: z.enum(["CASH", "BANK_TRANSFER", "STORE_CREDIT"]),
   notes: z.string().max(2000).optional().nullable(),
-  items: z.array(
-    z.object({
-      productId: z.string().min(1),
-      quantity: z.coerce.number().int().positive(),
-      price: z.coerce.number().positive(),
-    })
-  ).min(1),
+  items: z.array(returnItemSchema).min(1, { message: "RETURN_NO_ITEMS" }),
 });
+
+function returnValidationResult(zodError) {
+  const iss = zodError?.issues?.[0];
+  if (!iss) return { error: "Validation failed", errorCode: "VALIDATION" };
+  const msg = typeof iss.message === "string" && iss.message.startsWith("RETURN_") ? iss.message : null;
+  if (msg) return { error: iss.message, errorCode: msg };
+  const path0 = iss.path[0];
+  if (path0 === "items") {
+    if (iss.code === "too_small") return { error: "RETURN_NO_ITEMS", errorCode: "RETURN_NO_ITEMS" };
+    const idx = iss.path[1];
+    if (typeof idx === "number") return { error: iss.message, errorCode: "RETURN_LINE_INVALID" };
+  }
+  if (path0 === "reason") return { error: iss.message, errorCode: "RETURN_REASON" };
+  if (path0 === "orderId") return { error: iss.message, errorCode: "RETURN_ORDER_ID" };
+  if (path0 === "refundMethod") return { error: iss.message, errorCode: "RETURN_REFUND_METHOD" };
+  return { error: iss.message, errorCode: "VALIDATION" };
+}
 
 function nextReturnNumber() {
   return `RET-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
@@ -147,7 +164,8 @@ export async function createOrderReturn(raw) {
     await ensureStaff();
     const parsed = returnSchema.safeParse(raw);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.issues[0]?.message };
+      const { error, errorCode } = returnValidationResult(parsed.error);
+      return { success: false, error, errorCode };
     }
     const p = parsed.data;
 

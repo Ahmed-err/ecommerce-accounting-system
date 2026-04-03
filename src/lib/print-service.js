@@ -228,7 +228,7 @@ export async function printPDF(receiptData) {
     width: 160,
     errorCorrectionLevel: "M",
   });
-  let html = buildReceiptPrintHtml(receiptData);
+  let html = buildReceiptPrintHtml(receiptData, { paper: "thermal" });
   html = html.replace(
     '<div class="qr-host" id="receipt-qr"></div>',
     `<div class="qr-host" id="receipt-qr"><img src="${qr}" alt="" width="160" height="160" /></div>`

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Calendar, DollarSign, Clock, BarChart3, Shield, LayoutDashboard,
   Plus, Search, Edit, Trash2, Check, X, ChevronLeft, ChevronRight,
-  Download, Printer, AlertTriangle, CheckCircle, XCircle, Eye,
+  Download, Printer, AlertTriangle, CheckCircle, XCircle, Eye, ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +17,10 @@ import {
 } from "recharts";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
-  bulkMarkAttendance, getAllStaff, deleteEmployee } from "@/app/actions/employees";
+  bulkMarkAttendance, getAllStaff, deleteEmployee, quickFillAttendanceForDate } from "@/app/actions/employees";
 
 const TABS = ["overview", "employees", "attendance", "salaries", "leaves", "roles", "reports"];
 
@@ -243,15 +244,21 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
           <h3 className="text-sm font-semibold text-white mb-4">{t.empRecentActivity}</h3>
           {activity.length > 0 ? (
             <div className="space-y-2">
-              {activity.map((log) => (
-                <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg bg-white/5">
-                  <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-300">{log.action.replace(/_/g, " ")}</p>
-                    <p className="text-[10px] text-gray-500">{fmtDate(log.createdAt, lang)}</p>
+              {activity.map((log) => {
+                const fmt = formatAuditActivityForDashboard(log.action, log.details, lang);
+                return (
+                  <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg bg-white/5">
+                    <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-200">{fmt.title}</p>
+                      {fmt.subtitle ? (
+                        <p className="text-[10px] text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                      ) : null}
+                      <p className="text-[10px] text-gray-500 mt-0.5">{fmtDate(log.createdAt, lang)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : <Empty t={t} />}
         </div>
@@ -262,15 +269,23 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
 
 function AttendanceTab({ data, t, lang, isRTL, staff }) {
   const now = new Date();
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const todayStr = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
   const [tabData, setTabData] = useState(data);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRec, setEditRec] = useState(null);
-  const [form, setForm] = useState({ userId: "", date: new Date().toISOString().split("T")[0], checkIn: "", checkOut: "", status: "PRESENT", notes: "" });
+  const [form, setForm] = useState({ userId: "", date: todayStr, checkIn: "", checkOut: "", status: "PRESENT", notes: "" });
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+  const [quickDate, setQuickDate] = useState(todayStr);
+  const [quickCheckIn, setQuickCheckIn] = useState("09:00");
+  const [quickCheckOut, setQuickCheckOut] = useState("17:00");
+  const [quickOnlyMissing, setQuickOnlyMissing] = useState(true);
+  const [quickLoading, setQuickLoading] = useState(false);
+  const [quickMsg, setQuickMsg] = useState(null);
 
   const load = useCallback(async (m, y) => {
     setLoading(true);
@@ -283,7 +298,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
   const summaryByEmployee = tabData?.summaryByEmployee || [];
   const alert3 = tabData?.alert3Absent || [];
 
-  const openAdd = () => { setEditRec(null); setForm({ userId: "", date: new Date().toISOString().split("T")[0], checkIn: "", checkOut: "", status: "PRESENT", notes: "" }); setErr(""); setDialogOpen(true); };
+  const openAdd = () => { setEditRec(null); setForm({ userId: "", date: todayStr, checkIn: "", checkOut: "", status: "PRESENT", notes: "" }); setErr(""); setDialogOpen(true); };
   const openEdit = (r) => {
     setEditRec(r);
     setForm({
@@ -314,6 +329,54 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
     load(month, year);
   };
 
+  const reloadMonthForDateStr = (dateStr) => {
+    const y = Number(dateStr.slice(0, 4));
+    const m = Number(dateStr.slice(5, 7));
+    if (y && m >= 1 && m <= 12) {
+      setMonth(m);
+      setYear(y);
+      load(m, y);
+    } else {
+      load(month, year);
+    }
+  };
+
+  const runQuickFill = async (mode) => {
+    if (!quickOnlyMissing && !confirm(t.empQuickOverwriteConfirm)) return;
+    if (mode === "ABSENT" && !confirm(t.empQuickConfirmAbsent)) return;
+    setQuickLoading(true);
+    setQuickMsg(null);
+    const res = await quickFillAttendanceForDate({
+      date: quickDate,
+      mode,
+      checkIn: quickCheckIn,
+      checkOut: quickCheckOut,
+      onlyMissing: quickOnlyMissing,
+    });
+    setQuickLoading(false);
+    if (!res.success) {
+      setQuickMsg({ ok: false, text: res.error || (lang === "ar" ? "فشل الطلب" : "Request failed") });
+      return;
+    }
+    const skipped =
+      (res.skippedAlready || 0) +
+      (res.skippedLeave || 0) +
+      (res.skippedNoPrevious || 0) +
+      (res.failed || 0);
+    const parts = [];
+    if (res.skippedAlready) parts.push(`${res.skippedAlready} ${t.empQuickSkipAlready}`);
+    if (res.skippedLeave) parts.push(`${res.skippedLeave} ${t.empQuickSkipLeave}`);
+    if (res.skippedNoPrevious) parts.push(`${res.skippedNoPrevious} ${t.empQuickSkipNoPrev}`);
+    if (res.failed) parts.push(`${res.failed} ${t.empQuickFailed}`);
+    const summary = t.empQuickResultSummary.replace("{created}", String(res.created)).replace("{skipped}", String(skipped));
+    setQuickMsg({
+      ok: true,
+      text: summary,
+      detail: parts.length ? parts.join(lang === "ar" ? "، " : ", ") : "",
+    });
+    reloadMonthForDateStr(quickDate);
+  };
+
   const statusBadge = (s) => {
     const map = { PRESENT: "green", ABSENT: "red", LATE: "amber", HALF_DAY: "blue", HOLIDAY: "gray" };
     const labels = { PRESENT: t.empStatusPresent, ABSENT: t.empStatusAbsent, LATE: t.empStatusLate, HALF_DAY: t.empStatusHalfDay, HOLIDAY: t.empStatusHoliday };
@@ -327,6 +390,97 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
         <Button onClick={openAdd} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
           <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} /> {t.empAddAttendance}
         </Button>
+      </div>
+
+      <div className="bg-gray-900/80 border border-amber-500/20 rounded-xl p-5 space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+            <ClipboardList className="h-5 w-5 text-amber-400" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-white">{t.empQuickAttendanceTitle}</h3>
+            <p className="text-xs text-gray-400 mt-1 leading-relaxed">{t.empQuickAttendanceDesc}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">{t.empColDate}</label>
+            <Input
+              type="date"
+              value={quickDate}
+              onChange={(e) => setQuickDate(e.target.value)}
+              className="bg-gray-800 border-white/10 text-white w-[160px]"
+              disabled={quickLoading}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckIn}</label>
+            <Input
+              type="time"
+              value={quickCheckIn}
+              onChange={(e) => setQuickCheckIn(e.target.value)}
+              className="bg-gray-800 border-white/10 text-white w-[130px]"
+              disabled={quickLoading}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckOut}</label>
+            <Input
+              type="time"
+              value={quickCheckOut}
+              onChange={(e) => setQuickCheckOut(e.target.value)}
+              className="bg-gray-800 border-white/10 text-white w-[130px]"
+              disabled={quickLoading}
+            />
+          </div>
+          <label className={`flex items-center gap-2 text-xs text-gray-300 cursor-pointer ${isRTL ? "flex-row-reverse" : ""} pb-1`}>
+            <input
+              type="checkbox"
+              className="rounded border-white/20 bg-gray-800 text-amber-500 focus:ring-amber-500/30"
+              checked={quickOnlyMissing}
+              onChange={(e) => setQuickOnlyMissing(e.target.checked)}
+              disabled={quickLoading}
+            />
+            <span>{t.empQuickOnlyMissing}</span>
+          </label>
+        </div>
+        <p className="text-[10px] text-gray-500">{t.empQuickDefaultTimes}</p>
+        <div className={`flex flex-wrap gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+          <Button
+            type="button"
+            onClick={() => runQuickFill("PRESENT_DEFAULT")}
+            disabled={quickLoading}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-9"
+          >
+            {quickLoading ? t.empQuickWorking : t.empQuickFillPresent}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => runQuickFill("COPY_PREVIOUS")}
+            disabled={quickLoading}
+            className="border-white/15 text-gray-200 hover:bg-white/5 text-xs h-9"
+          >
+            {t.empQuickFillCopy}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => runQuickFill("ABSENT")}
+            disabled={quickLoading}
+            className="border-red-500/30 text-red-300 hover:bg-red-500/10 text-xs h-9"
+          >
+            {t.empQuickFillAbsent}
+          </Button>
+        </div>
+        {quickMsg && (
+          <div
+            className={`text-xs rounded-lg px-3 py-2 ${quickMsg.ok ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" : "bg-red-500/10 text-red-300 border border-red-500/20"}`}
+          >
+            <p>{quickMsg.text}</p>
+            {quickMsg.detail ? <p className="mt-1 text-gray-400">{quickMsg.detail}</p> : null}
+          </div>
+        )}
       </div>
 
       {alert3.length > 0 && (
