@@ -507,6 +507,7 @@ export default function ProductTable({
               lang={lang}
               isRTL={isRTL}
               t={t}
+              currency={t.currency}
               isCashier={isCashier}
               getParam={(k) => searchParamsHook.get(k)}
               currentPage={currentPage}
