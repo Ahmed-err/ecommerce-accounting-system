@@ -9,6 +9,7 @@
     "dev": "next dev --webpack",
     "dev:turbo": "next dev",
     "build": "next build",
+    "build:vercel": "sh scripts/vercel-build.sh",
     "start": "next start",
     "lint": "eslint .",
     "ci:check": "npm run lint && npm run build",

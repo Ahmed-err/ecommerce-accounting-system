@@ -37,9 +37,13 @@ function toActionErrorString(error) {
   if (!msg.trim()) return fallback;
   const trimmed = msg.trim();
   if (trimmed.includes("does not exist") && /column/i.test(trimmed)) {
+    console.error(
+      "[inventory] Schema drift (missing column). Apply migrations against the same DATABASE_URL as production (Neon). Example: npx prisma migrate deploy",
+      trimmed
+    );
     return (
-      "The database is out of date (missing product columns). " +
-      "Apply pending migrations with: npm run db:migrate"
+      "Your Neon database is missing schema updates for this app. " +
+      "Run `npx prisma migrate deploy` with production `DATABASE_URL` (from Neon), or redeploy using a setup that runs migrations (this repo’s Dockerfile does that before start)."
     );
   }
   return trimmed;
