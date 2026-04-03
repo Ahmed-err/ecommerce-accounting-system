@@ -61,6 +61,13 @@ export async function getHomepageData() {
         newArrivals: [],
         topRated: [],
         catalogActiveCount: 0,
+        featuredMeta: {
+          bestSellersPeriod: null,
+          newArrivalsWindowDays: null,
+          newArrivalsFilledOlder: false,
+          topRatedMinReviews: null,
+          topRatedRelaxed: false,
+        },
       },
       featuredOffer: null,
     };

@@ -12,6 +12,7 @@ import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
+import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
 
 async function ensureStaff() {
   const session = await auth();
@@ -188,7 +189,7 @@ export async function getCatalogProducts({
     else if (sort === "best_selling") {
       orderBy = { orderItems: { _count: "desc" } };
     } else if (sort === "top_rated") {
-      orderBy = { stock: "desc" };
+      orderBy = { createdAt: "desc" };
     }
 
     const skip = (page - 1) * limit;
@@ -208,10 +209,28 @@ export async function getCatalogProducts({
     let products;
     let total;
     try {
-      [products, total] = await runQuery({ ...whereBase, isActive: true }, orderBy);
+      if (sort === "top_rated") {
+        const { ids: sortedIds, total: trTotal } = await getTopRatedProductIdsFiltered(whereBase);
+        if (sortedIds.length === 0) {
+          [products, total] = await runQuery({ ...whereBase, isActive: true }, { createdAt: "desc" });
+        } else {
+          total = trTotal;
+          const pageIds = sortedIds.slice(skip, skip + limit);
+          const rows = await db.product.findMany({
+            where: { id: { in: pageIds }, ...whereBase, isActive: true },
+            select: { ...productPublicFields, category: true },
+          });
+          const order = new Map(pageIds.map((id, i) => [id, i]));
+          products = [...rows].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+        }
+      } else {
+        [products, total] = await runQuery({ ...whereBase, isActive: true }, orderBy);
+      }
     } catch (e) {
       if (sort === "best_selling") {
         [products, total] = await runQuery({ ...whereBase, isActive: true }, { stock: "desc" });
+      } else if (sort === "top_rated") {
+        [products, total] = await runQuery({ ...whereBase, isActive: true }, { createdAt: "desc" });
       } else {
         throw e;
       }

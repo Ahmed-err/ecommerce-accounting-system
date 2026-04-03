@@ -184,15 +184,15 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
       ) : (
         <>
           {/* Summary + distribution */}
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,260px)_1fr] lg:gap-8 lg:items-start">
+          <div className="grid min-w-0 max-w-full gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)] lg:gap-8 lg:items-start">
             <div
               className={cn(
-                "flex flex-col rounded-2xl border border-border bg-gradient-to-b from-amber-500/10 to-transparent p-6 text-center lg:text-start",
+                "flex min-w-0 max-w-full flex-col rounded-2xl border border-border bg-gradient-to-b from-amber-500/10 to-transparent p-6 text-center lg:text-start",
                 isRTL && "lg:text-right"
               )}
             >
               <p
-                className="text-5xl font-black tabular-nums tracking-tight text-foreground sm:text-6xl"
+                className="text-5xl font-black tabular-nums tracking-tight text-foreground sm:text-6xl [overflow-wrap:anywhere]"
                 aria-live="polite"
               >
                 {summary.total > 0 ? summary.average.toFixed(1) : "—"}
@@ -202,7 +202,9 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                 size="lg"
                 className={cn("mt-2 justify-center", isRTL ? "lg:justify-end" : "lg:justify-start")}
               />
-              <p className="mt-2 text-sm text-muted-foreground">{reviewCountLabel}</p>
+              <p className="mt-2 break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                {reviewCountLabel}
+              </p>
               <Button
                 type="button"
                 className="mt-6 h-11 w-full bg-amber-500 font-semibold text-black shadow-md shadow-amber-500/20 hover:bg-amber-600"
@@ -212,16 +214,16 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               </Button>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
+            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
               <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.pdpReviewsDistribution || (lang === "ar" ? "توزيع التقييمات" : "Rating breakdown")}
               </p>
               <ul className="space-y-3.5">
                 {bars.map((b) => (
-                  <li key={b.s}>
+                  <li key={b.s} className="min-w-0">
                     <div
                       className={cn(
-                        "flex items-center gap-2 text-sm sm:gap-3",
+                        "flex min-w-0 items-center gap-2 text-sm sm:gap-3",
                         isRTL && "flex-row-reverse"
                       )}
                     >
@@ -356,11 +358,11 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               return (
                 <article
                   key={r.id}
-                  className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+                  className="max-w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
                 >
                   <div
                     className={cn(
-                      "flex gap-4 sm:gap-5",
+                      "flex min-w-0 gap-4 sm:gap-5",
                       isRTL ? "flex-row-reverse" : "flex-row"
                     )}
                   >
@@ -370,13 +372,17 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                     >
                       {initial}
                     </div>
-                    <div className="min-w-0 flex-1 space-y-3">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-x-4 sm:gap-y-2">
-                        <div className="min-w-0">
+                    <div className="min-w-0 flex-1 space-y-3 overflow-hidden">
+                      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-x-4 sm:gap-y-2">
+                        <div className="min-w-0 max-w-full flex-1 sm:flex-none sm:max-w-[calc(100%-8rem)]">
                           <Stars value={r.rating} className="mb-1.5" />
-                          <h4 className="text-base font-semibold leading-snug text-foreground">{r.title}</h4>
-                          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-                            <span className="font-medium text-foreground/85">{r.reviewerName}</span>
+                          <h4 className="break-words text-base font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">
+                            {r.title}
+                          </h4>
+                          <p className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
+                            <span className="min-w-0 max-w-full break-words font-medium text-foreground/85 [overflow-wrap:anywhere]">
+                              {r.reviewerName}
+                            </span>
                             <span className="text-muted-foreground/45" aria-hidden>
                               ·
                             </span>
@@ -390,14 +396,17 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                           </p>
                         </div>
                         {r.verified ? (
-                          <span className="inline-flex w-fit shrink-0 items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                          <span className="inline-flex w-fit max-w-full shrink-0 items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 [overflow-wrap:anywhere]">
                             <Check className="h-3 w-3" strokeWidth={2.5} />
                             {lang === "ar" ? "شراء موثق" : "Verified purchase"}
                           </span>
                         ) : null}
                       </div>
 
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+                      <p
+                        className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground/90 [overflow-wrap:anywhere] [word-break:break-word]"
+                        dir="auto"
+                      >
                         {r.body}
                       </p>
 
@@ -436,13 +445,18 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                       {r.adminReply ? (
                         <div
                           className={cn(
-                            "rounded-xl border border-amber-500/20 border-s-4 border-s-amber-500 bg-amber-500/[0.08] p-4 ps-5 text-sm text-amber-950 dark:text-amber-50"
+                            "max-w-full min-w-0 overflow-hidden rounded-xl border border-amber-500/20 border-s-4 border-s-amber-500 bg-amber-500/[0.08] p-4 ps-5 text-sm text-amber-950 dark:text-amber-50"
                           )}
                         >
                           <p className="text-xs font-bold uppercase tracking-wide text-amber-800/90 dark:text-amber-200/90">
                             {lang === "ar" ? "رد المتجر" : "Store response"}
                           </p>
-                          <p className="mt-2 leading-relaxed">{r.adminReply}</p>
+                          <p
+                            className="mt-2 whitespace-pre-wrap break-words leading-relaxed [overflow-wrap:anywhere] [word-break:break-word]"
+                            dir="auto"
+                          >
+                            {r.adminReply}
+                          </p>
                         </div>
                       ) : null}
 
@@ -525,14 +539,14 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
 
   return (
     <section
-      className={cn("space-y-6", embedded ? "mt-0" : "mt-12")}
+      className={cn("w-full min-w-0 max-w-full space-y-6", embedded ? "mt-0" : "mt-12")}
       dir={isRTL ? "rtl" : "ltr"}
       aria-label={t.pdpTabReviews}
     >
       <div
         className={cn(
-          embedded &&
-            "rounded-2xl border border-border bg-card/40 p-4 sm:p-6 lg:p-8"
+          "min-w-0 max-w-full",
+          embedded && "rounded-2xl border border-border bg-card/40 p-4 sm:p-6 lg:p-8"
         )}
       >
         {embedded && showContent && loading && rows.length === 0 ? (

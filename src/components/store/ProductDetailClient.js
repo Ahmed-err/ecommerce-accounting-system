@@ -284,7 +284,7 @@ export default function ProductDetailClient({
   };
 
   return (
-    <div className={cn(isRTL ? "text-right" : "text-left")}>
+    <div className={cn("min-w-0 max-w-full", isRTL ? "text-right" : "text-left")}>
       <nav
         className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:text-sm"
         aria-label="Breadcrumb"
@@ -308,7 +308,7 @@ export default function ProductDetailClient({
         {t.backToProducts}
       </Link>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+      <div className="grid min-w-0 max-w-full grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <div
           className={cn(
             "flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-4",
@@ -487,7 +487,7 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        <div className="flex flex-col lg:sticky lg:top-24 lg:self-start">
+        <div className="flex min-w-0 max-w-full flex-col lg:sticky lg:top-24 lg:self-start">
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-500">
             {translateCategory(product.category?.name, t)}
           </p>
@@ -660,13 +660,13 @@ export default function ProductDetailClient({
 
       <motion.section
         id="pdp-detail-tabs"
-        className="mt-14 scroll-mt-24"
+        className="mt-14 w-full min-w-0 max-w-full scroll-mt-24"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.45 }}
       >
-        <Tabs value={detailTab} onValueChange={onTabChange} className="w-full">
+        <Tabs value={detailTab} onValueChange={onTabChange} className="w-full min-w-0 max-w-full">
           <TabsList
             variant="line"
             className={cn(
@@ -737,7 +737,7 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
 
-          <TabsContent value="reviews" className="outline-none">
+          <TabsContent value="reviews" className="outline-none min-w-0 max-w-full overflow-x-hidden">
             <ProductReviewsClient productId={product.id} embedded />
           </TabsContent>
 

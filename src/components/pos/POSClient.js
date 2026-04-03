@@ -404,10 +404,16 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
     try {
       const stockData = await getProductStock();
       if (stockData?.length > 0) {
-        setProducts(prev => prev.map(p => {
-          const updated = stockData.find(s => s.id === p.id);
-          return updated ? { ...p, stock: updated.stock, sellingPrice: updated.sellingPrice, isActive: updated.isActive } : p;
-        }));
+        const byId = new Map(stockData.map((s) => [s.id, s]));
+        setProducts((prev) =>
+          prev
+            .filter((p) => byId.has(p.id))
+            .map((p) => {
+              const u = byId.get(p.id);
+              return { ...p, stock: u.stock, sellingPrice: u.sellingPrice, isActive: u.isActive };
+            })
+        );
+        setCart((cartPrev) => cartPrev.filter((i) => byId.has(i.id)));
         setLastSync(new Date());
       }
     } catch (err) {
@@ -470,8 +476,8 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           barcodeTimeout.current = setTimeout(() => { barcodeBuffer.current = ""; }, 100);
         } else if (e.key === "Enter" && barcodeBuffer.current.length > 3) {
           const sku = barcodeBuffer.current;
-          const found = products.find(p => (p.sku || "").toLowerCase() === sku.toLowerCase());
-          if (found && found.stock > 0) {
+          const found = products.find((p) => (p.sku || "").toLowerCase() === sku.toLowerCase());
+          if (found && found.isActive !== false && found.stock > 0) {
             addToCart(found);
             barcodeBuffer.current = "";
           }
@@ -513,10 +519,14 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   }, [products, t.all]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter(p => {
+    return products.filter((p) => {
+      if (p.isActive === false) return false;
       const matchesCat = activeCategory === "ALL" || p.categoryId === activeCategory;
       const term = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm || p.name.toLowerCase().includes(term) || (p.sku || "").toLowerCase().includes(term);
+      const matchesSearch =
+        !searchTerm ||
+        p.name.toLowerCase().includes(term) ||
+        (p.sku || "").toLowerCase().includes(term);
       return matchesCat && matchesSearch;
     });
   }, [products, searchTerm, activeCategory]);
