@@ -39,7 +39,7 @@ import {
 } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { cn } from "@/lib/utils";
+import { cn, formatServerActionError } from "@/lib/utils";
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
 import { toast } from "sonner";
 
@@ -207,7 +207,9 @@ export default function ProductTable({
     if (!canManage) return;
     if (window.confirm(t.inventoryDeleteConfirm)) {
       const res = await deleteProduct(id);
-      if (!res.success) toast.error(res.error || t.genericError);
+      if (!res.success) {
+        toast.error(formatServerActionError(res.error) || t.genericError);
+      }
       else toast.success(lang === "ar" ? "تم الحذف" : "Deleted");
     }
   };
@@ -216,7 +218,7 @@ export default function ProductTable({
     if (!canManage) return;
     const res = await updateStockQuantity(id, change);
     if (!res.success) {
-      toast.error(res.error || t.genericError);
+      toast.error(formatServerActionError(res.error) || t.genericError);
     } else {
       toast.success(lang === "ar" ? "تم التحديث" : "Updated");
       router.refresh();
@@ -326,7 +328,9 @@ export default function ProductTable({
       toast.success(`${res.count}`);
       setSelected(new Set());
       router.refresh();
-    } else toast.error(res.error || t.genericError);
+    } else {
+      toast.error(formatServerActionError(res.error) || t.genericError);
+    }
   };
 
   const runBulkCategory = async () => {
@@ -337,7 +341,9 @@ export default function ProductTable({
       setSelected(new Set());
       setBulkCategoryId("");
       router.refresh();
-    } else toast.error(res.error || t.genericError);
+    } else {
+      toast.error(formatServerActionError(res.error) || t.genericError);
+    }
   };
 
   const colCount = (canManage ? 1 : 0) + 11 + (isCashier ? 0 : 2);
@@ -720,7 +726,11 @@ export default function ProductTable({
                               importedPrice: p.importedPrice ?? null,
                               importTaxRate: p.importTaxRate ?? null,
                             });
-                            if (!res.success) toast.error(res.error || t.genericError);
+                            if (!res.success) {
+                              toast.error(
+                                formatServerActionError(res.error) || t.genericError
+                              );
+                            }
                             else router.refresh();
                           }}
                         >

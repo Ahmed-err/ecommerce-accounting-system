@@ -22,6 +22,28 @@ import {
   bulkCategorySchema,
 } from "@/lib/schemas/inventory";
 import { createAdminBroadcastNotification } from "@/lib/notifications";
+import { formatServerActionError } from "@/lib/utils";
+
+function toActionErrorString(error) {
+  const fallback = "Something went wrong. Please try again.";
+  let msg = formatServerActionError(error);
+  if (!msg && error != null) {
+    try {
+      msg = String(error);
+    } catch {
+      msg = "";
+    }
+  }
+  if (!msg.trim()) return fallback;
+  const trimmed = msg.trim();
+  if (trimmed.includes("does not exist") && /column/i.test(trimmed)) {
+    return (
+      "The database is out of date (missing product columns). " +
+      "Apply pending migrations with: npm run db:migrate"
+    );
+  }
+  return trimmed;
+}
 
 async function sessionUser() {
   const session = await auth();
@@ -175,7 +197,7 @@ export async function createProduct(data) {
     return { success: true, product };
   } catch (error) {
     console.error("Failed to create product:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -224,7 +246,7 @@ export async function updateProduct(id, data) {
     return { success: true, product };
   } catch (error) {
     console.error("Failed to update product:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -244,7 +266,7 @@ export async function deleteProduct(id) {
       revalidatePath("/admin/inventory");
       return { success: true, softDeleted: true };
     } catch (softError) {
-      return { success: false, error: softError.message };
+      return { success: false, error: toActionErrorString(softError) };
     }
   }
 }
@@ -268,7 +290,7 @@ export async function bulkDeleteProducts(ids) {
     return { success: true, count: idList.length };
   } catch (error) {
     console.error("bulkDeleteProducts:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -288,7 +310,7 @@ export async function bulkSetCategory(ids, categoryId) {
     return { success: true, count: idList.length };
   } catch (error) {
     console.error("bulkSetCategory:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -318,7 +340,7 @@ export async function updateStockQuantity(id, change) {
     return { success: true, stock: product.stock };
   } catch (error) {
     console.error("Failed to update stock:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -331,7 +353,15 @@ export async function receiveStockAction(raw) {
     }
     const parsed = receiveStockSchema.safeParse(raw);
     if (!parsed.success) {
-      return { success: false, error: "validation", details: parsed.error.flatten() };
+      const f = parsed.error.flatten();
+      const fromFields = formatServerActionError(f.fieldErrors);
+      const fromForm = Array.isArray(f.formErrors)
+        ? f.formErrors.filter(Boolean).join(" · ")
+        : "";
+      return {
+        success: false,
+        error: fromFields || fromForm || "Invalid input",
+      };
     }
     const { productId, quantity, supplierId, unitCost, notes } = parsed.data;
     await db.$transaction(async (tx) => {
@@ -356,7 +386,7 @@ export async function receiveStockAction(raw) {
     return { success: true };
   } catch (error) {
     console.error("receiveStockAction:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -369,7 +399,15 @@ export async function issueStockAction(raw) {
     }
     const parsed = issueStockSchema.safeParse(raw);
     if (!parsed.success) {
-      return { success: false, error: "validation", details: parsed.error.flatten() };
+      const f = parsed.error.flatten();
+      const fromFields = formatServerActionError(f.fieldErrors);
+      const fromForm = Array.isArray(f.formErrors)
+        ? f.formErrors.filter(Boolean).join(" · ")
+        : "";
+      return {
+        success: false,
+        error: fromFields || fromForm || "Invalid input",
+      };
     }
     const { productId, quantity, reason, notes } = parsed.data;
     let newStock = null;
@@ -415,7 +453,7 @@ export async function issueStockAction(raw) {
     return { success: true };
   } catch (error) {
     console.error("issueStockAction:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -425,7 +463,7 @@ export async function generateSkuSuggestion() {
     const n = Date.now().toString(36).toUpperCase();
     return { success: true, sku: `SKU-${n}` };
   } catch (e) {
-    return { success: false, error: e.message };
+    return { success: false, error: toActionErrorString(e) };
   }
 }
 
@@ -434,7 +472,11 @@ export async function updateProductOriginAction(raw) {
     await ensureManager();
     const parsed = productOriginUpdateSchema.safeParse(raw);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.flatten().fieldErrors };
+      return {
+        success: false,
+        error:
+          formatServerActionError(parsed.error.flatten().fieldErrors) || "Invalid input",
+      };
     }
     const d = parsed.data;
     if (d.origin === "IMPORTED" && !d.countryOfOrigin) {
@@ -455,7 +497,7 @@ export async function updateProductOriginAction(raw) {
     return { success: true, product };
   } catch (error) {
     console.error("updateProductOriginAction:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -464,7 +506,11 @@ export async function bulkClassifyProductOriginAction(raw) {
     await ensureManager();
     const parsed = productOriginBulkSchema.safeParse(raw);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.flatten().fieldErrors };
+      return {
+        success: false,
+        error:
+          formatServerActionError(parsed.error.flatten().fieldErrors) || "Invalid input",
+      };
     }
     const { ids, origin } = parsed.data;
     const valid = await getProductIdsForBulk(ids);
@@ -478,7 +524,7 @@ export async function bulkClassifyProductOriginAction(raw) {
     return { success: true, count: result.count };
   } catch (error) {
     console.error("bulkClassifyProductOriginAction:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 

@@ -25,7 +25,7 @@ import {
 } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { cn } from "@/lib/utils";
+import { cn, formatServerActionError } from "@/lib/utils";
 import { toast } from "sonner";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 
@@ -114,7 +114,7 @@ export default function InventoryStockPanel({
       resetProductPickers();
       loadMovements(1, mType, false);
     } else {
-      toast.error(res.error || "Error");
+      toast.error(formatServerActionError(res.error) || t.genericError || "Error");
     }
   };
 
@@ -137,7 +137,7 @@ export default function InventoryStockPanel({
       resetProductPickers();
       loadMovements(1, mType, false);
     } else {
-      toast.error(res.error || "Error");
+      toast.error(formatServerActionError(res.error) || t.genericError || "Error");
     }
   };
 

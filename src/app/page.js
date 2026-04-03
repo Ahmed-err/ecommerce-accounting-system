@@ -78,10 +78,12 @@ export default async function HomePage() {
           <CategoriesStrip categories={categories} />
         </section>
 
-        {/* 5. Product Showcase (Tabs) */}
-        <section aria-label={isRTL ? "منتجات مميزة" : "Featured products"}>
-          <ProductShowcase products={products} />
-        </section>
+        {/* 5. Product Showcase (only when there are active storefront products) */}
+        {products.length > 0 && (
+          <section aria-label={isRTL ? "منتجات مميزة" : "Featured products"}>
+            <ProductShowcase products={products} />
+          </section>
+        )}
 
         {/* 6. Special Promo Offer */}
         {featuredOffer && (
