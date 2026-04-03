@@ -39,7 +39,11 @@ export async function getHomepageData() {
       db.category.findMany({
         orderBy: { name: "asc" },
         include: {
-          _count: { select: { products: true } },
+          _count: {
+            select: {
+              products: { where: { isActive: true } },
+            },
+          },
         },
       }),
       db.product.findMany({
@@ -58,19 +62,7 @@ export async function getHomepageData() {
       }),
     ]);
 
-    // If there are no active products, fall back to any products so the homepage
-    // featured section doesn't look broken in dev/empty DB scenarios.
-    const products =
-      activeProducts && activeProducts.length > 0
-        ? activeProducts
-        : await db.product.findMany({
-            orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
-            take: 6,
-            select: {
-              ...productPublicFields,
-              category: { select: { name: true } },
-            },
-          });
+    const products = activeProducts || [];
 
     const resolvedBanners =
       banners.length > 0
@@ -82,12 +74,14 @@ export async function getHomepageData() {
 
     return {
       banners: resolvedBanners,
-      categories: categories.map((c) => ({
-        id: c.id,
-        name: c.name,
-        image: c.image,
-        productCount: c._count.products,
-      })),
+      categories: categories
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          image: c.image,
+          productCount: c._count.products,
+        }))
+        .filter((c) => c.productCount > 0),
       products: products.map(serializeProductForClient),
       featuredOffer: offers[0] || null,
     };

@@ -92,19 +92,11 @@ export async function getCheckoutShippingOptions() {
 
 export async function getCatalogPriceBounds() {
   try {
-    const aggActive = await db.product.aggregate({
+    const agg = await db.product.aggregate({
       where: { isActive: true },
       _min: { sellingPrice: true },
       _max: { sellingPrice: true },
     });
-    const hasActiveBounds =
-      aggActive?._min?.sellingPrice !== null || aggActive?._max?.sellingPrice !== null;
-    const agg = hasActiveBounds
-      ? aggActive
-      : await db.product.aggregate({
-          _min: { sellingPrice: true },
-          _max: { sellingPrice: true },
-        });
     return {
       min: Number(agg._min.sellingPrice ?? 0),
       max: Number(agg._max.sellingPrice ?? 0),
@@ -217,15 +209,9 @@ export async function getCatalogProducts({
     let total;
     try {
       [products, total] = await runQuery({ ...whereBase, isActive: true }, orderBy);
-      if (total === 0) {
-        [products, total] = await runQuery(whereBase, orderBy);
-      }
     } catch (e) {
       if (sort === "best_selling") {
         [products, total] = await runQuery({ ...whereBase, isActive: true }, { stock: "desc" });
-        if (total === 0) {
-          [products, total] = await runQuery(whereBase, { stock: "desc" });
-        }
       } else {
         throw e;
       }
@@ -288,16 +274,22 @@ export async function getCatalogCategories() {
     const categories = await db.category.findMany({
       orderBy: { name: "asc" },
       include: {
-        _count: { select: { products: true } },
+        _count: {
+          select: {
+            products: { where: { isActive: true } },
+          },
+        },
       },
     });
-    return categories.map((c) => ({
-      id: c.id,
-      name: c.name,
-      description: c.description,
-      image: c.image,
-      productCount: c._count.products,
-    }));
+    return categories
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        description: c.description,
+        image: c.image,
+        productCount: c._count.products,
+      }))
+      .filter((c) => c.productCount > 0);
   } catch (error) {
     console.error("Failed to fetch catalog categories:", error);
     return [];

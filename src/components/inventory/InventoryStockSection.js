@@ -20,7 +20,7 @@ import {
 import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { cn } from "@/lib/utils";
+import { cn, formatServerActionError } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   receiveStockAction,
@@ -62,8 +62,9 @@ export default function InventoryStockSection({
       });
       setMovements(res.movements || []);
       setMTotal(res.total || 0);
-    } catch {
-      toast.error(t.genericError || "Error");
+    } catch (err) {
+      console.error(err);
+      toast.error(formatServerActionError(err) || t.genericError || "Error");
     } finally {
       setLoading(false);
     }
@@ -281,7 +282,7 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
       onOpenChange(false);
       onDone();
     } else {
-      toast.error(res.error || t.genericError);
+      toast.error(formatServerActionError(res.error) || t.genericError);
     }
   };
 
@@ -432,7 +433,7 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
       onOpenChange(false);
       onDone();
     } else {
-      toast.error(res.error || t.genericError);
+      toast.error(formatServerActionError(res.error) || t.genericError);
     }
   };
 

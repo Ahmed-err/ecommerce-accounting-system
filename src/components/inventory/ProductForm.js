@@ -22,7 +22,7 @@ import { UploadButton } from "@/lib/uploader";
 import { createProduct, updateProduct, generateSkuSuggestion } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { cn } from "@/lib/utils";
+import { cn, formatServerActionError } from "@/lib/utils";
 import InventoryBarcode from "./InventoryBarcode";
 
 const MAX_PRODUCT_IMAGES = 4;
@@ -38,21 +38,6 @@ const COUNTRY_OPTIONS = [
   "Taiwan",
   "Other",
 ];
-
-function formatServerError(res) {
-  if (!res?.error) return "";
-  if (typeof res.error === "string") return res.error;
-  try {
-    const o = res.error;
-    if (typeof o === "object") {
-      const parts = Object.values(o).flat();
-      return parts.filter(Boolean).join(" · ");
-    }
-  } catch {
-    /* ignore */
-  }
-  return "";
-}
 
 function formatUploadError(err, fallback) {
   if (!err) return fallback;
@@ -201,10 +186,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         onClose();
         router.refresh();
       } else {
-        setError(formatServerError(res) || t.inventorySaveError);
+        setError(formatServerActionError(res.error) || t.inventorySaveError);
       }
     } catch (err) {
-      setError(err.message);
+      setError(formatUploadError(err, t.inventorySaveError));
     } finally {
       setLoading(false);
     }
