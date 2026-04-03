@@ -180,7 +180,7 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-7 xl:gap-8"
+                  className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 sm:gap-7 md:gap-8 2xl:grid-cols-3 2xl:gap-8"
                 >
                   {tab.data.map((product, i) => (
                     <div
@@ -195,23 +195,23 @@ export default function ProductShowcase({ featured }) {
                   <Link
                     href={exploreHref}
                     className={cn(
-                      "group relative col-span-1 flex min-h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:col-span-2 sm:min-h-[200px] sm:rounded-3xl sm:p-6 lg:col-span-3 lg:min-h-[160px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-6",
-                      isRTL && "lg:flex-row-reverse"
+                      "group relative col-span-1 flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:col-span-2 sm:min-h-[220px] sm:rounded-3xl sm:p-6 md:min-h-[200px] md:flex-row md:items-center md:justify-between md:gap-8 md:px-10 md:py-6 2xl:col-span-3",
+                      isRTL && "md:flex-row-reverse"
                     )}
                   >
                     <div
                       className={cn(
                         "pointer-events-none absolute top-0 p-5 opacity-15 transition-transform duration-700 group-hover:scale-150 sm:p-8",
-                        isRTL ? "left-0 lg:left-auto lg:right-0" : "right-0 lg:right-auto lg:left-0"
+                        isRTL ? "left-0 md:left-auto md:right-0" : "right-0 md:right-auto md:left-0"
                       )}
                     >
-                      <Sparkles className="h-20 w-20 text-black sm:h-28 sm:h-28 lg:h-32 lg:w-32" />
+                      <Sparkles className="h-20 w-20 text-black sm:h-28 sm:h-28 md:h-32 md:w-32" />
                     </div>
-                    <div className="relative z-10 flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-6">
+                    <div className="relative z-10 flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-black/10 shadow-inner transition-transform group-hover:scale-110 sm:h-14 sm:w-14 sm:rounded-2xl">
                         <ArrowRight
                           className={cn(
-                            "h-6 w-6 text-black transition-transform duration-500 group-hover:translate-x-1 sm:h-7 sm:w-7 lg:h-8 lg:w-8",
+                            "h-6 w-6 text-black transition-transform duration-500 group-hover:translate-x-1 sm:h-7 sm:w-7 md:h-8 md:w-8",
                             isRTL && "rotate-180 group-hover:-translate-x-1 group-hover:translate-x-0"
                           )}
                         />
@@ -219,10 +219,10 @@ export default function ProductShowcase({ featured }) {
                       <div
                         className={cn(
                           "flex flex-col items-center text-center",
-                          isRTL ? "lg:items-end lg:text-end" : "lg:items-start lg:text-start"
+                          isRTL ? "md:items-end md:text-end" : "md:items-start md:text-start"
                         )}
                       >
-                        <h3 className="mb-2 text-base font-black uppercase italic leading-tight tracking-tighter text-black sm:text-lg lg:mb-1 lg:text-2xl">
+                        <h3 className="mb-2 text-base font-black uppercase italic leading-tight tracking-tighter text-black sm:text-lg md:mb-1 md:text-2xl">
                           {isRTL ? "اكتشف المجموعة" : "EXPLORE ALL"}
                         </h3>
                         <p className="hidden text-[9px] font-black uppercase tracking-widest text-black/65 sm:block sm:text-[10px]">
@@ -230,7 +230,7 @@ export default function ProductShowcase({ featured }) {
                         </p>
                       </div>
                     </div>
-                    <div className="relative z-10 mt-5 inline-flex h-9 shrink-0 items-center justify-center rounded-lg bg-black px-5 font-black uppercase tracking-widest text-[10px] text-white shadow-xl transition-colors group-hover:bg-black/80 sm:mt-6 sm:h-10 sm:rounded-xl sm:px-7 sm:text-xs lg:mt-0 lg:h-12 lg:px-8">
+                    <div className="relative z-10 mt-5 inline-flex h-9 shrink-0 items-center justify-center rounded-lg bg-black px-5 font-black uppercase tracking-widest text-[10px] text-white shadow-xl transition-colors group-hover:bg-black/80 sm:mt-6 sm:h-10 sm:rounded-xl sm:px-7 sm:text-xs md:mt-0 md:h-12 md:px-8">
                       {t.shopNow || "Shop Now"}
                     </div>
                   </Link>

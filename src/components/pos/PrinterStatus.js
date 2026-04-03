@@ -85,7 +85,7 @@ export default function PrinterStatus({ printerSettings, lang, cashierName, mess
           setOpen(true);
           refresh();
         }}
-        className="flex items-center gap-2 rounded-xl border border-white/5 px-2 py-1.5 text-[10px] font-black uppercase text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+        className="flex items-center gap-2 rounded-xl border border-border px-2 py-1.5 text-[10px] font-black uppercase text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         title={messages?.printerSetup || "Printer"}
       >
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
@@ -93,19 +93,19 @@ export default function PrinterStatus({ printerSettings, lang, cashierName, mess
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md border-white/10 bg-gray-900 text-white">
+        <DialogContent className="max-w-md border-border bg-card text-card-foreground">
           <DialogHeader>
             <DialogTitle className="text-lg font-black uppercase tracking-tight text-amber-500">
               {messages?.printerSetup || "Printer setup"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 text-sm text-gray-300">
+          <div className="space-y-3 text-sm text-muted-foreground">
             <p>
               {messages?.printerBrowserNote ||
                 "Web USB / Serial / Bluetooth work best in Chrome or Edge. Other browsers use PDF / print dialog."}
             </p>
-            <div className="rounded-lg border border-white/10 bg-black/30 p-3 space-y-2">
-              <p className="text-xs font-bold text-white/60 uppercase">{messages?.paperWidth || "Paper width"}</p>
+            <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-2">
+              <p className="text-xs font-bold text-muted-foreground uppercase">{messages?.paperWidth || "Paper width"}</p>
               <p className="text-xs">
                 {printerSettings?.paperWidth === "58" ? "58mm" : "80mm"} ({messages?.fromStoreSettings || "from store settings"})
               </p>

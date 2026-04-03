@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-40 w-full sm:h-44 md:h-48 lg:h-52"
+      ? "h-52 w-full sm:h-60 md:h-64 lg:h-72 xl:h-80"
       : "h-64";
 
   const quickBody = (
@@ -210,7 +210,9 @@ export default function ProductCard({
           "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
-          homeShowcase ? "h-auto border-foreground/10 shadow-lg ring-1 ring-foreground/5" : "h-full",
+          homeShowcase
+            ? "h-auto min-h-0 border-foreground/10 shadow-lg ring-1 ring-foreground/5"
+            : "h-full",
           compactRail && "rounded-2xl",
           homeShowcase && "rounded-2xl sm:rounded-3xl"
         )}
@@ -307,7 +309,7 @@ export default function ProductCard({
                   className="object-cover"
                   sizes={
                     homeShowcase
-                      ? "(max-width: 640px) 92vw, (max-width: 1024px) 48vw, (max-width: 1440px) 24vw, 20vw"
+                      ? "(max-width: 640px) 96vw, (max-width: 768px) 46vw, (max-width: 1536px) 44vw, 30vw"
                       : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   }
                   onError={() => setImgError(true)}
@@ -350,14 +352,14 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "gap-1 p-4 pb-5 sm:p-5 sm:pb-6",
+              homeShowcase && "gap-2 p-5 pb-6 sm:p-6 sm:pb-7",
               isRTL ? "text-right" : "text-left"
             )}
           >
             <span
               className={cn(
                 "font-medium uppercase tracking-wider text-amber-500",
-                homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
+                homeShowcase ? "text-[11px] sm:text-xs" : "text-xs"
               )}
             >
               {translateCategory(product.category?.name, t)}
@@ -366,8 +368,12 @@ export default function ProductCard({
             <Link href={`/products/${product.id}`} className="min-h-0">
               <h3
                 className={cn(
-                  "mt-1 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug sm:line-clamp-3",
-                  compactRail ? "text-sm" : homeShowcase ? "min-h-[2.5rem] text-[0.9375rem] leading-tight sm:min-h-[2.75rem] sm:text-base lg:text-lg" : "text-lg"
+                  "mt-1 font-bold text-foreground transition-colors group-hover:text-amber-500",
+                  compactRail
+                    ? "text-sm line-clamp-2 leading-snug"
+                    : homeShowcase
+                      ? "line-clamp-3 text-lg leading-snug sm:line-clamp-4 sm:text-xl sm:leading-snug lg:text-2xl lg:leading-tight"
+                      : "line-clamp-2 text-lg leading-snug sm:line-clamp-3"
                 )}
               >
                 {product.name}
@@ -375,38 +381,55 @@ export default function ProductCard({
             </Link>
 
             {homeShowcase ? (
-              <div
-                className="mt-auto flex flex-col gap-3 border-t border-border/80 pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                    {t.price}
-                  </p>
-                  <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 gap-y-0 text-foreground">
-                    <span className="text-xl font-black tabular-nums tracking-tight sm:text-2xl lg:text-[1.65rem]">
-                      {selling.toLocaleString()}
+              <>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+                  {product.sku ? (
+                    <span className="min-w-0 max-w-full truncate font-mono text-[11px] sm:text-xs">
+                      {t.productSku}: {product.sku}
                     </span>
-                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400 sm:text-base">
-                      {t.currency}
-                    </span>
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart(product);
-                  }}
-                  disabled={isOutOfStock}
-                  className="relative shrink-0 self-stretch overflow-hidden rounded-xl bg-amber-500 px-4 py-3 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30 sm:self-auto sm:px-5"
-                  title={t.addToCart}
-                >
-                  <span className="flex items-center justify-center gap-2 text-sm font-bold">
-                    <ShoppingCart className="h-5 w-5 shrink-0" />
-                    <span className="hidden sm:inline">{t.addToCart}</span>
+                  ) : null}
+                  <span
+                    className={cn(
+                      "shrink-0 font-semibold",
+                      isOutOfStock ? "text-red-500" : "text-emerald-600 dark:text-emerald-400"
+                    )}
+                  >
+                    {isOutOfStock ? t.outOfStock : `${t.inStock}: ${product.stock}`}
                   </span>
-                </button>
-              </div>
+                </div>
+                <div
+                  className="mt-auto flex flex-col gap-4 border-t border-border/80 pt-5 sm:flex-row sm:items-end sm:justify-between sm:gap-5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:text-xs">
+                      {t.price}
+                    </p>
+                    <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0 text-foreground">
+                      <span className="text-2xl font-black tabular-nums tracking-tight sm:text-3xl lg:text-[2rem] xl:text-[2.125rem]">
+                        {selling.toLocaleString()}
+                      </span>
+                      <span className="text-base font-bold text-amber-600 dark:text-amber-400 sm:text-lg">
+                        {t.currency}
+                      </span>
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addToCart(product);
+                    }}
+                    disabled={isOutOfStock}
+                    className="relative min-h-[3rem] shrink-0 self-stretch overflow-hidden rounded-xl bg-amber-500 px-5 py-3.5 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30 sm:min-h-0 sm:self-auto sm:px-6 sm:py-3.5"
+                    title={t.addToCart}
+                  >
+                    <span className="flex items-center justify-center gap-2 text-sm font-bold sm:text-base">
+                      <ShoppingCart className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
+                      <span>{t.addToCart}</span>
+                    </span>
+                  </button>
+                </div>
+              </>
             ) : (
               <div
                 className={cn(

@@ -26,8 +26,7 @@ export default async function POSLayout({ children }) {
   }
 
   return (
-    <div className="min-h-dvh bg-gray-950 text-white font-sans overflow-x-hidden">
-      {/* Clean layout specifically for POS Terminal (no generic headers/footers) */}
+    <div className="min-h-dvh bg-background text-foreground font-sans overflow-x-hidden">
       <main className="h-screen w-full flex flex-col overflow-hidden">
         {children}
       </main>

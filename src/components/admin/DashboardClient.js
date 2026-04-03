@@ -82,8 +82,11 @@ export default function DashboardClient({ data, filters }) {
   };
 
   return (
-    <div className={`space-y-6 ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div
+      className={`admin-dashboard-print space-y-6 ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      <div className="accounting-no-print flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-1">{t.adminOverview}</h1>
           <p className="text-gray-400 text-sm">{t.adminWelcomeBack}</p>

@@ -85,6 +85,15 @@ function stockStatus(p) {
   return "ok";
 }
 
+function originBadgeClass(origin) {
+  return cn(
+    "inline-flex max-w-full items-center rounded-md border px-2.5 py-1 text-[11px] font-bold uppercase leading-snug tracking-wide sm:text-xs",
+    origin === "IMPORTED"
+      ? "border-sky-400/45 bg-sky-500/20 text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]"
+      : "border-emerald-400/45 bg-emerald-500/20 text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+  );
+}
+
 export default function ProductTable({
   initialProducts,
   total,
@@ -526,40 +535,57 @@ export default function ProductTable({
       )}
 
       {canManage && selected.size > 0 && (
-        <div
-          className={cn(
-            "flex flex-wrap items-center gap-2 border-b border-white/5 bg-amber-500/10 px-4 py-2 text-sm",
-            isRTL && "flex-row-reverse"
-          )}
-        >
-          <span className="text-amber-100">{selected.size}</span>
-          <Button size="sm" variant="destructive" onClick={runBulkDelete}>
-            {t.inventoryBulkDelete}
-          </Button>
-          <Select value={bulkCategoryId || "x"} onValueChange={(v) => setBulkCategoryId(v === "x" ? "" : v)}>
-            <SelectTrigger className="h-8 w-44 bg-gray-800 border-white/10 text-white text-xs">
-              <SelectValue placeholder={t.inventoryBulkCategory} />
-            </SelectTrigger>
-            <SelectContent className="border-white/10 bg-gray-800 text-white">
-              <SelectItem value="x">{t.inventoryBulkCategory}</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" className="bg-amber-500 text-black" onClick={runBulkCategory} disabled={!bulkCategoryId}>
-            {t.save}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-white/20 text-white"
-            onClick={() => exportCsv(initialProducts.filter((p) => selected.has(p.id)))}
-          >
-            {t.inventoryExportSelectedCsv}
-          </Button>
+        <div className="flex flex-col gap-3 border-y border-amber-400/40 bg-amber-500/20 px-4 py-3 text-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+          <span className="shrink-0 text-base font-extrabold tracking-tight text-white drop-shadow-sm">
+            {String(t.inventoryBulkSelectionBar || "").replace("{count}", String(selected.size))}
+          </span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <Button
+              size="sm"
+              type="button"
+              variant="destructive"
+              className="h-9 border-2 border-red-400/70 bg-red-600 px-3 font-bold text-white shadow-md hover:bg-red-500 hover:text-white"
+              onClick={runBulkDelete}
+            >
+              <Trash2 className={cn("h-4 w-4 shrink-0 opacity-95", isRTL ? "ms-1.5" : "me-1.5")} />
+              {t.inventoryBulkDelete}
+            </Button>
+            <Select value={bulkCategoryId || "x"} onValueChange={(v) => setBulkCategoryId(v === "x" ? "" : v)}>
+              <SelectTrigger
+                className="h-9 min-w-[10rem] max-w-[14rem] border-2 border-white/35 bg-gray-950 text-sm font-semibold text-white shadow-sm"
+                dir={isRTL ? "rtl" : "ltr"}
+              >
+                <SelectValue placeholder={t.inventoryBulkCategory} />
+              </SelectTrigger>
+              <SelectContent className="border-white/15 bg-gray-900 text-white">
+                <SelectItem value="x">{t.inventoryBulkCategory}</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              type="button"
+              className="h-9 bg-amber-500 px-4 font-bold text-black shadow-sm hover:bg-amber-400"
+              onClick={runBulkCategory}
+              disabled={!bulkCategoryId}
+            >
+              {t.save}
+            </Button>
+            <Button
+              size="sm"
+              type="button"
+              variant="outline"
+              className="h-9 border-2 border-white/45 bg-gray-950 font-bold text-white shadow-sm hover:bg-gray-800 hover:text-white"
+              onClick={() => exportCsv(initialProducts.filter((p) => selected.has(p.id)))}
+            >
+              <Download className={cn("h-4 w-4 shrink-0 opacity-95", isRTL ? "ms-2" : "me-2")} />
+              {t.inventoryExportSelectedCsv}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -592,7 +618,7 @@ export default function ProductTable({
                   isRTL={isRTL}
                 />
               </th>
-              <th className="px-4 py-3">{t.inventoryOriginLabel}</th>
+              <th className="min-w-[11rem] px-4 py-3">{t.inventoryOriginLabel}</th>
               <th className="px-4 py-3">{t.inventoryColBarcode}</th>
               <th className="px-4 py-3">{t.categoriesTab}</th>
               <th className="px-4 py-3">
@@ -693,8 +719,22 @@ export default function ProductTable({
                         <div className="truncate font-bold text-white group-hover:text-amber-400">
                           {displayName(p, lang)}
                         </div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                          <span
+                            className={originBadgeClass(p.origin)}
+                            title={
+                              p.origin === "IMPORTED"
+                                ? t.inventoryOriginImported
+                                : t.inventoryOriginLocal
+                            }
+                          >
+                            {p.origin === "IMPORTED"
+                              ? t.inventoryOriginImportedBadge
+                              : t.inventoryOriginLocalBadge}
+                          </span>
+                        </div>
                         <div className="mt-0.5 flex items-center gap-1 text-[10px] text-gray-500">
-                          <Layers className="h-3 w-3" />
+                          <Layers className="h-3 w-3 shrink-0" />
                           <span className="truncate">{p.name !== displayName(p, lang) ? p.name : ""}</span>
                         </div>
                       </div>
@@ -702,47 +742,54 @@ export default function ProductTable({
                     <td className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-gray-400">
                       {p.sku}
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        title={p.countryOfOrigin || ""}
-                        className={cn(
-                          "rounded-full px-2 py-1 text-[10px] font-bold uppercase",
-                          p.origin === "IMPORTED"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900"
-                            : "bg-green-100 text-green-800 dark:bg-green-900"
-                        )}
-                      >
-                        {p.origin === "IMPORTED" ? t.inventoryOriginImportedBadge : t.inventoryOriginLocalBadge}
-                      </span>
-                      {canManage && (
-                        <Select
-                          value={p.origin || "LOCAL"}
-                          onValueChange={async (val) => {
-                            const res = await updateProductOriginAction({
-                              productId: p.id,
-                              origin: val,
-                              countryOfOrigin: p.countryOfOrigin || null,
-                              localPrice: p.localPrice ?? null,
-                              importedPrice: p.importedPrice ?? null,
-                              importTaxRate: p.importTaxRate ?? null,
-                            });
-                            if (!res.success) {
-                              toast.error(
-                                formatServerActionError(res.error) || t.genericError
-                              );
-                            }
-                            else router.refresh();
-                          }}
+                    <td className="min-w-[11rem] align-top px-4 py-3">
+                      <div className="flex flex-col gap-2">
+                        <span
+                          className={originBadgeClass(p.origin)}
+                          title={
+                            p.countryOfOrigin
+                              ? `${t.inventoryCountryOfOrigin}: ${p.countryOfOrigin}`
+                              : p.origin === "IMPORTED"
+                                ? t.inventoryOriginImported
+                                : t.inventoryOriginLocal
+                          }
                         >
-                          <SelectTrigger className="mt-2 h-7 w-[124px] border-white/10 bg-gray-800 text-[11px] text-white">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="border-white/10 bg-gray-800 text-white">
-                            <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
-                            <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
+                          {p.origin === "IMPORTED"
+                            ? t.inventoryOriginImportedBadge
+                            : t.inventoryOriginLocalBadge}
+                        </span>
+                        {p.origin === "IMPORTED" && p.countryOfOrigin ? (
+                          <span className="text-[10px] text-gray-400">{p.countryOfOrigin}</span>
+                        ) : null}
+                        {canManage && (
+                          <Select
+                            value={p.origin || "LOCAL"}
+                            onValueChange={async (val) => {
+                              const res = await updateProductOriginAction({
+                                productId: p.id,
+                                origin: val,
+                                countryOfOrigin: p.countryOfOrigin || null,
+                                localPrice: p.localPrice ?? null,
+                                importedPrice: p.importedPrice ?? null,
+                                importTaxRate: p.importTaxRate ?? null,
+                              });
+                              if (!res.success) {
+                                toast.error(
+                                  formatServerActionError(res.error) || t.genericError
+                                );
+                              } else router.refresh();
+                            }}
+                          >
+                            <SelectTrigger className="h-8 w-full min-w-[8.5rem] max-w-[11rem] border-white/15 bg-gray-800/90 text-[11px] text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="border-white/10 bg-gray-800 text-white">
+                              <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
+                              <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-400">{p.barcode || "—"}</td>
                     <td className="px-4 py-3 text-gray-400">{p.category?.name}</td>

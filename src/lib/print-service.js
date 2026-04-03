@@ -217,44 +217,117 @@ export async function printThermal(receiptData, settings, messages = {}, opts = 
   }
 }
 
-export async function printPDF(receiptData) {
-  const [{ buildReceiptPrintHtml }, QRMod] = await Promise.all([
-    import("@/lib/receipt"),
-    import("qrcode"),
-  ]);
-  const payload = receiptData.invoiceBarcode || receiptData.invoiceNumber || "";
-  const qr = await QRMod.default.toDataURL(payload, {
-    margin: 1,
-    width: 160,
-    errorCorrectionLevel: "M",
-  });
-  let html = buildReceiptPrintHtml(receiptData, { paper: "thermal" });
-  html = html.replace(
-    '<div class="qr-host" id="receipt-qr"></div>',
-    `<div class="qr-host" id="receipt-qr"><img src="${qr}" alt="" width="160" height="160" /></div>`
+async function fetchReceiptPrintStylesheet() {
+  if (typeof fetch === "undefined") return "";
+  try {
+    const res = await fetch(`${window.location.origin}/receipt-print.css`, { cache: "force-cache" });
+    if (!res.ok) return "";
+    return await res.text();
+  } catch {
+    return "";
+  }
+}
+
+function embedStylesInReceiptHtml(html, cssText) {
+  if (!cssText || !html.includes('href="/receipt-print.css"')) return html;
+  return html.replace(
+    '<link rel="stylesheet" href="/receipt-print.css"/>',
+    `<style>\n${cssText}\n</style>`
   );
+}
+
+function injectReceiptQr(html, qrDataUrl, { showBarcode = true } = {}) {
+  const empty = '<div class="qr-host" id="receipt-qr"></div>';
+  if (showBarcode === false || !qrDataUrl) {
+    return html.replace(/<div class="qr-host"[^>]*id="receipt-qr"[^>]*>[\s\S]*?<\/div>/, empty);
+  }
+  const block = `<div class="qr-host" id="receipt-qr"><img src="${qrDataUrl}" alt="" width="160" height="160" /></div>`;
+  return html.replace(/<div class="qr-host"[^>]*id="receipt-qr"[^>]*>[\s\S]*?<\/div>/, block);
+}
+
+/**
+ * Opens the browser print dialog for a POS receipt (thermal layout).
+ * Inlines receipt CSS so print is not blank while stylesheets load; waits for layout before print.
+ */
+export async function printPDF(receiptData, settings = {}) {
+  const showBarcode = settings.showBarcode !== false;
+  const paperWidth = settings.paperWidth === "58" ? "58" : "80";
+
+  const receiptMod = await import("@/lib/receipt");
+  const { buildReceiptPrintHtml } = receiptMod;
+
+  const payload = String(receiptData.invoiceBarcode || receiptData.invoiceNumber || "").trim();
+  let qrDataUrl = "";
+  if (showBarcode && payload) {
+    try {
+      const QRMod = await import("qrcode");
+      qrDataUrl = await QRMod.default.toDataURL(payload, {
+        margin: 1,
+        width: 160,
+        errorCorrectionLevel: "M",
+      });
+    } catch (e) {
+      console.warn("Receipt QR skipped:", e);
+    }
+  }
+
+  let html = buildReceiptPrintHtml(receiptData, { paper: "thermal", paperWidth });
+  const cssText = await fetchReceiptPrintStylesheet();
+  html = embedStylesInReceiptHtml(html, cssText);
+  html = injectReceiptQr(html, qrDataUrl, { showBarcode });
+
   const iframe = document.createElement("iframe");
   iframe.setAttribute("class", "pos-receipt-print-frame");
+  iframe.setAttribute("title", "Receipt");
+  iframe.setAttribute("aria-hidden", "true");
   iframe.style.cssText =
-    "position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none;";
+    "position:fixed;left:-9999px;top:0;width:420px;max-height:100vh;height:900px;border:0;margin:0;padding:0;opacity:0.01;pointer-events:none;z-index:-1;";
   document.body.appendChild(iframe);
+
   const doc = iframe.contentDocument;
+  if (!doc) {
+    iframe.remove();
+    throw new Error("IFRAME_NO_DOCUMENT");
+  }
   doc.open();
   doc.write(html);
   doc.close();
-  const runPrint = () => {
-    try {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    } finally {
-      setTimeout(() => iframe.remove(), 2500);
-    }
+
+  let printed = false;
+  const removeFrame = () => {
+    if (iframe.parentNode) iframe.remove();
   };
-  if (iframe.contentDocument.readyState === "complete") {
+
+  const runPrint = () => {
+    if (printed) return;
+    printed = true;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            const w = iframe.contentWindow;
+            if (w) {
+              w.focus();
+              w.print();
+            }
+          } catch (e) {
+            console.error("printPDF:", e);
+          } finally {
+            setTimeout(removeFrame, 2200);
+          }
+        }, 100);
+      });
+    });
+  };
+
+  if (doc.readyState === "complete") {
     runPrint();
   } else {
-    iframe.onload = runPrint;
+    iframe.onload = () => runPrint();
   }
+  setTimeout(() => {
+    if (!printed) runPrint();
+  }, 600);
 }
 
 export async function printReceipt(receiptData, settings, messages = {}, opts = {}) {
@@ -262,21 +335,21 @@ export async function printReceipt(receiptData, settings, messages = {}, opts = 
   console.log("[POS] printReceipt", settings?.printerType, settings?.printerConnection);
   try {
     if (settings.printerType === "PDF") {
-      await printPDF(receiptData);
+      await printPDF(receiptData, settings);
       if (!quiet) toast.success(messages.printOpened || "Receipt ready to print or save as PDF.");
       return;
     }
     const ok = await printThermal(receiptData, settings, messages, { quietToast: quiet });
     if (!ok) {
       if (!quiet) toast.info(messages.thermalFallback || "Thermal printer unavailable — opened print / PDF.");
-      await printPDF(receiptData);
+      await printPDF(receiptData, settings);
       return;
     }
     if (!quiet) toast.success(messages.printSuccess || "Sent to printer.");
   } catch (e) {
     console.error("printReceipt:", e);
     try {
-      await printPDF(receiptData);
+      await printPDF(receiptData, settings);
       if (!quiet) toast.info(messages.thermalFallback || "Opened print dialog as fallback.");
     } catch (e2) {
       console.error("printPDF fallback:", e2);
@@ -284,7 +357,12 @@ export async function printReceipt(receiptData, settings, messages = {}, opts = 
   }
 }
 
-export async function downloadReceiptPdf(receiptData, messages = {}) {
-  await printPDF(receiptData);
-  toast.info(messages.downloadPdfHint || "Use your browser print dialog and choose Save as PDF.");
+export async function downloadReceiptPdf(receiptData, messages = {}, settings = {}) {
+  try {
+    await printPDF(receiptData, settings);
+    toast.info(messages.downloadPdfHint || "Use your browser print dialog and choose Save as PDF.");
+  } catch (e) {
+    console.error("downloadReceiptPdf:", e);
+    toast.error(messages.printFailed || "Print failed");
+  }
 }

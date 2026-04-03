@@ -343,11 +343,23 @@
   }
 
   body:has(.accounting-page-print) aside,
+  body:has(.emp-reports-print) aside,
+  body:has(.orders-reports-print) aside,
+  body:has(.admin-dashboard-print) aside,
   body:has(.accounting-page-print) header.md\:hidden,
-  body:has(.accounting-page-print) .accounting-no-print {
+  body:has(.emp-reports-print) header.md\:hidden,
+  body:has(.orders-reports-print) header.md\:hidden,
+  body:has(.admin-dashboard-print) header.md\:hidden,
+  body:has(.accounting-page-print) .accounting-no-print,
+  body:has(.emp-reports-print) .accounting-no-print,
+  body:has(.orders-reports-print) .accounting-no-print,
+  body:has(.admin-dashboard-print) .accounting-no-print {
     display: none !important;
   }
-  body:has(.accounting-page-print) main {
+  body:has(.accounting-page-print) main,
+  body:has(.emp-reports-print) main,
+  body:has(.orders-reports-print) main,
+  body:has(.admin-dashboard-print) main {
     padding: 0.5rem !important;
     max-width: none !important;
   }
