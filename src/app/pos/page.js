@@ -5,9 +5,9 @@ import POSClient from "@/components/pos/POSClient";
 export const dynamic = "force-dynamic";
 
 export default async function POSPage() {
-  // Fetch products for POS regardless of storefront active flag.
-  // POS inventory can differ from storefront publication state.
+  // Same sellable catalog as admin inventory: only active products.
   const products = await db.product.findMany({
+    where: { isActive: true },
     include: {
       category: { select: { id: true, name: true } },
     },

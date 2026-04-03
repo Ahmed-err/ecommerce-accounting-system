@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-48 min-h-[12rem] sm:h-52 sm:min-h-[13rem] md:h-56 lg:h-72 xl:h-80 2xl:h-[22rem]"
+      ? "h-40 w-full sm:h-44 md:h-48 lg:h-52"
       : "h-64";
 
   const quickBody = (
@@ -210,7 +210,7 @@ export default function ProductCard({
           "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
-          homeShowcase ? "h-auto" : "h-full",
+          homeShowcase ? "h-auto border-foreground/10 shadow-lg ring-1 ring-foreground/5" : "h-full",
           compactRail && "rounded-2xl",
           homeShowcase && "rounded-2xl sm:rounded-3xl"
         )}
@@ -278,7 +278,7 @@ export default function ProductCard({
         <div className="relative z-10">
           <div
             className={cn(
-              "relative flex items-center justify-center overflow-hidden bg-muted/30",
+              "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted/30",
               imgHeight
             )}
           >
@@ -350,14 +350,14 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "p-4 pt-4 pb-6 sm:p-5 sm:pt-5 sm:pb-7 lg:p-6 lg:pb-8 xl:p-7 xl:pb-9",
+              homeShowcase && "gap-1 p-4 pb-5 sm:p-5 sm:pb-6",
               isRTL ? "text-right" : "text-left"
             )}
           >
             <span
               className={cn(
                 "font-medium uppercase tracking-wider text-amber-500",
-                homeShowcase ? "text-[10px] sm:text-xs lg:text-sm" : "text-xs"
+                homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
               )}
             >
               {translateCategory(product.category?.name, t)}
@@ -366,45 +366,79 @@ export default function ProductCard({
             <Link href={`/products/${product.id}`} className="min-h-0">
               <h3
                 className={cn(
-                  "mt-1 mb-2 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug",
-                  compactRail ? "text-sm" : homeShowcase ? "text-sm sm:text-base lg:text-lg xl:text-xl" : "text-lg"
+                  "mt-1 font-bold text-foreground transition-colors group-hover:text-amber-500 line-clamp-2 leading-snug sm:line-clamp-3",
+                  compactRail ? "text-sm" : homeShowcase ? "min-h-[2.5rem] text-[0.9375rem] leading-tight sm:min-h-[2.75rem] sm:text-base lg:text-lg" : "text-lg"
                 )}
               >
                 {product.name}
               </h3>
             </Link>
 
-            <div
-              className={cn(
-                "mt-auto flex items-center justify-between gap-2 pt-3 pb-1",
-                homeShowcase && "pt-2.5 pb-0.5"
-              )}
-            >
-              <span
+            {homeShowcase ? (
+              <div
+                className="mt-auto flex flex-col gap-3 border-t border-border/80 pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    {t.price}
+                  </p>
+                  <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 gap-y-0 text-foreground">
+                    <span className="text-xl font-black tabular-nums tracking-tight sm:text-2xl lg:text-[1.65rem]">
+                      {selling.toLocaleString()}
+                    </span>
+                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400 sm:text-base">
+                      {t.currency}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart(product);
+                  }}
+                  disabled={isOutOfStock}
+                  className="relative shrink-0 self-stretch overflow-hidden rounded-xl bg-amber-500 px-4 py-3 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30 sm:self-auto sm:px-5"
+                  title={t.addToCart}
+                >
+                  <span className="flex items-center justify-center gap-2 text-sm font-bold">
+                    <ShoppingCart className="h-5 w-5 shrink-0" />
+                    <span className="hidden sm:inline">{t.addToCart}</span>
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <div
                 className={cn(
-                  "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
-                  compactRail ? "text-base" : homeShowcase ? "text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl" : "text-xl"
+                  "mt-auto flex items-center justify-between gap-2 pt-3 pb-1"
                 )}
               >
-                {selling.toLocaleString()} {t.currency}
-              </span>
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
+                    compactRail ? "text-base" : "text-xl"
+                  )}
+                >
+                  {selling.toLocaleString()} {t.currency}
+                </span>
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  addToCart(product);
-                }}
-                disabled={isOutOfStock}
-                className={cn(
-                  "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
-                  homeShowcase ? "p-2.5 sm:p-3 lg:p-3.5" : "p-2.5"
-                )}
-                title={t.addToCart}
-              >
-                <ShoppingCart className={cn(homeShowcase ? "h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" : "h-4 w-4")} />
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart(product);
+                  }}
+                  disabled={isOutOfStock}
+                  className={cn(
+                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
+                    "p-2.5"
+                  )}
+                  title={t.addToCart}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

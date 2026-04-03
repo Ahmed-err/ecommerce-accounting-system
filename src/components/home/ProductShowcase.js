@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
@@ -43,16 +43,60 @@ export default function ProductShowcase({ featured }) {
     return rows.filter((tab) => tab.data.length > 0);
   }, [featured, t.bestSellers, t.newArrivals, t.topRated]);
 
-  if (tabsConfig.length === 0) return null;
+  const featuredMeta = featured?.featuredMeta;
+  const firstTab = tabsConfig[0]?.value ?? "best-sellers";
+  const [activeTab, setActiveTab] = useState(firstTab);
 
-  const defaultTab = tabsConfig[0].value;
+  useEffect(() => {
+    if (!tabsConfig.some((tab) => tab.value === activeTab)) {
+      setActiveTab(firstTab);
+    }
+  }, [tabsConfig, activeTab, firstTab]);
+
+  const activeTabHint = useMemo(() => {
+    const meta = featuredMeta ?? {};
+    const days = String(meta.newArrivalsWindowDays ?? 120);
+    const n = String(meta.topRatedMinReviews ?? 2);
+    if (activeTab === "best-sellers") {
+      switch (meta.bestSellersPeriod) {
+        case "90d":
+          return t.showcaseBestSellersHint90d;
+        case "all":
+          return t.showcaseBestSellersHintAll;
+        case "fallback_stock":
+          return t.showcaseBestSellersHintFallback;
+        case "month":
+        default:
+          return t.showcaseBestSellersHintMonth;
+      }
+    }
+    if (activeTab === "new-arrivals") {
+      const template = meta.newArrivalsFilledOlder
+        ? t.showcaseNewArrivalsHintMixed
+        : t.showcaseNewArrivalsHint;
+      return String(template || "").replace(/\{days\}/g, days);
+    }
+    if (activeTab === "top-rated") {
+      if (meta.topRatedRelaxed) return t.showcaseTopRatedHintRelaxed;
+      return String(t.showcaseTopRatedHint || "").replace(/\{n\}/g, n);
+    }
+    return "";
+  }, [activeTab, featuredMeta, t]);
+
+  if (tabsConfig.length === 0) return null;
 
   return (
     <section className="relative overflow-hidden bg-background border-t border-foreground/5 py-10 sm:py-12 lg:py-16">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
       <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        <Tabs key={defaultTab} defaultValue={defaultTab} id="homepage-product-showcase" className="w-full">
+        <Tabs
+          key={firstTab}
+          value={activeTab}
+          onValueChange={setActiveTab}
+          id="homepage-product-showcase"
+          className="w-full"
+        >
           {/* ── Section header + tabs ── */}
           <div
             className={cn(
@@ -80,11 +124,17 @@ export default function ProductShowcase({ featured }) {
                 )}
               >
                 {t.popularProducts || "TOP PRODUCTS"}
-                <br />
-                <span className="text-amber-500 underline decoration-4 decoration-amber-500/20 underline-offset-6 sm:decoration-8 sm:underline-offset-8">
-                  {isRTL ? "لهذا الشهر" : "THIS MONTH"}
-                </span>
               </h2>
+              {activeTabHint ? (
+                <p
+                  className={cn(
+                    "max-w-2xl text-sm font-semibold leading-relaxed text-amber-600/95 sm:text-base",
+                    isRTL ? "text-right" : "text-left"
+                  )}
+                >
+                  {activeTabHint}
+                </p>
+              ) : null}
             </motion.div>
 
             {/* Tab list */}
@@ -130,10 +180,13 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-8 2xl:grid-cols-3 2xl:gap-10"
+                  className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-7 xl:gap-8"
                 >
                   {tab.data.map((product, i) => (
-                    <div key={product.id} className="flex min-h-0 min-w-0 w-full">
+                    <div
+                      key={product.id}
+                      className="flex min-h-0 min-w-0 w-full max-w-full"
+                    >
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
                   ))}
@@ -142,7 +195,7 @@ export default function ProductShowcase({ featured }) {
                   <Link
                     href={exploreHref}
                     className={cn(
-                      "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-3 2xl:col-span-3",
+                      "group relative col-span-1 flex min-h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:col-span-2 sm:min-h-[200px] sm:rounded-3xl sm:p-6 lg:col-span-3 lg:min-h-[160px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-6",
                       isRTL && "lg:flex-row-reverse"
                     )}
                   >
