@@ -798,18 +798,28 @@ export default function ProductTable({
                     )}
                     <td className="regular-nums px-4 py-3 text-gray-400">{p.minStock}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
-                          st === "ok" && "bg-emerald-500/15 text-emerald-400",
-                          rowLow && "bg-amber-500/15 text-amber-300",
-                          st === "out" && "bg-red-500/15 text-red-400"
-                        )}
-                      >
-                        {st === "ok" && t.inventoryStatusBadgeOk}
-                        {rowLow && t.inventoryStatusBadgeLow}
-                        {st === "out" && t.inventoryStatusBadgeOut}
-                      </span>
+                      <div className={cn("flex flex-col gap-1.5", isRTL ? "items-end" : "items-start")}>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+                            st === "ok" && "bg-emerald-500/15 text-emerald-400",
+                            rowLow && "bg-amber-500/15 text-amber-300",
+                            st === "out" && "bg-red-500/15 text-red-400"
+                          )}
+                        >
+                          {st === "ok" && t.inventoryStatusBadgeOk}
+                          {rowLow && t.inventoryStatusBadgeLow}
+                          {st === "out" && t.inventoryStatusBadgeOut}
+                        </span>
+                        {p.isActive === false ? (
+                          <span
+                            className="rounded-full bg-zinc-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-zinc-400"
+                            title={t.inventoryInactiveBadge}
+                          >
+                            {t.inventoryInactiveBadge}
+                          </span>
+                        ) : null}
+                      </div>
                       {p.barcode || p.sku ? (
                         <div className="mt-2 max-w-[140px] rounded border border-white/10 bg-white p-1 [&_svg]:max-h-12">
                           <InventoryBarcode value={p.barcode || p.sku} />

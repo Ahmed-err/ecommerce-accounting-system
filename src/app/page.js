@@ -22,7 +22,8 @@ export default async function HomePage() {
   const lang = cookieStore.get("lang")?.value || "ar";
   const isRTL = lang === "ar";
 
-  const { banners, categories, products, featuredOffer } = await getHomepageData();
+  const { banners, categories, featured, featuredOffer } = await getHomepageData();
+  const hasFeaturedProducts = (featured?.catalogActiveCount ?? 0) > 0;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
 
@@ -79,9 +80,9 @@ export default async function HomePage() {
         </section>
 
         {/* 5. Product Showcase (only when there are active storefront products) */}
-        {products.length > 0 && (
+        {hasFeaturedProducts && (
           <section aria-label={isRTL ? "منتجات مميزة" : "Featured products"}>
-            <ProductShowcase products={products} />
+            <ProductShowcase featured={featured} />
           </section>
         )}
 

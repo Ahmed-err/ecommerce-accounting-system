@@ -35,6 +35,7 @@ import {
 } from "recharts";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 
 const PIE_COLORS = ["#f59e0b", "#22c55e", "#3b82f6", "#ef4444", "#a855f7", "#14b8a6"];
 
@@ -255,18 +256,34 @@ export default function DashboardClient({ data, filters }) {
         <Card className="bg-gray-900 border-white/5 rounded-2xl">
           <CardHeader><CardTitle className="text-white">{lang === "ar" ? "سجل النشاط" : "Recent Activity"}</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {data.activity.map((a) => (
-              <div key={a.id} className="flex items-start justify-between rounded border border-white/10 p-2">
-                <div className="flex items-start gap-2">
-                  <Clock3 className="h-4 w-4 mt-0.5 text-amber-500" />
-                  <div>
-                    <p className="text-sm text-white">{a.action}</p>
-                    <p className="text-xs text-gray-500">{a.details || ""}</p>
+            {data.activity.map((a) => {
+              const fmt = formatAuditActivityForDashboard(a.action, a.details, lang);
+              return (
+                <div key={a.id} className="flex items-start justify-between gap-3 rounded border border-white/10 p-2">
+                  <div className="flex items-start gap-2 min-w-0 flex-1">
+                    <Clock3 className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" />
+                    <div className="min-w-0">
+                      {fmt.href ? (
+                        <Link href={fmt.href} className="group block">
+                          <p className="text-sm text-white group-hover:text-amber-400 transition-colors">{fmt.title}</p>
+                          {fmt.subtitle ? (
+                            <p className="text-xs text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                          ) : null}
+                        </Link>
+                      ) : (
+                        <>
+                          <p className="text-sm text-white">{fmt.title}</p>
+                          {fmt.subtitle ? (
+                            <p className="text-xs text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                          ) : null}
+                        </>
+                      )}
+                    </div>
                   </div>
+                  <span className="text-xs text-gray-500 shrink-0 whitespace-nowrap">{timeAgo(a.createdAt, lang)}</span>
                 </div>
-                <span className="text-xs text-gray-500">{timeAgo(a.createdAt, lang)}</span>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
         <Card className="bg-gray-900 border-white/5 rounded-2xl">

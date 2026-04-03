@@ -156,7 +156,7 @@ export async function getInventoryProducts({
   if (status === "low") {
     const totalRow = await db.$queryRaw`
       SELECT COUNT(*)::int as count FROM "Product" p
-      WHERE p."isActive" = true AND p."stock" > 0 AND p."stock" <= p."minStock"
+      WHERE p."stock" > 0 AND p."stock" <= p."minStock"
       ${catSup}
       ${sSql}
     `;
@@ -167,7 +167,7 @@ export async function getInventoryProducts({
       FROM "Product" p
       LEFT JOIN "Category" c ON p."categoryId" = c.id
       LEFT JOIN "Supplier" s ON p."supplierId" = s.id
-      WHERE p."isActive" = true AND p."stock" > 0 AND p."stock" <= p."minStock"
+      WHERE p."stock" > 0 AND p."stock" <= p."minStock"
       ${catSup}
       ${sSql}
       ${orderSql}
@@ -179,7 +179,7 @@ export async function getInventoryProducts({
   if (status === "in") {
     const totalRow = await db.$queryRaw`
       SELECT COUNT(*)::int as count FROM "Product" p
-      WHERE p."isActive" = true AND p."stock" > p."minStock"
+      WHERE p."stock" > p."minStock"
       ${catSup}
       ${sSql}
     `;
@@ -190,7 +190,7 @@ export async function getInventoryProducts({
       FROM "Product" p
       LEFT JOIN "Category" c ON p."categoryId" = c.id
       LEFT JOIN "Supplier" s ON p."supplierId" = s.id
-      WHERE p."isActive" = true AND p."stock" > p."minStock"
+      WHERE p."stock" > p."minStock"
       ${catSup}
       ${sSql}
       ${orderSql}
@@ -200,7 +200,6 @@ export async function getInventoryProducts({
   }
 
   const where = {
-    isActive: true,
     ...(status === "out" ? { stock: 0 } : {}),
     ...(origin !== "all" ? { origin } : {}),
     ...(categoryId ? { categoryId } : {}),
@@ -499,7 +498,7 @@ export async function listStockMovements({
 export async function getProductIdsForBulk(ids) {
   if (!ids?.length) return [];
   return db.product.findMany({
-    where: { id: { in: ids }, isActive: true },
+    where: { id: { in: ids } },
     select: { id: true },
   });
 }

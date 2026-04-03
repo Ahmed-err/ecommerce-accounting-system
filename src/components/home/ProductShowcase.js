@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
@@ -9,29 +10,49 @@ import ProductCard from "@/components/store/ProductCard";
 import { ArrowRight, Sparkles, TrendingUp, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function ProductShowcase({ products }) {
+export default function ProductShowcase({ featured }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang] || translations.en;
 
-  const safeProducts = Array.isArray(products) ? products : [];
-  const hasProducts = safeProducts.length > 0;
+  const catalogActiveCount = featured?.catalogActiveCount ?? 0;
 
-  const bestSellers = safeProducts.slice(0, 6);
-  const newArrivals = [...safeProducts].reverse().slice(0, 6);
-  const topRated = safeProducts.slice(0, 6);
+  const tabsConfig = useMemo(() => {
+    const bestSellers = featured?.bestSellers ?? [];
+    const newArrivals = featured?.newArrivals ?? [];
+    const topRated = featured?.topRated ?? [];
+    const rows = [
+      {
+        value: "best-sellers",
+        label: t.bestSellers || "Best Sellers",
+        icon: TrendingUp,
+        data: bestSellers,
+      },
+      {
+        value: "new-arrivals",
+        label: t.newArrivals || "New Arrivals",
+        icon: Sparkles,
+        data: newArrivals,
+      },
+      {
+        value: "top-rated",
+        label: t.topRated || "Top Rated",
+        icon: Star,
+        data: topRated,
+      },
+    ];
+    return rows.filter((tab) => tab.data.length > 0);
+  }, [featured, t.bestSellers, t.newArrivals, t.topRated]);
 
-  const tabs = [
-    { value: "best-sellers", label: t.bestSellers || "Best Sellers", icon: TrendingUp, data: bestSellers },
-    { value: "new-arrivals", label: t.newArrivals || "New Arrivals", icon: Sparkles, data: newArrivals },
-    { value: "top-rated", label: t.topRated || "Top Rated", icon: Star, data: topRated },
-  ];
+  if (tabsConfig.length === 0) return null;
+
+  const defaultTab = tabsConfig[0].value;
 
   return (
     <section className="relative overflow-hidden bg-background border-t border-foreground/5 py-10 sm:py-12 lg:py-16">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
       <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        <Tabs defaultValue="best-sellers" id="homepage-product-showcase" className="w-full">
+        <Tabs key={defaultTab} defaultValue={defaultTab} id="homepage-product-showcase" className="w-full">
           {/* ── Section header + tabs ── */}
           <div
             className={cn(
@@ -75,7 +96,7 @@ export default function ProductShowcase({ products }) {
               className={cn("w-full xl:w-auto", isRTL ? "xl:mr-auto" : "xl:ml-auto")}
             >
               <TabsList className="flex w-full flex-wrap justify-center gap-1 rounded-xl border border-foreground/10 bg-foreground/5 p-1 shadow-inner sm:justify-end sm:gap-0 sm:rounded-2xl sm:p-1.5 md:flex-nowrap xl:w-auto">
-                {tabs.map((tab) => (
+                {tabsConfig.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
@@ -96,7 +117,14 @@ export default function ProductShowcase({ products }) {
 
           {/* ── Product grids ── */}
           <div>
-            {tabs.map((tab) => (
+            {tabsConfig.map((tab) => {
+              const exploreHref =
+                tab.value === "best-sellers"
+                  ? "/products?sort=best_selling"
+                  : tab.value === "new-arrivals"
+                    ? "/products?sort=newest"
+                    : "/products?sort=top_rated";
+              return (
               <TabsContent key={tab.value} value={tab.value} className="mt-0 outline-none">
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}
@@ -109,15 +137,10 @@ export default function ProductShowcase({ products }) {
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
                   ))}
-                  {!hasProducts && (
-                    <div className="col-span-1 text-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-2 xl:col-span-3 2xl:col-span-3">
-                      {t.noProductsFound}
-                    </div>
-                  )}
 
                   {/* View All card */}
                   <Link
-                    href="/products"
+                    href={exploreHref}
                     className={cn(
                       "group relative col-span-1 flex min-h-[190px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-premium transition-all duration-500 hover:-translate-y-2 hover:bg-amber-600 hover:shadow-2xl hover:shadow-amber-500/30 active:scale-95 sm:col-span-2 sm:min-h-[240px] sm:rounded-3xl sm:p-6 lg:col-span-2 lg:min-h-[230px] lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-10 lg:py-8 xl:col-span-3 2xl:col-span-3",
                       isRTL && "lg:flex-row-reverse"
@@ -129,7 +152,7 @@ export default function ProductShowcase({ products }) {
                         isRTL ? "left-0 lg:left-auto lg:right-0" : "right-0 lg:right-auto lg:left-0"
                       )}
                     >
-                      <Sparkles className="h-20 w-20 text-black sm:h-28 sm:w-28 lg:h-32 lg:w-32" />
+                      <Sparkles className="h-20 w-20 text-black sm:h-28 sm:h-28 lg:h-32 lg:w-32" />
                     </div>
                     <div className="relative z-10 flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-6">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-black/10 shadow-inner transition-transform group-hover:scale-110 sm:h-14 sm:w-14 sm:rounded-2xl">
@@ -150,7 +173,7 @@ export default function ProductShowcase({ products }) {
                           {isRTL ? "اكتشف المجموعة" : "EXPLORE ALL"}
                         </h3>
                         <p className="hidden text-[9px] font-black uppercase tracking-widest text-black/65 sm:block sm:text-[10px]">
-                          {safeProducts.length}+ {isRTL ? "منتجات" : "PRODUCTS"}
+                          {catalogActiveCount}+ {isRTL ? "منتجات" : "PRODUCTS"}
                         </p>
                       </div>
                     </div>
@@ -160,7 +183,8 @@ export default function ProductShowcase({ products }) {
                   </Link>
                 </motion.div>
               </TabsContent>
-            ))}
+              );
+            })}
           </div>
         </Tabs>
       </div>

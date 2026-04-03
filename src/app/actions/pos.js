@@ -126,8 +126,11 @@ export async function createPOSOrder(cartItems, paymentDetails) {
 
       const itemsForReceipt = validatedItems.map((item) => {
         const p = productMap.get(item.id);
+        const fallback = p?.name || "Item";
         return {
-          name: p?.name || "Item",
+          name: fallback,
+          nameAr: p?.nameAr || fallback,
+          nameEn: p?.nameEn || fallback,
           sku: p?.sku || "",
           qty: item.quantity,
           unitPrice: item.price,

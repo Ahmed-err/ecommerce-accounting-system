@@ -1,53 +1,310 @@
-.scope {}
-
-:global(.receipt-root) {
-  background: #fff;
-  color: #000;
-  margin: 0;
-  padding: 16px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+@page a4-invoice {
+  size: A4 portrait;
+  margin: 10mm 12mm 14mm;
 }
 
-:global(.receipt-paper) {
-  max-width: 80mm;
+.scope {
+  isolation: isolate;
+}
+
+:global(.invoice-print-a4-root) {
+  page: a4-invoice;
+}
+
+/* Screen + print: A4 tax invoice (professional layout) */
+.scope :global(.receipt-paper--a4.invoice-pro) {
+  width: 100%;
+  max-width: 210mm;
+  min-height: 260mm;
   margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #0f172a;
+  background: #fff;
 }
 
-:global(.receipt-paper .h1) {
-  font-size: 14px;
+.scope :global(.invoice-pro .inv-header) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 3px solid #0f172a;
+}
+
+.scope :global(.invoice-pro[dir="rtl"] .inv-header) {
+  flex-direction: row-reverse;
+}
+
+.scope :global(.invoice-pro .inv-brand) {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.scope :global(.invoice-pro[dir="rtl"] .inv-brand) {
+  flex-direction: row-reverse;
+}
+
+.scope :global(.invoice-pro .inv-logo img) {
+  max-height: 64px;
+  max-width: 180px;
+  object-fit: contain;
+  display: block;
+}
+
+.scope :global(.invoice-pro .inv-store-name) {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #020617;
+}
+
+.scope :global(.invoice-pro .inv-doc-title) {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #64748b;
+}
+
+.scope :global(.invoice-pro .inv-meta-card) {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  min-width: 220px;
+  font-size: 0.8125rem;
+}
+
+.scope :global(.invoice-pro .inv-meta-row) {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.scope :global(.invoice-pro .inv-meta-row:last-child) {
+  border-bottom: none;
+}
+
+.scope :global(.invoice-pro .inv-meta-row span:first-child) {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.scope :global(.invoice-pro .inv-addresses) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .scope :global(.invoice-pro .inv-addresses) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scope :global(.invoice-pro .inv-box) {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  background: #fff;
+}
+
+.scope :global(.invoice-pro .inv-box-muted) {
+  background: #fafafa;
+}
+
+.scope :global(.invoice-pro .inv-box h2) {
+  margin: 0 0 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  text-align: center;
-  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
 }
 
-:global(.receipt-paper .muted) {
-  font-size: 11px;
-  color: #333;
-  text-align: center;
-  margin: 2px 0;
+.scope :global(.invoice-pro .inv-box p) {
+  margin: 0.35rem 0;
+  font-size: 0.875rem;
+  color: #334155;
 }
 
-:global(.receipt-paper .logo) { text-align: center; margin-bottom: 8px; }
-:global(.receipt-paper .logo img) { max-width: 100%; max-height: 80px; object-fit: contain; }
-:global(.receipt-paper hr) { border: none; border-top: 1px dashed #000; margin: 8px 0; }
-:global(.receipt-paper .row) { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; margin: 3px 0; }
-:global(.receipt-paper .row .n) { text-align: end; white-space: nowrap; }
-:global(.receipt-paper table.items) { width: 100%; border-collapse: collapse; font-size: 10px; margin: 6px 0; }
-:global(.receipt-paper table.items th),
-:global(.receipt-paper table.items td) { padding: 2px 4px; vertical-align: top; }
-:global(.receipt-paper table.items th) { border-bottom: 1px solid #000; text-align: start; }
-:global(.receipt-paper table.items .n) { text-align: end; white-space: nowrap; }
-:global(.receipt-paper .row.total) { font-weight: 700; font-size: 12px; margin-top: 6px; }
-:global(.receipt-paper .qr-host) { text-align: center; margin: 10px 0; }
-:global(.receipt-paper .footer) { text-align: center; font-size: 11px; margin-top: 8px; }
+.scope :global(.invoice-pro .inv-lines) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  margin: 0 0 1.25rem;
+}
+
+.scope :global(.invoice-pro .inv-lines thead) {
+  background: #0f172a;
+  color: #fff;
+}
+
+.scope :global(.invoice-pro .inv-lines th) {
+  padding: 0.65rem 0.75rem;
+  font-weight: 600;
+  text-align: start;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.scope :global(.invoice-pro[dir="rtl"] .inv-lines th) {
+  text-align: right;
+}
+
+.scope :global(.invoice-pro .inv-lines th.n) {
+  text-align: end;
+}
+
+.scope :global(.invoice-pro[dir="rtl"] .inv-lines th.n) {
+  text-align: end;
+}
+
+.scope :global(.invoice-pro .inv-lines td) {
+  padding: 0.7rem 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.scope :global(.invoice-pro .inv-lines tbody tr:last-child td) {
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.scope :global(.invoice-pro .inv-desc) {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.scope :global(.invoice-pro .inv-sku) {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.scope :global(.invoice-pro .inv-lines .n) {
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.scope :global(.invoice-pro .inv-totals) {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.scope :global(.invoice-pro[dir="rtl"] .inv-totals) {
+  justify-content: flex-start;
+}
+
+.scope :global(.invoice-pro .inv-tot-inner) {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+}
+
+.scope :global(.invoice-pro .inv-tot-row) {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.scope :global(.invoice-pro .inv-tot-row .n) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.scope :global(.invoice-pro .inv-tot-row.inv-discount .n) {
+  color: #b45309;
+}
+
+.scope :global(.invoice-pro .inv-tot-row.inv-grand) {
+  margin-top: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 2px solid #0f172a;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #020617;
+}
+
+.scope :global(.invoice-pro .inv-tot-row.inv-grand .n) {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.scope :global(.invoice-pro .inv-tot-row.inv-pay) {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+}
+
+.scope :global(.invoice-pro .inv-qr) {
+  text-align: center;
+  margin: 1rem 0 1.25rem;
+}
+
+.scope :global(.invoice-pro .inv-qr img) {
+  display: inline-block;
+}
+
+.scope :global(.invoice-pro .inv-footer-bilingual) {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed #cbd5e1;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.scope :global(.invoice-pro .inv-footer-bilingual p) {
+  margin: 0.35rem 0;
+}
 
 @media print {
-  :global(.receipt-root) {
-    position: absolute;
-    left: 0;
-    top: 0;
+  :global(.invoice-print-a4-root) {
+    page: a4-invoice;
+  }
+
+  .scope :global(.receipt-paper--a4.invoice-pro) {
+    max-width: none;
     width: 100%;
-    padding: 4mm;
-    margin: 0;
+    min-height: auto;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .scope :global(.invoice-pro .inv-header) {
+    break-inside: avoid;
+  }
+
+  .scope :global(.invoice-pro .inv-lines) {
+    break-inside: auto;
+  }
+
+  .scope :global(.invoice-pro .inv-lines thead) {
+    display: table-header-group;
   }
 }

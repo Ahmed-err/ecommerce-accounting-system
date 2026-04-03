@@ -63,15 +63,20 @@ export default async function InvoicePage({ params }) {
       paymentMethod: order.paymentMethod,
       guestName: order.guestName || order.user?.name || "",
       guestPhone: order.guestPhone || "",
+      guestEmail: order.guestEmail || order.user?.email || "",
+      guestAddress: order.guestAddress || "",
+      guestCity: order.guestCity || "",
       totalAmount: Number(invoice.totalAmount || order.totalAmount || 0),
       taxAmount: Number(invoice.taxAmount || 0),
       discountAmount: Number(invoice.discountAmount || 0),
       shippingAmount: Number(order.shippingCost || 0),
       vatNumber: STORE_VAT_NUMBER,
       qrImage: invoice.qrCode || "",
-      documentLabel: lang === "ar" ? "فاتورة ضريبية" : "Tax Invoice",
+      documentLabel: lang === "ar" ? "فاتورة ضريبية" : "Tax invoice",
       items: order.items.map((item) => ({
         name: item.product?.name || "Item",
+        nameAr: item.product?.nameAr || item.product?.name || "",
+        nameEn: item.product?.nameEn || item.product?.name || "",
         sku: item.product?.sku || "",
         qty: item.quantity,
         unitPrice: Number(item.price),
@@ -91,11 +96,11 @@ export default async function InvoicePage({ params }) {
     amountTendered: null,
     change: null,
   });
-  const receiptMarkup = buildReceiptMarkup(receiptData);
+  const receiptMarkup = buildReceiptMarkup(receiptData, { paper: "a4" });
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 print:p-0 print:bg-white text-gray-100 print:text-black">
-      <div className="w-[80mm] flex justify-between items-center mb-6 print:hidden">
+      <div className="flex w-full max-w-[210mm] justify-between items-center mb-6 print:hidden">
         <Link 
           href="/admin/orders" 
           className="p-2 bg-gray-800 text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
@@ -107,7 +112,7 @@ export default async function InvoicePage({ params }) {
 
       <div
         id="invoice-print-area"
-        className={`${styles.scope} receipt-root w-full rounded-xl bg-white text-black shadow-2xl print:rounded-none print:shadow-none`}
+        className={`${styles.scope} invoice-print-a4-root receipt-root w-full max-w-[210mm] rounded-xl bg-white text-black shadow-2xl print:max-w-none print:rounded-none print:shadow-none`}
       >
         <div dangerouslySetInnerHTML={{ __html: receiptMarkup }} />
       </div>

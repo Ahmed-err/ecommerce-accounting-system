@@ -7,7 +7,7 @@ import {
   ShoppingBag, Store, Monitor, RotateCcw, BarChart3,
   Search, Filter, ChevronLeft, ChevronRight, X, Plus,
   Eye, Printer, Check, CheckCircle2, Clock, Package, Truck,
-  XCircle, Download, AlertTriangle, ShoppingCart,
+  XCircle, Download, AlertTriangle, ShoppingCart, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,23 @@ import {
 } from "@/app/actions/orders";
 
 const TABS_CONFIG_KEYS = ["all", "store", "pos", "returns", "reports"];
+
+function mapReturnActionError(res, t) {
+  if (!res || res.success) return "";
+  const code = res.errorCode;
+  const byCode = {
+    RETURN_NO_ITEMS: t.ordReturnErrNoItems,
+    RETURN_REASON: t.ordReturnErrReason,
+    RETURN_ORDER_ID: t.ordReturnErrOrderId,
+    RETURN_REFUND_METHOD: t.ordReturnErrGeneric,
+    RETURN_LINE_INVALID: t.ordReturnErrLineInvalid,
+    VALIDATION: t.ordReturnErrGeneric,
+  };
+  if (code && byCode[code]) return byCode[code];
+  const raw = String(res.error || "");
+  if (/too_small/i.test(raw) && /array/i.test(raw)) return t.ordReturnErrNoItems;
+  return raw || t.ordReturnErrGeneric;
+}
 
 const STATUS_CONFIG = {
   PENDING: { color: "bg-amber-500/10 text-amber-400 border-amber-500/20", icon: Clock, label: "ordStatusPending" },
@@ -478,6 +495,8 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
   const [err, setErr] = useState("");
+  const [loadErr, setLoadErr] = useState("");
+  const [loadOk, setLoadOk] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingItems, setLoadingItems] = useState(false);
 
@@ -486,22 +505,85 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
     if (res.ok) setTabData(res);
   }, []);
 
-  const fetchOrderItems = async (orderId) => {
-    if (!orderId) { setOrderItems([]); return; }
-    setLoadingItems(true);
-    const items = await getOrderItems(orderId);
-    setOrderItems(items);
-    setSelectedItems(items.map((it) => ({ productId: it.product.id, quantity: it.quantity, price: Number(it.price) })));
-    setLoadingItems(false);
-  };
+  const fetchOrderItems = useCallback(
+    async (orderId) => {
+      const id = String(orderId || "").trim();
+      if (!id) {
+        setOrderItems([]);
+        setSelectedItems([]);
+        setLoadErr("");
+        setLoadOk(false);
+        return;
+      }
+      setLoadingItems(true);
+      setLoadErr("");
+      setLoadOk(false);
+      setErr("");
+      const items = await getOrderItems(id);
+      setLoadingItems(false);
+      if (!items.length) {
+        setOrderItems([]);
+        setSelectedItems([]);
+        setLoadErr(t.ordReturnErrOrderNotFound);
+        return;
+      }
+      setOrderItems(items);
+      setSelectedItems(
+        items.map((it, idx) => ({
+          lineId: it.id,
+          productId: it.productId,
+          quantity: idx === 0 ? Math.min(1, it.quantity) : 0,
+          price: Number(it.price),
+        }))
+      );
+      setLoadOk(true);
+    },
+    [t]
+  );
 
   const handleSave = async () => {
-    setSaving(true); setErr("");
-    const res = await createOrderReturn({ ...form, items: selectedItems.filter((it) => it.quantity > 0) });
-    if (res.success) { setDialogOpen(false); load(); }
-    else setErr(res.error || "Error");
+    setErr("");
+    setSaving(true);
+    const id = form.orderId.trim();
+    if (!id) {
+      setErr(t.ordReturnErrOrderId);
+      setSaving(false);
+      return;
+    }
+    if (!orderItems.length) {
+      setErr(t.ordReturnErrLoadOrderFirst);
+      setSaving(false);
+      return;
+    }
+    const payloadItems = selectedItems
+      .filter((it) => it.quantity > 0)
+      .map(({ productId, quantity, price }) => ({ productId, quantity, price }));
+    if (!payloadItems.length) {
+      setErr(t.ordReturnErrNoItems);
+      setSaving(false);
+      return;
+    }
+    if (form.reason.trim().length < 2) {
+      setErr(t.ordReturnErrReason);
+      setSaving(false);
+      return;
+    }
+    const res = await createOrderReturn({ ...form, orderId: id, items: payloadItems });
+    if (res.success) {
+      setDialogOpen(false);
+      load();
+    } else {
+      setErr(mapReturnActionError(res, t));
+    }
     setSaving(false);
   };
+
+  const returnLineCount = selectedItems.filter((it) => it.quantity > 0).length;
+  const canSubmitReturn =
+    form.orderId.trim() &&
+    orderItems.length > 0 &&
+    returnLineCount > 0 &&
+    form.reason.trim().length >= 2;
 
   const handleApprove = async (id) => {
     const res = await approveOrderReturn(id);
@@ -520,7 +602,18 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button onClick={() => { setForm({ orderId: "", reason: "", refundMethod: "CASH", notes: "" }); setSelectedItems([]); setOrderItems([]); setErr(""); setDialogOpen(true); }} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+        <Button
+          onClick={() => {
+            setForm({ orderId: "", reason: "", refundMethod: "CASH", notes: "" });
+            setSelectedItems([]);
+            setOrderItems([]);
+            setErr("");
+            setLoadErr("");
+            setLoadOk(false);
+            setDialogOpen(true);
+          }}
+          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+        >
           <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />{t.ordAddReturn}
         </Button>
       </div>
@@ -572,27 +665,83 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
       </div>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t.ordAddReturn} isRTL={isRTL} wide>
-        {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
+        {err && (
+          <div className="mb-3 text-sm text-red-200 bg-red-500/15 border border-red-500/25 rounded-lg px-3 py-2.5" role="alert">
+            {err}
+          </div>
+        )}
         <div className="space-y-4">
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.ordOrigOrder} ID</label>
-            <Input value={form.orderId} onChange={(e) => { const v = e.target.value; setForm((p) => ({ ...p, orderId: v })); if (v.length > 10) fetchOrderItems(v); }} placeholder="order-id..." className="bg-gray-800 border-white/10 text-white" />
+            <div className={`flex flex-wrap gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+              <Input
+                value={form.orderId}
+                onChange={(e) => {
+                  setForm((p) => ({ ...p, orderId: e.target.value }));
+                  setLoadErr("");
+                  setLoadOk(false);
+                }}
+                placeholder={lang === "ar" ? "معرّف الطلب…" : "Order ID…"}
+                className="flex-1 min-w-[200px] bg-gray-800 border-white/10 text-white"
+                disabled={loadingItems}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="border-white/15 text-gray-100 hover:bg-white/10 shrink-0"
+                disabled={loadingItems || !form.orderId.trim()}
+                onClick={() => fetchOrderItems(form.orderId)}
+              >
+                {loadingItems ? <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? "ml-2" : "mr-2"}`} /> : null}
+                {t.ordReturnLoadOrder}
+              </Button>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1.5 leading-relaxed">{t.ordReturnOrderIdHint}</p>
+            {loadErr && (
+              <p className="text-xs text-red-400 mt-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2" role="status">
+                {loadErr}
+              </p>
+            )}
+            {loadOk && !loadErr && (
+              <p className="text-xs text-emerald-400/90 mt-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2" role="status">
+                {t.ordReturnLoadedOk}
+              </p>
+            )}
           </div>
           {orderItems.length > 0 && (
             <div>
               <label className="text-xs text-gray-400 mb-2 block">{t.ordSelectItems}</label>
               <div className="space-y-2">
-                {orderItems.map((item, idx) => (
-                  <div key={item.id} className="flex items-center gap-3 bg-gray-800/40 rounded-xl p-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-white">{item.product?.name}</p>
-                      <p className="text-[10px] text-gray-500 tabular-nums">{fmt(item.price, lang)} × max {item.quantity}</p>
+                {orderItems.map((item) => {
+                  const sel = selectedItems.find((s) => s.lineId === item.id);
+                  const q = sel?.quantity ?? 0;
+                  return (
+                    <div key={item.id} className="flex items-center gap-3 bg-gray-800/40 rounded-xl p-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white">{item.product?.name}</p>
+                        <p className="text-[10px] text-gray-500 tabular-nums">
+                          {fmt(item.price, lang)} × {lang === "ar" ? "الحد الأقصى" : "max"} {item.quantity}
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={item.quantity}
+                        value={q}
+                        onChange={(e) => {
+                          const raw = Number(e.target.value);
+                          const n = Number.isFinite(raw)
+                            ? Math.max(0, Math.min(Math.floor(raw), item.quantity))
+                            : 0;
+                          setSelectedItems((prev) =>
+                            prev.map((si) => (si.lineId === item.id ? { ...si, quantity: n } : si))
+                          );
+                        }}
+                        className="w-20 bg-gray-800 border-white/10 text-white h-8 text-center tabular-nums"
+                      />
                     </div>
-                    <Input type="number" min="0" max={item.quantity} value={selectedItems[idx]?.quantity || 0}
-                      onChange={(e) => setSelectedItems((prev) => prev.map((si, i) => i === idx ? { ...si, quantity: Math.min(Number(e.target.value), item.quantity) } : si))}
-                      className="w-20 bg-gray-800 border-white/10 text-white h-8 text-center" />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -613,8 +762,16 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">{t.cancel}</Button>
-          <Button onClick={handleSave} disabled={saving || !form.orderId || !form.reason} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{saving ? t.saving : t.ordConfirmReturn}</Button>
+          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">
+            {t.cancel}
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !canSubmitReturn}
+            className="bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {saving ? t.saving : t.ordConfirmReturn}
+          </Button>
         </div>
       </Dialog>
     </div>

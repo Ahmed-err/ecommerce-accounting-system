@@ -633,6 +633,161 @@ export async function bulkMarkAttendance(entries) {
   }
 }
 
+const quickFillSchema = z.object({
+  date: z.string().min(1),
+  mode: z.enum(["PRESENT_DEFAULT", "ABSENT", "COPY_PREVIOUS"]),
+  checkIn: z.string().optional().nullable(),
+  checkOut: z.string().optional().nullable(),
+  onlyMissing: z.boolean().optional().default(true),
+});
+
+function clockToHHMMOnTargetDay(prevDt, targetCalDate) {
+  if (!prevDt) return "";
+  const s = new Date(prevDt);
+  const t = new Date(
+    targetCalDate.getFullYear(),
+    targetCalDate.getMonth(),
+    targetCalDate.getDate(),
+    s.getHours(),
+    s.getMinutes(),
+    0,
+    0
+  );
+  return dateToLocalHHMM(t);
+}
+
+/**
+ * Fill attendance for every active staff member for one calendar day in one action.
+ * Respects approved leave (skips) and optional "only missing" to avoid overwriting rows.
+ */
+export async function quickFillAttendanceForDate(raw) {
+  try {
+    await ensureAdmin();
+    const parsed = quickFillSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message || "Invalid input." };
+    }
+    const p = parsed.data;
+    const dateOnly = normalizeAttendanceCalendarDate(p.date);
+    if (!dateOnly) {
+      return { success: false, error: "Invalid date.", errorCode: "INVALID_DATE" };
+    }
+
+    const staff = await db.user.findMany({
+      where: { role: { not: "CUSTOMER" }, isActive: true },
+      select: { id: true },
+    });
+
+    let created = 0;
+    let skippedAlready = 0;
+    let skippedLeave = 0;
+    let skippedNoPrevious = 0;
+    let failed = 0;
+
+    const dayStart = new Date(dateOnly.getFullYear(), dateOnly.getMonth(), dateOnly.getDate(), 0, 0, 0, 0);
+
+    for (const { id: userId } of staff) {
+      if (p.onlyMissing) {
+        const exists = await db.attendance.findUnique({
+          where: { userId_date: { userId, date: dateOnly } },
+        });
+        if (exists) {
+          skippedAlready++;
+          continue;
+        }
+      }
+
+      const onLeave = await hasApprovedLeaveOnCalendarDay(userId, dateOnly);
+
+      if (p.mode === "PRESENT_DEFAULT") {
+        if (onLeave) {
+          skippedLeave++;
+          continue;
+        }
+        const cin = (p.checkIn && String(p.checkIn).trim()) || "09:00";
+        const cout = (p.checkOut && String(p.checkOut).trim()) || "17:00";
+        const res = await createAttendance({
+          userId,
+          date: p.date,
+          status: "PRESENT",
+          checkIn: cin,
+          checkOut: cout,
+          notes: null,
+        });
+        if (res.success) created++;
+        else failed++;
+        continue;
+      }
+
+      if (p.mode === "ABSENT") {
+        if (onLeave) {
+          skippedLeave++;
+          continue;
+        }
+        const res = await createAttendance({
+          userId,
+          date: p.date,
+          status: "ABSENT",
+          checkIn: "",
+          checkOut: "",
+          notes: null,
+        });
+        if (res.success) created++;
+        else failed++;
+        continue;
+      }
+
+      if (p.mode === "COPY_PREVIOUS") {
+        if (onLeave) {
+          skippedLeave++;
+          continue;
+        }
+        const prev = await db.attendance.findFirst({
+          where: { userId, date: { lt: dayStart } },
+          orderBy: { date: "desc" },
+        });
+        if (!prev) {
+          skippedNoPrevious++;
+          continue;
+        }
+
+        const status = prev.status;
+        let checkIn = "";
+        let checkOut = "";
+        if (status !== "ABSENT" && status !== "HOLIDAY") {
+          checkIn = clockToHHMMOnTargetDay(prev.checkIn, dateOnly);
+          checkOut = clockToHHMMOnTargetDay(prev.checkOut, dateOnly);
+        }
+
+        const res = await createAttendance({
+          userId,
+          date: p.date,
+          status,
+          checkIn,
+          checkOut,
+          notes: prev.notes || null,
+        });
+        if (res.success) created++;
+        else failed++;
+      }
+    }
+
+    revalidatePath("/admin/employees");
+    return {
+      success: true,
+      created,
+      skippedAlready,
+      skippedLeave,
+      skippedNoPrevious,
+      failed,
+      totalStaff: staff.length,
+    };
+  } catch (error) {
+    console.error("quickFillAttendanceForDate:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function getAllStaff() {
   try {
     await ensureAdmin();

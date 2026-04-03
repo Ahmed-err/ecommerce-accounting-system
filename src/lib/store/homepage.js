@@ -1,37 +1,10 @@
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
-import { productPublicFields } from "@/lib/store/product-public-fields";
-
-function decimalToNumber(value) {
-  if (value == null) return 0;
-  if (typeof value === "number") return value;
-  if (typeof value?.toNumber === "function") return value.toNumber();
-  return Number(value);
-}
-
-/** Plain object safe for Server → Client Component props (no Prisma Decimal). */
-function serializeProductForClient(row) {
-  if (!row) return null;
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    sku: row.sku,
-    purchasePrice: decimalToNumber(row.purchasePrice),
-    sellingPrice: decimalToNumber(row.sellingPrice),
-    stock: row.stock,
-    images: row.images,
-    category: row.category
-      ? {
-          name: row.category.name,
-        }
-      : null,
-  };
-}
+import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
 
 export async function getHomepageData() {
   try {
-    const [banners, categories, activeProducts, offers] = await Promise.all([
+    const [banners, categories, featured, offers] = await Promise.all([
       db.banner.findMany({
         where: { isActive: true },
         orderBy: { order: "asc" },
@@ -46,23 +19,13 @@ export async function getHomepageData() {
           },
         },
       }),
-      db.product.findMany({
-        where: { isActive: true },
-        orderBy: [{ stock: "desc" }, { createdAt: "desc" }],
-        take: 6,
-        select: {
-          ...productPublicFields,
-          category: { select: { name: true } },
-        },
-      }),
+      getHomepageFeaturedSets(),
       db.offer.findMany({
         where: { isActive: true },
         take: 1,
         orderBy: { createdAt: "desc" },
       }),
     ]);
-
-    const products = activeProducts || [];
 
     const resolvedBanners =
       banners.length > 0
@@ -82,7 +45,7 @@ export async function getHomepageData() {
           productCount: c._count.products,
         }))
         .filter((c) => c.productCount > 0),
-      products: products.map(serializeProductForClient),
+      featured,
       featuredOffer: offers[0] || null,
     };
   } catch (error) {
@@ -93,7 +56,12 @@ export async function getHomepageData() {
         id: `fallback-banner-${i}`,
       })),
       categories: [],
-      products: [],
+      featured: {
+        bestSellers: [],
+        newArrivals: [],
+        topRated: [],
+        catalogActiveCount: 0,
+      },
       featuredOffer: null,
     };
   }
