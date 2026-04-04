@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { staffCanViewModule } from "@/lib/permissions-policy";
 import { getAccountingTabData, getAccountingPermissions } from "@/app/actions/accounting";
 import AccountingModuleClient from "@/components/accounting/AccountingModuleClient";
 
@@ -20,6 +21,9 @@ export default async function AccountingPage({ searchParams }) {
   const session = await auth();
 
   if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    redirect("/admin");
+  }
+  if (!(await staffCanViewModule(session.user.role, "accounting"))) {
     redirect("/admin");
   }
 

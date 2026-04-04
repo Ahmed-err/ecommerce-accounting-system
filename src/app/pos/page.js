@@ -1,10 +1,20 @@
+import { redirect } from "next/navigation";
 import { prisma as db } from "@/lib/prisma";
 import { getPrinterSettings } from "@/lib/settings";
 import POSClient from "@/components/pos/POSClient";
+import { auth } from "@/auth";
+import { staffCanViewModule } from "@/lib/permissions-policy";
 
 export const dynamic = "force-dynamic";
 
 export default async function POSPage() {
+  const session = await auth();
+  if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
+    redirect("/login?callbackUrl=/pos");
+  }
+  if (!(await staffCanViewModule(session.user.role, "cashier"))) {
+    redirect("/admin");
+  }
   // Same sellable catalog as admin inventory: only active products.
   const products = await db.product.findMany({
     where: { isActive: true },

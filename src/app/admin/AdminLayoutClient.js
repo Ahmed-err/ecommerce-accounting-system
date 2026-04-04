@@ -10,7 +10,7 @@ import NotificationBell from "@/components/admin/NotificationBell";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
-export default function AdminLayoutClient({ children, unreadContactCount = 0 }) {
+export default function AdminLayoutClient({ children, unreadContactCount = 0, permissionNavMap = null }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { isRTL, lang, brandName } = useLanguage();
@@ -27,7 +27,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
       dir={isRTL ? "rtl" : "ltr"}
     >
       <aside className="hidden h-full min-h-0 w-64 max-w-full shrink-0 overflow-y-auto md:block">
-        <AdminSidebar unreadContactCount={unreadContactCount} />
+        <AdminSidebar unreadContactCount={unreadContactCount} permissionNavMap={permissionNavMap} />
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-hidden">
@@ -52,6 +52,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0 }) 
                   </SheetHeader>
                   <AdminSidebar
                     unreadContactCount={unreadContactCount}
+                    permissionNavMap={permissionNavMap}
                     onNavigate={() => setIsMobileOpen(false)}
                   />
                 </SheetContent>

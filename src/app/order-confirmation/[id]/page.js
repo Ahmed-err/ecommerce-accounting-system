@@ -105,7 +105,7 @@ export default async function OrderConfirmationPage({ params }) {
               {t.continueShopping}
             </Link>
             {session?.user && (
-              <Link href="/my-orders" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              <Link href="/account/orders" className={buttonVariants({ variant: "outline", size: "lg" })}>
                 {t.myOrders}
               </Link>
             )}

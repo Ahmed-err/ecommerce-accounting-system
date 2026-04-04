@@ -44,6 +44,12 @@ export function LanguageProvider({ children, initialLang = "ar", branding }) {
   const brandTaglineAr = branding?.taglineAr || "الأدوات الكهربائية + حلول الطاقة الشمسية";
   const brandTaglineEn = branding?.taglineEn || "Electrical Tools + Solar Solutions";
 
+  const contactPhone = branding?.contactPhone?.trim() || null;
+  const contactEmail = branding?.contactEmail?.trim() || null;
+  const contactAddress =
+    (isRTL ? branding?.addressAr?.trim() || branding?.addressEn?.trim() : branding?.addressEn?.trim() || branding?.addressAr?.trim()) ||
+    null;
+
   return (
     <LanguageContext.Provider
       value={{
@@ -52,6 +58,9 @@ export function LanguageProvider({ children, initialLang = "ar", branding }) {
         isRTL,
         brandName: isRTL ? brandNameAr : brandNameEn,
         brandTagline: isRTL ? brandTaglineAr : brandTaglineEn,
+        contactPhone,
+        contactEmail,
+        contactAddress,
       }}
     >
       <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : "font-sans"}>

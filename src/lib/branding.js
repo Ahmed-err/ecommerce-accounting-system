@@ -11,6 +11,10 @@ export async function getStoreBranding() {
       nameEn: store.nameEn || translations.en.brandName,
       taglineAr: store.sloganAr || translations.ar.brandTagline,
       taglineEn: store.sloganEn || translations.en.brandTagline,
+      contactPhone: store.contactPhone?.trim() || null,
+      contactEmail: store.contactEmail?.trim() || null,
+      addressAr: store.addressAr?.trim() || null,
+      addressEn: store.addressEn?.trim() || null,
     };
   } catch (error) {
     console.error("Failed to load store branding, using translation defaults:", error);
@@ -21,6 +25,10 @@ export async function getStoreBranding() {
     nameEn: translations.en.brandName,
     taglineAr: translations.ar.brandTagline,
     taglineEn: translations.en.brandTagline,
+    contactPhone: null,
+    contactEmail: null,
+    addressAr: null,
+    addressEn: null,
   };
 }
 

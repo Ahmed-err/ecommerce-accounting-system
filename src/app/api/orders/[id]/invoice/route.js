@@ -70,13 +70,17 @@ export async function GET(_req, { params }) {
     change: null,
   });
 
-  const buffer = await generateInvoicePdfBuffer(receipt);
-
-  return new Response(buffer, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="invoice-${order.id.slice(-8)}.pdf"`,
-      "Cache-Control": "no-store",
-    },
-  });
+  try {
+    const buffer = await generateInvoicePdfBuffer(receipt);
+    return new Response(buffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="invoice-${order.id.slice(-8)}.pdf"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (e) {
+    console.error("invoice PDF:", e);
+    return new Response("Failed to generate PDF", { status: 500 });
+  }
 }

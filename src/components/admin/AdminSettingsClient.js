@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
+import { updateRolePermission } from "@/app/actions/permissions";
 
 const TABS = ["store", "shipping", "homepage", "about", "payment", "pos", "notifications", "seo", "legal", "users", "backup", "system"];
 
@@ -93,6 +94,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [rolesPages, setRolesPages] = useState(1);
   const [rolesTotal, setRolesTotal] = useState((initialData.permissions || []).length);
   const [rolesLoading, setRolesLoading] = useState(false);
+  const [permCellSaving, setPermCellSaving] = useState("");
   const [legal, setLegal] = useState({
     termsAr: initialData.legal?.terms?.contentAr ?? "",
     termsEn: initialData.legal?.terms?.contentEn ?? "",
@@ -142,7 +144,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     setRolesLoading(true);
     const res = await getSettingsRolesPage({
       page: rolesPage,
-      take: 10,
+      take: 120,
       search: rolesSearch,
       role: rolesRoleFilter,
     });
@@ -184,6 +186,28 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     const p = new URLSearchParams(searchParams.toString());
     p.set("tab", tab);
     router.push(`${pathname}?${p.toString()}`);
+  }
+
+  async function togglePermissionCell(p, field, value) {
+    if (p.role === "ADMIN") return;
+    const key = `${p.id}-${field}`;
+    setPermCellSaving(key);
+    const prevRow = { ...p };
+    setPermissions((prev) => prev.map((x) => (x.id === p.id ? { ...x, [field]: value } : x)));
+    try {
+      const res = await updateRolePermission(p.id, { [field]: value });
+      if (!res?.success) {
+        setPermissions((prev) => prev.map((x) => (x.id === p.id ? prevRow : x)));
+        toast.error(res?.error || (lang === "ar" ? "فشل التحديث" : "Update failed"));
+        return;
+      }
+      router.refresh();
+    } catch (e) {
+      setPermissions((prev) => prev.map((x) => (x.id === p.id ? prevRow : x)));
+      toast.error(e?.message || (lang === "ar" ? "فشل التحديث" : "Update failed"));
+    } finally {
+      setPermCellSaving("");
+    }
   }
 
   function save(tab, payload) {
@@ -1257,6 +1281,11 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                 </SelectContent>
               </Select>
             </div>
+            <p className="text-xs text-muted-foreground">
+              {lang === "ar"
+                ? "صف المسؤول للقراءة فقط. عدّل مدير المحل والمحاسب (والعميل إن وُجد) لتغيير الوصول. يُحدّث شريط التنقل تلقائياً بعد الحفظ."
+                : "Admin row is read-only. Edit Manager and Cashier (and Customer if listed) to change access. The sidebar updates after each save."}
+            </p>
             <div className="overflow-x-auto rounded-lg border">
               <table className="w-full min-w-[640px] text-sm">
                 <thead>
@@ -1278,11 +1307,23 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                     permissions.map((p) => (
                       <tr key={p.id} className="border-b">
                         <td className="p-2">{p.role}</td>
-                        <td className="p-2">{p.module}</td>
-                        <td className="p-2 text-center">{p.canView ? "✓" : "—"}</td>
-                        <td className="p-2 text-center">{p.canCreate ? "✓" : "—"}</td>
-                        <td className="p-2 text-center">{p.canEdit ? "✓" : "—"}</td>
-                        <td className="p-2 text-center">{p.canDelete ? "✓" : "—"}</td>
+                        <td className="p-2 font-mono text-xs">{p.module}</td>
+                        {(["canView", "canCreate", "canEdit", "canDelete"]).map((field) => (
+                          <td key={field} className="p-2 text-center align-middle">
+                            {p.role === "ADMIN" ? (
+                              <span className="text-muted-foreground">{p[field] ? "✓" : "—"}</span>
+                            ) : (
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-primary cursor-pointer disabled:opacity-40"
+                                checked={!!p[field]}
+                                disabled={permCellSaving === `${p.id}-${field}`}
+                                onChange={(e) => togglePermissionCell(p, field, e.target.checked)}
+                                aria-label={`${p.role} ${p.module} ${field}`}
+                              />
+                            )}
+                          </td>
+                        ))}
                       </tr>
                     ))
                   )}

@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { translations } from "@/lib/translations";
 import { getUserOrderById } from "@/lib/user-orders";
+import AccountOrderActions from "@/components/account/AccountOrderActions";
 
 export const dynamic = "force-dynamic";
 
@@ -56,11 +56,18 @@ export default async function AccountOrderDetailPage({ params }) {
           <div className="flex justify-between font-bold"><span>{t.grandTotal}</span><span>{order.totalAmount.toLocaleString()} {t.currency}</span></div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {order.status === "DELIVERED" && <Link className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground hover:bg-muted" href="/products">{lang === "ar" ? "إعادة الطلب" : "Reorder"}</Link>}
-          <Link className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground hover:bg-muted" href={`/api/orders/${order.id}/invoice`} target="_blank">{lang === "ar" ? "تحميل الفاتورة PDF" : "Download Invoice PDF"}</Link>
-          <button disabled={!returnOpen} className="px-3 py-2 rounded-lg bg-amber-500 text-black disabled:opacity-50">{returnOpen ? (lang === "ar" ? "طلب إرجاع" : "Request Return") : (lang === "ar" ? "انتهت فترة الإرجاع" : "Return period ended")}</button>
-        </div>
+        <AccountOrderActions
+          orderId={order.id}
+          status={order.status}
+          returnOpen={returnOpen}
+          lines={order.items.map((it) => ({
+            productId: it.productId,
+            quantity: it.quantity,
+            price: it.price,
+            name: it.product?.name || t.deletedProduct,
+            isActive: it.product != null && it.product.isActive !== false,
+          }))}
+        />
       </div>
       <Footer />
     </main>

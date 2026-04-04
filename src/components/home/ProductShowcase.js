@@ -180,7 +180,7 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 sm:gap-7 md:gap-8 2xl:grid-cols-3 2xl:gap-8"
+                  className="grid items-stretch gap-6 sm:gap-7 md:gap-8 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
                 >
                   {tab.data.map((product, i) => (
                     <div
@@ -195,7 +195,7 @@ export default function ProductShowcase({ featured }) {
                   <Link
                     href={exploreHref}
                     className={cn(
-                      "group relative col-span-1 flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:col-span-2 sm:min-h-[220px] sm:rounded-3xl sm:p-6 md:min-h-[200px] md:flex-row md:items-center md:justify-between md:gap-8 md:px-10 md:py-6 2xl:col-span-3",
+                      "group relative col-span-full flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:min-h-[220px] sm:rounded-3xl sm:p-6 md:min-h-[200px] md:flex-row md:items-center md:justify-between md:gap-8 md:px-10 md:py-6",
                       isRTL && "md:flex-row-reverse"
                     )}
                   >

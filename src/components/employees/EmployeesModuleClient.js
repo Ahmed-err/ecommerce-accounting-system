@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useTransition, useRef } from "react";
+import { useState, useEffect, useCallback, useTransition, useRef, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,6 +21,8 @@ import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
   bulkMarkAttendance, getAllStaff, deleteEmployee, quickFillAttendanceForDate } from "@/app/actions/employees";
+import { listRolePermissions, updateRolePermission, resetRolePermissionsToDefaults } from "@/app/actions/permissions";
+import { PERMISSION_MODULES, PERM_LABELS_EN, PERM_LABELS_AR } from "@/lib/permission-defaults";
 
 const TABS = ["overview", "employees", "attendance", "salaries", "leaves", "roles", "reports"];
 
@@ -944,24 +946,81 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
   );
 }
 
-const ROLE_MATRIX = {
-  ADMIN: { inventory: [1,1,1,1], cashier: [1,1,1,1], store: [1,1,1,1], accounting: [1,1,1,1], employees: [1,1,1,1], orders: [1,1,1,1], reports: [1,1,1,1], settings: [1,1,1,1] },
-  MANAGER: { inventory: [1,1,1,0], cashier: [1,1,1,0], store: [1,1,1,0], accounting: [1,1,1,0], employees: [0,0,0,0], orders: [1,1,1,0], reports: [1,0,0,0], settings: [1,0,0,0] },
-  CASHIER: { inventory: [1,0,0,0], cashier: [1,1,1,0], store: [1,0,0,0], accounting: [0,0,0,0], employees: [0,0,0,0], orders: [1,1,0,0], reports: [1,0,0,0], settings: [0,0,0,0] },
-};
+const MATRIX_ROLES = ["ADMIN", "MANAGER", "CASHIER"];
 
-const MODULES = ["inventory","cashier","store","accounting","employees","orders","reports","settings"];
-const PERM_LABELS_EN = { inventory: "Inventory", cashier: "Cashier/POS", store: "Store", accounting: "Accounting", employees: "Employees", orders: "Orders", reports: "Reports", settings: "Settings" };
-const PERM_LABELS_AR = { inventory: "المخزون", cashier: "نقطة البيع", store: "المتجر", accounting: "المحاسبة", employees: "الموظفون", orders: "الطلبات", reports: "التقارير", settings: "الإعدادات" };
+const PERM_FIELDS = ["canView", "canCreate", "canEdit", "canDelete"];
 
 function RolesTab({ t, lang, isRTL }) {
-  const ROLES = [
-    { key: "ADMIN", name: lang === "ar" ? t.empRoleAdmin : "Admin", desc: lang === "ar" ? "وصول كامل لجميع الوحدات والتقارير المالية وإدارة الموظفين." : "Full access to all modules, financial reports, and employee management.", count: "—", protected: true, color: "purple" },
-    { key: "MANAGER", name: lang === "ar" ? t.empRoleManager : "Manager", desc: lang === "ar" ? "إدارة الطلبات والمخزون. وصول لإحصائيات لوحة التحكم بدون تقارير مالية." : "Manage orders and inventory. Access to dashboard stats, no financial reports.", count: "—", protected: true, color: "blue" },
-    { key: "CASHIER", name: lang === "ar" ? t.empRoleCashier : "Cashier", desc: lang === "ar" ? "معالجة الطلبات وعرض المنتجات. وصول محدود للوحة التحكم." : "Process orders and view products. Limited dashboard access.", count: "—", protected: true, color: "amber" },
-  ];
+  const router = useRouter();
+  const [permRows, setPermRows] = useState([]);
+  const [permLoading, setPermLoading] = useState(true);
+  const [permError, setPermError] = useState("");
+  const [permBusyKey, setPermBusyKey] = useState("");
+  const [resetting, setResetting] = useState("");
+
+  const ROLES = useMemo(
+    () => [
+      { key: "ADMIN", name: lang === "ar" ? t.empRoleAdmin : "Admin", desc: lang === "ar" ? "وصول كامل لجميع الوحدات والتقارير المالية وإدارة الموظفين." : "Full access to all modules, financial reports, and employee management.", color: "purple" },
+      { key: "MANAGER", name: lang === "ar" ? t.empRoleManager : "Manager", desc: lang === "ar" ? "يُضبط بالجدول أدناه؛ يؤثر على عناصر القائمة والوصول للوحدات." : "Configured below; controls sidebar links and module access.", color: "blue" },
+      { key: "CASHIER", name: lang === "ar" ? t.empRoleCashier : "Cashier", desc: lang === "ar" ? "يُضبط بالجدول أدناه؛ وصول محدود حسب الصلاحيات." : "Configured below; limited access based on permissions.", color: "amber" },
+    ],
+    [lang, t]
+  );
+
   const pLabels = lang === "ar" ? PERM_LABELS_AR : PERM_LABELS_EN;
   const permHeaders = [t.empPermView, t.empPermCreate, t.empPermEdit, t.empPermDelete];
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setPermLoading(true);
+      setPermError("");
+      const res = await listRolePermissions();
+      if (cancelled) return;
+      if (res.success) setPermRows(res.permissions || []);
+      else setPermError(res.error || "Failed to load permissions");
+      setPermLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const byRoleModule = useMemo(() => {
+    const m = new Map();
+    for (const p of permRows) m.set(`${p.role}-${p.module}`, p);
+    return m;
+  }, [permRows]);
+
+  const handleToggle = async (record, field, nextVal) => {
+    if (!record || record.role === "ADMIN") return;
+    const prev = permRows;
+    setPermRows((rows) => rows.map((x) => (x.id === record.id ? { ...x, [field]: nextVal } : x)));
+    setPermBusyKey(`${record.id}-${field}`);
+    setPermError("");
+    const res = await updateRolePermission(record.id, { [field]: nextVal });
+    setPermBusyKey("");
+    if (!res.success) {
+      setPermRows(prev);
+      setPermError(res.error || "Update failed");
+      return;
+    }
+    router.refresh();
+  };
+
+  const handleReset = async (role) => {
+    setResetting(role);
+    setPermError("");
+    const res = await resetRolePermissionsToDefaults(role);
+    setResetting("");
+    if (!res.success) {
+      setPermError(res.error || "Reset failed");
+      return;
+    }
+    const reload = await listRolePermissions();
+    if (reload.success) setPermRows(reload.permissions || []);
+    router.refresh();
+  };
 
   return (
     <div className="space-y-6">
@@ -972,42 +1031,86 @@ function RolesTab({ t, lang, isRTL }) {
               <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-amber-400"}`}>
                 <Shield className="h-3 w-3" /> {role.name}
               </div>
-              {role.protected && <span className="text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{lang === "ar" ? "محمي" : "Protected"}</span>}
+              {role.key === "ADMIN" ? (
+                <span className="text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{t.empRolesAdminLocked}</span>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!!resetting}
+                  className="h-7 text-[10px] border-white/15 text-gray-300 hover:bg-white/10"
+                  onClick={() => handleReset(role.key)}
+                >
+                  {resetting === role.key ? "…" : role.key === "MANAGER" ? t.empRolesResetManager : t.empRolesResetCashier}
+                </Button>
+              )}
             </div>
             <p className="text-xs text-gray-400 leading-relaxed">{role.desc}</p>
           </div>
         ))}
       </div>
 
+      <p className="text-xs text-gray-500 leading-relaxed max-w-3xl">{t.empRolesHint}</p>
+      {permError ? <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{permError}</div> : null}
+
       <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5">
+        <div className="px-5 py-4 border-b border-white/5 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold text-white">{t.empRolesTitle}</h3>
+          {permLoading ? <span className="text-xs text-gray-500">{lang === "ar" ? "جاري التحميل…" : "Loading…"}</span> : null}
         </div>
         <div className="overflow-x-auto">
           <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
             <thead className="bg-gray-800/40 text-gray-400">
               <tr>
                 <th className="px-4 py-3">{t.empPermModule}</th>
-                {ROLES.map((r) => (
-                  <th key={r.key} colSpan="4" className="px-4 py-3 text-center border-l border-white/5">{r.name}</th>
+                {MATRIX_ROLES.map((rk) => (
+                  <th key={rk} colSpan={4} className="px-4 py-3 text-center border-l border-white/5">
+                    {rk === "ADMIN" ? t.empRoleAdmin : rk === "MANAGER" ? t.empRoleManager : t.empRoleCashier}
+                  </th>
                 ))}
               </tr>
               <tr className="text-[10px] text-gray-500">
-                <th className="px-4 py-2"></th>
-                {ROLES.map((r) => permHeaders.map((ph) => <th key={`${r.key}-${ph}`} className="px-2 py-2 text-center">{ph}</th>))}
+                <th className="px-4 py-2" />
+                {MATRIX_ROLES.map((rk) =>
+                  permHeaders.map((ph) => (
+                    <th key={`${rk}-${ph}`} className="px-2 py-2 text-center font-normal">
+                      {ph}
+                    </th>
+                  ))
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {MODULES.map((mod) => (
+              {PERMISSION_MODULES.map((mod) => (
                 <tr key={mod} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-medium text-gray-300">{pLabels[mod]}</td>
-                  {ROLES.map((r) =>
-                    (ROLE_MATRIX[r.key][mod] || [0,0,0,0]).map((has, pi) => (
-                      <td key={`${r.key}-${mod}-${pi}`} className="px-2 py-3 text-center">
-                        {has ? <Check className="h-3.5 w-3.5 text-emerald-400 mx-auto" /> : <X className="h-3.5 w-3.5 text-gray-700 mx-auto" />}
-                      </td>
-                    ))
-                  )}
+                  <td className="px-4 py-3 font-medium text-gray-300 whitespace-nowrap">{pLabels[mod]}</td>
+                  {MATRIX_ROLES.map((rk) => {
+                    const rec = byRoleModule.get(`${rk}-${mod}`);
+                    return PERM_FIELDS.map((field) => {
+                      const checked = rec ? !!rec[field] : false;
+                      const disabled = !rec || rk === "ADMIN" || permLoading || `${rec?.id}-${field}` === permBusyKey;
+                      if (rk === "ADMIN") {
+                        return (
+                          <td key={`${rk}-${mod}-${field}`} className="px-2 py-3 text-center">
+                            {checked ? <Check className="h-3.5 w-3.5 text-emerald-400 mx-auto" aria-hidden /> : <X className="h-3.5 w-3.5 text-gray-700 mx-auto" aria-hidden />}
+                          </td>
+                        );
+                      }
+                      return (
+                        <td key={`${rk}-${mod}-${field}`} className="px-2 py-2 text-center align-middle">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            checked={checked}
+                            disabled={disabled}
+                            onChange={(e) => handleToggle(rec, field, e.target.checked)}
+                            aria-label={`${rk} ${mod} ${field}`}
+                          />
+                        </td>
+                      );
+                    });
+                  })}
                 </tr>
               ))}
             </tbody>

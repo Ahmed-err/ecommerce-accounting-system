@@ -7,8 +7,13 @@ import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
+function digitsForTel(s) {
+    if (!s || typeof s !== "string") return "";
+    return s.replace(/[^\d+]/g, "");
+}
+
 export default function Footer() {
-    const { lang: langRaw, isRTL, brandName } = useLanguage();
+    const { lang: langRaw, isRTL, brandName, contactPhone, contactEmail, contactAddress } = useLanguage();
     const lang = normalizeAppLang(langRaw);
     const t = translations[lang] || translations.ar;
 
@@ -116,9 +121,15 @@ export default function Footer() {
                                 <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-amber-500 border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                     <Phone className="h-4 w-4" />
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "المبيعات" : "Sales"}</span>
-                                    <span className="text-sm font-bold tracking-tight regular-nums">{t.salesPhone}</span>
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "الهاتف" : "Phone"}</span>
+                                    {contactPhone ? (
+                                        <a href={`tel:${digitsForTel(contactPhone)}`} className="text-sm font-bold tracking-tight regular-nums text-foreground hover:text-amber-500 transition-colors break-all">
+                                            {contactPhone}
+                                        </a>
+                                    ) : (
+                                        <span className="text-sm font-bold tracking-tight regular-nums text-muted-foreground">{t.salesPhone}</span>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-start gap-4 group">
@@ -127,16 +138,24 @@ export default function Footer() {
                                 </div>
                                 <div className="flex flex-col min-w-0">
                                     <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "البريد الإلكتروني" : "Email"}</span>
-                                    <span className="text-sm font-bold tracking-tight truncate">{t.businessEmail}</span>
+                                    {contactEmail ? (
+                                        <a href={`mailto:${contactEmail}`} className="text-sm font-bold tracking-tight truncate text-foreground hover:text-amber-500 transition-colors">
+                                            {contactEmail}
+                                        </a>
+                                    ) : (
+                                        <span className="text-sm font-bold tracking-tight truncate text-muted-foreground">{t.businessEmail}</span>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-start gap-4 group">
                                 <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-amber-500 border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                     <MapPin className="h-4 w-4" />
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col min-w-0">
                                     <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "العنوان" : "Address"}</span>
-                                    <span className="text-sm font-bold tracking-tight">{t.khartoumSudan}</span>
+                                    <span className="text-sm font-bold tracking-tight whitespace-pre-line [overflow-wrap:anywhere]">
+                                        {contactAddress || t.khartoumSudan}
+                                    </span>
                                 </div>
                             </div>
                         </div>
