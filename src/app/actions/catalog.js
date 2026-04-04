@@ -802,7 +802,7 @@ export async function updateOrderStatus(orderId, newStatus) {
             WHERE id = ${item.productId} AND stock >= ${item.quantity}
           `;
           
-          if (result === 0) {
+          if (Number(result) === 0) {
             throw new Error(`Stock changed during reinstatement. Please refresh and try again.`);
           }
         }
@@ -841,7 +841,13 @@ export async function updateOrderStatus(orderId, newStatus) {
     return { success: true };
   } catch (error) {
     console.error("Failed to update order workflow:", error);
-    return { success: false, error: error.message };
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : "Failed to update order.";
+    return { success: false, error: message || "Failed to update order." };
   }
 }
 
