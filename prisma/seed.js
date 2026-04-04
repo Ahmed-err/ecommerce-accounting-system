@@ -25,6 +25,7 @@ import {
     DEFAULT_PRIVACY_AR,
     DEFAULT_PRIVACY_EN,
 } from "../src/lib/legal-defaults.js";
+import { PERMISSION_MODULES, getDefaultPermissionFlags } from "../src/lib/permission-defaults.js";
 
 // ☝️ Import from our generated Prisma client (tsx handles the .ts import)
 
@@ -54,6 +55,7 @@ async function main() {
     await prisma.product.deleteMany();
     await prisma.supplier.deleteMany();
     await prisma.category.deleteMany();
+    await prisma.permission.deleteMany();
     await prisma.user.deleteMany();
     await prisma.banner.deleteMany();
     await prisma.offer.deleteMany();
@@ -104,6 +106,16 @@ async function main() {
         },
     });
     console.log("   ✓ Created employee users");
+
+    for (const role of ["ADMIN", "MANAGER", "CASHIER"]) {
+        for (const mod of PERMISSION_MODULES) {
+            const flags = getDefaultPermissionFlags(role, mod);
+            await prisma.permission.create({
+                data: { role, module: mod, ...flags },
+            });
+        }
+    }
+    console.log("   ✓ Seeded role permissions");
 
     // === 4. CREATE CUSTOMER USER ===
     const customer = await prisma.user.create({

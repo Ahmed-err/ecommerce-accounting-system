@@ -91,11 +91,12 @@ export default function CheckoutClient() {
   const vatAmount = Math.round(afterDiscount * CHECKOUT_TAX_RATE * 100) / 100;
   const finalTotal = Math.round((afterDiscount + shippingCost + vatAmount) * 100) / 100;
   const router = useRouter();
+  const skipEmptyCartRedirectRef = useRef(false);
 
   useEffect(() => {
-    if (loaded && cartCount === 0) {
-      router.replace("/cart");
-    }
+    if (!loaded || cartCount > 0) return;
+    if (skipEmptyCartRedirectRef.current) return;
+    router.replace("/cart");
   }, [loaded, cartCount, router]);
   const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}`;
   const whatsappMessage = encodeURIComponent(
@@ -315,6 +316,7 @@ export default function CheckoutClient() {
       });
 
       if (res.success) {
+        skipEmptyCartRedirectRef.current = true;
         clearCart();
         toast.success(t.checkoutSuccess);
         router.replace(`/order-confirmation/${res.orderId}`);
@@ -466,7 +468,10 @@ export default function CheckoutClient() {
                 {step < 3 && (
                   <div
                     className={cn(
-                      "absolute top-[18px] left-1/2 h-1 w-[calc(100%-1.5rem)] translate-x-4 rounded-full sm:top-5 sm:translate-x-5",
+                      "absolute top-[18px] h-1 w-[calc(100%-1.5rem)] rounded-full sm:top-5",
+                      isRTL
+                        ? "right-1/2 -translate-x-4 sm:-translate-x-5"
+                        : "left-1/2 translate-x-4 sm:translate-x-5",
                       step < currentStep ? "bg-amber-500" : "bg-muted"
                     )}
                     aria-hidden

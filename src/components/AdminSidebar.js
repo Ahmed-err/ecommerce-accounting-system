@@ -23,7 +23,15 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
-export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
+function navItemVisible(item, userRole, permMap) {
+  if (!item.roles.includes(userRole)) return false;
+  if (userRole === "ADMIN") return true;
+  if (!item.permissionModule) return true;
+  const m = permMap?.[item.permissionModule];
+  return m?.canView === true;
+}
+
+export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permissionNavMap = null }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { lang, isRTL, brandName } = useLanguage();
@@ -32,27 +40,28 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
   const userRole = session?.user?.role || "CASHIER";
 
   const allItems = [
-    { name: t.adminDashboard, href: "/admin", icon: LayoutDashboard, roles: ["ADMIN", "MANAGER", "CASHIER"] },
-    { name: t.adminPos, href: "/pos", icon: Monitor, roles: ["ADMIN", "MANAGER", "CASHIER"] },
-    { name: t.adminOrders, href: "/admin/orders", icon: ShoppingCart, roles: ["ADMIN", "MANAGER", "CASHIER"] },
-    { name: t.adminReviews || "Reviews", href: "/admin/reviews", icon: MessageSquare, roles: ["ADMIN", "MANAGER"] },
-    { name: t.adminInventory, href: "/admin/inventory", icon: Package, roles: ["ADMIN", "MANAGER"] },
-    { name: t.adminSuppliers, href: "/admin/suppliers", icon: Truck, roles: ["ADMIN", "MANAGER"] },
+    { name: t.adminDashboard, href: "/admin", icon: LayoutDashboard, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "store" },
+    { name: t.adminPos, href: "/pos", icon: Monitor, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "cashier" },
+    { name: t.adminOrders, href: "/admin/orders", icon: ShoppingCart, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "orders" },
+    { name: t.adminReviews || "Reviews", href: "/admin/reviews", icon: MessageSquare, roles: ["ADMIN", "MANAGER"], permissionModule: "store" },
+    { name: t.adminInventory, href: "/admin/inventory", icon: Package, roles: ["ADMIN", "MANAGER"], permissionModule: "inventory" },
+    { name: t.adminSuppliers, href: "/admin/suppliers", icon: Truck, roles: ["ADMIN", "MANAGER"], permissionModule: "inventory" },
     {
       name: t.adminContacts,
       href: "/admin/contacts",
       icon: Mail,
       roles: ["ADMIN", "MANAGER"],
+      permissionModule: "store",
       badge: unreadContactCount,
     },
-    { name: t.adminNotifications || "Notifications", href: "/admin/notifications", icon: Bell, roles: ["ADMIN", "MANAGER"] },
+    { name: t.adminNotifications || "Notifications", href: "/admin/notifications", icon: Bell, roles: ["ADMIN", "MANAGER"], permissionModule: "store" },
     { name: t.adminCoupons || "Coupons", href: "/admin/coupons", icon: TicketPercent, roles: ["ADMIN"] },
     { name: t.adminEmployees, href: "/admin/employees", icon: Users, roles: ["ADMIN"] },
-    { name: t.adminAccounting, href: "/admin/accounting", icon: CreditCard, roles: ["ADMIN"] },
+    { name: t.adminAccounting, href: "/admin/accounting", icon: CreditCard, roles: ["ADMIN", "MANAGER"], permissionModule: "accounting" },
     { name: t.adminSettings, href: "/admin/settings", icon: Settings, roles: ["ADMIN"] },
   ];
 
-  const navItems = allItems.filter(item => item.roles.includes(userRole));
+  const navItems = allItems.filter((item) => navItemVisible(item, userRole, permissionNavMap));
 
   return (
     <div

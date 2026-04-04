@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { staffCanViewModule } from "@/lib/permissions-policy";
 import ContactsModuleClient from "@/components/admin/ContactsModuleClient";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
@@ -19,6 +20,9 @@ export async function generateMetadata() {
 export default async function AdminContactsPage() {
   const session = await auth();
   if (!session?.user?.role || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    redirect("/admin");
+  }
+  if (!(await staffCanViewModule(session.user.role, "store"))) {
     redirect("/admin");
   }
   return <ContactsModuleClient />;

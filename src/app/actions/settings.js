@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
+import { ensurePermissionRows } from "@/lib/permissions-policy";
 
 async function ensureAdmin() {
   const session = await auth();
@@ -40,6 +41,7 @@ export async function getAdminSettingsData() {
     orderBy: { createdAt: "desc" },
     take: 100,
   });
+  await ensurePermissionRows();
   const permissions = await db.permission.findMany({ orderBy: [{ role: "asc" }, { module: "asc" }] });
   let legal = { terms: null, privacy: null };
   let homepage = { banners: [], offers: [] };
@@ -100,8 +102,9 @@ export async function getSettingsUsersPage(input = {}) {
 
 export async function getSettingsRolesPage(input = {}) {
   await ensureAdmin();
+  await ensurePermissionRows();
   const page = Math.max(1, Number(input.page) || 1);
-  const take = Math.min(100, Math.max(5, Number(input.take) || 10));
+  const take = Math.min(200, Math.max(5, Number(input.take) || 10));
   const search = String(input.search || "").trim();
   const role = String(input.role || "all").toUpperCase();
 

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { staffCanViewModule } from "@/lib/permissions-policy";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { getOrdersTabData } from "@/app/actions/orders";
@@ -30,6 +31,9 @@ function buildOrdersSearchParams(params) {
 export default async function AdminOrdersPage({ searchParams }) {
   const session = await auth();
   if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
+    redirect("/admin");
+  }
+  if (!(await staffCanViewModule(session.user.role, "orders"))) {
     redirect("/admin");
   }
 

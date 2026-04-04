@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { staffCanViewModule } from "@/lib/permissions-policy";
 import {
   getProducts,
   getCategories,
@@ -41,6 +43,9 @@ export default async function InventoryPage({ searchParams }) {
 
   const session = await auth();
   const role = session?.user?.role;
+  if (!session || !(await staffCanViewModule(role, "inventory"))) {
+    redirect("/admin");
+  }
   const canManage = role === "ADMIN" || role === "MANAGER";
   const isCashier = role === "CASHIER";
   const canStockOps = canManage || isCashier;
