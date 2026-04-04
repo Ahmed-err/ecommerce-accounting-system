@@ -32,8 +32,18 @@ function stockLabel(p, t) {
   return t.inventoryStatusBadgeOk;
 }
 
+function isImportedProduct(p) {
+  return p.origin === "IMPORTED";
+}
+
 function originLabel(p, t) {
-  return p.origin === "IMPORTED" ? t.inventoryOriginImportedBadge : t.inventoryOriginLocalBadge;
+  return isImportedProduct(p) ? t.inventoryOriginImportedBadge : t.inventoryOriginLocalBadge;
+}
+
+function originRowsUnitsLine(t, lines, units) {
+  return String(t.inventoryReportOriginRowsUnits)
+    .replace("{lines}", String(lines))
+    .replace("{units}", String(units));
 }
 
 function sortLineLabel(sortKey, t, lang) {
@@ -64,6 +74,14 @@ function usePageStats(products, isCashier) {
     let ok = 0;
     let valueCost = 0;
     let valueRetail = 0;
+    let impLines = 0;
+    let impUnits = 0;
+    let impValueCost = 0;
+    let impValueRetail = 0;
+    let locLines = 0;
+    let locUnits = 0;
+    let locValueCost = 0;
+    let locValueRetail = 0;
     for (const p of products) {
       const q = Number(p.stock) || 0;
       totalUnits += q;
@@ -71,11 +89,28 @@ function usePageStats(products, isCashier) {
       if (tier === "out") out += 1;
       else if (tier === "low") low += 1;
       else ok += 1;
+      const imported = isImportedProduct(p);
+      if (imported) {
+        impLines += 1;
+        impUnits += q;
+      } else {
+        locLines += 1;
+        locUnits += q;
+      }
       if (!isCashier) {
         const cost = Number(p.purchasePrice) || 0;
         const sell = Number(p.sellingPrice) || 0;
-        valueCost += cost * q;
-        valueRetail += sell * q;
+        const extCost = cost * q;
+        const extRetail = sell * q;
+        valueCost += extCost;
+        valueRetail += extRetail;
+        if (imported) {
+          impValueCost += extCost;
+          impValueRetail += extRetail;
+        } else {
+          locValueCost += extCost;
+          locValueRetail += extRetail;
+        }
       }
     }
     return {
@@ -86,6 +121,14 @@ function usePageStats(products, isCashier) {
       ok,
       valueCost,
       valueRetail,
+      importedLines: impLines,
+      importedUnits: impUnits,
+      importedValueCost: impValueCost,
+      importedValueRetail: impValueRetail,
+      localLines: locLines,
+      localUnits: locUnits,
+      localValueCost: locValueCost,
+      localValueRetail: locValueRetail,
     };
   }, [products, isCashier]);
 }
@@ -169,6 +212,15 @@ export default function InventoryReportActions({
     [lang, currency]
   );
 
+  const reportProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
+      const ai = isImportedProduct(a) ? 0 : 1;
+      const bi = isImportedProduct(b) ? 0 : 1;
+      if (ai !== bi) return ai - bi;
+      return 0;
+    });
+  }, [products]);
+
   const buildPrintableHtml = useCallback(() => {
     const esc = (s) =>
       String(s ?? "")
@@ -179,7 +231,7 @@ export default function InventoryReportActions({
     const dir = isRTL ? "rtl" : "ltr";
     const cur = esc(currency || "");
 
-    const rows = products
+    const rows = reportProducts
       .map((p) => {
         const name = esc(displayName(p, lang));
         const sku = esc(p.sku || "—");
@@ -250,6 +302,27 @@ export default function InventoryReportActions({
       <td colspan="2">—</td>
     </tr></tfoot>`;
 
+    const importedMoneyPrint = !isCashier
+      ? `<div class="ogv"><span class="lb">${esc(t.inventoryCostShort)}:</span> ${esc(formatMoney(pageStats.importedValueCost))} · <span class="lb">${esc(t.inventorySalePriceShort)}:</span> ${esc(formatMoney(pageStats.importedValueRetail))}</div>`
+      : "";
+    const localMoneyPrint = !isCashier
+      ? `<div class="ogv"><span class="lb">${esc(t.inventoryCostShort)}:</span> ${esc(formatMoney(pageStats.localValueCost))} · <span class="lb">${esc(t.inventorySalePriceShort)}:</span> ${esc(formatMoney(pageStats.localValueRetail))}</div>`
+      : "";
+    const originSection = `
+      <h2 class="os-title">${esc(t.inventoryReportByOriginTitle)}</h2>
+      <div class="origin-row">
+        <div class="og imp">
+          <div class="ogh">${esc(t.inventoryOriginImported)}</div>
+          <div class="ogm">${esc(originRowsUnitsLine(t, pageStats.importedLines, pageStats.importedUnits))}</div>
+          ${importedMoneyPrint}
+        </div>
+        <div class="og loc">
+          <div class="ogh">${esc(t.inventoryOriginLocal)}</div>
+          <div class="ogm">${esc(originRowsUnitsLine(t, pageStats.localLines, pageStats.localUnits))}</div>
+          ${localMoneyPrint}
+        </div>
+      </div>`;
+
     const summaryBox = `
       <div class="summary">
         <div class="sg"><span class="sl">${esc(t.inventoryReportLinesOnPage)}</span><span class="sv">${esc(String(pageStats.lineCount))}</span></div>
@@ -289,6 +362,15 @@ export default function InventoryReportActions({
       tfoot .totals-row td{background:#fffbeb;border-top:2px solid #f59e0b;}
       .foot{margin-top:14px;font-size:10px;color:#64748b;line-height:1.5;}
       .scope{font-size:10px;color:#94a3b8;margin-bottom:10px;padding:8px;background:#f1f5f9;border-radius:6px;}
+      .os-title{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:0 0 8px;font-weight:700;}
+      .origin-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+      .og{padding:10px;border-radius:8px;}
+      .og.imp{border:1px solid #7dd3fc;background:#f0f9ff;}
+      .og.loc{border:1px solid #6ee7b7;background:#ecfdf5;}
+      .ogh{font-weight:700;font-size:12px;margin-bottom:6px;color:#0f172a;}
+      .ogm{font-size:11px;color:#334155;}
+      .ogv{font-size:10px;margin-top:6px;color:#475569;line-height:1.4;}
+      .ogv .lb{font-weight:600;}
     `;
 
     return `<!DOCTYPE html><html lang="${lang}" dir="${dir}"><head><meta charset="utf-8"/><title>${esc(
@@ -299,12 +381,13 @@ export default function InventoryReportActions({
       <div class="sub"><span class="brand">${esc(brandName || "")}</span> · ${esc(t.inventoryReportGenerated)}: ${esc(generated)}${cur ? ` · ${esc(cur)}` : ""}</div>
       <p class="scope">${esc(t.inventoryReportScopeNote)}</p>
       <table class="meta"><tbody>${metaRows}</tbody></table>
+      ${originSection}
       ${summaryBox}
       <table class="data">${thead}<tbody>${rows}</tbody>${tfoot}</table>
       <p class="foot">${esc(pageSummary)}</p>
     </body></html>`;
   }, [
-    products,
+    reportProducts,
     lang,
     isRTL,
     t,
@@ -359,7 +442,7 @@ export default function InventoryReportActions({
   const originBadgeClass = (p) =>
     cn(
       "inline-flex max-w-[9rem] rounded-md border px-1.5 py-0.5 text-[9px] font-bold uppercase leading-tight",
-      p.origin === "IMPORTED"
+      isImportedProduct(p)
         ? "border-sky-500/40 bg-sky-500/15 text-sky-200"
         : "border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
     );
@@ -477,6 +560,54 @@ export default function InventoryReportActions({
               )}
             </div>
 
+            <div className="mb-4">
+              <h4 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                {t.inventoryReportByOriginTitle}
+              </h4>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3 py-3">
+                  <p className="text-xs font-bold text-sky-700 dark:text-sky-300">
+                    {t.inventoryOriginImported}
+                  </p>
+                  <p className="mt-1.5 text-sm font-semibold tabular-nums text-foreground">
+                    {originRowsUnitsLine(t, pageStats.importedLines, pageStats.importedUnits)}
+                  </p>
+                  {!isCashier && (
+                    <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                      <p>
+                        <span className="font-semibold text-foreground/80">{t.inventoryCostShort}:</span>{" "}
+                        {formatMoney(pageStats.importedValueCost)}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-foreground/80">{t.inventorySalePriceShort}:</span>{" "}
+                        {formatMoney(pageStats.importedValueRetail)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-3 py-3">
+                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    {t.inventoryOriginLocal}
+                  </p>
+                  <p className="mt-1.5 text-sm font-semibold tabular-nums text-foreground">
+                    {originRowsUnitsLine(t, pageStats.localLines, pageStats.localUnits)}
+                  </p>
+                  {!isCashier && (
+                    <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                      <p>
+                        <span className="font-semibold text-foreground/80">{t.inventoryCostShort}:</span>{" "}
+                        {formatMoney(pageStats.localValueCost)}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-foreground/80">{t.inventorySalePriceShort}:</span>{" "}
+                        {formatMoney(pageStats.localValueRetail)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full min-w-[900px] border-collapse text-xs">
                 <thead>
@@ -501,14 +632,14 @@ export default function InventoryReportActions({
                   </tr>
                 </thead>
                 <tbody>
-                  {products.length === 0 ? (
+                  {reportProducts.length === 0 ? (
                     <tr>
                       <td colSpan={colCount} className="p-10 text-center text-muted-foreground">
                         {t.inventoryNoProducts}
                       </td>
                     </tr>
                   ) : (
-                    products.map((p) => (
+                    reportProducts.map((p) => (
                       <tr
                         key={p.id}
                         className={cn(
@@ -558,7 +689,7 @@ export default function InventoryReportActions({
                     ))
                   )}
                 </tbody>
-                {products.length > 0 && (
+                {reportProducts.length > 0 && (
                   <tfoot>
                     <tr className="border-t-2 border-amber-500/50 bg-amber-500/10">
                       <td colSpan={6} className="px-2 py-2.5 text-start text-xs font-bold uppercase tracking-wide">

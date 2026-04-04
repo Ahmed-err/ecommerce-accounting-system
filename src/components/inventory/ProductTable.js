@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,6 +109,7 @@ export default function ProductTable({
   const t = translations[lang];
   const router = useRouter();
   const searchParamsHook = useSearchParams();
+  const searchParamsKey = searchParamsHook.toString();
   const pathname = usePathname();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -124,7 +126,7 @@ export default function ProductTable({
 
   useEffect(() => {
     setSelected(new Set());
-  }, [searchParamsHook.toString()]);
+  }, [searchParamsKey]);
   useEffect(() => {
     setHideClassifyBanner(localStorage.getItem("inventory-origin-banner-dismissed") === "1");
   }, []);
@@ -723,7 +725,17 @@ export default function ProductTable({
                     <td className="flex min-w-[220px] items-center gap-3 px-4 py-3">
                       <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/5 bg-gray-800 group-hover:border-amber-500/30">
                         {p.images?.[0] ? (
-                          <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+                          <Image
+                            src={p.images[0]}
+                            alt=""
+                            width={44}
+                            height={44}
+                            className="h-full w-full object-cover"
+                            unoptimized={
+                              p.images[0].startsWith("data:") ||
+                              p.images[0].startsWith("blob:")
+                            }
+                          />
                         ) : (
                           <div className="flex h-full items-center justify-center">
                             <ImageIcon className="h-4 w-4 text-gray-600" />

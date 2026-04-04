@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -52,23 +52,26 @@ export default function InventoryStockSection({
     setMTotal(initialMovementsTotal);
   }, [initialMovements, initialMovementsTotal]);
 
-  async function reloadMovements(page, typeFilter) {
-    setLoading(true);
-    try {
-      const res = await getStockMovementsAction({
-        page,
-        limit: 15,
-        type: !typeFilter || typeFilter === "all" ? "" : typeFilter,
-      });
-      setMovements(res.movements || []);
-      setMTotal(res.total || 0);
-    } catch (err) {
-      console.error(err);
-      toast.error(formatServerActionError(err) || t.genericError || "Error");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const reloadMovements = useCallback(
+    async (page, typeFilter) => {
+      setLoading(true);
+      try {
+        const res = await getStockMovementsAction({
+          page,
+          limit: 15,
+          type: !typeFilter || typeFilter === "all" ? "" : typeFilter,
+        });
+        setMovements(res.movements || []);
+        setMTotal(res.total || 0);
+      } catch (err) {
+        console.error(err);
+        toast.error(formatServerActionError(err) || t.genericError || "Error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t]
+  );
 
   useEffect(() => {
     if (skipNextFetch.current) {
@@ -76,7 +79,7 @@ export default function InventoryStockSection({
       return;
     }
     reloadMovements(mPage, mType);
-  }, [mPage, mType]);
+  }, [mPage, mType, reloadMovements]);
 
   const mPages = Math.ceil(mTotal / 15) || 1;
 
