@@ -5,10 +5,12 @@ import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 export default function Footer() {
-    const { lang, isRTL, brandName } = useLanguage();
-    const t = translations[lang];
+    const { lang: langRaw, isRTL, brandName } = useLanguage();
+    const lang = normalizeAppLang(langRaw);
+    const t = translations[lang] || translations.ar;
 
     const quickLinks = [
         { name: t.home, href: "/" },

@@ -173,7 +173,7 @@ export default function DashboardClient({ data, filters }) {
           </CardHeader>
           <CardContent className="space-y-2">
             {data.recentOrders.map((o) => (
-              <Link href={`/admin/orders/${o.id}`} key={o.id} className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3 hover:bg-white/[0.05]">
+              <Link href={`/admin/orders?search=${encodeURIComponent(o.id.slice(-8))}`} key={o.id} className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3 hover:bg-white/[0.05]">
                 <div>
                   <p className="font-semibold text-white">#{o.id.slice(-8).toUpperCase()}</p>
                   <p className="text-xs text-gray-400">{o.customer} - {timeAgo(o.createdAt, lang)}</p>

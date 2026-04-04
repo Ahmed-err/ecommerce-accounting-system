@@ -1,8 +1,10 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
 import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
 
 export async function getHomepageData() {
+  noStore();
   try {
     const [banners, categories, featured, offers] = await Promise.all([
       db.banner.findMany({

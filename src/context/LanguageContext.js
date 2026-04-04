@@ -2,28 +2,38 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children, initialLang = "ar", branding }) {
-  const [lang, setLang] = useState(initialLang);
+  const [lang, setLang] = useState(() => normalizeAppLang(initialLang));
 
   useEffect(() => {
-    const saved = localStorage.getItem("lang");
-    if (saved && saved !== lang) {
-      setLang(saved);
+    try {
+      const saved = localStorage.getItem("lang");
+      if (!saved) return;
+      const next = normalizeAppLang(saved);
+      setLang((prev) => (next !== prev ? next : prev));
+      if (next !== saved) {
+        localStorage.setItem("lang", next);
+        document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
+      }
+    } catch {
+      /* ignore */
     }
-  }, [lang]);
+  }, []);
 
   const router = useRouter();
 
   const switchLanguage = (newLang) => {
-    setLang(newLang);
-    localStorage.setItem("lang", newLang);
-    document.cookie = `lang=${newLang}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    const next = normalizeAppLang(newLang);
+    setLang(next);
+    localStorage.setItem("lang", next);
+    document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
 
-    document.documentElement.lang = newLang;
-    document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = next;
+    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
 
     router.refresh();
   };

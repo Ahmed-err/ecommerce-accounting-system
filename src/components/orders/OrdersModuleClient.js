@@ -7,7 +7,7 @@ import {
   ShoppingBag, Store, Monitor, RotateCcw, BarChart3,
   Search, Filter, ChevronLeft, ChevronRight, X, Plus,
   Eye, Printer, Check, CheckCircle2, Clock, Package, Truck,
-  XCircle, Download, AlertTriangle, ShoppingCart, Loader2,
+  XCircle, Download, AlertTriangle, ShoppingCart, Loader2, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,13 @@ import {
 } from "@/app/actions/orders";
 
 const TABS_CONFIG_KEYS = ["all", "store", "pos", "returns", "reports"];
+
+const COMMON_PAYMENT_METHODS = ["CASH_ON_DELIVERY", "ONLINE_GATEWAY", "CASH", "CARD", "CREDIT"];
+
+function formatPaymentMethodLabel(code) {
+  if (!code || code === "all") return "";
+  return String(code).replace(/_/g, " ");
+}
 
 function mapReturnActionError(res, t) {
   if (!res || res.success) return "";
@@ -246,6 +253,18 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
 
 function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, lang, showSource = true, isLoading }) {
   const totalPages = Math.ceil(total / 20) || 1;
+  const [copiedId, setCopiedId] = useState(null);
+
+  const copyOrderId = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
 
   if (isLoading) return <div className="py-16 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>;
 
@@ -292,6 +311,20 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                   <td className="px-4 py-3"><StatusBadge status={order.status} t={t} /></td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-gray-400 hover:text-white"
+                        title={t.ordCopyOrderId}
+                        onClick={(e) => copyOrderId(e, order.id)}
+                      >
+                        {copiedId === order.id ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-white" onClick={() => onRowClick(order)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
@@ -325,9 +358,13 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
   );
 }
 
-function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = true }) {
+function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = true, showPayment = false }) {
   const [searchVal, setSearchVal] = useState(values.search || "");
   const timerRef = useRef(null);
+
+  useEffect(() => {
+    setSearchVal(values.search || "");
+  }, [values.search]);
 
   const handleSearch = (e) => {
     const v = e.target.value;
@@ -362,6 +399,21 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
           </SelectContent>
         </Select>
       )}
+      {showPayment && (
+        <Select value={values.paymentMethod || "all"} onValueChange={(v) => onFilter("paymentMethod", v)}>
+          <SelectTrigger className="w-[10.5rem] bg-gray-800 border-white/10 text-white h-9" dir={isRTL ? "rtl" : "ltr"}>
+            <SelectValue placeholder={t.ordFilterPayment} />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 border-white/10 text-white max-h-64" dir={isRTL ? "rtl" : "ltr"}>
+            <SelectItem value="all">{lang === "ar" ? "كل طرق الدفع" : "All payment methods"}</SelectItem>
+            {COMMON_PAYMENT_METHODS.map((code) => (
+              <SelectItem key={code} value={code}>
+                {formatPaymentMethodLabel(code)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <div className="flex gap-2 items-center">
         <Input type="date" value={values.dateFrom || ""} onChange={(e) => onFilter("dateFrom", e.target.value)} className="bg-gray-800 border-white/10 text-white h-9 w-36" />
         <span className="text-gray-500 text-xs">—</span>
@@ -371,10 +423,17 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
   );
 }
 
-function AllOrdersTab({ data, t, lang, isRTL, onStatusChange }) {
+function AllOrdersTab({ data, t, lang, isRTL, onStatusChange, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
-  const [filters, setFilters] = useState({ search: "", status: "all", source: "all", dateFrom: "", dateTo: "" });
-  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    search: initialQuery.search || "",
+    status: initialQuery.status || "all",
+    source: initialQuery.source || "all",
+    paymentMethod: initialQuery.paymentMethod || "all",
+    dateFrom: initialQuery.dateFrom || "",
+    dateTo: initialQuery.dateTo || "",
+  });
+  const [page, setPage] = useState(initialQuery.page || 1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -413,7 +472,7 @@ function AllOrdersTab({ data, t, lang, isRTL, onStatusChange }) {
           { label: t.ordKpiToday, value: kpis.todayCount || 0, icon: Package, color: "bg-purple-500/10 text-purple-400", delay: 0.15, sub: `${fmt(kpis.todayRevenue, lang)} ${t.currency}` },
         ].map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
-      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={handleSearch} onFilter={handleFilter} values={filters} showSource />
+      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={handleSearch} onFilter={handleFilter} values={filters} showSource showPayment />
       <OrdersTable orders={orders} total={total} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} isLoading={loading} />
       <AnimatePresence>
         {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
@@ -422,10 +481,16 @@ function AllOrdersTab({ data, t, lang, isRTL, onStatusChange }) {
   );
 }
 
-function StoreOrdersTab({ data, t, lang, isRTL }) {
+function StoreOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
-  const [filters, setFilters] = useState({ search: "", status: "all", dateFrom: "", dateTo: "" });
-  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    search: initialQuery.search || "",
+    status: initialQuery.status || "all",
+    paymentMethod: initialQuery.paymentMethod || "all",
+    dateFrom: initialQuery.dateFrom || "",
+    dateTo: initialQuery.dateTo || "",
+  });
+  const [page, setPage] = useState(initialQuery.page || 1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -447,7 +512,7 @@ function StoreOrdersTab({ data, t, lang, isRTL }) {
 
   return (
     <div className="space-y-5">
-      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} />
+      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} showPayment />
       <OrdersTable orders={tabData?.orders || []} total={tabData?.total || 0} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} showSource={false} isLoading={loading} />
       <AnimatePresence>
         {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
@@ -456,10 +521,16 @@ function StoreOrdersTab({ data, t, lang, isRTL }) {
   );
 }
 
-function PosOrdersTab({ data, t, lang, isRTL }) {
+function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
-  const [filters, setFilters] = useState({ search: "", status: "all", dateFrom: "", dateTo: "" });
-  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    search: initialQuery.search || "",
+    status: initialQuery.status || "all",
+    paymentMethod: initialQuery.paymentMethod || "all",
+    dateFrom: initialQuery.dateFrom || "",
+    dateTo: initialQuery.dateTo || "",
+  });
+  const [page, setPage] = useState(initialQuery.page || 1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const summary = tabData?.summary || {};
@@ -494,7 +565,7 @@ function PosOrdersTab({ data, t, lang, isRTL }) {
           </div>
         </div>
       )}
-      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} />
+      <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} showPayment />
       <OrdersTable orders={tabData?.orders || []} total={tabData?.total || 0} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} showSource={false} isLoading={loading} />
       <AnimatePresence>
         {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
@@ -503,7 +574,7 @@ function PosOrdersTab({ data, t, lang, isRTL }) {
   );
 }
 
-function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
+function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
   const [tabData, setTabData] = useState(data);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ orderId: "", reason: "", refundMethod: "CASH", notes: "" });
@@ -666,7 +737,7 @@ function ReturnsTab({ data, t, lang, isRTL, canAdmin }) {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {r.status === "PENDING" && canAdmin && (
+                  {r.status === "PENDING" && canApproveReturns && (
                     <div className="flex gap-1">
                       <Button size="sm" onClick={() => handleApprove(r.id)} className="h-7 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"><Check className="h-3 w-3 mr-1" />{t.empApprove}</Button>
                       <Button size="sm" onClick={() => handleReject(r.id)} className="h-7 text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><X className="h-3 w-3 mr-1" />{t.empReject}</Button>
@@ -886,7 +957,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
   );
 }
 
-export default function OrdersModuleClient({ initialData, initialTab, permissions }) {
+export default function OrdersModuleClient({ initialData, initialTab, initialListQuery = {}, permissions }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const router = useRouter();
@@ -894,6 +965,10 @@ export default function OrdersModuleClient({ initialData, initialTab, permission
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const skipRef = useRef(true);
+
+  const role = permissions?.role || "";
+  const canApproveReturns = role === "ADMIN" || role === "MANAGER";
+  const canViewReports = role !== "CASHIER";
 
   const activeTab = searchParams.get("tab") || initialTab || "all";
   const [tabData, setTabData] = useState({ [activeTab]: initialData });
@@ -928,10 +1003,10 @@ export default function OrdersModuleClient({ initialData, initialTab, permission
     { key: "pos", label: t.ordTabPos, icon: Monitor },
     { key: "returns", label: t.ordTabReturns, icon: RotateCcw },
     { key: "reports", label: t.ordTabReports, icon: BarChart3 },
-  ];
+  ].filter((tab) => tab.key !== "reports" || canViewReports);
 
   const currentData = tabData[activeTab];
-  const canAdmin = permissions?.role === "ADMIN";
+  const listQuery = initialListQuery;
 
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
@@ -951,10 +1026,10 @@ export default function OrdersModuleClient({ initialData, initialTab, permission
           {isPending && <div className="py-16 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>}
           {!isPending && (
             <>
-              {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
-              {activeTab === "store" && <StoreOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
-              {activeTab === "pos" && <PosOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
-              {activeTab === "returns" && <ReturnsTab data={currentData} t={t} lang={lang} isRTL={isRTL} canAdmin={canAdmin} />}
+              {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
+              {activeTab === "store" && <StoreOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
+              {activeTab === "pos" && <PosOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
+              {activeTab === "returns" && <ReturnsTab data={currentData} t={t} lang={lang} isRTL={isRTL} canApproveReturns={canApproveReturns} />}
               {activeTab === "reports" && <ReportsTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
             </>
           )}

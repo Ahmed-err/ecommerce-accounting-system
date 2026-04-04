@@ -14,6 +14,19 @@ async function ensureAdmin() {
   return session;
 }
 
+function revalidatePublicStorefront() {
+  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/products", "layout");
+  revalidatePath("/cart");
+  revalidatePath("/checkout", "layout");
+  revalidatePath("/about");
+  revalidatePath("/contact");
+  revalidatePath("/terms");
+  revalidatePath("/privacy");
+  revalidatePath("/sitemap.xml");
+}
+
 const updateStoreSchema = z.object({
   tab: z.string(),
   payload: z.any(),
@@ -471,7 +484,7 @@ export async function updateSettings(input) {
     return { success: false, error: "Unknown settings tab." };
   }
 
-    revalidatePath("/", "layout");
+    revalidatePublicStorefront();
     revalidatePath("/admin/settings");
     const fresh = await getAdminSettingsData();
     return { success: true, data: fresh };

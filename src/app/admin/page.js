@@ -1,9 +1,16 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import DashboardClient from "@/components/admin/DashboardClient";
 import { getDashboardData } from "@/lib/dashboard";
 
 export const revalidate = 30;
 
 export default async function AdminDashboard({ searchParams }) {
+  const session = await auth();
+  if (session?.user?.role === "CASHIER") {
+    redirect("/admin/orders");
+  }
+
   const sp = await searchParams;
   const data = await getDashboardData({
     range: sp?.range || "month",

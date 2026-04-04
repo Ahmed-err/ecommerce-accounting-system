@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { validateEnv } from "@/lib/env";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +35,8 @@ export const viewport = {
 export async function generateMetadata() {
   validateEnv();
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const t = translations[lang] || translations.en;
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
+  const t = translations[lang] || translations.ar;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
   const title = `${b.brandName} — ${b.brandTagline}`;
@@ -73,7 +74,7 @@ export async function generateMetadata() {
 export default async function RootLayout({ children }) {
   validateEnv();
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
   const dir = lang === "ar" ? "rtl" : "ltr";
   const branding = await getStoreBranding();
 

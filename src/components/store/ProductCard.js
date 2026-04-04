@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-52 w-full sm:h-60 md:h-64 lg:h-72 xl:h-80"
+      ? "h-40 w-full sm:h-44 md:h-48 lg:h-[12.5rem]"
       : "h-64";
 
   const quickBody = (
@@ -228,7 +228,7 @@ export default function ProductCard({
           compactRail
             ? {}
             : homeShowcase
-              ? { y: -4, transition: { duration: 0.25 } }
+              ? { y: -2, transition: { duration: 0.22 } }
               : {
                   y: -8,
                   transition: { duration: 0.3 },
@@ -352,14 +352,14 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "gap-2 p-5 pb-6 sm:p-6 sm:pb-7",
+              homeShowcase && "gap-1.5 p-4 pb-4 sm:p-5 sm:pb-5",
               isRTL ? "text-right" : "text-left"
             )}
           >
             <span
               className={cn(
                 "font-medium uppercase tracking-wider text-amber-500",
-                homeShowcase ? "text-[11px] sm:text-xs" : "text-xs"
+                homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
               )}
             >
               {translateCategory(product.category?.name, t)}
@@ -372,7 +372,7 @@ export default function ProductCard({
                   compactRail
                     ? "text-sm line-clamp-2 leading-snug"
                     : homeShowcase
-                      ? "line-clamp-3 text-lg leading-snug sm:line-clamp-4 sm:text-xl sm:leading-snug lg:text-2xl lg:leading-tight"
+                      ? "line-clamp-2 text-[15px] font-semibold leading-snug sm:text-base sm:leading-snug"
                       : "line-clamp-2 text-lg leading-snug sm:line-clamp-3"
                 )}
               >
@@ -382,9 +382,9 @@ export default function ProductCard({
 
             {homeShowcase ? (
               <>
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground sm:gap-x-4">
                   {product.sku ? (
-                    <span className="min-w-0 max-w-full truncate font-mono text-[11px] sm:text-xs">
+                    <span className="min-w-0 max-w-full truncate font-mono text-[10px] sm:text-[11px]">
                       {t.productSku}: {product.sku}
                     </span>
                   ) : null}
@@ -397,24 +397,22 @@ export default function ProductCard({
                     {isOutOfStock ? t.outOfStock : `${t.inStock}: ${product.stock}`}
                   </span>
                 </div>
-                <div
-                  className={cn(
-                    "mt-auto border-t border-border/80 pt-5",
-                    "flex flex-col gap-4",
-                    "sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-0",
-                    "lg:gap-x-8 lg:pt-6",
-                    "xl:gap-x-10"
-                  )}
-                >
-                  <div className="min-w-0 flex-1 sm:pe-2 lg:pe-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:text-xs">
+                <div className="mt-auto space-y-3 border-t border-border/70 pt-3.5 sm:pt-4">
+                  <div
+                    className={cn(
+                      "rounded-xl border px-3 py-2.5 shadow-sm sm:px-3.5 sm:py-3",
+                      "border-amber-500/35 bg-gradient-to-br from-amber-500/12 via-amber-500/5 to-transparent",
+                      "dark:border-amber-400/25 dark:from-amber-400/15 dark:via-amber-400/5"
+                    )}
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-800/90 dark:text-amber-300/95">
                       {t.price}
                     </p>
-                    <p className="mt-1.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 break-words text-foreground">
-                      <span className="max-w-full text-2xl font-black tabular-nums tracking-tight sm:text-3xl lg:text-4xl xl:text-[2.5rem] xl:leading-none">
+                    <p className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="max-w-full text-[1.375rem] font-black tabular-nums leading-none tracking-tight text-foreground sm:text-2xl">
                         {selling.toLocaleString()}
                       </span>
-                      <span className="shrink-0 text-base font-bold text-amber-600 dark:text-amber-400 sm:text-lg lg:text-xl">
+                      <span className="shrink-0 text-sm font-bold text-amber-700 dark:text-amber-400 sm:text-base">
                         {t.currency}
                       </span>
                     </p>
@@ -426,18 +424,11 @@ export default function ProductCard({
                       addToCart(product);
                     }}
                     disabled={isOutOfStock}
-                    className={cn(
-                      "min-h-[3rem] w-full shrink-0 overflow-hidden rounded-xl bg-amber-500 px-5 py-3.5 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30",
-                      "sm:w-auto sm:min-h-[3rem] sm:self-center sm:px-6 sm:py-3.5",
-                      "lg:min-h-[3.25rem] lg:rounded-2xl lg:px-8 lg:py-4",
-                      "xl:min-h-[3.5rem] xl:px-9"
-                    )}
+                    className="flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-amber-500 px-4 text-sm font-bold text-black shadow-sm transition-all duration-200 hover:bg-amber-400 hover:shadow-md active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-sm sm:h-11 sm:text-[0.9375rem]"
                     title={t.addToCart}
                   >
-                    <span className="flex items-center justify-center gap-2 text-sm font-bold sm:text-base lg:text-[1.05rem]">
-                      <ShoppingCart className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 lg:h-[1.35rem] lg:w-[1.35rem]" />
-                      <span>{t.addToCart}</span>
-                    </span>
+                    <ShoppingCart className="h-4 w-4 shrink-0 opacity-90 sm:h-[1.125rem] sm:w-[1.125rem]" />
+                    <span>{t.addToCart}</span>
                   </button>
                 </div>
               </>

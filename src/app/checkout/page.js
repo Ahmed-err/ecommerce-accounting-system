@@ -4,10 +4,11 @@ import CheckoutClient from "@/components/store/CheckoutClient";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
   const t = translations[lang] || translations.ar;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
@@ -18,7 +19,7 @@ export async function generateMetadata() {
 
 export default async function CheckoutPage() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
 
   return (
     <main

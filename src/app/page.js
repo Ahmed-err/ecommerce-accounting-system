@@ -15,8 +15,6 @@ import { cookies } from "next/headers";
 const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
 const NewsletterSection = dynamic(() => import("@/components/home/NewsletterSection"));
 
-export const revalidate = 300;
-
 export default async function HomePage() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
