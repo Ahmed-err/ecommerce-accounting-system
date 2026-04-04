@@ -1153,8 +1153,13 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
 
   const activeTab = searchParams.get("tab") || initialTab || "overview";
   const [tabData, setTabData] = useState({ [activeTab]: initialData });
+  const tabDataRef = useRef(tabData);
   const [staff, setStaff] = useState(initialStaff || []);
   const skipRef = useRef(true);
+
+  useEffect(() => {
+    tabDataRef.current = tabData;
+  }, [tabData]);
 
   const setTab = (tab) => {
     const p = new URLSearchParams(searchParams);
@@ -1163,17 +1168,17 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
   };
 
   const loadTab = useCallback(async (tab) => {
-    if (tabData[tab]) return;
+    if (tabDataRef.current[tab]) return;
     startTransition(async () => {
       const res = await getEmployeeHrData({ tab });
       if (res.ok) setTabData((prev) => ({ ...prev, [tab]: res }));
     });
-  }, [tabData]);
+  }, []);
 
   useEffect(() => {
     if (skipRef.current) { skipRef.current = false; return; }
     loadTab(activeTab);
-  }, [activeTab]);
+  }, [activeTab, loadTab]);
 
   const TABS_CONFIG = [
     { key: "overview", label: t.empTabOverview, icon: LayoutDashboard },

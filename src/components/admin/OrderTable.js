@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -269,7 +270,21 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                                   {order.items?.map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-4 p-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
                                       <div className="h-10 w-10 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden">
-                                        {item.product?.images?.[0] ? <img src={item.product.images[0]} alt="" className="object-cover h-full w-full" /> : <Package className="h-4 w-4 opacity-30" />}
+                                        {item.product?.images?.[0] ? (
+                                          <Image
+                                            src={item.product.images[0]}
+                                            alt=""
+                                            width={40}
+                                            height={40}
+                                            className="h-full w-full object-cover"
+                                            unoptimized={
+                                              item.product.images[0].startsWith("data:") ||
+                                              item.product.images[0].startsWith("blob:")
+                                            }
+                                          />
+                                        ) : (
+                                          <Package className="h-4 w-4 opacity-30" />
+                                        )}
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <p className="text-xs font-semibold truncate">{item.product?.name}</p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -520,8 +521,15 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             {formData.images.length > 0 && (
               <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {formData.images.map((img, i) => (
-                  <div key={i} className="group relative aspect-square">
-                    <img src={img} alt="" className="h-full w-full rounded-lg border border-white/10 object-cover" />
+                  <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-white/10">
+                    <Image
+                      src={img}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      unoptimized={img.startsWith("data:") || img.startsWith("blob:")}
+                    />
                     <button
                       type="button"
                       onClick={() =>

@@ -16,6 +16,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, BarChart, Bar,
 } from "recharts";
+import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -185,7 +186,21 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
               {(order.items || []).map((item) => (
                 <div key={item.id} className="flex items-center gap-3 bg-gray-800/40 rounded-xl p-3">
                   <div className="h-10 w-10 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden shrink-0">
-                    {item.product?.images?.[0] ? <img src={item.product.images[0]} alt="" className="object-cover h-full w-full" /> : <Package className="h-4 w-4 text-gray-600" />}
+                    {item.product?.images?.[0] ? (
+                      <Image
+                        src={item.product.images[0]}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                        unoptimized={
+                          item.product.images[0].startsWith("data:") ||
+                          item.product.images[0].startsWith("blob:")
+                        }
+                      />
+                    ) : (
+                      <Package className="h-4 w-4 text-gray-600" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-white truncate">{item.product?.name}</p>
@@ -882,6 +897,11 @@ export default function OrdersModuleClient({ initialData, initialTab, permission
 
   const activeTab = searchParams.get("tab") || initialTab || "all";
   const [tabData, setTabData] = useState({ [activeTab]: initialData });
+  const tabDataRef = useRef(tabData);
+
+  useEffect(() => {
+    tabDataRef.current = tabData;
+  }, [tabData]);
 
   const setTab = (tab) => {
     const p = new URLSearchParams(searchParams);
@@ -890,17 +910,17 @@ export default function OrdersModuleClient({ initialData, initialTab, permission
   };
 
   const loadTab = useCallback(async (tab) => {
-    if (tabData[tab]) return;
+    if (tabDataRef.current[tab]) return;
     startTransition(async () => {
       const res = await getOrdersTabData(tab, {});
       if (res.ok) setTabData((prev) => ({ ...prev, [tab]: res }));
     });
-  }, [tabData]);
+  }, []);
 
   useEffect(() => {
     if (skipRef.current) { skipRef.current = false; return; }
     loadTab(activeTab);
-  }, [activeTab]);
+  }, [activeTab, loadTab]);
 
   const TABS_CONFIG = [
     { key: "all", label: t.ordTabAll, icon: ShoppingBag },
