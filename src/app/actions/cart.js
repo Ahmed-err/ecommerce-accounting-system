@@ -95,6 +95,12 @@ export async function validateCartStock(cartItems) {
     };
   } catch (error) {
     console.error("Stock validation error:", error);
-    return { valid: false, issues: [], error: error.message };
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : "Validation failed.";
+    return { valid: false, issues: [], error: message || "Validation failed." };
   }
 }

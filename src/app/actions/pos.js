@@ -171,7 +171,13 @@ export async function createPOSOrder(cartItems, paymentDetails) {
     return { success: true, orderId: order.newOrder.id, receipt: order.receipt };
   } catch (error) {
     console.error("POS Order Error:", error);
-    emitAlert("pos_checkout_failure", { error: error?.message || "pos_order_error" }).catch(() => {});
-    return { success: false, error: error.message };
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : "POS order failed.";
+    emitAlert("pos_checkout_failure", { error: message || "pos_order_error" }).catch(() => {});
+    return { success: false, error: message || "POS order failed." };
   }
 }

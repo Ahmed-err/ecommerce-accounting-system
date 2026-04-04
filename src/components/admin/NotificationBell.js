@@ -21,7 +21,7 @@ export default function NotificationBell({ customerOnly = false }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [unread, setUnread] = useState(0);
-  const [failCount, setFailCount] = useState(0);
+  const sseFailCountRef = useRef(0);
   const lastSeenRef = useRef(null);
   const timerRef = useRef(null);
   const sourceRef = useRef(null);
@@ -73,15 +73,17 @@ export default function NotificationBell({ customerOnly = false }) {
           });
           setUnread((v) => v + incoming.filter((n) => !n.read).length);
           lastSeenRef.current = incoming[incoming.length - 1]?.createdAt || lastSeenRef.current;
-          setFailCount(0);
+          sseFailCountRef.current = 0;
         } catch {}
       });
 
       es.onerror = () => {
         es.close();
-        const next = Math.min(5000 * Math.max(failCount + 1, 1), 30000);
-        setFailCount((v) => v + 1);
-        timerRef.current = setTimeout(startSse, next);
+        sseFailCountRef.current += 1;
+        const next = Math.min(5000 * sseFailCountRef.current, 30000);
+        timerRef.current = setTimeout(() => {
+          if (!canceled) startSse();
+        }, next);
       };
     };
 
@@ -91,7 +93,7 @@ export default function NotificationBell({ customerOnly = false }) {
       if (sourceRef.current) sourceRef.current.close();
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [failCount]);
+  }, []);
 
   useEffect(() => {
     const poll = setInterval(() => {
