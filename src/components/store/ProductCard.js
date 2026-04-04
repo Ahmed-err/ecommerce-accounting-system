@@ -398,17 +398,23 @@ export default function ProductCard({
                   </span>
                 </div>
                 <div
-                  className="mt-auto flex flex-col gap-4 border-t border-border/80 pt-5 sm:flex-row sm:items-end sm:justify-between sm:gap-5"
+                  className={cn(
+                    "mt-auto border-t border-border/80 pt-5",
+                    "flex flex-col gap-4",
+                    "sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:gap-y-0",
+                    "lg:gap-x-8 lg:pt-6",
+                    "xl:gap-x-10"
+                  )}
                 >
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 sm:pe-2 lg:pe-4">
                     <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground sm:text-xs">
                       {t.price}
                     </p>
-                    <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0 text-foreground">
-                      <span className="text-2xl font-black tabular-nums tracking-tight sm:text-3xl lg:text-[2rem] xl:text-[2.125rem]">
+                    <p className="mt-1.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 break-words text-foreground">
+                      <span className="max-w-full text-2xl font-black tabular-nums tracking-tight sm:text-3xl lg:text-4xl xl:text-[2.5rem] xl:leading-none">
                         {selling.toLocaleString()}
                       </span>
-                      <span className="text-base font-bold text-amber-600 dark:text-amber-400 sm:text-lg">
+                      <span className="shrink-0 text-base font-bold text-amber-600 dark:text-amber-400 sm:text-lg lg:text-xl">
                         {t.currency}
                       </span>
                     </p>
@@ -420,11 +426,16 @@ export default function ProductCard({
                       addToCart(product);
                     }}
                     disabled={isOutOfStock}
-                    className="relative min-h-[3rem] shrink-0 self-stretch overflow-hidden rounded-xl bg-amber-500 px-5 py-3.5 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30 sm:min-h-0 sm:self-auto sm:px-6 sm:py-3.5"
+                    className={cn(
+                      "min-h-[3rem] w-full shrink-0 overflow-hidden rounded-xl bg-amber-500 px-5 py-3.5 text-black transition-all duration-200 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-30",
+                      "sm:w-auto sm:min-h-[3rem] sm:self-center sm:px-6 sm:py-3.5",
+                      "lg:min-h-[3.25rem] lg:rounded-2xl lg:px-8 lg:py-4",
+                      "xl:min-h-[3.5rem] xl:px-9"
+                    )}
                     title={t.addToCart}
                   >
-                    <span className="flex items-center justify-center gap-2 text-sm font-bold sm:text-base">
-                      <ShoppingCart className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
+                    <span className="flex items-center justify-center gap-2 text-sm font-bold sm:text-base lg:text-[1.05rem]">
+                      <ShoppingCart className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 lg:h-[1.35rem] lg:w-[1.35rem]" />
                       <span>{t.addToCart}</span>
                     </span>
                   </button>
