@@ -14,6 +14,76 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 
+function printHtmlDocument(html) {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("title", "print");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.cssText =
+    "position:fixed;inset:0;width:0;height:0;border:0;opacity:0;pointer-events:none;visibility:hidden;";
+  document.body.appendChild(iframe);
+  const win = iframe.contentWindow;
+  if (!win) {
+    iframe.remove();
+    return false;
+  }
+  const doc = win.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  const cleanup = () => {
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  };
+
+  const runPrint = () => {
+    try {
+      win.focus();
+      win.print();
+    } catch (e) {
+      console.error(e);
+      cleanup();
+    }
+  };
+
+  win.addEventListener("afterprint", cleanup);
+  const schedule = () => setTimeout(runPrint, 50);
+  if (doc.readyState === "complete") {
+    schedule();
+  } else {
+    win.onload = schedule;
+  }
+  setTimeout(cleanup, 180000);
+  return true;
+}
+
+function printHtmlInNewWindow(html) {
+  const w = window.open("about:blank", "_blank");
+  if (!w) return false;
+  try {
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    const go = () => {
+      try {
+        w.focus();
+        w.print();
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    if (w.document.readyState === "complete") {
+      setTimeout(go, 100);
+    } else {
+      w.onload = () => setTimeout(go, 100);
+    }
+  } catch (e) {
+    console.error(e);
+    w.close();
+    return false;
+  }
+  return true;
+}
+
 function displayName(p, lang) {
   if (lang === "ar") return p.nameAr || p.name;
   return p.nameEn || p.name;
@@ -404,27 +474,9 @@ export default function InventoryReportActions({
 
   const openPrint = useCallback(() => {
     const html = buildPrintableHtml();
-    const w = window.open("", "_blank", "noopener,noreferrer");
-    if (!w) {
-      toast.error(t.inventoryReportPopupBlocked);
-      return;
-    }
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    const go = () => {
-      try {
-        w.focus();
-        w.print();
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    if (w.document.readyState === "complete") {
-      setTimeout(go, 200);
-    } else {
-      w.onload = () => setTimeout(go, 200);
-    }
+    if (printHtmlDocument(html)) return;
+    if (printHtmlInNewWindow(html)) return;
+    toast.error(t.inventoryReportPopupBlocked);
   }, [buildPrintableHtml, t]);
 
   const colCount = isCashier ? 11 : 13;

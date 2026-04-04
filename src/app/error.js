@@ -9,6 +9,7 @@ import { translations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 function WireIllustration({ className }) {
   return (
@@ -29,8 +30,10 @@ function WireIllustration({ className }) {
 }
 
 export default function RootError({ error, reset }) {
-  const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const ctx = useLanguage();
+  const lang = normalizeAppLang(ctx?.lang);
+  const isRTL = ctx?.isRTL ?? lang === "ar";
+  const t = translations[lang] || translations.ar;
 
   useEffect(() => {
     console.error("Root error:", error?.digest || error?.message);

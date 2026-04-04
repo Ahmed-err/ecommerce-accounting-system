@@ -49,7 +49,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0 }) {
     { name: t.adminCoupons || "Coupons", href: "/admin/coupons", icon: TicketPercent, roles: ["ADMIN"] },
     { name: t.adminEmployees, href: "/admin/employees", icon: Users, roles: ["ADMIN"] },
     { name: t.adminAccounting, href: "/admin/accounting", icon: CreditCard, roles: ["ADMIN"] },
-    { name: t.adminSettings, href: "/admin/settings", icon: Settings, roles: ["ADMIN", "MANAGER", "CASHIER"] },
+    { name: t.adminSettings, href: "/admin/settings", icon: Settings, roles: ["ADMIN"] },
   ];
 
   const navItems = allItems.filter(item => item.roles.includes(userRole));

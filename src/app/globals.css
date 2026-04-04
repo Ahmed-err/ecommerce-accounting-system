@@ -342,6 +342,19 @@
     overflow: visible !important;
   }
 
+  /* Invoice (and similar): wrap content height/width instead of filling the sheet with empty space */
+  body.print-target-mode .print-target-active.print-target-fit-content {
+    inset: auto !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 210mm !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+  }
+
   body:has(.accounting-page-print) aside,
   body:has(.emp-reports-print) aside,
   body:has(.orders-reports-print) aside,

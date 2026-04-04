@@ -22,6 +22,14 @@ async function ensureAdmin() {
   return session;
 }
 
+async function ensureAdminOrManager() {
+  const session = await auth();
+  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
+
 const returnItemSchema = z.object({
   productId: z.string().min(1),
   quantity: z.coerce.number().int().positive(),
@@ -98,6 +106,7 @@ export async function getOrdersTabData(tab, query = {}) {
           search: query.search,
           status: query.status,
           source: "store",
+          paymentMethod: query.paymentMethod || "all",
           page: query.page ? parseInt(query.page) : 1,
           limit: 20,
           dateFrom: query.dateFrom,
@@ -111,6 +120,7 @@ export async function getOrdersTabData(tab, query = {}) {
             search: query.search,
             status: query.status,
             source: "pos",
+            paymentMethod: query.paymentMethod || "all",
             page: query.page ? parseInt(query.page) : 1,
             limit: 20,
             dateFrom: query.dateFrom,
@@ -210,7 +220,7 @@ export async function createOrderReturn(raw) {
 
 export async function approveOrderReturn(returnId) {
   try {
-    await ensureAdmin();
+    await ensureAdminOrManager();
 
     const returnRecord = await db.orderReturn.findUnique({
       where: { id: returnId },
@@ -247,7 +257,7 @@ export async function approveOrderReturn(returnId) {
 
 export async function rejectOrderReturn(returnId, reason) {
   try {
-    await ensureAdmin();
+    await ensureAdminOrManager();
     await db.orderReturn.update({
       where: { id: returnId },
       data: { status: "REJECTED", notes: reason || null, processedAt: new Date() },

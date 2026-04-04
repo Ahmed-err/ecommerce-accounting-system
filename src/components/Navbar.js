@@ -20,6 +20,7 @@ import { useCart } from "@/components/store/CartProvider";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 import { ThemeToggle } from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
 import StoreNotificationBell from "@/components/store/NotificationBell";
@@ -37,7 +38,7 @@ import {
  * can change the useId call order between SSR and the first client render, which
  * mismatches the mobile trigger id. Mount the sheet only after hydration.
  */
-function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline }) {
+function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline, isAdmin, isStaff }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -112,6 +113,37 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                 ))}
                             </div>
 
+                            {session && isStaff && (
+                                <div className="space-y-2 border-t border-foreground/5 pt-6">
+                                    <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                        {t.ordStaffSection || (lang === "ar" ? "لوحة العمل" : "Staff")}
+                                    </p>
+                                    <Link
+                                        href="/pos"
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-amber-500 transition-all hover:bg-amber-500/10"
+                                    >
+                                        <Zap className="h-5 w-5 shrink-0" />
+                                        {t.adminPos}
+                                    </Link>
+                                    <Link
+                                        href="/admin/orders"
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-foreground transition-all hover:bg-foreground/5"
+                                    >
+                                        <ShoppingCart className="h-5 w-5 shrink-0" />
+                                        {t.adminOrders}
+                                    </Link>
+                                    {isAdmin && (
+                                        <Link
+                                            href="/admin"
+                                            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-foreground transition-all hover:bg-foreground/5"
+                                        >
+                                            <LayoutDashboard className="h-5 w-5 shrink-0" />
+                                            {t.admin}
+                                        </Link>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="space-y-4 border-t border-foreground/5 pt-6">
                                 <div className="flex items-center justify-between px-2">
                                     <span className="text-sm font-bold text-muted-foreground">
@@ -156,8 +188,9 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 export default function Navbar() {
     const { data: session } = useSession();
     const { cartCount, loaded } = useCart();
-    const { lang, setLang, isRTL, brandName, brandTagline } = useLanguage();
-    const t = translations[lang];
+    const { lang: langRaw, setLang, isRTL, brandName, brandTagline } = useLanguage();
+    const lang = normalizeAppLang(langRaw);
+    const t = translations[lang] || translations.ar;
     const [scrolled, setScrolled] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
@@ -391,6 +424,12 @@ export default function Navbar() {
                                                 {t.adminPos}
                                             </Link>
                                         )}
+                                        {isStaff && (
+                                            <Link href="/admin/orders" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-foreground hover:bg-foreground/5 rounded-xl transition-all">
+                                                <ShoppingCart className="h-4 w-4" />
+                                                {t.adminOrders}
+                                            </Link>
+                                        )}
                                         {isAdmin && (
                                             <Link href="/admin" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-foreground hover:bg-foreground/5 rounded-xl transition-all">
                                                 <LayoutDashboard className="h-4 w-4" />
@@ -433,6 +472,8 @@ export default function Navbar() {
                             navLinks={navLinks}
                             brandName={brandName}
                             brandTagline={brandTagline}
+                            isAdmin={isAdmin}
+                            isStaff={isStaff}
                         />
                     </div>
                 </div>

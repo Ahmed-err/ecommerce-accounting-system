@@ -11,6 +11,22 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+function buildOrdersSearchParams(params) {
+  const p = new URLSearchParams();
+  if (!params) return p;
+  for (const key of Object.keys(params)) {
+    if (key === "tab") continue;
+    const val = params[key];
+    if (val == null || val === "") continue;
+    if (Array.isArray(val)) {
+      val.forEach((v) => p.append(key, String(v)));
+    } else {
+      p.set(key, String(val));
+    }
+  }
+  return p;
+}
+
 export default async function AdminOrdersPage({ searchParams }) {
   const session = await auth();
   if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
@@ -18,21 +34,29 @@ export default async function AdminOrdersPage({ searchParams }) {
   }
 
   const params = await searchParams;
-  const activeTab = params?.tab || "all";
+  let activeTab = params?.tab || "all";
+  if (session.user.role === "CASHIER" && activeTab === "reports") {
+    const p = buildOrdersSearchParams(params);
+    p.set("tab", "all");
+    redirect(`/admin/orders?${p.toString()}`);
+  }
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
   const isRTL = lang === "ar";
 
-  const initialData = await getOrdersTabData(activeTab, {
+  const listQuery = {
     search: params?.search || "",
     status: params?.status || "all",
     source: params?.source || "all",
-    page: params?.page ? parseInt(params.page) : 1,
+    paymentMethod: params?.paymentMethod || "all",
+    page: params?.page ? parseInt(params.page, 10) || 1 : 1,
     dateFrom: params?.dateFrom,
     dateTo: params?.dateTo,
-  });
+  };
+
+  const initialData = await getOrdersTabData(activeTab, listQuery);
 
   const permissions = { role: session.user.role };
 
@@ -50,6 +74,7 @@ export default async function AdminOrdersPage({ searchParams }) {
       <OrdersModuleClient
         initialData={initialData?.ok ? initialData : null}
         initialTab={activeTab}
+        initialListQuery={listQuery}
         permissions={permissions}
       />
     </div>

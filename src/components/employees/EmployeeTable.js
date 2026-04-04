@@ -10,6 +10,7 @@ import EmployeeForm from "./EmployeeForm";
 import { deleteEmployee } from "@/app/actions/employees";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 const ROLE_COLORS = {
   ADMIN: "bg-purple-500/10 text-purple-400",
@@ -32,8 +33,9 @@ const ROLE_LABELS = {
 };
 
 export default function EmployeeTable({ initialEmployees, total, departments, searchParams }) {
-  const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const { lang: langRaw, isRTL } = useLanguage();
+  const lang = normalizeAppLang(langRaw);
+  const t = translations[lang] || translations.ar;
   const roleLabels = {
     ADMIN: t.roleAdmin,
     MANAGER: t.roleManager,
@@ -269,13 +271,15 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
         </div>
       </div>
 
-      {isFormOpen && (
-        <EmployeeForm
-          isOpen={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
-          employee={editingEmployee}
-        />
-      )}
+      <EmployeeForm
+        key={editingEmployee?.id || "new-employee"}
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingEmployee(null);
+        }}
+        employee={editingEmployee}
+      />
     </div>
   );
 }

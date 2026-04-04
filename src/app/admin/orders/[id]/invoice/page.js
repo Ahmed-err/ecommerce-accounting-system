@@ -99,7 +99,7 @@ export default async function InvoicePage({ params }) {
   const receiptMarkup = buildReceiptMarkup(receiptData, { paper: "a4" });
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 print:p-0 print:bg-white text-gray-100 print:text-black">
+    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-start py-8 sm:justify-start sm:py-10 p-4 sm:p-6 print:min-h-0 print:justify-start print:p-0 print:bg-white text-gray-100 print:text-black">
       <div className="flex w-full max-w-[210mm] justify-between items-center mb-6 print:hidden">
         <Link 
           href="/admin/orders" 
@@ -112,7 +112,7 @@ export default async function InvoicePage({ params }) {
 
       <div
         id="invoice-print-area"
-        className={`${styles.scope} invoice-print-a4-root receipt-root w-full max-w-[210mm] rounded-xl bg-white text-black shadow-2xl print:max-w-none print:rounded-none print:shadow-none`}
+        className={`${styles.scope} invoice-print-a4-root receipt-root print-target-fit-content w-full max-w-[210mm] rounded-xl bg-white text-black shadow-2xl print:w-full print:max-w-[210mm] print:rounded-none print:shadow-none`}
       >
         <div dangerouslySetInnerHTML={{ __html: receiptMarkup }} />
       </div>

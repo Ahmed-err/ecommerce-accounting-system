@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createEmployee, updateEmployee } from "@/app/actions/employees";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 import { Eye, EyeOff } from "lucide-react";
 
 const ROLES = ["ADMIN", "MANAGER", "CASHIER"];
@@ -16,9 +18,19 @@ const DEPARTMENTS = ["Management", "Sales", "Warehouse", "Support", "IT", "Finan
 const today = () => new Date().toISOString().split("T")[0];
 
 export default function EmployeeForm({ isOpen, onClose, employee }) {
-  const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const router = useRouter();
+  const { lang: langRaw, isRTL } = useLanguage();
+  const lang = normalizeAppLang(langRaw);
+  const t = translations[lang] || translations.ar;
   const isEditing = !!employee;
+
+  const departmentOptions = useMemo(() => {
+    const d = employee?.department?.trim();
+    if (d && !DEPARTMENTS.includes(d)) {
+      return [...DEPARTMENTS, d];
+    }
+    return DEPARTMENTS;
+  }, [employee?.department]);
 
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "",
@@ -77,6 +89,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
         : await createEmployee(formData);
 
       if (res.success) {
+        router.refresh();
         onClose();
       } else {
         setError(res.error || (lang === 'ar' ? "فشل حفظ الموظف" : "Failed to save employee."));
@@ -89,7 +102,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-2xl overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
         <SheetHeader>
           <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -169,7 +182,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
                   </SelectTrigger>
                   <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectItem value="none">{lang === 'ar' ? "لاشيء" : "None"}</SelectItem>
-                    {DEPARTMENTS.map((d) => (
+                    {departmentOptions.map((d) => (
                       <SelectItem key={d} value={d}>{d}</SelectItem>
                     ))}
                   </SelectContent>

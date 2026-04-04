@@ -9,14 +9,15 @@ import { Check, Package } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { normalizeAppLang } from "@/lib/i18n-lang";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const t = translations[lang];
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
+  const t = translations[lang] || translations.ar;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
   return {
@@ -30,8 +31,8 @@ export default async function OrderConfirmationPage({ params }) {
   const { id } = await params;
   const session = await auth();
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const t = translations[lang];
+  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
+  const t = translations[lang] || translations.ar;
   const isRTL = lang === "ar";
 
   const order =
@@ -64,7 +65,7 @@ export default async function OrderConfirmationPage({ params }) {
               {t.orderConfirmationGuestLine}
             </p>
           )}
-          {order && (
+          {order && Array.isArray(order.items) && order.items.length > 0 && (
             <div className="mt-8 border-t border-border pt-6 text-start">
               <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
                 <Package className="h-4 w-4 text-amber-500" />
@@ -78,13 +79,13 @@ export default async function OrderConfirmationPage({ params }) {
                   >
                     <span className="min-w-0 truncate">{it.productName}</span>
                     <span className="shrink-0 tabular-nums">
-                      ×{it.quantity} · {it.price.toLocaleString()} {t.currency}
+                      ×{it.quantity} · {Number(it.price).toLocaleString()} {t.currency}
                     </span>
                   </li>
                 ))}
               </ul>
               <p className="mt-4 text-lg font-bold text-amber-600 dark:text-amber-400">
-                {t.grandTotal}: {order.totalAmount.toLocaleString()} {t.currency}
+                {t.grandTotal}: {Number(order.totalAmount).toLocaleString()} {t.currency}
               </p>
             </div>
           )}
