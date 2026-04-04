@@ -89,13 +89,13 @@ export default function ProductShowcase({ featured }) {
     <section className="relative overflow-hidden bg-background border-t border-foreground/5 py-10 sm:py-12 lg:py-16">
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
-      <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-none px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <Tabs
           key={firstTab}
           value={activeTab}
           onValueChange={setActiveTab}
           id="homepage-product-showcase"
-          className="w-full"
+          className="w-full min-w-0"
         >
           {/* ── Section header + tabs ── */}
           <div
@@ -180,7 +180,7 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid items-stretch gap-6 sm:gap-7 md:gap-8 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
+                  className="grid w-full min-w-0 items-stretch gap-4 sm:gap-5 md:gap-6 lg:gap-7 [grid-template-columns:repeat(auto-fit,minmax(min(100%,clamp(11.25rem,22vw,18.75rem)),1fr))]"
                 >
                   {tab.data.map((product, i) => (
                     <div
