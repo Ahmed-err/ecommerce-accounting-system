@@ -74,11 +74,6 @@ export const {
 
         if (!isPasswordCorrect) return null;
 
-        const isPhoneLogin = !!normalizePhone(identifier);
-        if (isPhoneLogin && !user.phoneVerified) {
-          throw new Error("PHONE_NOT_VERIFIED");
-        }
-
         return {
           id: user.id,
           name: `${user.firstName} ${user.lastName}`,

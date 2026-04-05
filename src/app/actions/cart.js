@@ -16,7 +16,10 @@ export async function validateCartStock(cartItems) {
     // Attacker can tamper with localStorage; server must be strict.
     const normalized = new Map(); // productId -> { id, name, quantity }
     for (const rawItem of cartItems) {
-      const id = typeof rawItem?.id === "string" ? rawItem.id : null;
+      const id =
+        typeof rawItem?.id === "string" && rawItem.id.trim()
+          ? rawItem.id.trim()
+          : null;
       const name = typeof rawItem?.name === "string" ? rawItem.name : "Unknown";
       const qty =
         typeof rawItem?.quantity === "number"

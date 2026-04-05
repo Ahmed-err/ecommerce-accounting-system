@@ -27,6 +27,16 @@ describe("actions/cart", () => {
     expect(out.issues[0].type).toBe("insufficient_stock");
   });
 
+  it("validateCartStock trims product id for database lookup", async () => {
+    prismaMock.product.findUnique.mockResolvedValue({ id: "p1", name: "P1", stock: 10, isActive: true });
+    const { validateCartStock } = await import("@/app/actions/cart");
+    const out = await validateCartStock([{ id: "  p1 ", name: "P1", quantity: 1 }]);
+    expect(out.valid).toBe(true);
+    expect(prismaMock.product.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "p1" } })
+    );
+  });
+
   it("validateCouponAction valid/invalid/expired", async () => {
     const { previewCoupon } = await import("@/app/actions/coupon");
     prismaMock.coupon.findFirst.mockResolvedValue({ code: "SAVE10", isActive: true, percentOff: 10, expiresAt: null });

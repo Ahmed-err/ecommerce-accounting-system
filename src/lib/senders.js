@@ -230,32 +230,3 @@ export async function sendResetSMS(to, token) {
   }
 }
 
-export async function sendPhoneVerificationOTP(to, code) {
-  try {
-    if (isMockSmsProvider()) {
-      logMockSms("PHONE_VERIFY_OTP", { to, code, expiresInMinutes: 10 });
-      return true;
-    }
-
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-    if (!accountSid || !authToken || !fromNumber) {
-      console.warn("[SMS] Twilio credentials missing. OTP SMS not sent.");
-      return false;
-    }
-
-    const client = twilio(accountSid, authToken);
-    await client.messages.create({
-      body: `${BRAND_EN}: Your verification code is ${code}. It expires in 10 minutes.`,
-      from: fromNumber,
-      to,
-    });
-
-    return true;
-  } catch (error) {
-    console.error("Failed to send phone verification OTP:", error.message);
-    return false;
-  }
-}

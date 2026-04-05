@@ -382,12 +382,13 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     }
 
     for (const rawItem of cartItems) {
-      const productId = typeof rawItem?.id === "string" ? rawItem.id : null;
+      const rawId = typeof rawItem?.id === "string" ? rawItem.id : "";
+      const productId = rawId.trim() || null;
       const name = typeof rawItem?.name === "string" ? rawItem.name : "Unknown";
       const qtyRaw =
         typeof rawItem?.quantity === "number" ? rawItem.quantity : Number(rawItem?.quantity);
 
-      if (!productId || !productId.trim()) {
+      if (!productId) {
         return { success: false, error: "Invalid cart product." };
       }
       if (!Number.isInteger(qtyRaw) || qtyRaw <= 0) {
@@ -459,17 +460,26 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         const validatedItems = [];
 
         for (const [productId, quantity] of normalizedCart.entries()) {
-          const rows = await tx.$queryRaw`
-            SELECT id, name, stock, "sellingPrice" FROM "Product"
-            WHERE id = ${productId} AND "isActive" = true
-            FOR UPDATE
-          `;
+          const prod = await tx.product.findFirst({
+            where: { id: productId, isActive: true },
+            select: { id: true, name: true, stock: true, sellingPrice: true },
+          });
 
-          if (!rows || rows.length === 0) {
-            throw new Error(`Product no longer exists or is not available.`);
+          if (!prod) {
+            const exists = await tx.product.findUnique({
+              where: { id: productId },
+              select: { name: true, isActive: true, stock: true },
+            });
+            if (exists && !exists.isActive) {
+              throw new Error(
+                `"${exists.name}" is not available for purchase. It may be hidden from the store — enable the product or remove it from your cart.`
+              );
+            }
+            throw new Error(
+              `Product no longer exists or is not available. Refresh the page and update your cart.`
+            );
           }
 
-          const prod = rows[0];
           const stock = Number(prod.stock);
           if (!Number.isFinite(stock) || stock < quantity) {
             throw new Error(
@@ -545,15 +555,13 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
           },
         });
 
-        // Atomically decrement stock using raw SQL for guaranteed atomicity
         for (const vi of validatedItems) {
-          const result = await tx.$executeRaw`
-            UPDATE "Product"
-            SET stock = stock - ${vi.quantity}
-            WHERE id = ${vi.productId} AND stock >= ${vi.quantity}
-          `;
+          const upd = await tx.product.updateMany({
+            where: { id: vi.productId, stock: { gte: vi.quantity } },
+            data: { stock: { decrement: vi.quantity } },
+          });
 
-          if (Number(result) === 0) {
+          if (upd.count === 0) {
             throw new Error(
               `Out of stock during checkout for ${vi.productName}. Please try again.`
             );
