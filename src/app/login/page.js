@@ -32,11 +32,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        if (String(result.error).includes("PHONE_NOT_VERIFIED")) {
-          setError(lang === "ar" ? "رقم الهاتف غير مُفعّل. يرجى التحقق أولاً." : "Phone not verified yet. Please verify first.");
-        } else {
-          setError(t.emailOrPasswordIncorrect);
-        }
+        setError(t.emailOrPasswordIncorrect);
       } else {
         router.push("/");
         router.refresh();
