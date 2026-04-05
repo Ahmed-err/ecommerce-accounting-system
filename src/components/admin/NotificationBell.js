@@ -162,9 +162,12 @@ export default function NotificationBell({ customerOnly = false }) {
       {open ? (
         <div
           className={cn(
-            "z-[200] max-h-[min(65vh,calc(100dvh-5rem))] w-[min(24rem,calc(100vw-1rem))] rounded-2xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-2xl",
-            "fixed left-1/2 top-16 -translate-x-1/2 sm:left-auto sm:translate-x-0",
-            "sm:absolute sm:end-0 sm:top-full sm:mt-2 sm:max-h-[65vh]"
+            "z-[200] max-h-[min(65vh,calc(100dvh-5rem))] rounded-2xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-2xl",
+            // Mobile: fixed between screen edges (no translate — fixes RTL / overflow-x-hidden clipping)
+            "fixed top-16 left-3 right-3 w-auto sm:left-auto sm:right-auto",
+            // Desktop: align like user account dropdown so panel stays in viewport in Arabic
+            "sm:absolute sm:top-full sm:mt-2 sm:max-h-[65vh] sm:w-[min(24rem,calc(100vw-2rem))]",
+            isRTL ? "sm:left-0 sm:right-auto" : "sm:right-0 sm:left-auto"
           )}
         >
           <div className="mb-2 flex items-center justify-between">
