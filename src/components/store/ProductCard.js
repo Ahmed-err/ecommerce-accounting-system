@@ -90,7 +90,7 @@ export default function ProductCard({
   const imgHeight = compactRail
     ? "h-40"
     : homeShowcase
-      ? "h-40 w-full sm:h-44 md:h-48 lg:h-[12.5rem]"
+      ? "h-40 w-full sm:h-44 md:h-auto md:w-[min(36%,12.5rem)] md:max-w-[14rem] md:shrink-0 md:aspect-[4/3] lg:w-[min(34%,14rem)]"
       : "h-64";
 
   const quickBody = (
@@ -211,7 +211,7 @@ export default function ProductCard({
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
           homeShowcase
-            ? "h-auto min-h-0 border-foreground/10 shadow-lg ring-1 ring-foreground/5"
+            ? "h-auto min-h-0 w-full border-foreground/10 shadow-lg ring-1 ring-foreground/5"
             : "h-full",
           compactRail && "rounded-2xl",
           homeShowcase && "rounded-2xl sm:rounded-3xl"
@@ -277,7 +277,16 @@ export default function ProductCard({
           />
         </button>
 
-        <div className="relative z-10">
+        <div
+          className={cn(
+            "relative z-10 flex w-full min-h-0 flex-col",
+            homeShowcase &&
+              cn(
+                "md:flex-row md:items-stretch md:gap-3",
+                isRTL && "md:flex-row-reverse"
+              )
+          )}
+        >
           <div
             className={cn(
               "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted/30",
@@ -309,7 +318,7 @@ export default function ProductCard({
                   className="object-cover"
                   sizes={
                     homeShowcase
-                      ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw"
+                      ? "(max-width: 767px) 100vw, (max-width: 1024px) 240px, (max-width: 1536px) 260px, 280px"
                       : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   }
                   onError={() => setImgError(true)}
@@ -352,7 +361,8 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "gap-1.5 p-4 pb-4 sm:p-5 sm:pb-5",
+              homeShowcase &&
+                "gap-1.5 p-4 pb-4 sm:p-5 sm:pb-5 md:min-w-0 md:justify-between md:p-4 md:pb-4 lg:p-5 lg:pb-5",
               isRTL ? "text-right" : "text-left"
             )}
           >
