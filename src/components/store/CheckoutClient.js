@@ -17,7 +17,13 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { SUDAN_CITIES, PAYMENT_METHODS, STORE_BANK_DETAILS, STORE_WHATSAPP_NUMBER, CHECKOUT_TAX_RATE } from "@/lib/constants";
+import {
+  SUDAN_CITIES,
+  PAYMENT_METHODS,
+  STORE_BANK_DETAILS,
+  resolveBankTransferProofWhatsapp,
+  CHECKOUT_TAX_RATE,
+} from "@/lib/constants";
 import { UploadButton } from "@/lib/uploader";
 import { checkoutShippingSchema } from "@/lib/schemas/checkout";
 import { cn } from "@/lib/utils";
@@ -29,7 +35,7 @@ const fieldBase =
   "w-full rounded-xl border bg-background px-3 py-2.5 text-foreground transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-amber-500 focus-visible:ring-2 focus-visible:ring-amber-500/25 focus-visible:outline-none sm:py-3";
 const insetClass = "rounded-xl border border-border bg-muted/30 p-3 sm:p-4";
 
-export default function CheckoutClient() {
+export default function CheckoutClient({ proofWhatsappDigits = null }) {
   const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang] || translations['ar'];
   const {
@@ -98,7 +104,12 @@ export default function CheckoutClient() {
     if (skipEmptyCartRedirectRef.current) return;
     router.replace("/cart");
   }, [loaded, cartCount, router]);
-  const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}`;
+
+  const bankProofWaDigits = useMemo(
+    () => resolveBankTransferProofWhatsapp(proofWhatsappDigits),
+    [proofWhatsappDigits]
+  );
+  const whatsappUrl = `https://wa.me/${bankProofWaDigits}`;
   const whatsappMessage = encodeURIComponent(
     lang === "ar"
       ? `مرحبا، قمت بعمل طلب من ${brandName}. الاسم: ${guestInfo.name || "-"}، الهاتف: ${guestInfo.phone || "-"}`
@@ -315,11 +326,16 @@ export default function CheckoutClient() {
         shippingCost,
       });
 
-      if (res.success) {
+      if (
+        res?.success &&
+        typeof res?.orderId === "string" &&
+        res.orderId.trim().length > 0
+      ) {
+        const orderId = res.orderId.trim();
         skipEmptyCartRedirectRef.current = true;
         clearCart();
         toast.success(t.checkoutSuccess);
-        router.replace(`/order-confirmation/${res.orderId}`);
+        router.replace(`/order-confirmation/${encodeURIComponent(orderId)}`);
         return;
       } else {
         setError(res.error || t.orderFailed);
@@ -341,7 +357,7 @@ export default function CheckoutClient() {
 
   const copyWhatsApp = async () => {
     try {
-      await navigator.clipboard.writeText(`+${STORE_WHATSAPP_NUMBER}`);
+      await navigator.clipboard.writeText(`+${bankProofWaDigits}`);
       setCopiedWhatsApp(true);
       setTimeout(() => setCopiedWhatsApp(false), 2000);
     } catch {}
@@ -943,7 +959,7 @@ export default function CheckoutClient() {
                     <p className="text-xs text-gray-400 font-semibold">
                       {lang === "ar" ? "رقم واتساب التأكيد" : "Confirmation WhatsApp"}
                     </p>
-                    <p className="text-white font-mono font-bold">+{STORE_WHATSAPP_NUMBER}</p>
+                    <p className="text-white font-mono font-bold">+{bankProofWaDigits}</p>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"

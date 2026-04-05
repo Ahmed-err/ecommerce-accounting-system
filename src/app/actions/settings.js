@@ -8,6 +8,14 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
 import { ensurePermissionRows } from "@/lib/permissions-policy";
 
+function normalizeBankTransferProofWhatsappInput(raw) {
+  const s = String(raw ?? "").trim();
+  if (!s) return { ok: true, value: null };
+  const digits = s.replace(/^\+/, "").replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) return { ok: false };
+  return { ok: true, value: digits };
+}
+
 async function ensureAdmin() {
   const session = await auth();
   const role = String(session?.user?.role ?? "").toUpperCase();
@@ -211,16 +219,28 @@ export async function updateSettings(input) {
         });
       }
     }
+    const paymentData = {
+      invoicePrefix: payload.invoicePrefix || "INV-",
+      vatEnabled: !!payload.vatEnabled,
+      vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null,
+      vatLabelAr: payload.vatLabelAr || null,
+      vatLabelEn: payload.vatLabelEn || null,
+      minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null,
+    };
+    if (payload.bankTransferProofWhatsapp !== undefined) {
+      const norm = normalizeBankTransferProofWhatsappInput(payload.bankTransferProofWhatsapp);
+      if (!norm.ok) {
+        return {
+          success: false,
+          error:
+            "Bank transfer / proof WhatsApp must be empty (use default) or 8–15 digits with country code (e.g. 2499xxxxxxxx).",
+        };
+      }
+      paymentData.bankTransferProofWhatsapp = norm.value; // null clears → checkout uses code fallback
+    }
     await db.store.update({
       where: { id: store.id },
-      data: {
-        invoicePrefix: payload.invoicePrefix || "INV-",
-        vatEnabled: !!payload.vatEnabled,
-        vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null,
-        vatLabelAr: payload.vatLabelAr || null,
-        vatLabelEn: payload.vatLabelEn || null,
-        minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null,
-      },
+      data: paymentData,
     });
   } else if (tab === "pos") {
     await db.store.update({

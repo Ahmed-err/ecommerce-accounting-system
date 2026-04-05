@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { normalizeAppLang } from "@/lib/i18n-lang";
+import { getOrCreateStoreSettings } from "@/lib/settings";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -20,6 +21,7 @@ export async function generateMetadata() {
 export default async function CheckoutPage() {
   const cookieStore = await cookies();
   const lang = normalizeAppLang(cookieStore.get("lang")?.value);
+  const store = await getOrCreateStoreSettings();
 
   return (
     <main
@@ -31,7 +33,7 @@ export default async function CheckoutPage() {
         <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground sm:mb-8 sm:text-3xl md:text-4xl">
           {(translations[lang] || translations.ar).checkout}
         </h1>
-        <CheckoutClient />
+        <CheckoutClient proofWhatsappDigits={store.bankTransferProofWhatsapp} />
       </div>
       <Footer />
     </main>

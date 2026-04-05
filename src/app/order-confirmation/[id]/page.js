@@ -13,30 +13,70 @@ import { normalizeAppLang } from "@/lib/i18n-lang";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const cookieStore = await cookies();
-  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
-  const t = translations[lang] || translations.ar;
-  const branding = await getStoreBranding();
-  const b = getBrandingForLang(branding, lang);
-  return {
-    title: `${t.orderConfirmationThanks} | ${b.brandName}`,
-    description: t.orderConfirmationGuestLine,
-    robots: { index: false, follow: false },
-  };
+/** Next.js may pass `params` as a Promise or plain object; normalize to a single order id string. */
+async function resolveOrderIdFromParams(params) {
+  try {
+    const resolved = await Promise.resolve(params);
+    if (!resolved || typeof resolved !== "object") return "";
+    const raw = resolved.id;
+    if (typeof raw === "string") return raw.trim();
+    if (Array.isArray(raw) && raw[0] != null) return String(raw[0]).trim();
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+export async function generateMetadata() {
+  try {
+    const cookieStore = await cookies();
+    const lang = normalizeAppLang(cookieStore.get("lang")?.value);
+    const t = translations[lang] || translations.ar;
+    const branding = await getStoreBranding();
+    const b = getBrandingForLang(branding, lang);
+    return {
+      title: `${t.orderConfirmationThanks} | ${b.brandName}`,
+      description: t.orderConfirmationGuestLine,
+      robots: { index: false, follow: false },
+    };
+  } catch (e) {
+    console.error("order-confirmation generateMetadata:", e);
+    return {
+      title: "Order confirmation",
+      robots: { index: false, follow: false },
+    };
+  }
 }
 
 export default async function OrderConfirmationPage({ params }) {
-  const { id } = await params;
-  const session = await auth();
-  const cookieStore = await cookies();
-  const lang = normalizeAppLang(cookieStore.get("lang")?.value);
-  const t = translations[lang] || translations.ar;
-  const isRTL = lang === "ar";
+  let lang = "ar";
+  let isRTL = true;
+  let t = translations.ar;
+  let session = null;
+  let id = "";
+  let order = null;
 
-  const order =
-    session?.user?.id && id ? await getMyOrderConfirmation(id) : null;
+  try {
+    const cookieStore = await cookies();
+    lang = normalizeAppLang(cookieStore.get("lang")?.value);
+    t = translations[lang] || translations.ar;
+    isRTL = lang === "ar";
+
+    id = await resolveOrderIdFromParams(params);
+
+    try {
+      session = await auth();
+    } catch (authErr) {
+      console.error("Order confirmation auth:", authErr);
+      session = null;
+    }
+
+    if (session?.user?.id && id) {
+      order = await getMyOrderConfirmation(id);
+    }
+  } catch (e) {
+    console.error("Order confirmation page:", e);
+  }
 
   const shortId = id ? id.slice(-8).toUpperCase() : "";
 
@@ -72,20 +112,31 @@ export default async function OrderConfirmationPage({ params }) {
                 {t.orderConfirmationYourItems}
               </h2>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                {order.items.map((it) => (
-                  <li
-                    key={it.id}
-                    className="flex justify-between gap-4 border-b border-border/60 pb-2 last:border-0"
-                  >
-                    <span className="min-w-0 truncate">{it.productName}</span>
-                    <span className="shrink-0 tabular-nums">
-                      ×{it.quantity} · {Number(it.price).toLocaleString()} {t.currency}
-                    </span>
-                  </li>
-                ))}
+                {order.items
+                  .filter((it) => it && typeof it.id === "string")
+                  .map((it) => {
+                    const line = Number(it.price);
+                    const linePrice = Number.isFinite(line) ? line : 0;
+                    const qty = Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0;
+                    return (
+                      <li
+                        key={it.id}
+                        className="flex justify-between gap-4 border-b border-border/60 pb-2 last:border-0"
+                      >
+                        <span className="min-w-0 truncate">{it.productName || "—"}</span>
+                        <span className="shrink-0 tabular-nums">
+                          ×{qty} · {linePrice.toLocaleString()} {t.currency}
+                        </span>
+                      </li>
+                    );
+                  })}
               </ul>
               <p className="mt-4 text-lg font-bold text-amber-600 dark:text-amber-400">
-                {t.grandTotal}: {Number(order.totalAmount).toLocaleString()} {t.currency}
+                {t.grandTotal}:{" "}
+                {Number.isFinite(Number(order.totalAmount))
+                  ? Number(order.totalAmount).toLocaleString()
+                  : "—"}{" "}
+                {t.currency}
               </p>
             </div>
           )}

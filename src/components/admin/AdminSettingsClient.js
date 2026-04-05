@@ -856,6 +856,23 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             placeholder={lang === "ar" ? "الحد الأدنى للطلب" : "Minimum order amount"}
             dir="ltr"
           />
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">
+              {lang === "ar" ? "واتساب إثبات التحويل (الدفع)" : "Bank transfer proof WhatsApp"}
+            </p>
+            <Input
+              value={store.bankTransferProofWhatsapp || ""}
+              onChange={(e) => setStore((p) => ({ ...p, bankTransferProofWhatsapp: e.target.value }))}
+              placeholder={lang === "ar" ? "مثال: 2499xxxxxxxx (بدون +)" : "e.g. 2499xxxxxxxx (no +)"}
+              dir="ltr"
+              className="font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              {lang === "ar"
+                ? "يُعرض في صفحة الدفع لإرسال صورة الحوالة عبر واتساب. اتركه فارغاً لاستخدام الرقم الافتراضي في الكود."
+                : "Shown on checkout for customers to send transfer screenshots via WhatsApp. Leave empty to use the built-in default number."}
+            </p>
+          </div>
           <div className="rounded-xl border p-4 space-y-3">
             <p className="text-sm font-medium">{lang === "ar" ? "طرق الدفع" : "Payment methods"}</p>
             {(store.paymentMethods || []).length === 0 ? (
@@ -896,6 +913,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                 vatLabelAr: store.vatLabelAr,
                 vatLabelEn: store.vatLabelEn,
                 minOrderAmount: store.minOrderAmount,
+                bankTransferProofWhatsapp: store.bankTransferProofWhatsapp ?? "",
               })
             }
           >

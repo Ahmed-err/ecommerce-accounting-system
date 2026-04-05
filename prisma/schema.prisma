@@ -591,6 +591,8 @@ model Store {
   facebookUrl                     String?
   instagramUrl                    String?
   whatsappUrl                     String?
+  /// E.164 digits only (no +), e.g. 2499xxxxxxxx — used for checkout bank-transfer proof & wa.me link
+  bankTransferProofWhatsapp       String?
   tiktokUrl                       String?
   currency                        String   @default("SDG")
   currencySymbolPosition          String   @default("END")

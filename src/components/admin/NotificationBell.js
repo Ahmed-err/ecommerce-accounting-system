@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 function timeAgo(value, lang) {
   const diff = Math.floor((Date.now() - new Date(value).getTime()) / 1000);
@@ -160,9 +161,11 @@ export default function NotificationBell({ customerOnly = false }) {
       </Button>
       {open ? (
         <div
-          className={`fixed inset-x-2 top-16 z-[200] mt-0 w-auto rounded-2xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:mt-2 sm:w-96 ${
-            isRTL ? "sm:left-0" : "sm:right-0"
-          }`}
+          className={cn(
+            "z-[200] max-h-[min(65vh,calc(100dvh-5rem))] w-[min(24rem,calc(100vw-1rem))] rounded-2xl border border-border bg-popover/95 p-3 text-popover-foreground shadow-2xl",
+            "fixed left-1/2 top-16 -translate-x-1/2 sm:left-auto sm:translate-x-0",
+            "sm:absolute sm:end-0 sm:top-full sm:mt-2 sm:max-h-[65vh]"
+          )}
         >
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-bold text-foreground">{title}</p>
@@ -171,7 +174,7 @@ export default function NotificationBell({ customerOnly = false }) {
               {lang === "ar" ? "تحديد الكل كمقروء" : "Mark all as read"}
             </Button>
           </div>
-          <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto space-y-2 pr-1 sm:max-h-[65vh]">
+          <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto space-y-2 pe-1 sm:max-h-[min(65vh,32rem)]">
             {rows.length ? rows.map((n) => (
               <button
                 key={n.id}
@@ -189,7 +192,10 @@ export default function NotificationBell({ customerOnly = false }) {
               </div>
             )}
           </div>
-          <Link href="/admin/notifications" className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500">
+          <Link
+            href={customerOnly ? "/account/orders" : "/admin/notifications"}
+            className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500"
+          >
             {lang === "ar" ? "عرض الكل" : "View all"}
           </Link>
         </div>
