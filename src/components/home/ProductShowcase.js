@@ -175,7 +175,11 @@ export default function ProductShowcase({ featured }) {
                     ? "/products?sort=newest"
                     : "/products?sort=top_rated";
               return (
-              <TabsContent key={tab.value} value={tab.value} className="mt-0 outline-none">
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className="mt-0 w-full min-w-0 outline-none"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -185,7 +189,7 @@ export default function ProductShowcase({ featured }) {
                   {tab.data.map((product, i) => (
                     <div
                       key={product.id}
-                      className="flex min-h-0 min-w-0 w-full max-w-full"
+                      className="min-h-0 min-w-0 w-full max-w-full"
                     >
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
