@@ -28,8 +28,14 @@ import ProductCard from "@/components/store/ProductCard";
 
 function CartSkeleton() {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_min(100%,380px)] xl:gap-10" aria-busy="true">
-      <div className="space-y-4">
+    <div
+      className={cn(
+        "grid gap-8 xl:gap-10",
+        "lg:grid-cols-[1fr_min(100%,380px)]"
+      )}
+      aria-busy="true"
+    >
+      <div className="min-w-0 space-y-4">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
@@ -289,8 +295,20 @@ export default function CartPageClient() {
         </Link>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_min(100%,380px)] xl:gap-10">
-        <div className={cn("min-w-0 space-y-3 sm:space-y-4", isRTL && "lg:order-2")}>
+      <div
+        className={cn(
+          "grid gap-8 xl:gap-10",
+          isRTL
+            ? "lg:grid-cols-[min(100%,380px)_1fr]"
+            : "lg:grid-cols-[1fr_min(100%,380px)]"
+        )}
+      >
+        <div
+          className={cn(
+            "min-w-0 space-y-3 sm:space-y-4",
+            isRTL && "lg:col-start-2 lg:row-start-1"
+          )}
+        >
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-foreground sm:text-xl">
               {t.cartYourItems}
@@ -499,7 +517,7 @@ export default function CartPageClient() {
         <aside
           className={cn(
             "h-fit rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:sticky lg:top-24 xl:p-6",
-            isRTL && "lg:order-1"
+            isRTL && "lg:col-start-1 lg:row-start-1"
           )}
         >
           <h2 className="mb-4 text-lg font-bold text-foreground">
