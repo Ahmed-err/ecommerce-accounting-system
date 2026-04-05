@@ -175,7 +175,14 @@ export default function ProductShowcase({ featured }) {
                     ? "/products?sort=newest"
                     : "/products?sort=top_rated";
               return (
-              <TabsContent key={tab.value} value={tab.value} className="mt-0 outline-none">
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className={cn(
+                  "mt-0 w-full min-w-0 outline-none",
+                  activeTab !== tab.value && "hidden"
+                )}
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}

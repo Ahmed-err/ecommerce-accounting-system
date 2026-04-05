@@ -44,7 +44,14 @@ export const STORE_BANK_DETAILS = {
   arAccountName: "أعمال عصام الدين نصر للأدوات الكهربائية",
 };
 
-// WhatsApp E.164 (country code without plus sign)
+// WhatsApp E.164 (country code without plus sign) — fallback when Store.bankTransferProofWhatsapp is empty
 export const STORE_WHATSAPP_NUMBER = "249916941346";
+
+/** Digits-only wa.me number from DB, or {@link STORE_WHATSAPP_NUMBER} if unset/invalid. */
+export function resolveBankTransferProofWhatsapp(stored) {
+  const digits = String(stored ?? "").replace(/\D/g, "");
+  if (digits.length >= 8 && digits.length <= 15) return digits;
+  return STORE_WHATSAPP_NUMBER;
+}
 
 export const STORE_VAT_NUMBER = process.env.STORE_VAT_NUMBER || "310123456700003";
