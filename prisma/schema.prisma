@@ -344,6 +344,8 @@ model Order {
 
   customerNotes String? @db.Text
   couponCode    String?
+  /// HTTPS URL to bank-transfer proof image (e.g. Cloudinary), set at checkout
+  paymentProofUrl String? @db.Text
 
   items   OrderItem[]
   invoice Invoice?

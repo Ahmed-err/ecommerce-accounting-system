@@ -335,7 +335,9 @@ export default function CheckoutClient({ proofWhatsappDigits = null }) {
         skipEmptyCartRedirectRef.current = true;
         clearCart();
         toast.success(t.checkoutSuccess);
-        router.replace(`/order-confirmation/${encodeURIComponent(orderId)}`);
+        // Full navigation avoids RSC/client transition bugs that surfaced as root error UI
+        // after a successful server action + soft navigation.
+        window.location.assign(`/order-confirmation/${encodeURIComponent(orderId)}`);
         return;
       } else {
         setError(res.error || t.orderFailed);

@@ -7,7 +7,7 @@ import {
   ShoppingBag, Store, Monitor, RotateCcw, BarChart3,
   Search, Filter, ChevronLeft, ChevronRight, X, Plus,
   Eye, Printer, Check, CheckCircle2, Clock, Package, Truck,
-  XCircle, Download, AlertTriangle, ShoppingCart, Loader2, Copy,
+  XCircle, Download, AlertTriangle, ShoppingCart, Loader2, Copy, ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -186,6 +186,34 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
             {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-gray-500">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-white text-right">{order.guestCity}, {order.guestAddress}</span></div>}
             <div className="flex justify-between"><span className="text-gray-500">{t.ordColPayment}:</span><span className="font-medium text-amber-400">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
           </div>
+
+          {order.paymentProofUrl && (
+            <div className="rounded-xl border border-white/10 bg-gray-800/40 p-4 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">{t.ordPaymentProof}</h4>
+              <a
+                href={order.paymentProofUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300"
+              >
+                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                {t.ordOpenProof}
+              </a>
+              <div className="relative w-full max-h-72 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                <Image
+                  src={order.paymentProofUrl}
+                  alt=""
+                  width={800}
+                  height={600}
+                  className="h-auto w-full max-h-72 object-contain"
+                  unoptimized={
+                    order.paymentProofUrl.startsWith("data:") ||
+                    order.paymentProofUrl.startsWith("blob:")
+                  }
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">{t.ordDetailItems}</h4>

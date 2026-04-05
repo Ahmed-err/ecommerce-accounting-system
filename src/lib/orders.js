@@ -27,6 +27,7 @@ export function serializeOrderForClient(order) {
     isVerified: order.isVerified,
     customerNotes: order.customerNotes,
     couponCode: order.couponCode,
+    paymentProofUrl: order.paymentProofUrl || null,
     user: order.user
       ? {
           id: order.user.id,

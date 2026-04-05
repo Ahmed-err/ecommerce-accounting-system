@@ -37,6 +37,25 @@ function getShippingRateForCity(cityName, shippingZones = []) {
   return fallback ? Number(fallback.rate ?? 0) : null;
 }
 
+const PAYMENT_PROOF_URL_MAX_LEN = 2048;
+
+/** Accept only HTTPS URLs on Cloudinary (same host as checkout uploads). */
+function sanitizePaymentProofUrl(raw) {
+  if (typeof raw !== "string") return null;
+  const s = raw.trim();
+  if (!s || s.length > PAYMENT_PROOF_URL_MAX_LEN) return null;
+  let u;
+  try {
+    u = new URL(s);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:") return null;
+  const host = u.hostname.toLowerCase();
+  if (!host.endsWith("cloudinary.com")) return null;
+  return s;
+}
+
 export async function getCheckoutShippingOptions() {
   try {
     const store = await getOrCreateStoreSettings();
@@ -449,6 +468,18 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         ? guest.orderNotes.trim().slice(0, 2000)
         : "";
 
+    let paymentProofUrl = null;
+    if (normalizedPaymentMethod === "BANK_TRANSFER") {
+      paymentProofUrl = sanitizePaymentProofUrl(guest.transferScreenshotUrl);
+      if (isCustomerCheckout && !paymentProofUrl) {
+        return {
+          success: false,
+          error:
+            "Bank transfer requires an uploaded payment screenshot. Please upload proof and try again.",
+        };
+      }
+    }
+
     // Invoice Data: number outside transaction (simple uniqueness).
     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
 
@@ -533,6 +564,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             isVerified: false,
             customerNotes: notesSanitized || null,
             couponCode: couponRecord ? rawCoupon : null,
+            paymentProofUrl: paymentProofUrl || null,
             items: {
               create: validatedItems.map((vi) => ({
                 productId: vi.productId,
