@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
 import { updateRolePermission } from "@/app/actions/permissions";
+import { translations } from "@/lib/translations";
 
 const TABS = ["store", "shipping", "homepage", "about", "payment", "pos", "notifications", "seo", "legal", "users", "backup", "system"];
 
@@ -71,6 +72,7 @@ function formatDateTimeLocal(value) {
 }
 
 export default function AdminSettingsClient({ initialTab, initialData, lang }) {
+  const t = translations[lang] || translations.ar;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -95,6 +97,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [rolesTotal, setRolesTotal] = useState((initialData.permissions || []).length);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [permCellSaving, setPermCellSaving] = useState("");
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [backupFormat, setBackupFormat] = useState("custom");
   const [legal, setLegal] = useState({
     termsAr: initialData.legal?.terms?.contentAr ?? "",
     termsEn: initialData.legal?.terms?.contentEn ?? "",
@@ -1434,19 +1438,106 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       )}
 
       {activeTab === "backup" && (
-        <div className="space-y-3">
-          <Select value={store.backupSchedule || "OFF"} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="OFF">{lang === "ar" ? "إيقاف" : "Off"}</SelectItem>
-              <SelectItem value="DAILY">{lang === "ar" ? "يومي" : "Daily"}</SelectItem>
-              <SelectItem value="WEEKLY">{lang === "ar" ? "أسبوعي" : "Weekly"}</SelectItem>
-              <SelectItem value="MONTHLY">{lang === "ar" ? "شهري" : "Monthly"}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button disabled={saving} onClick={() => save("backup", { backupSchedule: store.backupSchedule || "OFF" })}>
-            {lang === "ar" ? "حفظ النسخ الاحتياطي" : "Save Backup"}
-          </Button>
+        <div className="space-y-8">
+          <div className="space-y-3 rounded-xl border border-white/10 bg-gray-900/40 p-4">
+            <p className="text-sm text-muted-foreground">{t.adminBackupScheduleHelp}</p>
+            <Select value={store.backupSchedule || "OFF"} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="OFF">{lang === "ar" ? "إيقاف" : "Off"}</SelectItem>
+                <SelectItem value="DAILY">{lang === "ar" ? "يومي" : "Daily"}</SelectItem>
+                <SelectItem value="WEEKLY">{lang === "ar" ? "أسبوعي" : "Weekly"}</SelectItem>
+                <SelectItem value="MONTHLY">{lang === "ar" ? "شهري" : "Monthly"}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button disabled={saving} onClick={() => save("backup", { backupSchedule: store.backupSchedule || "OFF" })}>
+              {t.adminBackupSaveSchedule}
+            </Button>
+          </div>
+
+          <div className="space-y-4 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
+            <div>
+              <h3 className="text-base font-semibold text-white">{t.adminBackupDownloadTitle}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t.adminBackupDownloadDesc}</p>
+            </div>
+            {store.backupLastAt ? (
+              <p className="text-xs text-muted-foreground">
+                {t.adminBackupLastOk}:{" "}
+                <span className="font-mono text-foreground/90">
+                  {new Date(store.backupLastAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+                </span>
+                {store.backupLastStatus ? (
+                  <span className="ms-2 text-foreground/60">({store.backupLastStatus})</span>
+                ) : null}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {t.adminBackupLastOk}: {t.adminBackupNever}
+              </p>
+            )}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">{t.adminBackupFormatLabel}</p>
+              <Select value={backupFormat} onValueChange={setBackupFormat}>
+                <SelectTrigger className="max-w-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom">{t.adminBackupFormatCustom}</SelectItem>
+                  <SelectItem value="sql">{t.adminBackupFormatSql}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              disabled={backupBusy || saving}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+              onClick={async () => {
+                setBackupBusy(true);
+                try {
+                  const q = backupFormat === "sql" ? "?format=sql" : "";
+                  const res = await fetch(`/api/admin/backup/database${q}`, {
+                    credentials: "include",
+                    method: "GET",
+                  });
+                  if (!res.ok) {
+                    const j = await res.json().catch(() => ({}));
+                    const msg =
+                      j.message ||
+                      j.error ||
+                      (lang === "ar" ? "فشل إنشاء النسخة الاحتياطية" : "Backup failed");
+                    toast.error(msg);
+                    return;
+                  }
+                  const blob = await res.blob();
+                  const cd = res.headers.get("Content-Disposition") || "";
+                  const quoted = /filename="([^"]+)"/.exec(cd);
+                  const plain = /filename=([^;\s]+)/.exec(cd);
+                  let name = backupFormat === "sql" ? "backup.sql" : "backup.dump";
+                  if (quoted?.[1]) name = quoted[1];
+                  else if (plain?.[1]) name = plain[1].replace(/^"|"$/g, "");
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = name;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  URL.revokeObjectURL(url);
+                  toast.success(lang === "ar" ? "تم تنزيل النسخة الاحتياطية" : "Backup downloaded");
+                  router.refresh();
+                } catch (e) {
+                  toast.error(
+                    e?.message || (lang === "ar" ? "فشل التنزيل" : "Download failed")
+                  );
+                } finally {
+                  setBackupBusy(false);
+                }
+              }}
+            >
+              {backupBusy ? t.adminBackupDownloading : t.adminBackupDownloadBtn}
+            </Button>
+          </div>
         </div>
       )}
 
