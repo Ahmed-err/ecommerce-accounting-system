@@ -856,22 +856,86 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             placeholder={lang === "ar" ? "الحد الأدنى للطلب" : "Minimum order amount"}
             dir="ltr"
           />
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium">
-              {lang === "ar" ? "واتساب إثبات التحويل (الدفع)" : "Bank transfer proof WhatsApp"}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-4">
+            <p className="text-sm font-semibold">
+              {lang === "ar" ? "التحويل البنكي (صفحة الدفع)" : "Bank transfer (checkout)"}
             </p>
-            <Input
-              value={store.bankTransferProofWhatsapp || ""}
-              onChange={(e) => setStore((p) => ({ ...p, bankTransferProofWhatsapp: e.target.value }))}
-              placeholder={lang === "ar" ? "مثال: 2499xxxxxxxx (بدون +)" : "e.g. 2499xxxxxxxx (no +)"}
-              dir="ltr"
-              className="font-mono"
-            />
             <p className="text-xs text-muted-foreground">
               {lang === "ar"
-                ? "يُعرض في صفحة الدفع لإرسال صورة الحوالة عبر واتساب. اتركه فارغاً لاستخدام الرقم الافتراضي في الكود."
-                : "Shown on checkout for customers to send transfer screenshots via WhatsApp. Leave empty to use the built-in default number."}
+                ? "يُعرض للعميل عند اختيار الدفع بالتحويل. اترك الحقول فارغة لاستخدام القيم الافتراضية في المشروع."
+                : "Shown when customers choose bank transfer. Leave fields empty to use the built-in default values from the project."}
             </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {lang === "ar" ? "اسم البنك (إنجليزي)" : "Bank name (English)"}
+                </p>
+                <Input
+                  value={store.bankTransferBankNameEn || ""}
+                  onChange={(e) => setStore((p) => ({ ...p, bankTransferBankNameEn: e.target.value }))}
+                  placeholder={lang === "ar" ? "مثال: Bank of Khartoum (MBOK)" : "e.g. Bank of Khartoum (MBOK)"}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {lang === "ar" ? "اسم البنك (عربي)" : "Bank name (Arabic)"}
+                </p>
+                <Input
+                  value={store.bankTransferBankNameAr || ""}
+                  onChange={(e) => setStore((p) => ({ ...p, bankTransferBankNameAr: e.target.value }))}
+                  placeholder={lang === "ar" ? "مثال: بنك الخرطوم (بنكك)" : "e.g. بنك الخرطوم (بنكك)"}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {lang === "ar" ? "رقم الحساب / الآيبان" : "Account / IBAN number"}
+                </p>
+                <Input
+                  value={store.bankTransferAccountNumber || ""}
+                  onChange={(e) => setStore((p) => ({ ...p, bankTransferAccountNumber: e.target.value }))}
+                  placeholder={lang === "ar" ? "رقم الحساب" : "Account number"}
+                  dir="ltr"
+                  className="font-mono"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {lang === "ar" ? "اسم صاحب الحساب (إنجليزي)" : "Account holder (English)"}
+                </p>
+                <Input
+                  value={store.bankTransferAccountNameEn || ""}
+                  onChange={(e) => setStore((p) => ({ ...p, bankTransferAccountNameEn: e.target.value }))}
+                  placeholder={lang === "ar" ? "بالإنجليزية" : "English name"}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {lang === "ar" ? "اسم صاحب الحساب (عربي)" : "Account holder (Arabic)"}
+                </p>
+                <Input
+                  value={store.bankTransferAccountNameAr || ""}
+                  onChange={(e) => setStore((p) => ({ ...p, bankTransferAccountNameAr: e.target.value }))}
+                  placeholder={lang === "ar" ? "بالعربية" : "Arabic name"}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5 border-t border-border pt-4">
+              <p className="text-sm font-medium">
+                {lang === "ar" ? "واتساب إثبات التحويل" : "WhatsApp for transfer proof"}
+              </p>
+              <Input
+                value={store.bankTransferProofWhatsapp || ""}
+                onChange={(e) => setStore((p) => ({ ...p, bankTransferProofWhatsapp: e.target.value }))}
+                placeholder={lang === "ar" ? "مثال: 2499xxxxxxxx (بدون +)" : "e.g. 2499xxxxxxxx (no +)"}
+                dir="ltr"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                {lang === "ar"
+                  ? "يُعرض في صفحة الدفع لإرسال صورة الحوالة عبر واتساب. اتركه فارغاً لاستخدام الرقم الافتراضي في الكود."
+                  : "Shown on checkout for customers to send transfer screenshots via WhatsApp. Leave empty to use the built-in default number."}
+              </p>
+            </div>
           </div>
           <div className="rounded-xl border p-4 space-y-3">
             <p className="text-sm font-medium">{lang === "ar" ? "طرق الدفع" : "Payment methods"}</p>
@@ -914,6 +978,11 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                 vatLabelEn: store.vatLabelEn,
                 minOrderAmount: store.minOrderAmount,
                 bankTransferProofWhatsapp: store.bankTransferProofWhatsapp ?? "",
+                bankTransferBankNameEn: store.bankTransferBankNameEn ?? "",
+                bankTransferBankNameAr: store.bankTransferBankNameAr ?? "",
+                bankTransferAccountNumber: store.bankTransferAccountNumber ?? "",
+                bankTransferAccountNameEn: store.bankTransferAccountNameEn ?? "",
+                bankTransferAccountNameAr: store.bankTransferAccountNameAr ?? "",
               })
             }
           >

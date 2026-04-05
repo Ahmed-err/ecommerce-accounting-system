@@ -25,14 +25,21 @@ function normalizeOrderIdParam(raw) {
   return "";
 }
 
-export default function OrderConfirmationClient() {
+export default function OrderConfirmationClient({ initialOrderId = "" }) {
   const params = useParams();
   const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang] || translations.ar;
   const { data: session, status: sessionStatus } = useSession();
   const [order, setOrder] = useState(null);
 
-  const id = useMemo(() => normalizeOrderIdParam(params?.id), [params?.id]);
+  const id = useMemo(() => {
+    const fromServer =
+      typeof initialOrderId === "string" && initialOrderId.trim()
+        ? normalizeOrderIdParam(initialOrderId)
+        : "";
+    if (fromServer) return fromServer;
+    return normalizeOrderIdParam(params?.id);
+  }, [initialOrderId, params?.id]);
   const shortId = id ? id.slice(-8).toUpperCase() : "—";
 
   useEffect(() => {
@@ -78,10 +85,16 @@ export default function OrderConfirmationClient() {
           <h1 className="text-2xl font-bold text-foreground">
             {t.orderConfirmationThanks}
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            {t.orderNumberIs}:{" "}
-            <span className="font-mono font-semibold text-foreground">{shortId}</span>
-          </p>
+          {!id ? (
+            <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {lang === "ar" ? "رابط التأكيد غير صالح. إذا أتممت الدفع، تحقق من بريدك أو تواصل معنا." : "This confirmation link is invalid. If you completed payment, check your email or contact us."}
+            </p>
+          ) : (
+            <p className="mt-2 text-muted-foreground">
+              {t.orderNumberIs}:{" "}
+              <span className="font-mono font-semibold text-foreground">{shortId}</span>
+            </p>
+          )}
           {showGuestNote ? (
             <p className="mt-4 text-sm text-muted-foreground">
               {t.orderConfirmationGuestLine}

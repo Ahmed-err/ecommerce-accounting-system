@@ -35,7 +35,7 @@ const fieldBase =
   "w-full rounded-xl border bg-background px-3 py-2.5 text-foreground transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-amber-500 focus-visible:ring-2 focus-visible:ring-amber-500/25 focus-visible:outline-none sm:py-3";
 const insetClass = "rounded-xl border border-border bg-muted/30 p-3 sm:p-4";
 
-export default function CheckoutClient({ proofWhatsappDigits = null }) {
+export default function CheckoutClient({ proofWhatsappDigits = null, bankTransferDetails = null }) {
   const { lang, isRTL, brandName } = useLanguage();
   const t = translations[lang] || translations['ar'];
   const {
@@ -109,6 +109,23 @@ export default function CheckoutClient({ proofWhatsappDigits = null }) {
     () => resolveBankTransferProofWhatsapp(proofWhatsappDigits),
     [proofWhatsappDigits]
   );
+
+  const resolvedBankDetails = useMemo(() => {
+    const d = bankTransferDetails && typeof bankTransferDetails === "object" ? bankTransferDetails : {};
+    const enBank = String(d.bankNameEn || "").trim();
+    const arBank = String(d.bankNameAr || "").trim();
+    const num = String(d.accountNumber || "").trim();
+    const enName = String(d.accountNameEn || "").trim();
+    const arName = String(d.accountNameAr || "").trim();
+    return {
+      bankName: enBank || arBank || STORE_BANK_DETAILS.bankName,
+      arBankName: arBank || enBank || STORE_BANK_DETAILS.arBankName,
+      accountNumber: num || STORE_BANK_DETAILS.accountNumber,
+      accountName: enName || arName || STORE_BANK_DETAILS.accountName,
+      arAccountName: arName || enName || STORE_BANK_DETAILS.arAccountName,
+    };
+  }, [bankTransferDetails]);
+
   const whatsappUrl = `https://wa.me/${bankProofWaDigits}`;
   const whatsappMessage = encodeURIComponent(
     lang === "ar"
@@ -953,9 +970,22 @@ export default function CheckoutClient({ proofWhatsappDigits = null }) {
                   <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">{t.bankTransferInstructions}</p>
                   <p className="text-sm text-foreground/90">{t.transferToFollowing}</p>
                   <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 text-sm space-y-1">
-                    <p><span className="text-gray-500">{t.bankLabel}:</span> <span className="text-white font-medium">{lang === 'ar' ? STORE_BANK_DETAILS.arBankName : STORE_BANK_DETAILS.bankName}</span></p>
-                    <p><span className="text-gray-500">{t.accountNumberLabel}:</span> <span className="text-white font-mono font-bold">{STORE_BANK_DETAILS.accountNumber}</span></p>
-                    <p><span className="text-gray-500">{t.accountNameLabel}:</span> <span className="text-white font-medium">{lang === 'ar' ? STORE_BANK_DETAILS.arAccountName : STORE_BANK_DETAILS.accountName}</span></p>
+                    <p>
+                      <span className="text-gray-500">{t.bankLabel}:</span>{" "}
+                      <span className="text-white font-medium">
+                        {lang === "ar" ? resolvedBankDetails.arBankName : resolvedBankDetails.bankName}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">{t.accountNumberLabel}:</span>{" "}
+                      <span className="text-white font-mono font-bold">{resolvedBankDetails.accountNumber}</span>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">{t.accountNameLabel}:</span>{" "}
+                      <span className="text-white font-medium">
+                        {lang === "ar" ? resolvedBankDetails.arAccountName : resolvedBankDetails.accountName}
+                      </span>
+                    </p>
                   </div>
                   <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 space-y-2">
                     <p className="text-xs text-gray-400 font-semibold">

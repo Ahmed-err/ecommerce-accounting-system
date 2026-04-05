@@ -670,24 +670,36 @@ export default function ProductDetailClient({
           <TabsList
             variant="line"
             className={cn(
-              "mb-6 flex h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0"
+              "relative z-10 mb-6 flex h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0"
             )}
           >
-            <TabsTrigger value="description" className="rounded-none px-4 py-2 text-sm">
+            <TabsTrigger
+              value="description"
+              className="shrink-0 grow-0 basis-auto rounded-none px-4 py-2 text-sm"
+            >
               {t.pdpTabDescription}
             </TabsTrigger>
-            <TabsTrigger value="specs" className="rounded-none px-4 py-2 text-sm">
+            <TabsTrigger
+              value="specs"
+              className="shrink-0 grow-0 basis-auto rounded-none px-4 py-2 text-sm"
+            >
               {t.pdpTabSpecs}
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="rounded-none px-4 py-2 text-sm">
+            <TabsTrigger
+              value="reviews"
+              className="shrink-0 grow-0 basis-auto rounded-none px-4 py-2 text-sm"
+            >
               {t.pdpTabReviews}
             </TabsTrigger>
-            <TabsTrigger value="shipping" className="rounded-none px-4 py-2 text-sm">
+            <TabsTrigger
+              value="shipping"
+              className="shrink-0 grow-0 basis-auto rounded-none px-4 py-2 text-sm"
+            >
               {t.pdpTabShipping}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="description" className="outline-none">
+          <TabsContent value="description" className="flex-none outline-none">
             <div className="rounded-2xl border border-border bg-card/40 p-6">
               {highlightLines.length > 0 ? (
                 <ul className="mb-6 list-disc space-y-2 ps-5 text-sm text-foreground">
@@ -706,7 +718,7 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
 
-          <TabsContent value="specs" className="outline-none">
+          <TabsContent value="specs" className="flex-none outline-none">
             <div className="overflow-x-auto rounded-2xl border border-border">
               {specRows.length === 0 ? (
                 <p className="p-6 text-sm text-muted-foreground">{t.pdpSpecsEmpty}</p>
@@ -737,11 +749,13 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
 
-          <TabsContent value="reviews" className="outline-none min-w-0 max-w-full overflow-x-hidden">
-            <ProductReviewsClient productId={product.id} embedded />
+          <TabsContent value="reviews" className="flex-none w-full min-w-0 max-w-full outline-none">
+            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/40 p-5 sm:p-6 lg:p-8">
+              <ProductReviewsClient productId={product.id} embedded />
+            </div>
           </TabsContent>
 
-          <TabsContent value="shipping" className="outline-none">
+          <TabsContent value="shipping" className="flex-none outline-none">
             <div className="space-y-6 rounded-2xl border border-border bg-card/40 p-6">
               <div>
                 <h3 className="text-lg font-bold text-foreground">{t.pdpShippingTitle}</h3>
