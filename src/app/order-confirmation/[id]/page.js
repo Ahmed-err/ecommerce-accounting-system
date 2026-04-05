@@ -7,6 +7,14 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function OrderConfirmationPage() {
-  return <OrderConfirmationClient />;
+export default async function OrderConfirmationPage({ params }) {
+  const resolved = await params;
+  const raw = resolved?.id;
+  const id =
+    typeof raw === "string"
+      ? raw
+      : Array.isArray(raw) && raw[0] != null
+        ? String(raw[0])
+        : "";
+  return <OrderConfirmationClient initialOrderId={id} />;
 }

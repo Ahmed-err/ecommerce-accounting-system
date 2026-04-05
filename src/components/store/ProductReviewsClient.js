@@ -12,6 +12,17 @@ import { translations } from "@/lib/translations";
 import { getProductReviewsAction, submitReviewAction, toggleHelpfulAction } from "@/app/actions/reviews";
 import { cn } from "@/lib/utils";
 
+function reviewImageUnoptimized(url) {
+  if (!url || typeof url !== "string") return true;
+  if (url.startsWith("data:") || url.startsWith("blob:")) return true;
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return !(host.endsWith("cloudinary.com") || host.endsWith("unsplash.com"));
+  } catch {
+    return true;
+  }
+}
+
 const STAR_SIZES = {
   sm: "h-3.5 w-3.5",
   md: "h-4 w-4",
@@ -20,17 +31,22 @@ const STAR_SIZES = {
 
 function Stars({ value, size = "md", className }) {
   const dim = STAR_SIZES[size] || STAR_SIZES.md;
+  const v = Math.min(5, Math.max(0, Number(value) || 0));
+  const rounded = Math.round(v);
   return (
     <div
       className={cn("flex items-center gap-0.5", className)}
       dir="ltr"
       role="img"
-      aria-label={`${Math.min(5, Math.max(0, Math.round(Number(value))))} of 5 stars`}
+      aria-label={`${rounded} of 5 stars`}
     >
       {[1, 2, 3, 4, 5].map((s) => (
         <Star
           key={s}
-          className={cn(dim, value >= s ? "fill-amber-400 text-amber-400" : "text-muted-foreground/35")}
+          className={cn(
+            dim,
+            v >= s - 0.25 ? "fill-amber-400 text-amber-400" : "text-muted-foreground/35"
+          )}
         />
       ))}
     </div>
@@ -198,7 +214,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                 {summary.total > 0 ? summary.average.toFixed(1) : "—"}
               </p>
               <Stars
-                value={Math.round(summary.average)}
+                value={summary.total > 0 ? summary.average : 0}
                 size="lg"
                 className={cn("mt-2 justify-center", isRTL ? "lg:justify-end" : "lg:justify-start")}
               />
@@ -245,8 +261,10 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                           isRTL && "flex-row-reverse"
                         )}
                       >
-                        <span className="min-w-[2.25rem] text-end sm:text-start">{Math.round(b.pct)}%</span>
-                        <span className="text-muted-foreground/70">({b.count})</span>
+                        <span className="min-w-[2.75rem] text-end">{Math.round(b.pct)}%</span>
+                        <span className="min-w-[2.5rem] text-muted-foreground/70 tabular-nums">
+                          ({b.count})
+                        </span>
                       </div>
                     </div>
                   </li>
@@ -374,7 +392,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                     </div>
                     <div className="min-w-0 flex-1 space-y-3 overflow-hidden">
                       <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-x-4 sm:gap-y-2">
-                        <div className="min-w-0 max-w-full flex-1 sm:flex-none sm:max-w-[calc(100%-8rem)]">
+                        <div className="min-w-0 max-w-full flex-1 sm:max-w-[calc(100%-9rem)]">
                           <Stars value={r.rating} className="mb-1.5" />
                           <h4 className="break-words text-base font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">
                             {r.title}
@@ -396,7 +414,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                           </p>
                         </div>
                         {r.verified ? (
-                          <span className="inline-flex w-fit max-w-full shrink-0 items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 [overflow-wrap:anywhere]">
+                          <span className="inline-flex w-fit max-w-full shrink-0 items-center gap-1 self-start rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300 [overflow-wrap:anywhere]">
                             <Check className="h-3 w-3" strokeWidth={2.5} />
                             {lang === "ar" ? "شراء موثق" : "Verified purchase"}
                           </span>
@@ -434,7 +452,8 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                                   alt=""
                                   fill
                                   className="object-cover"
-                                  sizes="(max-width:640px) 45vw, 200px"
+                                  sizes="(max-width: 640px) 42vw, (max-width: 1024px) 28vw, 240px"
+                                  unoptimized={reviewImageUnoptimized(img)}
                                 />
                               </button>
                             ))}
@@ -460,7 +479,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                         </div>
                       ) : null}
 
-                      <div className={cn("flex pt-1", isRTL ? "justify-start" : "justify-end")}>
+                      <div className="flex w-full min-w-0 justify-end pt-1">
                         <Button
                           type="button"
                           size="sm"
@@ -543,15 +562,10 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
       dir={isRTL ? "rtl" : "ltr"}
       aria-label={t.pdpTabReviews}
     >
-      <div
-        className={cn(
-          "min-w-0 max-w-full",
-          embedded && "rounded-2xl border border-border bg-card/40 p-4 sm:p-6 lg:p-8"
-        )}
-      >
+      <div className="min-w-0 max-w-full">
         {embedded && showContent && loading && rows.length === 0 ? (
           <p className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
             {t.pdpReviewsLoading}
           </p>
         ) : null}
@@ -571,6 +585,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                 fill
                 className="object-contain"
                 sizes="min(96vw, 920px)"
+                unoptimized={reviewImageUnoptimized(reviewLightbox)}
               />
             ) : null}
           </div>

@@ -33,7 +33,16 @@ export default async function CheckoutPage() {
         <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground sm:mb-8 sm:text-3xl md:text-4xl">
           {(translations[lang] || translations.ar).checkout}
         </h1>
-        <CheckoutClient proofWhatsappDigits={store.bankTransferProofWhatsapp} />
+        <CheckoutClient
+          proofWhatsappDigits={store.bankTransferProofWhatsapp}
+          bankTransferDetails={{
+            bankNameEn: store.bankTransferBankNameEn,
+            bankNameAr: store.bankTransferBankNameAr,
+            accountNumber: store.bankTransferAccountNumber,
+            accountNameEn: store.bankTransferAccountNameEn,
+            accountNameAr: store.bankTransferAccountNameAr,
+          }}
+        />
       </div>
       <Footer />
     </main>

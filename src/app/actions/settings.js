@@ -16,6 +16,20 @@ function normalizeBankTransferProofWhatsappInput(raw) {
   return { ok: true, value: digits };
 }
 
+function normalizeOptionalBankLine(raw, maxLen) {
+  const s = String(raw ?? "").trim().replace(/\s+/g, " ");
+  if (!s) return null;
+  return s.slice(0, maxLen);
+}
+
+function normalizeBankAccountNumberInput(raw) {
+  const s = String(raw ?? "").trim();
+  if (!s) return { ok: true, value: null };
+  if (s.length > 80) return { ok: false };
+  if (/[\r\n\t\x00-\x08\x0b\x0c\x0e-\x1f]/.test(s)) return { ok: false };
+  return { ok: true, value: s };
+}
+
 async function ensureAdmin() {
   const session = await auth();
   const role = String(session?.user?.role ?? "").toUpperCase();
@@ -237,6 +251,28 @@ export async function updateSettings(input) {
         };
       }
       paymentData.bankTransferProofWhatsapp = norm.value; // null clears → checkout uses code fallback
+    }
+    if (payload.bankTransferBankNameEn !== undefined) {
+      paymentData.bankTransferBankNameEn = normalizeOptionalBankLine(payload.bankTransferBankNameEn, 200);
+    }
+    if (payload.bankTransferBankNameAr !== undefined) {
+      paymentData.bankTransferBankNameAr = normalizeOptionalBankLine(payload.bankTransferBankNameAr, 200);
+    }
+    if (payload.bankTransferAccountNumber !== undefined) {
+      const acct = normalizeBankAccountNumberInput(payload.bankTransferAccountNumber);
+      if (!acct.ok) {
+        return {
+          success: false,
+          error: "Account number must be empty or up to 80 characters (no line breaks).",
+        };
+      }
+      paymentData.bankTransferAccountNumber = acct.value;
+    }
+    if (payload.bankTransferAccountNameEn !== undefined) {
+      paymentData.bankTransferAccountNameEn = normalizeOptionalBankLine(payload.bankTransferAccountNameEn, 200);
+    }
+    if (payload.bankTransferAccountNameAr !== undefined) {
+      paymentData.bankTransferAccountNameAr = normalizeOptionalBankLine(payload.bankTransferAccountNameAr, 200);
     }
     await db.store.update({
       where: { id: store.id },
