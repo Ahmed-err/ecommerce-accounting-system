@@ -187,12 +187,12 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid w-full min-w-0 items-stretch gap-4 sm:gap-5 md:gap-6 lg:gap-7 [grid-template-columns:repeat(auto-fit,minmax(min(100%,clamp(11.25rem,22vw,18.75rem)),1fr))]"
+                  className="grid w-full min-w-0 grid-cols-2 items-stretch gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 lg:gap-6 xl:gap-7"
                 >
                   {tab.data.map((product, i) => (
                     <div
                       key={product.id}
-                      className="flex min-h-0 min-w-0 w-full max-w-full"
+                      className="flex min-h-0 min-w-0 w-full max-w-full self-stretch"
                     >
                       <ProductCard product={product} index={i} homeShowcase />
                     </div>
