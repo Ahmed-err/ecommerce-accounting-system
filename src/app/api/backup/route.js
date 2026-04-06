@@ -2,6 +2,7 @@ import Cursor from "pg-cursor";
 import { Pool } from "pg";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { prisma as db } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -169,6 +170,25 @@ function contentTypeFor(format) {
     : "application/json; charset=utf-8";
 }
 
+async function recordBackupSuccess(format) {
+  try {
+    const store = await db.store.findFirst({
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+    if (!store) return;
+    await db.store.update({
+      where: { id: store.id },
+      data: {
+        backupLastAt: new Date(),
+        backupLastStatus: `OK_${String(format).toUpperCase()}_DOWNLOAD`,
+      },
+    });
+  } catch (error) {
+    console.error("recordBackupSuccess /api/backup:", error);
+  }
+}
+
 export async function GET(req) {
   try {
     const session = await auth();
@@ -191,6 +211,7 @@ export async function GET(req) {
     (async () => {
       try {
         await streamBackup({ format, writer });
+        await recordBackupSuccess(format);
         await writer.close();
       } catch (error) {
         console.error("GET /api/backup streaming failed:", error);

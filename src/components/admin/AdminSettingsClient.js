@@ -111,6 +111,11 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const currentTab = searchParams.get("tab") || initialTab;
   const activeTab = TABS.includes(currentTab) ? currentTab : "store";
   const isRTL = lang === "ar";
+  const backupScheduleValue = ["OFF", "DAILY", "WEEKLY", "MONTHLY"].includes(
+    String(store.backupSchedule || "").toUpperCase()
+  )
+    ? String(store.backupSchedule).toUpperCase()
+    : "OFF";
 
   useEffect(() => {
     setStore(normalizeStoreFromServer(initialData.store));
@@ -1441,7 +1446,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         <div className="space-y-8">
           <div className="space-y-3 rounded-xl border border-white/10 bg-gray-900/40 p-4">
             <p className="text-sm text-muted-foreground">{t.adminBackupScheduleHelp}</p>
-            <Select value={store.backupSchedule || "OFF"} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
+            <Select value={backupScheduleValue} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -1452,7 +1457,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                 <SelectItem value="MONTHLY">{lang === "ar" ? "شهري" : "Monthly"}</SelectItem>
               </SelectContent>
             </Select>
-            <Button disabled={saving} onClick={() => save("backup", { backupSchedule: store.backupSchedule || "OFF" })}>
+            <Button disabled={saving} onClick={() => save("backup", { backupSchedule: backupScheduleValue })}>
               {t.adminBackupSaveSchedule}
             </Button>
           </div>
