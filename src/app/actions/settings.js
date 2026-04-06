@@ -54,6 +54,7 @@ const updateStoreSchema = z.object({
   tab: z.string(),
   payload: z.any(),
 });
+const backupScheduleValues = new Set(["OFF", "DAILY", "WEEKLY", "MONTHLY"]);
 
 export async function getAdminSettingsData() {
   await ensureAdmin();
@@ -401,10 +402,14 @@ export async function updateSettings(input) {
   } else if (tab === "system") {
     await db.store.update({ where: { id: store.id }, data: { maintenanceMode: !!payload.maintenanceMode } });
   } else if (tab === "backup") {
+    const backupSchedule = String(payload.backupSchedule || "OFF").toUpperCase();
+    if (!backupScheduleValues.has(backupSchedule)) {
+      return { success: false, error: "Invalid backup schedule value." };
+    }
     await db.store.update({
       where: { id: store.id },
       data: {
-        backupSchedule: payload.backupSchedule || "OFF",
+        backupSchedule,
       },
     });
   } else if (tab === "homepage") {
