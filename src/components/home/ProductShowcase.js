@@ -90,83 +90,65 @@ export default function ProductShowcase({ featured }) {
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
       <div className="mx-auto w-full max-w-none px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-        <Tabs
-          key={firstTab}
-          value={activeTab}
-          onValueChange={setActiveTab}
-          id="homepage-product-showcase"
-          className="w-full min-w-0"
-        >
-          {/* ── Section header + tabs ── */}
+        <Tabs key={firstTab} value={activeTab} onValueChange={setActiveTab} id="homepage-product-showcase" className="w-full min-w-0">
           <div
             className={cn(
-              "flex flex-col gap-6 mb-6 sm:mb-8 lg:mb-10",
-              "xl:flex-row xl:items-end xl:justify-between",
-              isRTL && "xl:flex-row-reverse"
+              "grid gap-6 lg:gap-8 xl:gap-10",
+              "lg:grid-cols-12",
+              isRTL && "lg:[direction:rtl]"
             )}
           >
-            {/* Heading */}
-            <motion.div
+            <motion.aside
               initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className={cn("space-y-3", isRTL ? "text-right" : "text-left")}
+              className={cn(
+                "space-y-4 rounded-2xl border border-foreground/10 bg-card/60 p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-4 lg:h-fit xl:p-6",
+                isRTL ? "text-right lg:[direction:rtl]" : "text-left"
+              )}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20 sm:px-4 sm:text-xs">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-500 sm:px-4 sm:text-xs">
                 <Star className="h-3.5 w-3.5" />
                 {t.featuredProducts || "Featured"}
               </div>
-              <h2
-                className={cn(
-                  "font-black uppercase tracking-tighter italic text-foreground leading-[0.95]",
-                  "text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl"
-                )}
-              >
+              <h2 className="text-3xl font-black uppercase italic leading-[0.95] tracking-tighter text-foreground sm:text-4xl lg:text-5xl">
                 {t.popularProducts || "TOP PRODUCTS"}
               </h2>
               {activeTabHint ? (
-                <p
-                  className={cn(
-                    "max-w-2xl text-sm font-semibold leading-relaxed text-amber-600/95 sm:text-base",
-                    isRTL ? "text-right" : "text-left"
-                  )}
-                >
+                <p className="text-sm font-semibold leading-relaxed text-amber-600/95 sm:text-base">
                   {activeTabHint}
                 </p>
               ) : null}
-            </motion.div>
 
-            {/* Tab list */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: 0.15 }}
-              className={cn("w-full xl:w-auto", isRTL ? "xl:mr-auto" : "xl:ml-auto")}
-            >
-              <TabsList className="flex w-full flex-wrap justify-center gap-1 rounded-xl border border-foreground/10 bg-foreground/5 p-1 shadow-inner sm:justify-end sm:gap-0 sm:rounded-2xl sm:p-1.5 md:flex-nowrap xl:w-auto">
-                {tabsConfig.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className={cn(
-                      "flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-lg sm:rounded-xl",
-                      "px-2.5 py-2 sm:px-4 sm:py-2.5 lg:px-6 lg:py-3",
-                      "text-[9px] sm:text-[10px] lg:text-xs font-bold uppercase tracking-wider sm:tracking-widest transition-all",
-                      "data-active:bg-background data-active:text-amber-500 data-active:shadow-premium"
-                    )}
-                  >
-                    <tab.icon className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                    <span className="hidden xs:inline sm:inline">{tab.label}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </motion.div>
-          </div>
+              <div className="space-y-2 border-t border-border/70 pt-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {isRTL ? "التصفية" : "Filter"}
+                </p>
+                <TabsList className="grid h-auto w-full grid-cols-1 gap-1 rounded-xl border border-foreground/10 bg-foreground/5 p-1.5 shadow-inner">
+                  {tabsConfig.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className={cn(
+                        "flex items-center justify-start gap-2 rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition-all",
+                        "data-active:bg-background data-active:text-amber-500 data-active:shadow-premium",
+                        isRTL && "flex-row-reverse justify-end"
+                      )}
+                    >
+                      <tab.icon className="h-3.5 w-3.5 shrink-0" />
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
-          {/* ── Product grids ── */}
-          <div>
+              <p className="text-xs text-muted-foreground">
+                {catalogActiveCount}+ {isRTL ? "منتجات نشطة في المتجر" : "active products in store"}
+              </p>
+            </motion.aside>
+
+            <div className="lg:col-span-8">
             {tabsConfig.map((tab) => {
               const exploreHref =
                 tab.value === "best-sellers"
@@ -187,7 +169,7 @@ export default function ProductShowcase({ featured }) {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.38 }}
-                  className="grid w-full min-w-0 grid-cols-2 items-stretch gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 lg:gap-6 xl:gap-7"
+                  className="grid w-full min-w-0 grid-cols-2 items-stretch gap-3 sm:gap-4 xl:grid-cols-3 xl:gap-5"
                 >
                   {tab.data.map((product, i) => (
                     <div
@@ -245,6 +227,7 @@ export default function ProductShowcase({ featured }) {
               </TabsContent>
               );
             })}
+            </div>
           </div>
         </Tabs>
       </div>

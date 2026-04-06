@@ -352,7 +352,7 @@ export default function ProductCard({
             className={cn(
               "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
               compactRail && "p-3 pb-4",
-              homeShowcase && "gap-1.5 p-4 pb-4 sm:p-5 sm:pb-5",
+              homeShowcase && "gap-2 p-4 pb-4 sm:p-5 sm:pb-5",
               isRTL ? "text-right" : "text-left"
             )}
           >
@@ -372,7 +372,7 @@ export default function ProductCard({
                   compactRail
                     ? "text-sm line-clamp-2 leading-snug"
                     : homeShowcase
-                      ? "line-clamp-2 text-[15px] font-semibold leading-snug sm:text-base sm:leading-snug"
+                      ? "line-clamp-2 min-h-[2.65rem] text-[15px] font-semibold leading-snug sm:min-h-[2.9rem] sm:text-base sm:leading-snug"
                       : "line-clamp-2 text-lg leading-snug sm:line-clamp-3"
                 )}
               >
@@ -382,6 +382,13 @@ export default function ProductCard({
 
             {homeShowcase ? (
               <>
+                {product.description ? (
+                  <p className="line-clamp-2 min-h-[2.15rem] text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                    {product.description}
+                  </p>
+                ) : (
+                  <div className="min-h-[2.15rem]" />
+                )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground sm:gap-x-4">
                   {product.sku ? (
                     <span className="min-w-0 max-w-full truncate font-mono text-[10px] sm:text-[11px]">
@@ -408,8 +415,8 @@ export default function ProductCard({
                     <p className="text-[10px] font-bold uppercase tracking-widest text-amber-800/90 dark:text-amber-300/95">
                       {t.price}
                     </p>
-                    <p className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="max-w-full text-[1.375rem] font-black tabular-nums leading-none tracking-tight text-foreground sm:text-2xl">
+                    <p className="mt-1 flex min-w-0 items-end justify-between gap-2">
+                      <span className="min-w-0 truncate text-[1.25rem] font-black tabular-nums leading-none tracking-tight text-foreground sm:text-2xl">
                         {selling.toLocaleString()}
                       </span>
                       <span className="shrink-0 text-sm font-bold text-amber-700 dark:text-amber-400 sm:text-base">
