@@ -15,7 +15,9 @@ const execFileAsync = promisify(execFile);
 
 function backupFilename(format) {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  return format === "sql" ? `db-backup-${stamp}.sql` : `db-backup-${stamp}.dump`;
+  if (format === "sql") return `db-backup-${stamp}.sql`;
+  if (format === "json") return `db-backup-${stamp}.json`;
+  return `db-backup-${stamp}.dump`;
 }
 
 async function pgDumpAvailable() {
@@ -41,6 +43,47 @@ async function recordBackupSuccess(format) {
   } catch (e) {
     console.error("recordBackupSuccess:", e);
   }
+}
+
+function quoteIdent(identifier) {
+  return `"${String(identifier).replace(/"/g, "\"\"")}"`;
+}
+
+function safeJsonStringify(value) {
+  return JSON.stringify(value, (_key, v) => {
+    if (typeof v === "bigint") return v.toString();
+    return v;
+  });
+}
+
+async function buildJsonFallbackBackup() {
+  const tables = await db.$queryRawUnsafe(`
+    SELECT tablename
+    FROM pg_catalog.pg_tables
+    WHERE schemaname = 'public'
+      AND tablename NOT IN ('_prisma_migrations')
+    ORDER BY tablename ASC
+  `);
+
+  const tableNames = Array.isArray(tables) ? tables.map((t) => t?.tablename).filter(Boolean) : [];
+  const data = {};
+  for (const tableName of tableNames) {
+    const tableSql = `${quoteIdent("public")}.${quoteIdent(tableName)}`;
+    const rowsResult = await db.$queryRawUnsafe(
+      `SELECT COALESCE(json_agg(t), '[]'::json) AS rows FROM (SELECT * FROM ${tableSql}) t`
+    );
+    data[tableName] = rowsResult?.[0]?.rows ?? [];
+  }
+
+  return {
+    meta: {
+      format: "json-fallback",
+      generatedAt: new Date().toISOString(),
+      tableCount: tableNames.length,
+      tables: tableNames,
+    },
+    data,
+  };
 }
 
 export async function GET(req) {
@@ -69,20 +112,25 @@ export async function GET(req) {
     }
 
     const hasPgDump = await pgDumpAvailable();
-    if (!hasPgDump) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "pg_dump_not_found",
-          message:
-            "The pg_dump program is not available on this server (common on serverless hosts). Run pg_dump on a machine with PostgreSQL client tools installed, or use your database provider’s backup export.",
-        },
-        { status: 503 }
-      );
-    }
-
     const { searchParams } = new URL(req.url);
     const format = searchParams.get("format") === "sql" ? "sql" : "custom";
+    if (!hasPgDump) {
+      const payload = await buildJsonFallbackBackup();
+      const filename = backupFilename("json");
+      await recordBackupSuccess("json");
+      void logAction("DATABASE_BACKUP_DOWNLOAD", { format: "json-fallback", filename });
+      return new Response(safeJsonStringify(payload), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex",
+          "X-Backup-Mode": "json-fallback",
+        },
+      });
+    }
+
     const filename = backupFilename(format);
 
     const args = [

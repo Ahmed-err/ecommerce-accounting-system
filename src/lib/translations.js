@@ -583,9 +583,9 @@ export const translations = {
     adminBackupScheduleHelp: "يُحفظ تفضيل الجدول فقط. لتنزيل ملف نسخة فعلي استخدم القسم أدناه.",
     adminBackupDownloadTitle: "تنزيل نسخة من قاعدة البيانات",
     adminBackupDownloadDesc:
-      "يُنشأ الملف على الخادم عبر pg_dump. يجب أن تكون أدوات عميل PostgreSQL مثبتة ومتاحة في PATH. على استضافة بدون خادم طويل (مثل Vercel) غالباً لا يتوفر pg_dump — عندها استخدم تصدير النسخ من لوحة مزود قاعدة البيانات.",
+      "يُنشأ ملف النسخة الاحتياطية مباشرة من قاعدة البيانات داخل التطبيق ويدعم التنزيل حتى على الاستضافات Serverless مثل Vercel.",
     adminBackupFormatLabel: "صيغة الملف",
-    adminBackupFormatCustom: "مخصص (.dump) — مناسب لـ pg_restore",
+    adminBackupFormatCustom: "JSON (.json)",
     adminBackupFormatSql: "SQL نصي (.sql)",
     adminBackupDownloadBtn: "تنزيل النسخة الآن",
     adminBackupDownloading: "جاري إنشاء النسخة…",
@@ -1919,9 +1919,9 @@ export const translations = {
     adminBackupScheduleHelp: "This only stores your schedule preference. To download an actual backup file, use the section below.",
     adminBackupDownloadTitle: "Download database backup",
     adminBackupDownloadDesc:
-      "The file is generated on the server using pg_dump. PostgreSQL client tools must be installed and on PATH. On short-lived serverless hosts (e.g. Vercel) pg_dump is usually unavailable — use your database provider’s backup/export instead.",
+      "The backup file is generated directly from the database in-app and supports downloads even on serverless hosts like Vercel.",
     adminBackupFormatLabel: "File format",
-    adminBackupFormatCustom: "Custom (.dump) — best for pg_restore",
+    adminBackupFormatCustom: "JSON (.json)",
     adminBackupFormatSql: "Plain SQL (.sql)",
     adminBackupDownloadBtn: "Download backup now",
     adminBackupDownloading: "Creating backup…",

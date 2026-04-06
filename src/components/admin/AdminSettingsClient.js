@@ -1495,8 +1495,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
               onClick={async () => {
                 setBackupBusy(true);
                 try {
-                  const q = backupFormat === "sql" ? "?format=sql" : "";
-                  const res = await fetch(`/api/admin/backup/database${q}`, {
+                  const q = backupFormat === "sql" ? "?format=sql" : "?format=json";
+                  const res = await fetch(`/api/backup${q}`, {
                     credentials: "include",
                     method: "GET",
                   });
@@ -1510,6 +1510,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                     return;
                   }
                   const blob = await res.blob();
+                  const backupMode = (res.headers.get("X-Backup-Mode") || "").toLowerCase();
                   const cd = res.headers.get("Content-Disposition") || "";
                   const quoted = /filename="([^"]+)"/.exec(cd);
                   const plain = /filename=([^;\s]+)/.exec(cd);
@@ -1524,7 +1525,15 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                   a.click();
                   a.remove();
                   URL.revokeObjectURL(url);
-                  toast.success(lang === "ar" ? "تم تنزيل النسخة الاحتياطية" : "Backup downloaded");
+                  if (backupMode === "json-fallback") {
+                    toast.success(
+                      lang === "ar"
+                        ? "تم تنزيل نسخة احتياطية بصيغة JSON (وضع الخادم السحابي)"
+                        : "Backup downloaded as JSON fallback (serverless mode)"
+                    );
+                  } else {
+                    toast.success(lang === "ar" ? "تم تنزيل النسخة الاحتياطية" : "Backup downloaded");
+                  }
                   router.refresh();
                 } catch (e) {
                   toast.error(
