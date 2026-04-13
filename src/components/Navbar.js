@@ -47,7 +47,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 
     if (!mounted) {
         return (
-            <div className="flex items-center">
+            <div className="flex items-center lg:hidden">
                 <div
                     className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground"
                     aria-hidden
@@ -59,7 +59,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
     }
 
     return (
-        <div className="flex items-center">
+        <div className="flex items-center lg:hidden">
             <Sheet id="navbar-mobile-sheet">
                 <SheetTrigger asChild>
                     <Button
@@ -253,12 +253,12 @@ export default function Navbar() {
             <div className="mx-auto max-w-7xl min-w-0 px-4 sm:px-6 lg:px-8">
                 <div
                   className={cn(
-                    "flex min-w-0 max-w-full items-center justify-between gap-3 sm:gap-4 lg:gap-6 transition-[height] duration-300",
+                    "flex min-w-0 max-w-full items-center justify-between gap-2 sm:gap-3 lg:justify-start lg:gap-4 transition-[height] duration-300",
                     scrolled ? "h-[60px]" : "h-[72px]"
                   )}
                 >
                     {/* === Logo === */}
-                    <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[240px] sm:gap-2.5">
+                    <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[min(9rem,40vw)] sm:max-w-[180px] md:max-w-[200px] lg:max-w-[200px] xl:max-w-[220px] 2xl:max-w-[240px] sm:gap-2.5">
                         <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
                             <Zap className="h-4 w-4 text-white drop-shadow sm:h-5 sm:w-5" />
                         </div>
@@ -285,68 +285,70 @@ export default function Navbar() {
                         </div>
                     </Link>
 
-                    {/* === Navigation (Desktop) === */}
-                    <nav className="hidden lg:flex items-center gap-0.5">
-                        {/* Categories Dropdown */}
-                        <div 
-                            className="relative group/cat"
-                            onMouseEnter={() => setShowCategories(true)}
-                            onMouseLeave={() => setShowCategories(false)}
-                        >
-                            <button 
-                                className={cn(
-                                    "flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-bold transition-all",
-                                    showCategories ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
-                                )}
-                                onClick={() => setShowCategories(!showCategories)}
-                                onKeyDown={(e) => e.key === "Escape" && setShowCategories(false)}
-                                aria-expanded={showCategories}
-                                aria-haspopup="true"
+                    {/* === Desktop: nav + search (flexible width so the bar stays on-screen) === */}
+                    <div className="hidden min-w-0 flex-1 items-center justify-end gap-2 lg:flex xl:gap-3 2xl:gap-4">
+                        <nav className="flex shrink-0 items-center gap-0.5">
+                            {/* Categories Dropdown */}
+                            <div
+                                className="relative group/cat"
+                                onMouseEnter={() => setShowCategories(true)}
+                                onMouseLeave={() => setShowCategories(false)}
                             >
-                                <Layers className="h-4 w-4" />
-                                {t.categoriesTab}
-                                <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", showCategories && "rotate-180")} />
-                            </button>
+                                <button
+                                    className={cn(
+                                        "flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-bold transition-all xl:px-3",
+                                        showCategories ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                                    )}
+                                    onClick={() => setShowCategories(!showCategories)}
+                                    onKeyDown={(e) => e.key === "Escape" && setShowCategories(false)}
+                                    aria-expanded={showCategories}
+                                    aria-haspopup="true"
+                                >
+                                    <Layers className="h-4 w-4 shrink-0" />
+                                    {t.categoriesTab}
+                                    <ChevronDown className={cn("h-3 w-3 shrink-0 transition-transform duration-300", showCategories && "rotate-180")} />
+                                </button>
 
-                            {/* Dropdown Menu */}
-                            <div className={cn(
-                                "absolute top-full mt-2 w-64 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-300 z-[110] origin-top",
-                                showCategories ? "visible opacity-100 scale-100" : "invisible opacity-0 scale-95"
-                            )}>
-                                <div className="grid gap-1">
-                                    {categories.map((cat) => (
-                                        <Link 
-                                            key={cat.name} 
-                                            href={cat.href}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-amber-500 transition-all group/item"
-                                        >
-                                            <span className="text-xl group-hover/item:scale-125 transition-transform">{cat.icon}</span>
-                                            <span className="text-sm font-bold text-foreground group-hover/item:text-amber-500">{cat.name}</span>
-                                        </Link>
-                                    ))}
-                                    <div className="border-t border-foreground/5 mt-1 pt-1">
-                                        <Link href="/products" className="flex items-center justify-center p-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-amber-500 transition-colors">
-                                            {t.viewAll}
-                                        </Link>
+                                {/* Dropdown Menu */}
+                                <div className={cn(
+                                    "absolute top-full mt-2 w-64 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-300 z-[110] origin-top",
+                                    isRTL ? "left-0" : "right-0",
+                                    showCategories ? "visible opacity-100 scale-100" : "invisible opacity-0 scale-95"
+                                )}>
+                                    <div className="grid gap-1">
+                                        {categories.map((cat) => (
+                                            <Link
+                                                key={cat.name}
+                                                href={cat.href}
+                                                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-amber-500 transition-all group/item"
+                                            >
+                                                <span className="text-xl group-hover/item:scale-125 transition-transform">{cat.icon}</span>
+                                                <span className="text-sm font-bold text-foreground group-hover/item:text-amber-500">{cat.name}</span>
+                                            </Link>
+                                        ))}
+                                        <div className="border-t border-foreground/5 mt-1 pt-1">
+                                            <Link href="/products" className="flex items-center justify-center p-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-amber-500 transition-colors">
+                                                {t.viewAll}
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.name}
+                                    href={link.href}
+                                    className="px-2 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all xl:px-3"
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        <div className="min-w-0 max-w-[13rem] flex-1 basis-0 xl:max-w-[17rem] 2xl:max-w-[21rem]">
+                            <GlobalSearch inputId="global-search-desktop" />
                         </div>
-
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                className="px-3 py-2 rounded-full text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    {/* Search + theme + language: large screens only; smaller viewports use mobile sheet */}
-                    <div className="hidden min-w-0 lg:block lg:flex-none lg:w-[15rem] xl:w-[19rem] 2xl:w-[22rem] lg:mx-2 xl:mx-4">
-                        <GlobalSearch inputId="global-search-desktop" />
                     </div>
 
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
