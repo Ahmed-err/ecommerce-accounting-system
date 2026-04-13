@@ -160,7 +160,10 @@ export default function ProductDetailClient({
         return;
       }
       const rows = await getCatalogProductsByIds(ids);
-      setRecentProducts(rows);
+      const visibleRows = Array.isArray(rows)
+        ? rows.filter((row) => row && row.id && row.isActive !== false)
+        : [];
+      setRecentProducts(visibleRows);
     } catch {
       setRecentProducts([]);
     }

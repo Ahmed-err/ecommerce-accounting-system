@@ -41,7 +41,9 @@ function RecentViewedStrip() {
       const ids = JSON.parse(localStorage.getItem("powerstore_recent") || "[]");
       if (!Array.isArray(ids) || ids.length === 0) return;
       getCatalogProductsByIds(ids.slice(0, 8)).then((rows) => {
-        if (!cancelled && Array.isArray(rows)) setProducts(rows);
+        if (cancelled || !Array.isArray(rows)) return;
+        const visibleRows = rows.filter((row) => row && row.id && row.isActive !== false);
+        setProducts(visibleRows);
       });
     } catch {
       /* ignore */
