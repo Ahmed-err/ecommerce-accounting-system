@@ -750,7 +750,7 @@ export default function ProductDetailClient({
           </TabsContent>
 
           <TabsContent value="reviews" className="flex-none w-full min-w-0 max-w-full outline-none">
-            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/40 p-5 sm:p-6 lg:p-8">
+            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/40 p-3 sm:p-6 lg:p-8">
               <ProductReviewsClient productId={product.id} embedded />
             </div>
           </TabsContent>

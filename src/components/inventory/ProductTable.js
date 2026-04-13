@@ -217,7 +217,12 @@ export default function ProductTable({
 
   const handleDelete = async (id) => {
     if (!canManage) return;
-    if (window.confirm(t.inventoryDeleteConfirm)) {
+    const deleteWarning =
+      t.inventoryPermanentDeleteWarningSingle ||
+      (lang === "ar"
+        ? "هذا الحذف نهائي وسيزيل المنتج من قاعدة البيانات مع السجلات المرتبطة به (عناصر الطلبات/المشتريات/المرتجعات)."
+        : "This delete is permanent and will remove the product from the database with related records (order/purchase/return line items).");
+    if (window.confirm(`${t.inventoryDeleteConfirm}\n\n${deleteWarning}`)) {
       const res = await deleteProduct(id);
       if (!res.success) {
         toast.error(formatServerActionError(res.error) || t.genericError);
@@ -334,7 +339,12 @@ export default function ProductTable({
 
   const runBulkDelete = async () => {
     if (!selected.size || !canManage) return;
-    if (!window.confirm(t.inventoryDeleteConfirmBulk)) return;
+    const bulkDeleteWarning =
+      t.inventoryPermanentDeleteWarningBulk ||
+      (lang === "ar"
+        ? "الحذف الجماعي نهائي وسيزيل المنتجات المحددة من قاعدة البيانات مع السجلات المرتبطة بها (عناصر الطلبات/المشتريات/المرتجعات)."
+        : "Bulk delete is permanent and will remove selected products from the database with related records (order/purchase/return line items).");
+    if (!window.confirm(`${t.inventoryDeleteConfirmBulk}\n\n${bulkDeleteWarning}`)) return;
     const res = await bulkDeleteProducts(Array.from(selected));
     if (res.success) {
       toast.success(`${res.count}`);

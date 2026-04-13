@@ -12,7 +12,7 @@ export default function TrustBadges() {
     {
       icon: Truck,
       title: t.freeShipping,
-      desc: isRTL ? "على جميع الطلبات فوق 50,000" : "On all orders over 50k",
+      desc: t.freeShippingBadgeDesc || (isRTL ? "على الطلبات المؤهلة" : "On eligible orders"),
     },
     {
       icon: ShieldCheck,

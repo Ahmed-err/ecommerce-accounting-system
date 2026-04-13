@@ -257,21 +257,18 @@ export async function updateProduct(id, data) {
 export async function deleteProduct(id) {
   try {
     await ensureManager();
-    await db.product.delete({ where: { id } });
+    await db.$transaction(async (tx) => {
+      await tx.orderItem.deleteMany({ where: { productId: id } });
+      await tx.purchaseItem.deleteMany({ where: { productId: id } });
+      await tx.orderReturnItem.deleteMany({ where: { productId: id } });
+      await tx.product.delete({ where: { id } });
+    });
+    await logAction("DELETE_PRODUCT", { productId: id });
     revalidatePath("/admin/inventory");
     return { success: true };
   } catch (error) {
-    console.error("Physical delete failed, attempting soft delete", error);
-    try {
-      await db.product.update({
-        where: { id },
-        data: { isActive: false },
-      });
-      revalidatePath("/admin/inventory");
-      return { success: true, softDeleted: true };
-    } catch (softError) {
-      return { success: false, error: toActionErrorString(softError) };
-    }
+    console.error("Failed to delete product:", error);
+    return { success: false, error: toActionErrorString(error) };
   }
 }
 
@@ -282,13 +279,12 @@ export async function bulkDeleteProducts(ids) {
     if (!parsed.success) return { success: false, error: "invalid_ids" };
     const valid = await getProductIdsForBulk(parsed.data.ids);
     const idList = valid.map((x) => x.id);
-    for (const id of idList) {
-      try {
-        await db.product.delete({ where: { id } });
-      } catch {
-        await db.product.update({ where: { id }, data: { isActive: false } });
-      }
-    }
+    await db.$transaction(async (tx) => {
+      await tx.orderItem.deleteMany({ where: { productId: { in: idList } } });
+      await tx.purchaseItem.deleteMany({ where: { productId: { in: idList } } });
+      await tx.orderReturnItem.deleteMany({ where: { productId: { in: idList } } });
+      await tx.product.deleteMany({ where: { id: { in: idList } } });
+    });
     await logAction("BULK_DELETE_PRODUCTS", { count: idList.length });
     revalidatePath("/admin/inventory");
     return { success: true, count: idList.length };

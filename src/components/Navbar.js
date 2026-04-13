@@ -345,7 +345,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* Search + theme + language: large screens only; smaller viewports use mobile sheet */}
-                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[10rem] lg:max-w-[26rem] lg:mx-3 xl:mx-6">
+                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[16rem] lg:max-w-[32rem] lg:mx-3 xl:mx-6">
                         <GlobalSearch inputId="global-search-desktop" />
                     </div>
 
@@ -455,10 +455,10 @@ export default function Navbar() {
                                 </div>
                             </div>
                         ) : (
-                            <Link href="/login">
-                                <Button className="h-9 px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-black text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition-all sm:h-10 sm:px-5 sm:text-sm">
-                                    <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
-                                    <span className="hidden sm:inline">{t.login}</span>
+                            <Link href="/login" className="shrink-0">
+                                <Button className="h-9 w-9 justify-center rounded-full bg-amber-500 text-black shadow-lg shadow-amber-500/20 transition-all active:scale-95 hover:bg-amber-600 sm:h-10 sm:w-10 lg:h-10 lg:w-auto lg:px-5 lg:text-sm">
+                                    <User className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", !isRTL && "lg:mr-2", isRTL && "lg:ml-2")} />
+                                    <span className="hidden lg:inline">{t.login}</span>
                                 </Button>
                             </Link>
                         )}

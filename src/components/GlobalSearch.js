@@ -66,7 +66,7 @@ export default function GlobalSearch({ inputId }) {
   }, [debouncedQuery]);
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-md min-w-0 group [transform:translateZ(0)]">
+    <div ref={searchRef} className="relative w-full max-w-none min-w-0 group [transform:translateZ(0)]">
       <div className="relative z-10">
         <SearchIcon
           className={cn(

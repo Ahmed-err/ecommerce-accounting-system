@@ -200,15 +200,15 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
       ) : (
         <>
           {/* Summary + distribution */}
-          <div className="grid min-w-0 max-w-full gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)] lg:gap-8 lg:items-start">
+          <div className="grid min-w-0 max-w-full gap-4 sm:gap-6 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)] lg:gap-8 lg:items-start">
             <div
               className={cn(
-                "flex min-w-0 max-w-full flex-col rounded-2xl border border-border bg-gradient-to-b from-amber-500/10 to-transparent p-6 text-center lg:text-start",
+                "flex min-w-0 max-w-full flex-col rounded-2xl border border-border bg-gradient-to-b from-amber-500/10 to-transparent p-4 text-center sm:p-6 lg:text-start",
                 isRTL && "lg:text-right"
               )}
             >
               <p
-                className="text-5xl font-black tabular-nums tracking-tight text-foreground sm:text-6xl [overflow-wrap:anywhere]"
+                className="text-4xl font-black tabular-nums tracking-tight text-foreground sm:text-6xl [overflow-wrap:anywhere]"
                 aria-live="polite"
               >
                 {summary.total > 0 ? summary.average.toFixed(1) : "—"}
@@ -230,7 +230,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               </Button>
             </div>
 
-            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
+            <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/60 p-4 sm:p-6">
               <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.pdpReviewsDistribution || (lang === "ar" ? "توزيع التقييمات" : "Rating breakdown")}
               </p>
@@ -243,7 +243,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                         isRTL && "flex-row-reverse"
                       )}
                     >
-                      <span className="w-8 shrink-0 text-center tabular-nums text-muted-foreground sm:w-9">
+                      <span className="w-7 shrink-0 text-center tabular-nums text-muted-foreground sm:w-9">
                         {b.s}★
                       </span>
                       <div
@@ -257,12 +257,12 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                       </div>
                       <div
                         className={cn(
-                          "flex shrink-0 items-center gap-2 text-xs tabular-nums text-muted-foreground",
+                          "flex shrink-0 items-center gap-1.5 text-[11px] tabular-nums text-muted-foreground sm:gap-2 sm:text-xs",
                           isRTL && "flex-row-reverse"
                         )}
                       >
-                        <span className="min-w-[2.75rem] text-end">{Math.round(b.pct)}%</span>
-                        <span className="min-w-[2.5rem] text-muted-foreground/70 tabular-nums">
+                        <span className="min-w-[2.25rem] text-end sm:min-w-[2.75rem]">{Math.round(b.pct)}%</span>
+                        <span className="min-w-[2rem] text-muted-foreground/70 tabular-nums sm:min-w-[2.5rem]">
                           ({b.count})
                         </span>
                       </div>
@@ -279,12 +279,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.pdpReviewsSortBy}
               </p>
-              <div
-                className={cn(
-                  "-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]",
-                  isRTL && "flex-row-reverse"
-                )}
-              >
+              <div className={cn("-mx-1 flex flex-wrap gap-2 px-1 pb-1", isRTL && "flex-row-reverse")}>
                 {[
                   { key: "recent", ar: "الأحدث", en: "Most recent" },
                   { key: "helpful", ar: "الأكثر فائدة", en: "Most helpful" },
@@ -376,16 +371,16 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               return (
                 <article
                   key={r.id}
-                  className="max-w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+                  className="max-w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
                 >
                   <div
                     className={cn(
-                      "flex min-w-0 gap-4 sm:gap-5",
+                      "flex min-w-0 gap-3.5 sm:gap-5",
                       isRTL ? "flex-row-reverse" : "flex-row"
                     )}
                   >
                     <div
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-sm font-bold text-amber-800 dark:text-amber-200"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-sm font-bold text-amber-800 dark:text-amber-200 sm:h-12 sm:w-12"
                       aria-hidden
                     >
                       {initial}
@@ -479,13 +474,13 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                         </div>
                       ) : null}
 
-                      <div className="flex w-full min-w-0 justify-end pt-1">
+                      <div className="flex w-full min-w-0 justify-stretch pt-1 sm:justify-end">
                         <Button
                           type="button"
                           size="sm"
                           variant="outline"
                           disabled={!!votedIds[r.id]}
-                          className="gap-2 rounded-full border-border"
+                          className="w-full gap-2 rounded-full border-border text-xs sm:w-auto sm:text-sm"
                           onClick={async () => {
                             const res = await toggleHelpfulAction(r.id);
                             if (res?.success) {
