@@ -659,6 +659,8 @@ export const translations = {
     inventoryCost: "التكلفة",
     inventoryLowStock: "مخزون منخفض",
     inventoryDeleteConfirm: "هل أنت متأكد من رغبتك في حذف هذا المنتج؟",
+    inventoryPermanentDeleteWarningSingle:
+      "هذا الحذف نهائي وسيزيل المنتج من قاعدة البيانات مع السجلات المرتبطة به (عناصر الطلبات/المشتريات/المرتجعات).",
     inventoryNoProducts: "لم يتم العثور على منتجات.",
     inventoryStatusAll: "كل الحالات",
     inventoryStatusLow: "مخزون منخفض",
@@ -1079,6 +1081,8 @@ export const translations = {
     inventoryChartsTopQtyTitle: "أعلى ١٠ منتجات بالكمية",
     inventoryChartsInOutTitle: "الحركة الشهرية (وارد / صادر)",
     inventoryDeleteConfirmBulk: "حذف المنتجات المحددة؟",
+    inventoryPermanentDeleteWarningBulk:
+      "الحذف الجماعي نهائي وسيزيل المنتجات المحددة من قاعدة البيانات مع السجلات المرتبطة بها (عناصر الطلبات/المشتريات/المرتجعات).",
     inventoryCashierNoPricing: "صلاحياتك لا تشمل عرض الأسعار.",
     inventoryAddFirstProduct: "أضف أول منتج",
     inventoryNameEn: "الاسم (إنجليزي)",
@@ -1243,6 +1247,7 @@ export const translations = {
     showcaseTopRatedHint: "أعلى متوسط تقييم (مراجعات موافَق عليها، {n}+ مراجعات)",
     showcaseTopRatedHintRelaxed: "أعلى متوسط تقييم؛ قد يتضمن منتجات بتقييم واحد عند الحاجة",
     freeShipping: "توصيل مجاني",
+    freeShippingBadgeDesc: "على الطلبات المؤهلة",
     warranty: "ضمان معتمد",
     securePayment: "دفع آمن",
     newsletterTitle: "اشترك في نشرتنا الإخبارية",
@@ -1995,6 +2000,8 @@ export const translations = {
     inventoryCost: "Cost",
     inventoryLowStock: "Low Stock",
     inventoryDeleteConfirm: "Are you sure you want to delete this product?",
+    inventoryPermanentDeleteWarningSingle:
+      "This delete is permanent and will remove the product from the database with related records (order/purchase/return line items).",
     inventoryNoProducts: "No products found.",
     inventoryStatusAll: "All Statuses",
     inventoryStatusLow: "Low Stock",
@@ -2415,6 +2422,8 @@ export const translations = {
     inventoryChartsTopQtyTitle: "Top 10 products by quantity",
     inventoryChartsInOutTitle: "Monthly movement (IN vs OUT)",
     inventoryDeleteConfirmBulk: "Delete selected products?",
+    inventoryPermanentDeleteWarningBulk:
+      "Bulk delete is permanent and will remove selected products from the database with related records (order/purchase/return line items).",
     inventoryCashierNoPricing: "Your role cannot view pricing.",
     inventoryAddFirstProduct: "Add first product",
     inventoryNameEn: "Name (English)",
@@ -2581,6 +2590,7 @@ export const translations = {
     showcaseTopRatedHint: "Highest average rating (approved reviews, {n}+ reviews)",
     showcaseTopRatedHintRelaxed: "Highest average rating; may include single-review items when needed",
     freeShipping: "Free Shipping",
+    freeShippingBadgeDesc: "On eligible orders",
     warranty: "Certified Warranty",
     securePayment: "Secure Payment",
     newsletterTitle: "Subscribe to Our Newsletter",

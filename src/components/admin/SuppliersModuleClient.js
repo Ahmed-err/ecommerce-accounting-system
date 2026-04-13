@@ -352,8 +352,13 @@ function SuppliersTab({ t, isRTL }) {
 
   const openSheet = async (id) => {
     setSheetId(id);
+    setSheetData(null);
     const r = await loadSupplierDetailAction(id);
     if (r.ok) setSheetData(r.data);
+    else {
+      toast.error(t.suppliersLoadError || t.errGeneric);
+      setSheetId(null);
+    }
   };
 
   return (

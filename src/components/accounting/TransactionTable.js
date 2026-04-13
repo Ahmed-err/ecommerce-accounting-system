@@ -11,6 +11,7 @@ import { deleteTransaction } from "@/app/actions/accounting";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -30,6 +31,8 @@ export default function TransactionTable({ initialTransactions, total, searchPar
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const canDelete = session?.user?.role === "ADMIN";
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -84,7 +87,13 @@ export default function TransactionTable({ initialTransactions, total, searchPar
 
   const handleDelete = async (id) => {
     if (window.confirm(t.accountingDeleteConfirm)) {
-      await deleteTransaction(id);
+      const res = await deleteTransaction(id);
+      if (res?.success) {
+        toast.success(t.toastDeleted || "Deleted");
+        router.refresh();
+      } else {
+        toast.error(res?.error || t.genericError || "Failed to delete");
+      }
     }
   };
 
