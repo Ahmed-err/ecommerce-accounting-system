@@ -345,7 +345,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* Search + theme + language: large screens only; smaller viewports use mobile sheet */}
-                    <div className="hidden min-w-0 lg:block lg:flex-1 lg:min-w-[16rem] lg:max-w-[32rem] lg:mx-3 xl:mx-6">
+                    <div className="hidden min-w-0 lg:block lg:flex-none lg:w-[15rem] xl:w-[19rem] 2xl:w-[22rem] lg:mx-2 xl:mx-4">
                         <GlobalSearch inputId="global-search-desktop" />
                     </div>
 
