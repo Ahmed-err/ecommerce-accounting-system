@@ -127,11 +127,11 @@ export default function SuppliersModuleClient() {
   return (
     <div className={cn("space-y-8", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
       <div>
-        <h1 className="text-2xl font-black text-white">{t.adminSuppliersTitle}</h1>
-        <p className="mt-1 text-sm text-gray-500">{t.adminSuppliersSubtitle}</p>
+        <h1 className="text-2xl font-black text-foreground">{t.adminSuppliersTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t.adminSuppliersSubtitle}</p>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-border pb-3">
         {TAB_KEYS.map((k) => (
           <button
             key={k}
@@ -139,7 +139,7 @@ export default function SuppliersModuleClient() {
             onClick={() => setTab(k)}
             className={cn(
               "rounded-xl px-4 py-2 text-sm font-bold transition-colors",
-              tab === k ? "bg-amber-500 text-black" : "bg-white/5 text-gray-400 hover:text-white"
+              tab === k ? "bg-amber-500 text-black" : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
             {t[`adminSuppliersTab_${k}`] || k}
@@ -151,6 +151,8 @@ export default function SuppliersModuleClient() {
       {tab === "suppliers" && <SuppliersTab t={t} isRTL={isRTL} />}
       {tab === "purchases" && <PurchasesTab t={t} isRTL={isRTL} />}
       {tab === "reports" && <ReportsTab t={t} isRTL={isRTL} />}
+
+      
     </div>
   );
 }
@@ -169,12 +171,12 @@ function OverviewTab({ data, loading, onRefresh }) {
   return (
     <div className="space-y-8">
       <div className="flex justify-end">
-        <Button variant="outline" size="sm" className="border-white/10 text-white" onClick={onRefresh}>
+        <Button variant="outline" size="sm" className="border-border text-foreground" onClick={onRefresh}>
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
       {loading || !kpis ? (
-        <p className="text-gray-500">{t.loading}</p>
+        <p className="text-muted-foreground">{t.loading}</p>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -191,17 +193,17 @@ function OverviewTab({ data, loading, onRefresh }) {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="rounded-2xl border border-white/10 bg-white/5 p-5"
+                className="rounded-2xl border border-border bg-card p-5"
               >
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">{c.label}</p>
-                <p className="mt-2 text-2xl font-black text-white">{c.value}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                <p className="mt-2 text-2xl font-black text-foreground">{c.value}</p>
               </motion.div>
             ))}
           </div>
 
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="mb-4 text-sm font-bold text-white">{t.suppliersChartTopSuppliers}</h3>
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <h3 className="mb-4 text-sm font-bold text-foreground">{t.suppliersChartTopSuppliers}</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={top}>
@@ -214,8 +216,8 @@ function OverviewTab({ data, loading, onRefresh }) {
                 </ResponsiveContainer>
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="mb-4 text-sm font-bold text-white">{t.suppliersChartSpendTrend}</h3>
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <h3 className="mb-4 text-sm font-bold text-foreground">{t.suppliersChartSpendTrend}</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={trend}>
@@ -230,12 +232,12 @@ function OverviewTab({ data, loading, onRefresh }) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-bold text-white">{t.suppliersRecentPurchases}</h3>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h3 className="mb-4 text-sm font-bold text-foreground">{t.suppliersRecentPurchases}</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-300">
+              <table className="w-full text-left text-sm text-muted-foreground">
                 <thead>
-                  <tr className="border-b border-white/10 text-xs uppercase text-gray-500">
+                  <tr className="border-b border-border text-xs uppercase text-muted-foreground">
                     <th className="p-2">{t.suppliersColPo}</th>
                     <th className="p-2">{t.suppliersColSupplier}</th>
                     <th className="p-2">{t.suppliersColDate}</th>
@@ -246,14 +248,14 @@ function OverviewTab({ data, loading, onRefresh }) {
                 </thead>
                 <tbody>
                   {recent.map((r) => (
-                    <tr key={r.id} className="border-b border-white/5">
+                    <tr key={r.id} className="border-b border-border">
                       <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
                       <td className="p-2">{r.supplierName}</td>
                       <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
                       <td className="p-2">{r.itemCount}</td>
                       <td className="p-2">{r.totalAmount.toLocaleString()}</td>
                       <td className="p-2">
-                        <Badge variant="outline" className="border-white/20 text-[10px]">
+                        <Badge variant="outline" className="border-border text-[10px]">
                           {r.deliveryStatus}
                         </Badge>
                       </td>
@@ -363,17 +365,17 @@ function SuppliersTab({ t, isRTL }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/70 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersSearch}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="max-w-xs border-white/10 bg-gray-900 text-white"
+          className="max-w-xs border-border bg-background text-foreground"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-xl border border-white/10 bg-gray-900 px-3 py-2 text-sm text-white"
+          className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
         >
           <option value="all">{t.filterAll}</option>
           <option value="active">{t.suppliersFilterActive}</option>
@@ -383,22 +385,22 @@ function SuppliersTab({ t, isRTL }) {
           placeholder={t.suppliersCategoryFilter}
           value={cat}
           onChange={(e) => setCat(e.target.value)}
-          className="max-w-xs border-white/10 bg-gray-900 text-white"
+          className="max-w-xs border-border bg-background text-foreground"
         />
         <Button onClick={openNew} className="bg-amber-500 text-black">
           <Plus className="h-4 w-4" />
           {t.suppliersAdd}
         </Button>
-        <Button variant="outline" className="border-white/10 text-white" onClick={exportCsv}>
+        <Button variant="outline" className="border-border text-foreground" onClick={exportCsv}>
           <Download className="h-4 w-4" />
           CSV
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm text-gray-300">
+      <div className="overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full text-sm text-muted-foreground">
           <thead>
-            <tr className="border-b border-white/10 bg-white/5 text-xs uppercase text-gray-500">
+            <tr className="border-b border-border bg-muted/60 text-xs uppercase text-muted-foreground">
               <th className="p-3">{t.suppliersColName}</th>
               <th className="p-3">{t.suppliersColPhone}</th>
               <th className="p-3">{t.suppliersColEmail}</th>
@@ -411,8 +413,8 @@ function SuppliersTab({ t, isRTL }) {
           </thead>
           <tbody>
             {rows.map((s) => (
-              <tr key={s.id} className="border-b border-white/5">
-                <td className="p-3 font-medium text-white">{s.name}</td>
+              <tr key={s.id} className="border-b border-border">
+                <td className="p-3 font-medium text-foreground">{s.name}</td>
                 <td className="p-3" dir="ltr">
                   {s.phone}
                 </td>
@@ -421,13 +423,13 @@ function SuppliersTab({ t, isRTL }) {
                 <td className="p-3">{s.totalPurchases.toLocaleString()}</td>
                 <td className="p-3">{s.outstanding.toLocaleString()}</td>
                 <td className="p-3">
-                  <Badge className={s.isActive ? "bg-emerald-600" : "bg-gray-600"}>
+                  <Badge className={s.isActive ? "bg-emerald-600" : "bg-muted text-muted-foreground"}>
                     {s.isActive ? t.active : t.inactive}
                   </Badge>
                 </td>
                 <td className="p-3">
                   <div className={cn("flex gap-1", isRTL && "flex-row-reverse")}>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-white" onClick={() => openSheet(s.id)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-foreground" onClick={() => openSheet(s.id)}>
                       <FileText className="h-4 w-4" />
                     </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-400" onClick={() => openEdit(s)}>
@@ -445,24 +447,24 @@ function SuppliersTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
-          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+        <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border-border bg-card p-0 text-foreground">
+          <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{edit ? t.suppliersEdit : t.suppliersAdd}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-5">
             {["name", "companyName", "phone", "email", "category", "taxId", "address", "notes"].map((f) => (
               <div key={f} className={f === "address" || f === "notes" ? "sm:col-span-2" : ""}>
-                <label className="text-xs text-gray-400">{t[`suppliersField_${f}`] || f}</label>
+                <label className="text-xs text-muted-foreground">{t[`suppliersField_${f}`] || f}</label>
                 {f === "notes" || f === "address" ? (
                   <textarea
-                    className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 p-2 text-sm"
+                    className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2 text-sm"
                     rows={f === "address" ? 2 : 3}
                     value={form[f] || ""}
                     onChange={(e) => setForm((p) => ({ ...p, [f]: e.target.value }))}
                   />
                 ) : (
                   <Input
-                    className="mt-1 border-white/10 bg-black/40"
+                    className="mt-1 border-border bg-black/40"
                     value={form[f] || ""}
                     onChange={(e) => setForm((p) => ({ ...p, [f]: e.target.value }))}
                   />
@@ -470,9 +472,9 @@ function SuppliersTab({ t, isRTL }) {
               </div>
             ))}
             <div>
-              <label className="text-xs text-gray-400">{t.suppliersField_paymentTerms}</label>
+              <label className="text-xs text-muted-foreground">{t.suppliersField_paymentTerms}</label>
               <select
-                className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 p-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2 text-sm"
                 value={form.paymentTerms || "NET30"}
                 onChange={(e) => setForm((p) => ({ ...p, paymentTerms: e.target.value }))}
               >
@@ -490,7 +492,7 @@ function SuppliersTab({ t, isRTL }) {
               />
               {t.active}
             </label>
-            <div className={cn("sm:col-span-2 flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+            <div className={cn("sm:col-span-2 flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
               <Button variant="ghost" onClick={() => setOpen(false)} type="button" className="w-full sm:w-auto">
                 {t.cancel}
               </Button>
@@ -503,22 +505,22 @@ function SuppliersTab({ t, isRTL }) {
       </Dialog>
 
       <Sheet open={!!sheetId} onOpenChange={(o) => !o && setSheetId(null)}>
-        <SheetContent side={isRTL ? "left" : "right"} className="w-full overflow-y-auto border-white/10 bg-gray-950 text-white sm:max-w-lg">
+        <SheetContent side={isRTL ? "left" : "right"} className="w-full overflow-y-auto border-border bg-card text-foreground sm:max-w-lg">
           <SheetHeader>
             <SheetTitle>{sheetData?.supplier?.name}</SheetTitle>
           </SheetHeader>
           {sheetData && (
-            <div className="mt-4 space-y-3 text-sm text-gray-300">
+            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
               <p>
                 {t.suppliersOutstanding}: {sheetData.stats.outstanding.toLocaleString()}
               </p>
               <p>
                 {t.suppliersTotalSpent}: {sheetData.stats.totalPurchases.toLocaleString()}
               </p>
-              <h4 className="font-bold text-white">{t.suppliersPurchaseHistory}</h4>
+              <h4 className="font-bold text-foreground">{t.suppliersPurchaseHistory}</h4>
               <ul className="max-h-60 space-y-2 overflow-y-auto text-xs">
                 {sheetData.supplier.purchases.map((p) => (
-                  <li key={p.id} className="rounded border border-white/10 p-2">
+                  <li key={p.id} className="rounded border border-border p-2">
                     {p.purchaseNumber} · {new Date(p.createdAt).toLocaleDateString()} · {Number(p.totalAmount).toLocaleString()}
                   </li>
                 ))}
@@ -673,12 +675,12 @@ function PurchasesTab({ t, isRTL }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card/70 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersPurchaseSearch}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="max-w-xs border-white/10 bg-gray-900 text-white"
+          className="max-w-xs border-border bg-background text-foreground"
         />
         <Button onClick={openCreate} className="bg-amber-500 text-black">
           <Plus className="h-4 w-4" />
@@ -686,10 +688,10 @@ function PurchasesTab({ t, isRTL }) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm text-gray-300">
+      <div className="overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full text-sm text-muted-foreground">
           <thead>
-            <tr className="border-b border-white/10 bg-white/5 text-xs uppercase text-gray-500">
+            <tr className="border-b border-border bg-muted/60 text-xs uppercase text-muted-foreground">
               <th className="p-2">{t.suppliersColPo}</th>
               <th className="p-2">{t.suppliersColDate}</th>
               <th className="p-2">{t.suppliersColSupplier}</th>
@@ -705,7 +707,7 @@ function PurchasesTab({ t, isRTL }) {
             {rows.map((r) => {
               const u = purchaseRowUi(r);
               return (
-              <tr key={r.id} className="border-b border-white/5">
+              <tr key={r.id} className="border-b border-border">
                 <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
                 <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
                 <td className="p-2">{r.supplierName}</td>
@@ -717,7 +719,7 @@ function PurchasesTab({ t, isRTL }) {
                     className={cn(
                       r.payment.key === "PAID" && "bg-emerald-600",
                       r.payment.key === "PARTIAL" && "bg-amber-600",
-                      r.payment.key === "UNPAID" && "bg-gray-600",
+                      r.payment.key === "UNPAID" && "bg-muted text-muted-foreground",
                       r.payment.key === "OVERDUE" && "bg-red-600"
                     )}
                   >
@@ -803,16 +805,16 @@ function PurchasesTab({ t, isRTL }) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] w-full max-w-3xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white">
-          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+        <DialogContent className="max-h-[90vh] w-full max-w-3xl overflow-y-auto border-border bg-card p-0 text-foreground">
+          <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersAddPurchase}</DialogTitle>
           </DialogHeader>
           {opts && (
             <div className="space-y-4 px-4 py-4 text-sm sm:px-6 sm:py-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-400">{t.suppliersColSupplier}</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t.suppliersColSupplier}</label>
                 <select
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 p-2"
+                  className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2"
                   value={pForm.supplierId}
                   onChange={(e) => setPForm((p) => ({ ...p, supplierId: e.target.value }))}
                 >
@@ -824,11 +826,11 @@ function PurchasesTab({ t, isRTL }) {
                 </select>
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-gray-400">{t.suppliersAddLine}</p>
+                <p className="text-xs font-semibold text-muted-foreground">{t.suppliersAddLine}</p>
                 {lines.map((l, i) => (
-                <div key={i} className="grid gap-2 rounded-lg border border-white/10 bg-black/20 p-2 sm:grid-cols-4">
+                <div key={i} className="grid gap-2 rounded-lg border border-border bg-black/20 p-2 sm:grid-cols-4">
                   <select
-                    className="rounded-lg border border-white/10 bg-black/40 p-2 sm:col-span-2"
+                    className="rounded-lg border border-border bg-black/40 p-2 sm:col-span-2"
                     value={l.productId}
                     onChange={(e) => {
                       const pr = opts.products.find((x) => x.id === e.target.value);
@@ -850,7 +852,7 @@ function PurchasesTab({ t, isRTL }) {
                   <Input
                     type="number"
                     min="1"
-                    className="border-white/10 bg-black/40"
+                    className="border-border bg-black/40"
                     value={l.quantity}
                     onChange={(e) => {
                       const next = [...lines];
@@ -862,7 +864,7 @@ function PurchasesTab({ t, isRTL }) {
                     type="number"
                     min="0"
                     step="0.01"
-                    className="border-white/10 bg-black/40"
+                    className="border-border bg-black/40"
                     value={l.unitCost}
                     onChange={(e) => {
                       const next = [...lines];
@@ -876,7 +878,7 @@ function PurchasesTab({ t, isRTL }) {
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/20 text-white"
+                className="border-border text-foreground"
                 onClick={() => setLines((ls) => [...ls, { productId: opts.products[0]?.id || "", quantity: 1, unitCost: 0 }])}
               >
                 + {t.suppliersAddLine}
@@ -886,31 +888,31 @@ function PurchasesTab({ t, isRTL }) {
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-400">{t.suppliersColDue}</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersColDue}</label>
                   <Input
                     type="date"
-                    className="border-white/10 bg-black/40"
+                    className="border-border bg-black/40"
                     value={pForm.dueDate}
                     onChange={(e) => setPForm((p) => ({ ...p, dueDate: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-400">{t.suppliersInvoiceRef}</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersInvoiceRef}</label>
                   <Input
                     placeholder={t.suppliersInvoiceRef}
-                    className="border-white/10 bg-black/40"
+                    className="border-border bg-black/40"
                     value={pForm.invoiceRef}
                     onChange={(e) => setPForm((p) => ({ ...p, invoiceRef: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-semibold text-gray-400">{t.suppliersPaidNow}</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersPaidNow}</label>
                   <Input
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder={t.suppliersPaidNow}
-                    className="border-white/10 bg-black/40"
+                    className="border-border bg-black/40"
                     value={pForm.paidAmount}
                     onChange={(e) => setPForm((p) => ({ ...p, paidAmount: e.target.value }))}
                   />
@@ -924,7 +926,7 @@ function PurchasesTab({ t, isRTL }) {
                 />
                 {t.suppliersReceiveNow}
               </label>
-              <div className={cn("flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
                 <Button variant="ghost" onClick={() => setOpen(false)} type="button" className="w-full sm:w-auto">
                   {t.cancel}
                 </Button>
@@ -938,14 +940,14 @@ function PurchasesTab({ t, isRTL }) {
       </Dialog>
 
       <Dialog open={!!payOpen} onOpenChange={(o) => !o && setPayOpen(null)}>
-        <DialogContent className="w-full max-w-md border-white/10 bg-gray-900 p-0 text-white">
-          <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+        <DialogContent className="w-full max-w-md border-border bg-card p-0 text-foreground">
+          <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{t.suppliersRecordPayment}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 px-4 py-4 sm:px-6 sm:py-5">
             {activePayRow ? (
-              <div className="rounded-lg border border-white/10 bg-black/30 p-3 text-xs text-gray-400">
-                <p className="font-mono text-white">{activePayRow.purchaseNumber}</p>
+              <div className="rounded-lg border border-border bg-black/30 p-3 text-xs text-muted-foreground">
+                <p className="font-mono text-foreground">{activePayRow.purchaseNumber}</p>
                 <p className="mt-1">
                   {t.suppliersColTotal}: {Number(activePayRow.totalAmount).toLocaleString()} · {t.suppliersColPaid}:{" "}
                   {Number(activePayRow.paidAmount).toLocaleString()}
@@ -957,17 +959,17 @@ function PurchasesTab({ t, isRTL }) {
             ) : null}
             <Input
               placeholder={t.suppliersPayAmount}
-              className="border-white/10 bg-black/40"
+              className="border-border bg-black/40"
               value={payForm.amount}
               onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
             />
             <Input
               placeholder={t.suppliersPayMethod}
-              className="border-white/10 bg-black/40"
+              className="border-border bg-black/40"
               value={payForm.method}
               onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
             />
-            <div className={cn("flex flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
+            <div className={cn("flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
               <Button variant="ghost" onClick={() => setPayOpen(null)} type="button" className="w-full sm:w-auto">
                 {t.cancel}
               </Button>
@@ -1031,19 +1033,19 @@ function ReportsTab({ t, isRTL }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
+      <div className="flex flex-wrap items-end gap-2 rounded-2xl border border-border bg-card/70 p-3 sm:p-4">
         <div>
-          <label className="text-xs text-gray-400">{t.suppliersReportFrom}</label>
-          <Input type="date" className="border-white/10 bg-gray-900 text-white" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <label className="text-xs text-muted-foreground">{t.suppliersReportFrom}</label>
+          <Input type="date" className="border-border bg-background text-foreground" value={from} onChange={(e) => setFrom(e.target.value)} />
         </div>
         <div>
-          <label className="text-xs text-gray-400">{t.suppliersReportTo}</label>
-          <Input type="date" className="border-white/10 bg-gray-900 text-white" value={to} onChange={(e) => setTo(e.target.value)} />
+          <label className="text-xs text-muted-foreground">{t.suppliersReportTo}</label>
+          <Input type="date" className="border-border bg-background text-foreground" value={to} onChange={(e) => setTo(e.target.value)} />
         </div>
         <Button className="bg-amber-500 text-black" onClick={load}>
           {t.suppliersApplyRange}
         </Button>
-        <Button variant="outline" className="border-white/10 text-white" onClick={exportReportsCsv}>
+        <Button variant="outline" className="border-border text-foreground" onClick={exportReportsCsv}>
           <Download className="h-4 w-4" />
           CSV
         </Button>
@@ -1052,8 +1054,8 @@ function ReportsTab({ t, isRTL }) {
       {data && (
         <>
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className="h-72 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="mb-2 text-sm font-bold text-white">{t.suppliersReportMonthly}</h3>
+            <div className="h-72 rounded-2xl border border-border bg-card p-4">
+              <h3 className="mb-2 text-sm font-bold text-foreground">{t.suppliersReportMonthly}</h3>
               <ResponsiveContainer width="100%" height="90%">
                 <BarChart data={data.monthly.map((m) => ({ name: new Date(m.month).toLocaleDateString(undefined, { month: "short" }), total: m.total }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
@@ -1064,8 +1066,8 @@ function ReportsTab({ t, isRTL }) {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="h-72 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="mb-2 text-sm font-bold text-white">{t.suppliersReportBySupplier}</h3>
+            <div className="h-72 rounded-2xl border border-border bg-card p-4">
+              <h3 className="mb-2 text-sm font-bold text-foreground">{t.suppliersReportBySupplier}</h3>
               <ResponsiveContainer width="100%" height="90%">
                 <PieChart>
                   <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label />
@@ -1074,8 +1076,8 @@ function ReportsTab({ t, isRTL }) {
               </ResponsiveContainer>
             </div>
           </div>
-          <div className="h-72 rounded-2xl border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-2 text-sm font-bold text-white">{t.suppliersReportByCategory}</h3>
+          <div className="h-72 rounded-2xl border border-border bg-card p-4">
+            <h3 className="mb-2 text-sm font-bold text-foreground">{t.suppliersReportByCategory}</h3>
             <ResponsiveContainer width="100%" height="90%">
               <PieChart>
                 <Pie data={donut} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={90} paddingAngle={2} label />
@@ -1083,11 +1085,11 @@ function ReportsTab({ t, isRTL }) {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-2 text-sm font-bold text-white">{t.suppliersOutstandingList}</h3>
-            <table className="w-full text-sm text-gray-300">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h3 className="mb-2 text-sm font-bold text-foreground">{t.suppliersOutstandingList}</h3>
+            <table className="w-full text-sm text-muted-foreground">
               <thead>
-                <tr className="border-b border-white/10 text-xs text-gray-500">
+                <tr className="border-b border-border text-xs text-muted-foreground">
                   <th className="p-2">{t.suppliersColPo}</th>
                   <th className="p-2">{t.suppliersColSupplier}</th>
                   <th className="p-2">{t.suppliersColDue}</th>
@@ -1096,7 +1098,7 @@ function ReportsTab({ t, isRTL }) {
               </thead>
               <tbody>
                 {(data.outstanding || []).map((o) => (
-                  <tr key={o.id} className={cn("border-b border-white/5", o.overdue && "bg-red-500/10")}>
+                  <tr key={o.id} className={cn("border-b border-border", o.overdue && "bg-red-500/10")}>
                     <td className="p-2 font-mono text-xs">{o.purchaseNumber}</td>
                     <td className="p-2">{o.supplierName}</td>
                     <td className="p-2">{o.dueDate ? new Date(o.dueDate).toLocaleDateString() : "—"}</td>

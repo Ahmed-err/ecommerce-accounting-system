@@ -30,21 +30,21 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
   return (
     <div className={`space-y-4 ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-gray-900 p-3"><p className="text-xs text-gray-400">{lang === "ar" ? "إجمالي المراجعات" : "Total reviews"}</p><p className="text-2xl font-bold text-white">{stats.total}</p></div>
-        <div className="rounded-xl border border-white/10 bg-gray-900 p-3"><p className="text-xs text-gray-400">{lang === "ar" ? "بانتظار الموافقة" : "Pending"}</p><p className="text-2xl font-bold text-amber-400">{stats.pending}</p></div>
-        <div className="rounded-xl border border-white/10 bg-gray-900 p-3"><p className="text-xs text-gray-400">{lang === "ar" ? "متوسط التقييم" : "Average rating"}</p><p className="text-2xl font-bold text-emerald-400">{stats.averageRating.toFixed(1)}</p></div>
+        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "إجمالي المراجعات" : "Total reviews"}</p><p className="text-2xl font-bold text-foreground">{stats.total}</p></div>
+        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "بانتظار الموافقة" : "Pending"}</p><p className="text-2xl font-bold text-amber-400">{stats.pending}</p></div>
+        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "متوسط التقييم" : "Average rating"}</p><p className="text-2xl font-bold text-emerald-400">{stats.averageRating.toFixed(1)}</p></div>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={lang === "ar" ? "بحث بالمراجع أو المنتج" : "Search by reviewer or product"} className="max-w-sm bg-gray-900 border-white/10" />
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={lang === "ar" ? "بحث بالمراجع أو المنتج" : "Search by reviewer or product"} className="max-w-sm bg-background border-border text-foreground" />
         <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "APPROVED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "APPROVED" } : r))); }}>{lang === "ar" ? "قبول المحدد" : "Approve selected"}</Button>
         <Button size="sm" className="bg-red-600 hover:bg-red-700" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "REJECTED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "REJECTED" } : r))); }}>{lang === "ar" ? "رفض المحدد" : "Reject selected"}</Button>
-        <Button size="sm" variant="outline" className="border-white/10 bg-gray-900 text-white" onClick={async () => { await adminDeleteReviewsAction(ids); setRows((prev) => prev.filter((r) => !selected.has(r.id))); setSelected(new Set()); }}>{lang === "ar" ? "حذف المحدد" : "Delete selected"}</Button>
+        <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={async () => { await adminDeleteReviewsAction(ids); setRows((prev) => prev.filter((r) => !selected.has(r.id))); setSelected(new Set()); }}>{lang === "ar" ? "حذف المحدد" : "Delete selected"}</Button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full min-w-[900px] text-sm">
-          <thead className="bg-gray-900/80 text-gray-400">
+          <thead className="bg-muted/60 text-muted-foreground">
             <tr>
               <th className="px-3 py-2"><input type="checkbox" onChange={(e) => setSelected(e.target.checked ? new Set(filtered.map((r) => r.id)) : new Set())} /></th>
               <th className="px-3 py-2">{lang === "ar" ? "المنتج" : "Product"}</th>
@@ -56,21 +56,21 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
               <th className="px-3 py-2">{t.actions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/10">
+          <tbody className="divide-y divide-border">
             {filtered.map((r) => (
-              <tr key={r.id} className="bg-gray-950/70">
+              <tr key={r.id} className="bg-card/70">
                 <td className="px-3 py-2"><input type="checkbox" checked={selected.has(r.id)} onChange={() => setSelected((prev) => { const n = new Set(prev); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} /></td>
-                <td className="px-3 py-2 text-white">{r.product?.name}</td>
-                <td className="px-3 py-2 text-gray-300">{r.user?.name || r.guestName || "Guest"}</td>
+                <td className="px-3 py-2 text-foreground">{r.product?.name}</td>
+                <td className="px-3 py-2 text-muted-foreground">{r.user?.name || r.guestName || "Guest"}</td>
                 <td className="px-3 py-2 text-amber-300">{r.rating}★</td>
-                <td className="px-3 py-2 text-gray-300">{r.title}</td>
+                <td className="px-3 py-2 text-muted-foreground">{r.title}</td>
                 <td className="px-3 py-2"><Badge className={r.status === "APPROVED" ? "bg-emerald-500/15 text-emerald-300" : r.status === "REJECTED" ? "bg-red-500/15 text-red-300" : "bg-amber-500/15 text-amber-300"}>{r.status}</Badge></td>
                 <td className="px-3 py-2">{r.verified ? <Badge className="bg-emerald-500/15 text-emerald-300">Yes</Badge> : "—"}</td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
                     <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "APPROVED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "APPROVED" } : x)); }}>{lang === "ar" ? "قبول" : "Approve"}</Button>
                     <Button size="sm" className="bg-red-600 hover:bg-red-700" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "REJECTED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "REJECTED" } : x)); }}>{lang === "ar" ? "رفض" : "Reject"}</Button>
-                    <Button size="sm" variant="outline" className="border-white/10 bg-gray-900 text-white" onClick={() => { setReplyId(r.id); setReply(r.adminReply || ""); setReplyOpen(true); }}>{lang === "ar" ? "رد" : "Reply"}</Button>
+                    <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={() => { setReplyId(r.id); setReply(r.adminReply || ""); setReplyOpen(true); }}>{lang === "ar" ? "رد" : "Reply"}</Button>
                   </div>
                 </td>
               </tr>
@@ -80,9 +80,9 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
       </div>
 
       <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-        <DialogContent className="bg-gray-900 border-white/10 text-white">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader><DialogTitle>{lang === "ar" ? "رد الإدارة" : "Admin reply"}</DialogTitle></DialogHeader>
-          <textarea className="w-full rounded-md border border-white/10 bg-gray-800 p-2" rows={5} value={reply} onChange={(e) => setReply(e.target.value)} />
+          <textarea className="w-full rounded-md border border-border bg-background p-2" rows={5} value={reply} onChange={(e) => setReply(e.target.value)} />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setReplyOpen(false)}>{t.cancel}</Button>
             <Button className="bg-amber-500 text-black hover:bg-amber-600" onClick={async () => { const res = await adminReplyReviewAction({ id: replyId, reply }); if (res.success) { setRows((prev) => prev.map((r) => (r.id === replyId ? { ...r, adminReply: reply } : r))); setReplyOpen(false); } }}>{t.save}</Button>

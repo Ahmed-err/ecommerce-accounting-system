@@ -88,19 +88,19 @@ export default function DashboardClient({ data, filters }) {
     >
       <div className="accounting-no-print flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-1">{t.adminOverview}</h1>
-          <p className="text-gray-400 text-sm">{t.adminWelcomeBack}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">{t.adminOverview}</h1>
+          <p className="text-muted-foreground text-sm">{t.adminWelcomeBack}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {["today", "week", "month"].map((r) => (
             <Link key={r} href={`/admin?range=${r}&view=${filters.view}`}>
-              <Button size="sm" variant={filters.range === r ? "default" : "outline"} className={filters.range === r ? "bg-amber-500 text-black" : "border-white/10 bg-gray-800 text-white"}>
+              <Button size="sm" variant={filters.range === r ? "default" : "outline"} className={filters.range === r ? "bg-amber-500 text-black" : "border-border bg-card text-foreground hover:bg-muted"}>
                 {r}
               </Button>
             </Link>
           ))}
           <Link href={`/admin?range=${filters.range}&view=${filters.view === "monthly" ? "weekly" : "monthly"}`}>
-            <Button size="sm" variant="outline" className="border-white/10 bg-gray-800 text-white">
+            <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted">
               {filters.view === "monthly" ? (lang === "ar" ? "أسبوعي" : "Weekly") : (lang === "ar" ? "شهري" : "Monthly")}
             </Button>
           </Link>
@@ -117,13 +117,13 @@ export default function DashboardClient({ data, filters }) {
           return (
             <motion.div key={k.id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
               <Link href={k.href}>
-                <Card className="bg-gray-900 border-white/5 rounded-2xl hover:border-amber-500/30 transition-colors">
+                <Card className="bg-card border-border rounded-2xl hover:border-amber-500/30 transition-colors">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-400">{kpiLabels[k.id]}</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{kpiLabels[k.id]}</CardTitle>
                     <Icon className="h-4 w-4 text-amber-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white regular-nums">
+                    <div className="text-2xl font-bold text-foreground regular-nums">
                       {["totalOrders", "newCustomers", "totalProducts", "lowStock"].includes(k.id)
                         ? Number(k.value).toLocaleString()
                         : `${Number(k.value).toLocaleString()} ${t.currency}`}
@@ -140,10 +140,10 @@ export default function DashboardClient({ data, filters }) {
         })}
       </motion.div>
 
-      <Card className="bg-gray-900 border-white/5 rounded-2xl">
+      <Card className="bg-card border-border rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-white">{lang === "ar" ? "اتجاه الإيرادات" : "Revenue Trend"}</CardTitle>
-          <CardDescription className="text-gray-400">{lang === "ar" ? "المتجر مقابل نقطة البيع" : "Store vs POS over time"}</CardDescription>
+          <CardTitle className="text-foreground">{lang === "ar" ? "اتجاه الإيرادات" : "Revenue Trend"}</CardTitle>
+          <CardDescription className="text-muted-foreground">{lang === "ar" ? "المتجر مقابل نقطة البيع" : "Store vs POS over time"}</CardDescription>
         </CardHeader>
         <CardContent className="h-[330px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -157,7 +157,7 @@ export default function DashboardClient({ data, filters }) {
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff12" />
               <XAxis dataKey="label" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
-              <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #ffffff22" }} />
+              <Tooltip contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
               <Area type="monotone" dataKey="total" fill="url(#totalFill)" stroke="transparent" />
               <Line type="monotone" dataKey="store" stroke="#3b82f6" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="pos" stroke="#22c55e" strokeWidth={2} dot={false} />
@@ -167,16 +167,16 @@ export default function DashboardClient({ data, filters }) {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-white">{lang === "ar" ? "أحدث الطلبات" : "Recent Orders"}</CardTitle>
+            <CardTitle className="text-foreground">{lang === "ar" ? "أحدث الطلبات" : "Recent Orders"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {data.recentOrders.map((o) => (
-              <Link href={`/admin/orders?search=${encodeURIComponent(o.id.slice(-8))}`} key={o.id} className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3 hover:bg-white/[0.05]">
+              <Link href={`/admin/orders?search=${encodeURIComponent(o.id.slice(-8))}`} key={o.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 hover:bg-muted/60">
                 <div>
-                  <p className="font-semibold text-white">#{o.id.slice(-8).toUpperCase()}</p>
-                  <p className="text-xs text-gray-400">{o.customer} - {timeAgo(o.createdAt, lang)}</p>
+                  <p className="font-semibold text-foreground">#{o.id.slice(-8).toUpperCase()}</p>
+                  <p className="text-xs text-muted-foreground">{o.customer} - {timeAgo(o.createdAt, lang)}</p>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
                   <div className="text-sm font-bold text-emerald-400">{o.total.toLocaleString()} {t.currency}</div>
@@ -191,19 +191,19 @@ export default function DashboardClient({ data, filters }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-white">{lang === "ar" ? "الأكثر مبيعاً" : "Top Selling Products"}</CardTitle>
+            <CardTitle className="text-foreground">{lang === "ar" ? "الأكثر مبيعاً" : "Top Selling Products"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {data.topProducts.map((p) => (
-              <div key={p.productId} className="flex items-center justify-between rounded-lg border border-white/5 p-2">
+              <div key={p.productId} className="flex items-center justify-between rounded-lg border border-border p-2">
                 <div className="flex items-center gap-2">
                   <span className="w-6 text-center text-xs font-bold text-amber-500">{p.rank}</span>
-                  <span className="text-sm text-white">{p.name}</span>
+                  <span className="text-sm text-foreground">{p.name}</span>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
-                  <p className="text-xs text-gray-400">{p.unitsSold} {lang === "ar" ? "وحدة" : "units"}</p>
+                  <p className="text-xs text-muted-foreground">{p.unitsSold} {lang === "ar" ? "وحدة" : "units"}</p>
                   <p className="text-xs text-emerald-400">{p.revenue.toLocaleString()} {t.currency}</p>
                 </div>
               </div>
@@ -214,9 +214,9 @@ export default function DashboardClient({ data, filters }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-white">{lang === "ar" ? "المبيعات حسب الفئة" : "Sales by Category"}</CardTitle>
+            <CardTitle className="text-foreground">{lang === "ar" ? "المبيعات حسب الفئة" : "Sales by Category"}</CardTitle>
           </CardHeader>
           <CardContent className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -229,79 +229,79 @@ export default function DashboardClient({ data, filters }) {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-white">{lang === "ar" ? "توزيع حالات الطلب" : "Order Status Distribution"}</CardTitle>
+            <CardTitle className="text-foreground">{lang === "ar" ? "توزيع حالات الطلب" : "Order Status Distribution"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {data.statusDistribution.map((s) => (
-              <div key={s.status} className="flex items-center justify-between rounded border border-white/10 p-2 text-sm">
-                <span className="text-gray-300">{s.status}</span>
-                <span className="font-bold text-white">{s.count}</span>
+              <div key={s.status} className="flex items-center justify-between rounded border border-border p-2 text-sm">
+                <span className="text-muted-foreground">{s.status}</span>
+                <span className="font-bold text-foreground">{s.count}</span>
               </div>
             ))}
           </CardContent>
         </Card>
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
-          <CardHeader><CardTitle className="text-white">{lang === "ar" ? "إجراءات سريعة" : "Quick Actions"}</CardTitle></CardHeader>
+        <Card className="bg-card border-border rounded-2xl">
+          <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "إجراءات سريعة" : "Quick Actions"}</CardTitle></CardHeader>
           <CardContent className="grid gap-2">
-            <Link href="/admin/inventory?action=add"><Button className="w-full justify-start bg-gray-800 text-white hover:bg-gray-700"><Plus className="h-4 w-4 me-2" />{lang === "ar" ? "إضافة منتج" : "Add Product"}</Button></Link>
-            <Link href="/pos"><Button className="w-full justify-start bg-gray-800 text-white hover:bg-gray-700"><Monitor className="h-4 w-4 me-2" />{lang === "ar" ? "طلب نقطة بيع جديد" : "New POS Order"}</Button></Link>
-            <Link href="/admin/accounting?tab=expenses"><Button className="w-full justify-start bg-gray-800 text-white hover:bg-gray-700"><DollarSign className="h-4 w-4 me-2" />{lang === "ar" ? "إضافة مصروف" : "Add Expense"}</Button></Link>
-            <Link href="/admin/accounting?tab=reports"><Button className="w-full justify-start bg-gray-800 text-white hover:bg-gray-700"><FileText className="h-4 w-4 me-2" />{lang === "ar" ? "عرض التقارير" : "View Reports"}</Button></Link>
-            <Link href="/admin/orders"><Button className="w-full justify-start bg-gray-800 text-white hover:bg-gray-700"><Truck className="h-4 w-4 me-2" />{lang === "ar" ? "إدارة الطلبات" : "Manage Orders"}</Button></Link>
+            <Link href="/admin/inventory?action=add"><Button className="w-full justify-start border border-border bg-card text-foreground hover:bg-muted"><Plus className="h-4 w-4 me-2" />{lang === "ar" ? "إضافة منتج" : "Add Product"}</Button></Link>
+            <Link href="/pos"><Button className="w-full justify-start border border-border bg-card text-foreground hover:bg-muted"><Monitor className="h-4 w-4 me-2" />{lang === "ar" ? "طلب نقطة بيع جديد" : "New POS Order"}</Button></Link>
+            <Link href="/admin/accounting?tab=expenses"><Button className="w-full justify-start border border-border bg-card text-foreground hover:bg-muted"><DollarSign className="h-4 w-4 me-2" />{lang === "ar" ? "إضافة مصروف" : "Add Expense"}</Button></Link>
+            <Link href="/admin/accounting?tab=reports"><Button className="w-full justify-start border border-border bg-card text-foreground hover:bg-muted"><FileText className="h-4 w-4 me-2" />{lang === "ar" ? "عرض التقارير" : "View Reports"}</Button></Link>
+            <Link href="/admin/orders"><Button className="w-full justify-start border border-border bg-card text-foreground hover:bg-muted"><Truck className="h-4 w-4 me-2" />{lang === "ar" ? "إدارة الطلبات" : "Manage Orders"}</Button></Link>
             <Link href="/admin/inventory?filter=low"><Button className="w-full justify-start bg-amber-500 text-black hover:bg-amber-600"><AlertTriangle className="h-4 w-4 me-2" />{lang === "ar" ? "تنبيه المخزون المنخفض" : "Low Stock Alert"} ({data.quick.lowStockCount})</Button></Link>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
-          <CardHeader><CardTitle className="text-white">{lang === "ar" ? "سجل النشاط" : "Recent Activity"}</CardTitle></CardHeader>
+        <Card className="bg-card border-border rounded-2xl">
+          <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "سجل النشاط" : "Recent Activity"}</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {data.activity.map((a) => {
               const fmt = formatAuditActivityForDashboard(a.action, a.details, lang);
               return (
-                <div key={a.id} className="flex items-start justify-between gap-3 rounded border border-white/10 p-2">
+                <div key={a.id} className="flex items-start justify-between gap-3 rounded border border-border p-2">
                   <div className="flex items-start gap-2 min-w-0 flex-1">
                     <Clock3 className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" />
                     <div className="min-w-0">
                       {fmt.href ? (
                         <Link href={fmt.href} className="group block">
-                          <p className="text-sm text-white group-hover:text-amber-400 transition-colors">{fmt.title}</p>
+                          <p className="text-sm text-foreground group-hover:text-amber-400 transition-colors">{fmt.title}</p>
                           {fmt.subtitle ? (
-                            <p className="text-xs text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 break-words">{fmt.subtitle}</p>
                           ) : null}
                         </Link>
                       ) : (
                         <>
-                          <p className="text-sm text-white">{fmt.title}</p>
+                          <p className="text-sm text-foreground">{fmt.title}</p>
                           {fmt.subtitle ? (
-                            <p className="text-xs text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 break-words">{fmt.subtitle}</p>
                           ) : null}
                         </>
                       )}
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500 shrink-0 whitespace-nowrap">{timeAgo(a.createdAt, lang)}</span>
+                  <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">{timeAgo(a.createdAt, lang)}</span>
                 </div>
               );
             })}
           </CardContent>
         </Card>
-        <Card className="bg-gray-900 border-white/5 rounded-2xl">
-          <CardHeader><CardTitle className="text-white">{lang === "ar" ? "ملخص مالي" : "Financial Summary"}</CardTitle></CardHeader>
+        <Card className="bg-card border-border rounded-2xl">
+          <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "ملخص مالي" : "Financial Summary"}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-gray-400">{lang === "ar" ? "الإيراد" : "Revenue"}</span><span className="text-emerald-400">{data.finance.revenue.toLocaleString()} {t.currency}</span></div>
-              <div className="h-2 rounded bg-white/10"><div className="h-2 rounded bg-emerald-500" style={{ width: "100%" }} /></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "الإيراد" : "Revenue"}</span><span className="text-emerald-400">{data.finance.revenue.toLocaleString()} {t.currency}</span></div>
+              <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-emerald-500" style={{ width: "100%" }} /></div>
             </div>
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-gray-400">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-400">{data.finance.expenses.toLocaleString()} {t.currency}</span></div>
-              <div className="h-2 rounded bg-white/10"><div className="h-2 rounded bg-red-500" style={{ width: `${Math.min(100, data.finance.revenue ? (data.finance.expenses / data.finance.revenue) * 100 : 0)}%` }} /></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-400">{data.finance.expenses.toLocaleString()} {t.currency}</span></div>
+              <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-red-500" style={{ width: `${Math.min(100, data.finance.revenue ? (data.finance.expenses / data.finance.revenue) * 100 : 0)}%` }} /></div>
             </div>
-            <div className="rounded border border-white/10 p-3">
-              <p className="text-xs text-gray-400">{lang === "ar" ? "صافي الربح" : "Net Profit"}</p>
+            <div className="rounded border border-border p-3">
+              <p className="text-xs text-muted-foreground">{lang === "ar" ? "صافي الربح" : "Net Profit"}</p>
               <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-400" : "text-red-400"}`}>{data.finance.net.toLocaleString()} {t.currency}</p>
             </div>
             <Link href="/admin/accounting" className="inline-flex text-xs text-amber-400 hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>

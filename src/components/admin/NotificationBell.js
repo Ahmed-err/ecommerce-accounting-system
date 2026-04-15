@@ -154,7 +154,7 @@ export default function NotificationBell({ customerOnly = false }) {
       >
         <Bell className="h-5 w-5 text-foreground" />
         {unread > 0 ? (
-          <span className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} h-5 min-w-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center`}>
+          <span className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} h-5 min-w-5 px-1 rounded-full bg-red-500 text-foreground dark:text-white text-[10px] font-black flex items-center justify-center`}>
             {unread > 99 ? "99+" : unread}
           </span>
         ) : null}

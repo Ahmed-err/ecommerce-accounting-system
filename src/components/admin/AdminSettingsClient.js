@@ -1444,7 +1444,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
 
       {activeTab === "backup" && (
         <div className="space-y-8">
-          <div className="space-y-3 rounded-xl border border-white/10 bg-gray-900/40 p-4">
+          <div className="space-y-3 rounded-xl border border-border bg-card/70 p-4">
             <p className="text-sm text-muted-foreground">{t.adminBackupScheduleHelp}</p>
             <Select value={backupScheduleValue} onValueChange={(v) => setStore((p) => ({ ...p, backupSchedule: v }))}>
               <SelectTrigger>
@@ -1462,9 +1462,9 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             </Button>
           </div>
 
-          <div className="space-y-4 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
+          <div className="space-y-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
             <div>
-              <h3 className="text-base font-semibold text-white">{t.adminBackupDownloadTitle}</h3>
+              <h3 className="text-base font-semibold text-foreground">{t.adminBackupDownloadTitle}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{t.adminBackupDownloadDesc}</p>
             </div>
             {store.backupLastAt ? (

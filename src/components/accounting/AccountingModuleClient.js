@@ -101,8 +101,8 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
     <div className={`accounting-page-print space-y-6 max-w-[1440px] mx-auto w-full ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className={`accounting-no-print flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between`}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">{t.adminAccountingTitle}</h1>
-          <p className="text-gray-400 mt-1">{t.adminAccountingDesc}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t.adminAccountingTitle}</h1>
+          <p className="text-muted-foreground mt-1">{t.adminAccountingDesc}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <PrintReportButton label={t.adminPrintReport} isRTL={isRTL} targetId="accounting-tab-print" />
@@ -110,7 +110,7 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
       </div>
 
       <div className="accounting-no-print flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-end">
-        <div className="flex flex-wrap gap-2 rounded-xl border border-white/5 bg-gray-900/80 p-1">
+        <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-card/80 p-1">
           {tabs.map((x) => (
             <button
               key={x.id}
@@ -118,12 +118,12 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
               onClick={() => setTab(x.id)}
               className={cn(
                 "relative rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:text-sm",
-                tab === x.id ? "bg-amber-500 text-black" : "text-gray-400 hover:text-white hover:bg-white/5"
+                tab === x.id ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               {x.label}
               {x.badge != null && (
-                <span className="ms-1 inline-flex min-w-[1.25rem] justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                <span className="ms-1 inline-flex min-w-[1.25rem] justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-foreground dark:text-white">
                   {x.badge}
                 </span>
               )}
@@ -131,12 +131,12 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
           ))}
         </div>
 
-        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-white/5 bg-gray-900/60 p-3">
+        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card/60 p-3">
           <Select value={rangePreset} onValueChange={setRangePreset}>
-            <SelectTrigger className="h-9 w-[140px] bg-gray-800 border-white/10 text-white">
+            <SelectTrigger className="h-9 w-[140px] bg-background border-border text-foreground">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-white/10 text-white">
+            <SelectContent className="bg-popover border-border text-popover-foreground">
               <SelectItem value="today">{t.accRangeToday}</SelectItem>
               <SelectItem value="week">{t.accRangeWeek}</SelectItem>
               <SelectItem value="month">{t.accRangeMonth}</SelectItem>
@@ -146,39 +146,39 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
           {rangePreset === "custom" && (
             <>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-gray-500">{t.accFrom}</span>
-                <Input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="h-9 w-[140px] bg-gray-800 border-white/10 text-white" />
+                <span className="text-[10px] text-muted-foreground">{t.accFrom}</span>
+                <Input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="h-9 w-[140px] bg-background border-border text-foreground" />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-gray-500">{t.accTo}</span>
-                <Input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="h-9 w-[140px] bg-gray-800 border-white/10 text-white" />
+                <span className="text-[10px] text-muted-foreground">{t.accTo}</span>
+                <Input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="h-9 w-[140px] bg-background border-border text-foreground" />
               </div>
             </>
           )}
           {tab === "pl" && (
             <Select value={plGranularity} onValueChange={setPlGranularity}>
-              <SelectTrigger className="h-9 w-[140px] bg-gray-800 border-white/10 text-white">
+              <SelectTrigger className="h-9 w-[140px] bg-background border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white">
+              <SelectContent className="bg-popover border-border text-popover-foreground">
                 <SelectItem value="monthly">{t.accPlPeriodMonthly}</SelectItem>
                 <SelectItem value="quarterly">{t.accPlPeriodQuarterly}</SelectItem>
                 <SelectItem value="yearly">{t.accPlPeriodYearly}</SelectItem>
               </SelectContent>
             </Select>
           )}
-          <Button type="button" size="sm" variant="outline" className="h-9 border-white/10 text-white" onClick={applyRangeToUrl}>
+          <Button type="button" size="sm" variant="outline" className="h-9 border-border text-foreground hover:bg-muted" onClick={applyRangeToUrl}>
             {t.accApplyRange}
           </Button>
         </div>
       </div>
 
       {pending && (
-        <div className="rounded-xl border border-white/5 bg-gray-900/50 p-4 text-center text-sm text-gray-500 animate-pulse">{t.saving}</div>
+        <div className="rounded-xl border border-border bg-card/50 p-4 text-center text-sm text-muted-foreground animate-pulse">{t.saving}</div>
       )}
 
       {!currentData ? (
-        <div className="rounded-xl border border-white/5 bg-gray-900/50 p-8 text-center text-sm text-gray-500 animate-pulse">
+        <div className="rounded-xl border border-border bg-card/50 p-8 text-center text-sm text-muted-foreground animate-pulse">
           {t.loading}
         </div>
       ) : (

@@ -105,14 +105,14 @@ function SourceBadge({ order, t }) {
 function KpiCard({ label, value, icon: Icon, color, sub, delay = 0 }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.3 }}
-      className="bg-gray-900 border border-white/5 rounded-xl p-4 flex items-center gap-4">
+      className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
       <div className={`p-2.5 rounded-xl ${color.split(" ")[0]} shrink-0`}>
         <Icon className={`h-4 w-4 ${color.split(" ")[1]}`} />
       </div>
       <div>
-        <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
-        <p className="text-xl font-bold text-white tabular-nums">{value}</p>
-        {sub && <p className="text-[10px] text-gray-500 mt-0.5">{sub}</p>}
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-xl font-bold text-foreground tabular-nums">{value}</p>
+        {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
       </div>
     </motion.div>
   );
@@ -123,10 +123,10 @@ function Dialog({ open, onClose, title, children, isRTL, wide }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className={`relative bg-gray-900 border border-white/10 rounded-2xl w-full ${wide ? "max-w-2xl" : "max-w-lg"} max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-        <div className="flex items-center justify-between p-5 border-b border-white/5">
-          <h3 className="text-white font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="h-5 w-5" /></button>
+      <div className={`relative bg-card border border-border rounded-2xl w-full ${wide ? "max-w-2xl" : "max-w-lg"} max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h3 className="text-foreground font-semibold">{title}</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -160,36 +160,36 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: isRTL ? -320 : 320, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 250 }}
-        className={`relative bg-gray-900 border border-white/10 rounded-t-2xl md:rounded-2xl w-full md:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`}
+        className={`relative bg-card border border-border rounded-t-2xl md:rounded-2xl w-full md:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className="flex items-center justify-between p-5 border-b border-white/5 sticky top-0 bg-gray-900 z-10">
+        <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
           <div>
-            <p className="text-xs text-gray-500">{t.ordDetailTitle}</p>
-            <p className="text-white font-bold font-mono">#{order.id.slice(-8).toUpperCase()}</p>
+            <p className="text-xs text-muted-foreground">{t.ordDetailTitle}</p>
+            <p className="text-foreground font-bold font-mono">#{order.id.slice(-8).toUpperCase()}</p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
 
         <div className="p-5 space-y-5">
           <div className="flex items-center gap-3 flex-wrap">
             <StatusBadge status={status} t={t} />
             <SourceBadge order={order} t={t} />
-            <span className="text-xs text-gray-500">{fmtDate(order.createdAt, lang)}</span>
+            <span className="text-xs text-muted-foreground">{fmtDate(order.createdAt, lang)}</span>
           </div>
 
-          <div className="bg-gray-800/40 rounded-xl p-4 space-y-2 text-sm">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">{t.ordDetailCustomer}</h4>
-            <div className="flex justify-between"><span className="text-gray-500">{t.fullName}:</span><span className="font-medium text-white">{customer}</span></div>
-            {order.guestPhone && <div className="flex justify-between"><span className="text-gray-500">{lang === "ar" ? "الهاتف" : "Phone"}:</span><span className="font-medium text-white dir-ltr">{order.guestPhone}</span></div>}
-            {order.guestEmail && <div className="flex justify-between"><span className="text-gray-500">{t.email}:</span><span className="font-medium text-white">{order.guestEmail}</span></div>}
-            {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-gray-500">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-white text-right">{order.guestCity}, {order.guestAddress}</span></div>}
-            <div className="flex justify-between"><span className="text-gray-500">{t.ordColPayment}:</span><span className="font-medium text-amber-400">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
+          <div className="bg-muted/40 rounded-xl p-4 space-y-2 text-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{t.ordDetailCustomer}</h4>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t.fullName}:</span><span className="font-medium text-foreground">{customer}</span></div>
+            {order.guestPhone && <div className="flex justify-between"><span className="text-muted-foreground">{lang === "ar" ? "الهاتف" : "Phone"}:</span><span className="font-medium text-foreground dir-ltr">{order.guestPhone}</span></div>}
+            {order.guestEmail && <div className="flex justify-between"><span className="text-muted-foreground">{t.email}:</span><span className="font-medium text-foreground">{order.guestEmail}</span></div>}
+            {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-muted-foreground">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-foreground text-right">{order.guestCity}, {order.guestAddress}</span></div>}
+            <div className="flex justify-between"><span className="text-muted-foreground">{t.ordColPayment}:</span><span className="font-medium text-amber-400">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
           </div>
 
           {order.paymentProofUrl && (
-            <div className="rounded-xl border border-white/10 bg-gray-800/40 p-4 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">{t.ordPaymentProof}</h4>
+            <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t.ordPaymentProof}</h4>
               <a
                 href={order.paymentProofUrl}
                 target="_blank"
@@ -199,7 +199,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 {t.ordOpenProof}
               </a>
-              <div className="relative w-full max-h-72 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+              <div className="relative w-full max-h-72 overflow-hidden rounded-lg border border-border bg-black/20">
                 <Image
                   src={order.paymentProofUrl}
                   alt=""
@@ -216,11 +216,11 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
           )}
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">{t.ordDetailItems}</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{t.ordDetailItems}</h4>
             <div className="space-y-2">
               {(order.items || []).map((item) => (
-                <div key={item.id} className="flex items-center gap-3 bg-gray-800/40 rounded-xl p-3">
-                  <div className="h-10 w-10 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden shrink-0">
+                <div key={item.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
                     {item.product?.images?.[0] ? (
                       <Image
                         src={item.product.images[0]}
@@ -234,16 +234,16 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
                         }
                       />
                     ) : (
-                      <Package className="h-4 w-4 text-gray-600" />
+                      <Package className="h-4 w-4 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{item.product?.name}</p>
-                    <p className="text-[10px] text-gray-500">SKU: {item.product?.sku}</p>
+                    <p className="text-xs font-semibold text-foreground truncate">{item.product?.name}</p>
+                    <p className="text-[10px] text-muted-foreground">SKU: {item.product?.sku}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-bold text-white tabular-nums">{fmt(item.price, lang)} {t.currency}</p>
-                    <p className="text-[10px] text-gray-500">×{item.quantity}</p>
+                    <p className="text-xs font-bold text-foreground tabular-nums">{fmt(item.price, lang)} {t.currency}</p>
+                    <p className="text-[10px] text-muted-foreground">×{item.quantity}</p>
                   </div>
                 </div>
               ))}
@@ -255,11 +255,11 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">{t.ordUpdateStatus}</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{t.ordUpdateStatus}</h4>
             <div className="flex flex-wrap gap-2">
               {["PENDING","PROCESSING","SHIPPED","DELIVERED","CANCELLED"].map((s) => (
                 <button key={s} onClick={() => handleStatusChange(s)} disabled={saving || status === s}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${status === s ? "bg-amber-500 text-black" : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"} disabled:opacity-50`}>
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${status === s ? "bg-amber-500 text-black" : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"} disabled:opacity-50`}>
                   {t[STATUS_CONFIG[s]?.label] || s}
                 </button>
               ))}
@@ -268,7 +268,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
 
           <div className="flex gap-2 pt-2">
             <Link href={`/admin/orders/${order.id}/invoice`} target="_blank" className="flex-1">
-              <Button variant="outline" size="sm" className="w-full border-white/10 text-gray-300 hover:bg-white/5">
+              <Button variant="outline" size="sm" className="w-full border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                 <Printer className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />{t.ordPrintInvoice}
               </Button>
             </Link>
@@ -297,10 +297,10 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
   if (isLoading) return <div className="py-16 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>;
 
   return (
-    <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className={`w-full min-w-[700px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-          <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+          <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3">{t.ordColOrder}</th>
               <th className="px-4 py-3">{t.ordColDate}</th>
@@ -312,9 +312,9 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
               <th className="px-4 py-3">{t.ordColActions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {orders.length === 0 && (
-              <tr><td colSpan={showSource ? 8 : 7} className="px-4 py-14 text-center text-gray-500">
+              <tr><td colSpan={showSource ? 8 : 7} className="px-4 py-14 text-center text-muted-foreground">
                 <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-20" />
                 <p>{t.ordNoOrders}</p>
               </td></tr>
@@ -322,20 +322,20 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
             {orders.map((order) => {
               const customer = order.guestName || (order.user ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() : "—");
               return (
-                <tr key={order.id} onClick={() => onRowClick(order)} className="hover:bg-white/[0.02] cursor-pointer transition-colors group">
+                <tr key={order.id} onClick={() => onRowClick(order)} className="hover:bg-muted/40 cursor-pointer transition-colors group">
                   <td className="px-4 py-3">
                     <span className="font-mono text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
                       #{order.id.slice(-8).toUpperCase()}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-400 whitespace-nowrap tabular-nums">{fmtDate(order.createdAt, lang)}</td>
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap tabular-nums">{fmtDate(order.createdAt, lang)}</td>
                   {showSource && <td className="px-4 py-3"><SourceBadge order={order} t={t} /></td>}
                   <td className="px-4 py-3">
-                    <p className="font-medium text-white text-xs">{customer}</p>
-                    {order.guestPhone && <p className="text-[10px] text-gray-500 dir-ltr">{order.guestPhone}</p>}
+                    <p className="font-medium text-foreground text-xs">{customer}</p>
+                    {order.guestPhone && <p className="text-[10px] text-muted-foreground dir-ltr">{order.guestPhone}</p>}
                   </td>
-                  <td className="px-4 py-3 text-center tabular-nums text-gray-300">{order.items?.length || 0}</td>
-                  <td className="px-4 py-3 font-bold text-white tabular-nums">{fmt(order.totalAmount, lang)} <span className="text-gray-500 font-normal">{t.currency}</span></td>
+                  <td className="px-4 py-3 text-center tabular-nums text-muted-foreground">{order.items?.length || 0}</td>
+                  <td className="px-4 py-3 font-bold text-foreground tabular-nums">{fmt(order.totalAmount, lang)} <span className="text-muted-foreground font-normal">{t.currency}</span></td>
                   <td className="px-4 py-3"><StatusBadge status={order.status} t={t} /></td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-1">
@@ -343,7 +343,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-gray-400 hover:text-white"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
                         title={t.ordCopyOrderId}
                         onClick={(e) => copyOrderId(e, order.id)}
                       >
@@ -353,7 +353,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                           <Copy className="h-3.5 w-3.5" />
                         )}
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-white" onClick={() => onRowClick(order)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => onRowClick(order)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Link href={`/admin/orders/${order.id}/invoice`} target="_blank">
@@ -370,13 +370,13 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
         </table>
       </div>
       {total > 20 && (
-        <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
+        <div className="px-4 py-3 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
           <span className="tabular-nums">{t.ordPage} {page} {t.ordOf} {totalPages}</span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => onPageChange(page - 1)} className="h-7 border-white/10 bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-40">
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => onPageChange(page - 1)} className="h-7 border-border bg-card text-foreground hover:bg-muted disabled:opacity-40">
               {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} className="h-7 border-white/10 bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-40">
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} className="h-7 border-border bg-card text-foreground hover:bg-muted disabled:opacity-40">
               {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
           </div>
@@ -402,15 +402,15 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
   };
 
   return (
-    <div className="flex flex-wrap gap-3 items-center bg-gray-900 border border-white/5 rounded-xl p-4">
+    <div className="flex flex-wrap gap-3 items-center bg-card border border-border rounded-xl p-4">
       <div className="relative flex-1 min-w-48">
-        <Search className={`absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-gray-500`} />
+        <Search className={`absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-muted-foreground`} />
         <Input value={searchVal} onChange={handleSearch} placeholder={t.ordSearchPlaceholder}
-          className={`${isRTL ? "pr-9" : "pl-9"} bg-gray-800 border-white/10 text-white h-9`} />
+          className={`${isRTL ? "pr-9" : "pl-9"} bg-background border-border text-foreground h-9`} />
       </div>
       <Select value={values.status || "all"} onValueChange={(v) => onFilter("status", v)}>
-        <SelectTrigger className="w-36 bg-gray-800 border-white/10 text-white h-9" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-        <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+        <SelectTrigger className="w-36 bg-background border-border text-foreground h-9" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+        <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
           <SelectItem value="all">{lang === "ar" ? "كل الحالات" : "All Statuses"}</SelectItem>
           {["PENDING","PROCESSING","SHIPPED","DELIVERED","CANCELLED"].map((s) => (
             <SelectItem key={s} value={s}>{t[STATUS_CONFIG[s]?.label] || s}</SelectItem>
@@ -419,8 +419,8 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
       </Select>
       {showSource && (
         <Select value={values.source || "all"} onValueChange={(v) => onFilter("source", v)}>
-          <SelectTrigger className="w-32 bg-gray-800 border-white/10 text-white h-9" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-          <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+          <SelectTrigger className="w-32 bg-background border-border text-foreground h-9" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+          <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
             <SelectItem value="all">{lang === "ar" ? "الكل" : "All"}</SelectItem>
             <SelectItem value="store">{t.ordSourceStore}</SelectItem>
             <SelectItem value="pos">{t.ordSourcePos}</SelectItem>
@@ -429,10 +429,10 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
       )}
       {showPayment && (
         <Select value={values.paymentMethod || "all"} onValueChange={(v) => onFilter("paymentMethod", v)}>
-          <SelectTrigger className="w-[10.5rem] bg-gray-800 border-white/10 text-white h-9" dir={isRTL ? "rtl" : "ltr"}>
+          <SelectTrigger className="w-[10.5rem] bg-background border-border text-foreground h-9" dir={isRTL ? "rtl" : "ltr"}>
             <SelectValue placeholder={t.ordFilterPayment} />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-white/10 text-white max-h-64" dir={isRTL ? "rtl" : "ltr"}>
+          <SelectContent className="bg-popover border-border text-popover-foreground max-h-64" dir={isRTL ? "rtl" : "ltr"}>
             <SelectItem value="all">{lang === "ar" ? "كل طرق الدفع" : "All payment methods"}</SelectItem>
             {COMMON_PAYMENT_METHODS.map((code) => (
               <SelectItem key={code} value={code}>
@@ -443,9 +443,9 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
         </Select>
       )}
       <div className="flex gap-2 items-center">
-        <Input type="date" value={values.dateFrom || ""} onChange={(e) => onFilter("dateFrom", e.target.value)} className="bg-gray-800 border-white/10 text-white h-9 w-36" />
-        <span className="text-gray-500 text-xs">—</span>
-        <Input type="date" value={values.dateTo || ""} onChange={(e) => onFilter("dateTo", e.target.value)} className="bg-gray-800 border-white/10 text-white h-9 w-36" />
+        <Input type="date" value={values.dateFrom || ""} onChange={(e) => onFilter("dateFrom", e.target.value)} className="bg-background border-border text-foreground h-9 w-36" />
+        <span className="text-muted-foreground text-xs">—</span>
+        <Input type="date" value={values.dateTo || ""} onChange={(e) => onFilter("dateTo", e.target.value)} className="bg-background border-border text-foreground h-9 w-36" />
       </div>
     </div>
   );
@@ -582,13 +582,13 @@ function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
   return (
     <div className="space-y-5">
       {summary.total > 0 && (
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t.ordPosSummary}</h3>
+        <div className="bg-card border border-border rounded-xl p-4">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">{t.ordPosSummary}</h3>
           <div className="flex flex-wrap gap-6">
-            <div><p className="text-xs text-gray-500">{t.ordPosTotal}</p><p className="text-2xl font-bold text-white tabular-nums">{summary.total}</p></div>
-            <div><p className="text-xs text-gray-500">{t.ordPosRevenue}</p><p className="text-2xl font-bold text-amber-400 tabular-nums">{fmt(summary.revenue, lang)} {t.currency}</p></div>
+            <div><p className="text-xs text-muted-foreground">{t.ordPosTotal}</p><p className="text-2xl font-bold text-foreground tabular-nums">{summary.total}</p></div>
+            <div><p className="text-xs text-muted-foreground">{t.ordPosRevenue}</p><p className="text-2xl font-bold text-amber-400 tabular-nums">{fmt(summary.revenue, lang)} {t.currency}</p></div>
             {Object.entries(summary.byMethod || {}).map(([method, val]) => (
-              <div key={method}><p className="text-xs text-gray-500">{method.replace(/_/g, " ")}</p><p className="text-lg font-bold text-blue-400 tabular-nums">{fmt(val, lang)}</p></div>
+              <div key={method}><p className="text-xs text-muted-foreground">{method.replace(/_/g, " ")}</p><p className="text-lg font-bold text-blue-400 tabular-nums">{fmt(val, lang)}</p></div>
             ))}
           </div>
         </div>
@@ -732,9 +732,9 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
         </Button>
       </div>
 
-      <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className={`w-full min-w-[800px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-          <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+          <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3">{t.ordReturnNo}</th>
               <th className="px-4 py-3">{t.ordOrigOrder}</th>
@@ -745,7 +745,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
               <th className="px-4 py-3">{t.ordColActions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {returns.length === 0 && (
               <tr><td colSpan="7" className="px-4 py-14 text-center text-gray-500">
                 <RotateCcw className="h-8 w-8 mx-auto mb-2 opacity-20" />
@@ -753,14 +753,14 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
               </td></tr>
             )}
             {returns.map((r) => (
-              <tr key={r.id} className="hover:bg-white/[0.02]">
+              <tr key={r.id} className="hover:bg-muted/40">
                 <td className="px-4 py-3 font-mono text-xs text-amber-400">{r.returnNumber}</td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-300">#{r.orderId.slice(-8).toUpperCase()}</td>
                 <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(r.createdAt, lang)}</td>
                 <td className="px-4 py-3 text-gray-300 truncate max-w-40">{r.reason}</td>
-                <td className="px-4 py-3 font-bold text-white tabular-nums">{fmt(r.refundAmount, lang)} {t.currency}</td>
+                <td className="px-4 py-3 font-bold text-foreground tabular-nums">{fmt(r.refundAmount, lang)} {t.currency}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${RETURN_STATUS_CONFIG[r.status] || "bg-gray-500/10 text-gray-400"}`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${RETURN_STATUS_CONFIG[r.status] || "bg-muted text-muted-foreground"}`}>
                     {t[`ordReturn${r.status.charAt(0) + r.status.slice(1).toLowerCase()}`] || r.status}
                   </span>
                 </td>
@@ -796,13 +796,13 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                   setLoadOk(false);
                 }}
                 placeholder={lang === "ar" ? "معرّف الطلب…" : "Order ID…"}
-                className="flex-1 min-w-[200px] bg-gray-800 border-white/10 text-white"
+                className="flex-1 min-w-[200px] bg-background border-border text-foreground"
                 disabled={loadingItems}
               />
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/15 text-gray-100 hover:bg-white/10 shrink-0"
+                className="border-border text-foreground hover:bg-muted shrink-0"
                 disabled={loadingItems || !form.orderId.trim()}
                 onClick={() => fetchOrderItems(form.orderId)}
               >
@@ -830,9 +830,9 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                   const sel = selectedItems.find((s) => s.lineId === item.id);
                   const q = sel?.quantity ?? 0;
                   return (
-                    <div key={item.id} className="flex items-center gap-3 bg-gray-800/40 rounded-xl p-3">
+                    <div key={item.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-white">{item.product?.name}</p>
+                        <p className="text-xs font-semibold text-foreground">{item.product?.name}</p>
                         <p className="text-[10px] text-gray-500 tabular-nums">
                           {fmt(item.price, lang)} × {lang === "ar" ? "الحد الأقصى" : "max"} {item.quantity}
                         </p>
@@ -851,7 +851,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                             prev.map((si) => (si.lineId === item.id ? { ...si, quantity: n } : si))
                           );
                         }}
-                        className="w-20 bg-gray-800 border-white/10 text-white h-8 text-center tabular-nums"
+                        className="w-20 bg-background border-border text-foreground h-8 text-center tabular-nums"
                       />
                     </div>
                   );
@@ -861,13 +861,13 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
           )}
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.ordReturnReason}</label>
-            <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+            <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.ordRefundMethod}</label>
             <Select value={form.refundMethod} onValueChange={(v) => setForm((p) => ({ ...p, refundMethod: v }))}>
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="CASH">{lang === "ar" ? "نقداً" : "Cash"}</SelectItem>
                 <SelectItem value="BANK_TRANSFER">{lang === "ar" ? "تحويل بنكي" : "Bank Transfer"}</SelectItem>
                 <SelectItem value="STORE_CREDIT">{lang === "ar" ? "رصيد المتجر" : "Store Credit"}</SelectItem>
@@ -876,7 +876,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">
+          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-muted">
             {t.cancel}
           </Button>
           <Button
@@ -917,16 +917,16 @@ function ReportsTab({ data, t, lang, isRTL }) {
   return (
     <div className="space-y-6 orders-reports-print">
       <div className="flex items-center justify-between accounting-no-print">
-        <h2 className="text-white font-semibold">{t.ordTabReports}</h2>
+        <h2 className="text-foreground font-semibold">{t.ordTabReports}</h2>
         <div className="flex gap-2">
-          <Button onClick={handleCsv} variant="outline" size="sm" className="border-white/10 text-gray-300 hover:bg-white/5"><Download className="h-4 w-4 mr-2" />{t.ordExportCsv}</Button>
-          <Button onClick={handlePrint} variant="outline" size="sm" className="border-white/10 text-gray-300 hover:bg-white/5"><Printer className="h-4 w-4 mr-2" />{lang === "ar" ? "طباعة" : "Print"}</Button>
+          <Button onClick={handleCsv} variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground"><Download className="h-4 w-4 mr-2" />{t.ordExportCsv}</Button>
+          <Button onClick={handlePrint} variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground"><Printer className="h-4 w-4 mr-2" />{lang === "ar" ? "طباعة" : "Print"}</Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.ordReportStatus}</h3>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.ordReportStatus}</h3>
           {statusPie.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
@@ -940,8 +940,8 @@ function ReportsTab({ data, t, lang, isRTL }) {
           ) : <div className="py-8 text-center text-gray-500 text-sm">{t.empNoData}</div>}
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.ordReportRevSource}</h3>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.ordReportRevSource}</h3>
           {revData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={revData} barSize={40}>
@@ -957,11 +957,11 @@ function ReportsTab({ data, t, lang, isRTL }) {
       </div>
 
       {topCustomers.length > 0 && (
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.ordReportTopCust}</h3>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.ordReportTopCust}</h3>
           <div className="overflow-x-auto">
             <table className={`w-full text-sm ${isRTL ? "text-right" : "text-left"}`}>
-              <thead className="text-xs text-gray-400 border-b border-white/5">
+              <thead className="text-xs text-muted-foreground border-b border-border">
                 <tr>
                   <th className="pb-3">{lang === "ar" ? "الهاتف" : "Phone"}</th>
                   <th className="pb-3 text-center">{lang === "ar" ? "عدد الطلبات" : "Orders"}</th>
@@ -970,9 +970,9 @@ function ReportsTab({ data, t, lang, isRTL }) {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {topCustomers.map((c, i) => (
-                  <tr key={i} className="hover:bg-white/[0.02]">
+                  <tr key={i} className="hover:bg-muted/40">
                     <td className="py-3 text-gray-300 dir-ltr">{c.guestPhone || "—"}</td>
-                    <td className="py-3 text-center tabular-nums text-white">{c._count?.id || 0}</td>
+                    <td className="py-3 text-center tabular-nums text-foreground">{c._count?.id || 0}</td>
                     <td className="py-3 tabular-nums font-bold text-amber-400">{fmt(c._sum?.totalAmount, lang)} {t.currency}</td>
                   </tr>
                 ))}
@@ -1039,10 +1039,10 @@ export default function OrdersModuleClient({ initialData, initialTab, initialLis
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="overflow-x-auto">
-        <div className="flex gap-1 bg-gray-900/50 border border-white/5 rounded-xl p-1 w-fit min-w-full sm:min-w-0">
+        <div className="flex gap-1 bg-card/60 border border-border rounded-xl p-1 w-fit min-w-full sm:min-w-0">
           {TABS_CONFIG.map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
               <Icon className="h-3.5 w-3.5" />{label}
             </button>
           ))}
