@@ -373,18 +373,18 @@ export default function ProductTable({
   return (
     <div
       className={cn(
-        "flex min-h-[500px] w-full flex-col rounded-2xl border border-white/5 bg-gray-900",
+        "flex min-h-[500px] w-full flex-col rounded-2xl border border-border bg-card",
         isRTL ? "text-right" : "text-left"
       )}
       dir={isRTL ? "rtl" : "ltr"}
     >
       {isCashier && (
-        <p className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs text-amber-200">
+        <p className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs text-amber-700 dark:text-amber-200">
           {t.inventoryCashierNoPricing}
         </p>
       )}
       {mounted && (
-        <div className="flex flex-col gap-3 border-b border-white/5 p-4 sm:flex-wrap sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-wrap sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-1 lg:flex-wrap lg:gap-2">
             <div className="relative h-10 w-full min-w-[200px] group sm:col-span-2 lg:max-w-xs">
               <Search
@@ -396,7 +396,7 @@ export default function ProductTable({
               <Input
                 placeholder={t.inventorySearchPlaceholder}
                 className={cn(
-                  "h-10 bg-gray-800/50 border-white/5 text-white focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 rounded-xl",
+                  "h-10 bg-background border-border text-foreground focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 rounded-xl",
                   isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"
                 )}
                 value={searchValue}
@@ -413,7 +413,7 @@ export default function ProductTable({
                     });
                   }}
                   className={cn(
-                    "absolute inset-y-0 my-auto flex items-center text-gray-500 hover:text-white",
+                    "absolute inset-y-0 my-auto flex items-center text-muted-foreground hover:text-foreground",
                     isRTL ? "left-3" : "right-3"
                   )}
                 >
@@ -427,12 +427,12 @@ export default function ProductTable({
               onValueChange={handleStatusChange}
             >
               <SelectTrigger
-                className="h-10 w-full bg-gray-800/50 border-white/5 text-white sm:w-[150px] rounded-xl"
+                className="h-10 w-full bg-background border-border text-foreground sm:w-[150px] rounded-xl"
                 dir={isRTL ? "rtl" : "ltr"}
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-gray-800 text-white rounded-xl">
+              <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryStatusAll}</SelectItem>
                 <SelectItem value="in">{t.adminInventoryInStockFilter}</SelectItem>
                 <SelectItem value="low">{t.inventoryStatusLow}</SelectItem>
@@ -445,12 +445,12 @@ export default function ProductTable({
               onValueChange={handleCategoryChange}
             >
               <SelectTrigger
-                className="h-10 w-full bg-gray-800/50 border-white/5 text-white sm:w-[160px] rounded-xl"
+                className="h-10 w-full bg-background border-border text-foreground sm:w-[160px] rounded-xl"
                 dir={isRTL ? "rtl" : "ltr"}
               >
                 <SelectValue placeholder={t.categoriesTab} />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-gray-800 text-white rounded-xl">
+              <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryStatusAll}</SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
@@ -465,12 +465,12 @@ export default function ProductTable({
               onValueChange={handleSupplierChange}
             >
               <SelectTrigger
-                className="h-10 w-full bg-gray-800/50 border-white/5 text-white sm:w-[160px] rounded-xl"
+                className="h-10 w-full bg-background border-border text-foreground sm:w-[160px] rounded-xl"
                 dir={isRTL ? "rtl" : "ltr"}
               >
                 <SelectValue placeholder={t.inventorySupplier} />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-gray-800 text-white rounded-xl">
+              <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryAllSuppliers}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id.toString()}>
@@ -483,10 +483,10 @@ export default function ProductTable({
               value={searchParamsHook.get("origin") || "all"}
               onValueChange={handleOriginChange}
             >
-              <SelectTrigger className="h-10 w-full bg-gray-800/50 border-white/5 text-white sm:w-[160px] rounded-xl">
+              <SelectTrigger className="h-10 w-full bg-background border-border text-foreground sm:w-[160px] rounded-xl">
                 <SelectValue placeholder={t.inventoryOriginLabel} />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-gray-800 text-white rounded-xl">
+              <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryOriginAll}</SelectItem>
                 <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
                 <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
@@ -496,7 +496,7 @@ export default function ProductTable({
             <Button
               type="button"
               variant="outline"
-              className="h-10 border-white/10 bg-gray-800 text-white"
+              className="h-10 border-border bg-card text-foreground hover:bg-muted"
               onClick={resetFilters}
             >
               {t.inventoryResetFilters}
@@ -505,7 +505,7 @@ export default function ProductTable({
             <Button
               type="button"
               variant="outline"
-              className="h-10 border-white/10 bg-gray-800 text-white"
+              className="h-10 border-border bg-card text-foreground hover:bg-muted"
               onClick={() => exportCsv(initialProducts)}
             >
               <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
@@ -539,7 +539,7 @@ export default function ProductTable({
       )}
       {canManage && !hideClassifyBanner && unclassifiedCount > 0 && (
         <div className="mx-4 mt-4 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
-          <span className="text-amber-100">
+          <span className="text-amber-700 dark:text-amber-100">
             {t.inventoryUnclassifiedBanner.replace("{count}", String(unclassifiedCount))}
           </span>
           <div className="flex gap-2">
@@ -549,7 +549,7 @@ export default function ProductTable({
             <Button
               size="sm"
               variant="ghost"
-              className="text-amber-100"
+              className="text-amber-700 dark:text-amber-100"
               onClick={() => {
                 localStorage.setItem("inventory-origin-banner-dismissed", "1");
                 setHideClassifyBanner(true);
@@ -563,7 +563,7 @@ export default function ProductTable({
 
       {canManage && selected.size > 0 && (
         <div className="flex flex-col gap-3 border-y border-amber-400/40 bg-amber-500/20 px-4 py-3 text-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-          <span className="shrink-0 text-base font-extrabold tracking-tight text-white drop-shadow-sm">
+          <span className="shrink-0 text-base font-extrabold tracking-tight text-foreground drop-shadow-sm">
             {String(t.inventoryBulkSelectionBar || "").replace("{count}", String(selected.size))}
           </span>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -571,7 +571,7 @@ export default function ProductTable({
               size="sm"
               type="button"
               variant="destructive"
-              className="h-9 border-2 border-red-400/70 bg-red-600 px-3 font-bold text-white shadow-md hover:bg-red-500 hover:text-white"
+              className="h-9 border-2 border-red-400/70 bg-red-600 px-3 font-bold text-foreground dark:text-white shadow-md hover:bg-red-500 hover:text-foreground dark:hover:text-white"
               onClick={runBulkDelete}
             >
               <Trash2 className={cn("h-4 w-4 shrink-0 opacity-95", isRTL ? "ms-1.5" : "me-1.5")} />
@@ -579,12 +579,12 @@ export default function ProductTable({
             </Button>
             <Select value={bulkCategoryId || "x"} onValueChange={(v) => setBulkCategoryId(v === "x" ? "" : v)}>
               <SelectTrigger
-                className="h-9 min-w-[10rem] max-w-[14rem] border-2 border-white/35 bg-gray-950 text-sm font-semibold text-white shadow-sm"
+                className="h-9 min-w-[10rem] max-w-[14rem] border-2 border-border bg-card text-sm font-semibold text-foreground shadow-sm"
                 dir={isRTL ? "rtl" : "ltr"}
               >
                 <SelectValue placeholder={t.inventoryBulkCategory} />
               </SelectTrigger>
-              <SelectContent className="border-white/15 bg-gray-900 text-white">
+              <SelectContent className="border-border bg-popover text-popover-foreground">
                 <SelectItem value="x">{t.inventoryBulkCategory}</SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
@@ -606,7 +606,7 @@ export default function ProductTable({
               size="sm"
               type="button"
               variant="outline"
-              className="h-9 border-2 border-white/45 bg-gray-950 font-bold text-white shadow-sm hover:bg-gray-800 hover:text-white"
+              className="h-9 border-2 border-border bg-card font-bold text-foreground shadow-sm hover:bg-muted hover:text-foreground"
               onClick={() => exportCsv(initialProducts.filter((p) => selected.has(p.id)))}
             >
               <Download className={cn("h-4 w-4 shrink-0 opacity-95", isRTL ? "ms-2" : "me-2")} />
@@ -619,11 +619,11 @@ export default function ProductTable({
       <div className="flex-1 overflow-x-auto">
         <table
           className={cn(
-            "w-full min-w-[1100px] text-sm text-gray-300",
+            "w-full min-w-[1100px] text-sm text-muted-foreground",
             isRTL ? "text-right" : "text-left"
           )}
         >
-          <thead className="border-b border-white/5 bg-gray-800/30 text-xs font-bold uppercase text-gray-400">
+          <thead className="border-b border-border bg-muted/60 text-xs font-bold uppercase text-muted-foreground">
             <tr>
               {canManage && (
                 <th className="w-10 px-2 py-3">
@@ -631,7 +631,7 @@ export default function ProductTable({
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="rounded border-white/20"
+                    className="rounded border-border"
                   />
                 </th>
               )}
@@ -693,11 +693,11 @@ export default function ProductTable({
               <th className={cn("px-4 py-3", isRTL ? "text-left" : "text-right")}>{t.actions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {initialProducts.length === 0 ? (
               <tr>
                 <td colSpan={colCount} className="px-6 py-16 text-center">
-                  <div className="flex flex-col items-center gap-4 text-gray-500">
+                  <div className="flex flex-col items-center gap-4 text-muted-foreground">
                     <Package className="h-12 w-12 opacity-30" />
                     <p className="italic">{t.inventoryNoProducts}</p>
                     {canManage && (
@@ -719,7 +719,7 @@ export default function ProductTable({
                       "transition-colors group",
                       st === "out" && "bg-red-500/[0.06]",
                       rowLow && "bg-amber-500/[0.08]",
-                      !rowLow && st !== "out" && "hover:bg-white/[0.015]"
+                      !rowLow && st !== "out" && "hover:bg-muted/40"
                     )}
                   >
                     {canManage && (
@@ -728,12 +728,12 @@ export default function ProductTable({
                           type="checkbox"
                           checked={selected.has(p.id)}
                           onChange={() => toggleSelect(p.id)}
-                          className="rounded border-white/20"
+                          className="rounded border-border"
                         />
                       </td>
                     )}
                     <td className="flex min-w-[220px] items-center gap-3 px-4 py-3">
-                      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/5 bg-gray-800 group-hover:border-amber-500/30">
+                      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-border bg-muted group-hover:border-amber-500/30">
                         {p.images?.[0] ? (
                           <Image
                             src={p.images[0]}
@@ -748,12 +748,12 @@ export default function ProductTable({
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center">
-                            <ImageIcon className="h-4 w-4 text-gray-600" />
+                            <ImageIcon className="h-4 w-4 text-muted-foreground" />
                           </div>
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-bold text-white group-hover:text-amber-400">
+                        <div className="truncate font-bold text-foreground group-hover:text-amber-400">
                           {displayName(p, lang)}
                         </div>
                         <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -770,7 +770,7 @@ export default function ProductTable({
                               : t.inventoryOriginLocalBadge}
                           </span>
                         </div>
-                        <div className="mt-0.5 flex items-center gap-1 text-[10px] text-gray-500">
+                        <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
                           <Layers className="h-3 w-3 shrink-0" />
                           <span className="truncate">{p.name !== displayName(p, lang) ? p.name : ""}</span>
                         </div>
@@ -796,7 +796,7 @@ export default function ProductTable({
                             : t.inventoryOriginLocalBadge}
                         </span>
                         {p.origin === "IMPORTED" && p.countryOfOrigin ? (
-                          <span className="text-[10px] text-gray-400">{p.countryOfOrigin}</span>
+                          <span className="text-[10px] text-muted-foreground">{p.countryOfOrigin}</span>
                         ) : null}
                         {canManage && (
                           <Select
@@ -817,10 +817,10 @@ export default function ProductTable({
                               } else router.refresh();
                             }}
                           >
-                            <SelectTrigger className="h-8 w-full min-w-[8.5rem] max-w-[11rem] border-white/15 bg-gray-800/90 text-[11px] text-white">
+                            <SelectTrigger className="h-8 w-full min-w-[8.5rem] max-w-[11rem] border-border bg-background text-[11px] text-foreground">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="border-white/10 bg-gray-800 text-white">
+                            <SelectContent className="border-border bg-popover text-popover-foreground">
                               <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
                               <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
                             </SelectContent>
@@ -828,8 +828,8 @@ export default function ProductTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-400">{p.barcode || "—"}</td>
-                    <td className="px-4 py-3 text-gray-400">{p.category?.name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.barcode || "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.category?.name}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <span
@@ -851,7 +851,7 @@ export default function ProductTable({
                                 e.stopPropagation();
                                 handleStockUpdate(p.id, -1);
                               }}
-                              className="flex h-6 w-6 items-center justify-center rounded border border-white/5 bg-gray-800 hover:bg-red-500/20"
+                              className="flex h-6 w-6 items-center justify-center rounded border border-border bg-card hover:bg-red-500/20"
                             >
                               −
                             </button>
@@ -861,7 +861,7 @@ export default function ProductTable({
                                 e.stopPropagation();
                                 handleStockUpdate(p.id, 1);
                               }}
-                              className="flex h-6 w-6 items-center justify-center rounded border border-white/5 bg-gray-800 hover:bg-emerald-500/20"
+                              className="flex h-6 w-6 items-center justify-center rounded border border-border bg-card hover:bg-emerald-500/20"
                             >
                               +
                             </button>
@@ -869,18 +869,18 @@ export default function ProductTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{p.unit || "pcs"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.unit || "pcs"}</td>
                     {!isCashier && (
                       <>
-                        <td className="regular-nums px-4 py-3 text-gray-300">
+                        <td className="regular-nums px-4 py-3 text-muted-foreground">
                           {p.purchasePrice != null ? `${Number(p.purchasePrice).toLocaleString()} ${t.currency}` : "—"}
                         </td>
-                        <td className="regular-nums px-4 py-3 font-medium text-white">
+                        <td className="regular-nums px-4 py-3 font-medium text-foreground">
                           {p.sellingPrice != null ? `${Number(p.sellingPrice).toLocaleString()} ${t.currency}` : "—"}
                         </td>
                       </>
                     )}
-                    <td className="regular-nums px-4 py-3 text-gray-400">{p.minStock}</td>
+                    <td className="regular-nums px-4 py-3 text-muted-foreground">{p.minStock}</td>
                     <td className="px-4 py-3">
                       <div className={cn("flex flex-col gap-1.5", isRTL ? "items-end" : "items-start")}>
                         <span
@@ -905,7 +905,7 @@ export default function ProductTable({
                         ) : null}
                       </div>
                       {p.barcode || p.sku ? (
-                        <div className="mt-2 max-w-[140px] rounded border border-white/10 bg-white p-1 [&_svg]:max-h-12">
+                        <div className="mt-2 max-w-[140px] rounded border border-border bg-card p-1 [&_svg]:max-h-12">
                           <InventoryBarcode value={p.barcode || p.sku} />
                         </div>
                       ) : null}
@@ -916,7 +916,7 @@ export default function ProductTable({
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-gray-500 hover:text-white"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           onClick={() => printBarcode(p)}
                           title={t.inventoryPrintBarcode}
                         >
@@ -927,7 +927,7 @@ export default function ProductTable({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-gray-500 hover:text-white"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               onClick={() => openEdit(p)}
                             >
                               <Edit className="h-4 w-4" />
@@ -952,23 +952,23 @@ export default function ProductTable({
         </table>
       </div>
 
-      <div className="flex flex-col items-center justify-between gap-4 border-t border-white/5 p-4 text-sm text-gray-400 sm:flex-row">
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-border p-4 text-sm text-muted-foreground sm:flex-row">
         <div>
           {t.tableShowing}{" "}
-          <span className="font-medium text-white">
+          <span className="font-medium text-foreground">
             {initialProducts.length > 0 ? (currentPage - 1) * INVENTORY_PAGE_SIZE + 1 : 0}
           </span>{" "}
           {t.tableTo}{" "}
-          <span className="font-medium text-white">
+          <span className="font-medium text-foreground">
             {Math.min(currentPage * INVENTORY_PAGE_SIZE, total)}
           </span>{" "}
-          {t.tableOf} <span className="font-medium text-white">{total}</span> {t.tableResults}
+          {t.tableOf} <span className="font-medium text-foreground">{total}</span> {t.tableResults}
         </div>
         <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="border-border bg-card text-foreground hover:bg-muted disabled:opacity-50"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -982,13 +982,13 @@ export default function ProductTable({
               </>
             )}
           </Button>
-          <div className="rounded-md border border-white/10 bg-gray-800 px-4 py-1.5 font-medium text-white">
+          <div className="rounded-md border border-border bg-card px-4 py-1.5 font-medium text-foreground">
             {t.tablePage} {currentPage} {t.tableOf} {totalPages}
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="border-border bg-card text-foreground hover:bg-muted disabled:opacity-50"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >

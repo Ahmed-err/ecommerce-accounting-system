@@ -95,9 +95,9 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
           { label: t.adminStatusProcessing, value: stats.processing, color: "text-indigo-500", bg: "bg-indigo-500/10", icon: Package },
           { label: t.adminStatusDelivered, value: stats.delivered, color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2 },
         ].map((item, i) => (
-          <div key={i} className="bg-gray-900 border border-white/5 rounded-2xl p-4 flex items-center justify-between">
+          <div key={i} className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500 font-medium mb-1">{item.label}</p>
+              <p className="text-xs text-muted-foreground font-medium mb-1">{item.label}</p>
               <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
             </div>
             <div className={`p-2 rounded-lg ${item.bg}`}>
@@ -108,12 +108,12 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900 border border-white/5 rounded-2xl p-4">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card border border-border rounded-2xl p-4">
         <div className="relative w-full md:w-96 group">
-          <Search className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} my-auto h-4 w-4 text-gray-500 group-focus-within:text-amber-500 transition-colors`} />
+          <Search className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} my-auto h-4 w-4 text-muted-foreground group-focus-within:text-amber-500 transition-colors`} />
           <input 
             type="text"
-            className={`w-full bg-gray-800/50 border border-white/5 rounded-xl ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm text-white outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all`}
+            className={`w-full bg-background border border-border rounded-xl ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm text-foreground outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all`}
             placeholder={lang === 'ar' ? "بحث في الطلبات..." : "Search orders..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -121,9 +121,9 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <Filter className="h-4 w-4 text-gray-500" />
+          <Filter className="h-4 w-4 text-muted-foreground" />
           <select 
-            className="flex-1 md:w-48 bg-gray-800/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-amber-500/50 transition-all cursor-pointer"
+            className="flex-1 md:w-48 bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:border-amber-500/50 transition-all cursor-pointer"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -138,10 +138,10 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
       </div>
 
       {/* Main Table */}
-      <div className="bg-gray-900 border border-white/5 rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-800/30 text-xs uppercase tracking-wider text-gray-400 font-bold border-b border-white/5">
+            <thead className="bg-muted/60 text-xs uppercase tracking-wider text-muted-foreground font-bold border-b border-border">
               <tr>
                 <th className="px-6 py-4 w-10"></th>
                 <th className="px-6 py-4">{t.adminOrderNumber}</th>
@@ -152,10 +152,10 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                 <th className={`px-6 py-4 ${isRTL ? 'text-left' : 'text-right'}`}>{t.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-gray-500 italic">
+                  <td colSpan="7" className="px-6 py-12 text-center text-muted-foreground italic">
                     <div className="flex flex-col items-center gap-2">
                        <ShoppingBag className="h-8 w-8 opacity-20" />
                        {t.adminNoOrdersFound}
@@ -170,9 +170,9 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
 
                   return (
                     <React.Fragment key={order.id}>
-                      <tr className={`${isExpanded ? 'bg-white/[0.03]' : 'hover:bg-white/[0.02]'} transition-colors group cursor-pointer`} onClick={() => toggleExpand(order.id)}>
+                      <tr className={`${isExpanded ? 'bg-muted/60' : 'hover:bg-muted/40'} transition-colors group cursor-pointer`} onClick={() => toggleExpand(order.id)}>
                         <td className="px-6 py-4">
-                          {isExpanded ? <ChevronUp className="h-4 w-4 text-amber-500" /> : <ChevronDown className="h-4 w-4 text-gray-600 group-hover:text-gray-400" />}
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-amber-500" /> : <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />}
                         </td>
                         <td className="px-6 py-4">
                           <span className="font-mono text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
@@ -181,8 +181,8 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-medium text-white">{order.guestName || (order.user ? `${order.user.firstName} ${order.user.lastName}` : "Guest")}</span>
-                            <span className="text-xs text-gray-500">{order.guestEmail || order.user?.email}</span>
+                            <span className="font-medium text-foreground">{order.guestName || (order.user ? `${order.user.firstName} ${order.user.lastName}` : "Guest")}</span>
+                            <span className="text-xs text-muted-foreground">{order.guestEmail || order.user?.email}</span>
                             {(order.guestPhone || order.guestCity) && (
                               <span className="text-[10px] text-amber-500/70">
                                 {order.guestPhone} {order.guestCity && `• ${order.guestCity}`}
@@ -190,7 +190,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-gray-400 whitespace-nowrap">
+                        <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
                           {new Date(order.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </td>
                         <td className="px-6 py-4">
@@ -199,13 +199,13 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                             {getStatusLabel(order.status)}
                           </span>
                         </td>
-                        <td className={`px-6 py-4 font-mono font-bold text-white whitespace-nowrap ${isRTL ? 'text-left' : 'text-right'}`}>
+                        <td className={`px-6 py-4 font-mono font-bold text-foreground whitespace-nowrap ${isRTL ? 'text-left' : 'text-right'}`}>
                           {order.totalAmount.toLocaleString()} {t.currency}
                         </td>
                         <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
                           <div className={`flex items-center gap-2 ${isRTL ? 'justify-start' : 'justify-end'}`}>
                             <select 
-                              className="bg-gray-800 border border-white/10 rounded-lg text-[10px] px-2 py-1.5 text-white outline-none focus:border-amber-500 transition-all cursor-pointer hover:bg-gray-700"
+                              className="bg-background border border-border rounded-lg text-[10px] px-2 py-1.5 text-foreground outline-none focus:border-amber-500 transition-all cursor-pointer hover:bg-muted"
                               value={order.status}
                               onChange={(e) => handleStatusChange(order.id, e.target.value)}
                             >
@@ -226,36 +226,36 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
 
                       {/* Expansion Panel */}
                       {isExpanded && (
-                        <tr className="bg-gray-800/20 border-b border-white/5">
+                        <tr className="bg-muted/40 border-b border-border">
                           <td colSpan="7" className="px-12 py-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-foreground">
                               {/* Buyer Info */}
                               <div className="space-y-4">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                   <User className="h-4 w-4" /> {lang === 'ar' ? 'معلومات العميل' : 'Customer Details'}
                                 </h4>
-                                <div className="space-y-2 text-sm bg-white/5 p-4 rounded-xl border border-white/5">
+                                <div className="space-y-2 text-sm bg-muted/40 p-4 rounded-xl border border-border">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">{t.fullName}:</span>
+                                    <span className="text-muted-foreground">{t.fullName}:</span>
                                     <span className="font-semibold">{order.guestName || (order.user ? `${order.user.firstName} ${order.user.lastName}` : "Guest")}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">{t.email}:</span>
+                                    <span className="text-muted-foreground">{t.email}:</span>
                                     <span className="font-semibold">{order.guestEmail || order.user?.email}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">{lang === 'ar' ? 'رقم الهاتف' : 'Phone'}:</span>
+                                    <span className="text-muted-foreground">{lang === 'ar' ? 'رقم الهاتف' : 'Phone'}:</span>
                                     <span className="font-semibold">{order.guestPhone || "—"}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">{lang === 'ar' ? 'طريقة الدفع' : 'Payment Method'}:</span>
+                                    <span className="text-muted-foreground">{lang === 'ar' ? 'طريقة الدفع' : 'Payment Method'}:</span>
                                     <span className="font-semibold text-amber-500">{order.paymentMethod}</span>
                                   </div>
-                                  <div className="pt-2 border-t border-white/5 flex gap-2">
+                                  <div className="pt-2 border-t border-border flex gap-2">
                                     <MapPin className="h-4 w-4 text-amber-500" />
                                     <div>
                                       <p className="font-bold text-xs">{order.guestCity}</p>
-                                      <p className="text-xs text-gray-400 mt-1">{order.guestAddress}</p>
+                                      <p className="text-xs text-muted-foreground mt-1">{order.guestAddress}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -263,13 +263,13 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
 
                               {/* Order Items */}
                               <div className="space-y-4">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                   <ShoppingCart className="h-4 w-4" /> {lang === 'ar' ? 'منتجات الطلب' : 'Ordered Items'}
                                 </h4>
-                                <div className="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                                <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
                                   {order.items?.map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-4 p-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                                      <div className="h-10 w-10 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden">
+                                    <div key={idx} className="flex items-center gap-4 p-3 border-b border-border last:border-0 hover:bg-muted transition-colors">
+                                      <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
                                         {item.product?.images?.[0] ? (
                                           <Image
                                             src={item.product.images[0]}
@@ -288,11 +288,11 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <p className="text-xs font-semibold truncate">{item.product?.name}</p>
-                                        <p className="text-[10px] text-gray-500 font-mono">SKU: {item.product?.sku}</p>
+                                        <p className="text-[10px] text-muted-foreground font-mono">SKU: {item.product?.sku}</p>
                                       </div>
                                       <div className="text-right">
                                         <p className="text-xs font-bold">{item.price.toLocaleString()} {t.currency}</p>
-                                        <p className="text-[10px] text-gray-500">×{item.quantity}</p>
+                                        <p className="text-[10px] text-muted-foreground">×{item.quantity}</p>
                                       </div>
                                     </div>
                                   ))}

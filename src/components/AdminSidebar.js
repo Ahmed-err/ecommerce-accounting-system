@@ -65,11 +65,11 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
 
   return (
     <div
-      className={`flex h-full flex-col bg-gray-950/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-white/5 text-gray-300 w-64 max-w-full overflow-x-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
+      className={`flex h-full flex-col bg-card/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-border text-muted-foreground w-64 max-w-full overflow-x-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="p-8">
-        <h2 className="flex items-start gap-2 text-white drop-shadow-sm">
+        <h2 className="flex items-start gap-2 text-foreground drop-shadow-sm">
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500">
             <Zap className="h-4 w-4 text-black" aria-hidden />
           </div>
@@ -100,7 +100,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative ${
                 isActive
                   ? "bg-amber-500/10 text-amber-500 font-bold"
-                  : "hover:bg-white/5 hover:text-white"
+                  : "hover:bg-muted hover:text-foreground"
               }`}
             >
               {isActive && (
@@ -128,10 +128,10 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
         })}
       </nav>
       
-      <div className="p-6 border-t border-white/5 mt-auto bg-black/20">
+      <div className="p-6 border-t border-border mt-auto bg-muted/40">
         <Link 
           href="/" 
-          className={`text-sm text-gray-400 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 group`}
+          className={`text-sm text-muted-foreground hover:text-foreground transition-all duration-300 flex items-center justify-center gap-2 p-3 bg-muted/50 hover:bg-muted rounded-2xl border border-border group`}
         >
           <span className="group-hover:translate-x-[-2px] transition-transform">
              {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}

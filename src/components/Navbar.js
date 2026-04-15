@@ -40,6 +40,7 @@ import {
  */
 function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline, isAdmin, isStaff }) {
     const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -60,7 +61,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 
     return (
         <div className="flex items-center lg:hidden">
-            <Sheet id="navbar-mobile-sheet">
+            <Sheet id="navbar-mobile-sheet" open={open} onOpenChange={setOpen}>
                 <SheetTrigger asChild>
                     <Button
                         variant="ghost"
@@ -72,6 +73,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                         <Menu className="h-5 w-5" />
                     </Button>
                 </SheetTrigger>
+                {open ? (
                 <SheetContent
                     side={isRTL ? "left" : "right"}
                     className="w-full border-none bg-background p-0 sm:max-w-xs"
@@ -106,6 +108,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     <Link
                                         key={link.name}
                                         href={link.href}
+                                        onClick={() => setOpen(false)}
                                         className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-foreground transition-all hover:bg-foreground/5"
                                     >
                                         {link.name}
@@ -120,6 +123,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     </p>
                                     <Link
                                         href="/pos"
+                                        onClick={() => setOpen(false)}
                                         className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-amber-500 transition-all hover:bg-amber-500/10"
                                     >
                                         <Zap className="h-5 w-5 shrink-0" />
@@ -127,6 +131,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     </Link>
                                     <Link
                                         href="/admin/orders"
+                                        onClick={() => setOpen(false)}
                                         className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-foreground transition-all hover:bg-foreground/5"
                                     >
                                         <ShoppingCart className="h-5 w-5 shrink-0" />
@@ -135,6 +140,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     {isAdmin && (
                                         <Link
                                             href="/admin"
+                                            onClick={() => setOpen(false)}
                                             className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-foreground transition-all hover:bg-foreground/5"
                                         >
                                             <LayoutDashboard className="h-5 w-5 shrink-0" />
@@ -171,7 +177,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 
                         {!session && (
                             <div className="bg-foreground/5 p-6">
-                                <Link href="/login">
+                                <Link href="/login" onClick={() => setOpen(false)}>
                                     <Button className="h-14 w-full rounded-2xl bg-amber-500 font-black text-black hover:bg-amber-600">
                                         {t.login}
                                     </Button>
@@ -180,6 +186,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                         )}
                     </div>
                 </SheetContent>
+                ) : null}
             </Sheet>
         </div>
     );

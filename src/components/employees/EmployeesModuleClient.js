@@ -85,7 +85,7 @@ function Badge({ color, children }) {
     amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
     red: "bg-red-500/10 text-red-400 border-red-500/20",
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    gray: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+    gray: "bg-muted text-muted-foreground border-border",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
   return (
@@ -101,14 +101,14 @@ function KpiCard({ label, value, icon: Icon, color, delay = 0 }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
-      className="bg-gray-900 border border-white/5 rounded-xl p-5 flex items-center gap-4"
+      className="bg-card border border-border rounded-xl p-5 flex items-center gap-4"
     >
       <div className={`p-3 rounded-xl ${color} shrink-0`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">{label}</p>
-        <p className="text-2xl font-bold text-white mt-0.5 tabular-nums">{value}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
+        <p className="text-2xl font-bold text-foreground mt-0.5 tabular-nums">{value}</p>
       </div>
     </motion.div>
   );
@@ -116,7 +116,7 @@ function KpiCard({ label, value, icon: Icon, color, delay = 0 }) {
 
 function Empty({ t, action }) {
   return (
-    <div className="py-16 text-center text-gray-500">
+    <div className="py-16 text-center text-muted-foreground">
       <Users className="h-10 w-10 mx-auto mb-3 opacity-20" />
       <p className="text-sm">{t.empNoData}</p>
       {action}
@@ -129,10 +129,10 @@ function Dialog({ open, onClose, title, children, isRTL }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className={`relative bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-        <div className="flex items-center justify-between p-5 border-b border-white/5">
-          <h3 className="text-white font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-white"><X className="h-5 w-5" /></button>
+      <div className={`relative bg-card border border-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h3 className="text-foreground font-semibold">{title}</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -146,18 +146,18 @@ function MonthYearPicker({ month, year, onMonth, onYear, lang, isRTL }) {
   return (
     <div className="flex gap-2">
       <Select value={String(month)} onValueChange={(v) => onMonth(Number(v))}>
-        <SelectTrigger className="bg-gray-800 border-white/10 text-white w-36" dir={isRTL ? "rtl" : "ltr"}>
+        <SelectTrigger className="bg-background border-border text-foreground w-36" dir={isRTL ? "rtl" : "ltr"}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+        <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
           {months.map((m, i) => <SelectItem key={i+1} value={String(i+1)}>{m}</SelectItem>)}
         </SelectContent>
       </Select>
       <Select value={String(year)} onValueChange={(v) => onYear(Number(v))}>
-        <SelectTrigger className="bg-gray-800 border-white/10 text-white w-28" dir={isRTL ? "rtl" : "ltr"}>
+        <SelectTrigger className="bg-background border-border text-foreground w-28" dir={isRTL ? "rtl" : "ltr"}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+        <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
           {years.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
         </SelectContent>
       </Select>
@@ -185,8 +185,8 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.empChartAttendance}</h3>
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.empChartAttendance}</h3>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barSize={8}>
@@ -203,10 +203,10 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
           ) : <Empty t={t} />}
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-4 sm:p-5 lg:p-6">
-          <h3 className="mb-3 text-sm font-semibold text-white sm:mb-4">{t.empChartDepts}</h3>
+        <div className="bg-card border border-border rounded-xl p-4 sm:p-5 lg:p-6">
+          <h3 className="mb-3 text-sm font-semibold text-foreground sm:mb-4">{t.empChartDepts}</h3>
           {deptBreakdown.length > 0 ? (
-            <div className="rounded-lg bg-white/[0.02] p-2 sm:p-3">
+            <div className="rounded-lg bg-muted/40 p-2 sm:p-3">
               <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie data={deptBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" nameKey="name">
@@ -222,18 +222,18 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.empUpcomingLeaves}</h3>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.empUpcomingLeaves}</h3>
           {(kpis.upcomingLeaves || []).length > 0 ? (
             <div className="space-y-2">
               {(kpis.upcomingLeaves || []).map((l) => (
-                <div key={l.id} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+                <div key={l.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/40">
                   <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs shrink-0">
                     {l.user?.firstName?.[0]}{l.user?.lastName?.[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{l.user?.firstName} {l.user?.lastName}</p>
-                    <p className="text-[10px] text-gray-400">{fmtDate(l.fromDate, lang)} → {fmtDate(l.toDate, lang)}</p>
+                    <p className="text-xs font-semibold text-foreground truncate">{l.user?.firstName} {l.user?.lastName}</p>
+                    <p className="text-[10px] text-muted-foreground">{fmtDate(l.fromDate, lang)} → {fmtDate(l.toDate, lang)}</p>
                   </div>
                   <Badge color="amber">{l.days}d</Badge>
                 </div>
@@ -242,21 +242,21 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
           ) : <Empty t={t} />}
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-4">{t.empRecentActivity}</h3>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-4">{t.empRecentActivity}</h3>
           {activity.length > 0 ? (
             <div className="space-y-2">
               {activity.map((log) => {
                 const fmt = formatAuditActivityForDashboard(log.action, log.details, lang);
                 return (
-                  <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg bg-white/5">
+                  <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg bg-muted/40">
                     <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-200">{fmt.title}</p>
+                      <p className="text-xs font-medium text-foreground">{fmt.title}</p>
                       {fmt.subtitle ? (
-                        <p className="text-[10px] text-gray-400 mt-0.5 break-words">{fmt.subtitle}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 break-words">{fmt.subtitle}</p>
                       ) : null}
-                      <p className="text-[10px] text-gray-500 mt-0.5">{fmtDate(log.createdAt, lang)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{fmtDate(log.createdAt, lang)}</p>
                     </div>
                   </div>
                 );
@@ -394,13 +394,13 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
         </Button>
       </div>
 
-      <div className="bg-gray-900/80 border border-amber-500/20 rounded-xl p-5 space-y-4">
+      <div className="bg-card/80 border border-amber-500/20 rounded-xl p-5 space-y-4">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
             <ClipboardList className="h-5 w-5 text-amber-400" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-white">{t.empQuickAttendanceTitle}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t.empQuickAttendanceTitle}</h3>
             <p className="text-xs text-gray-400 mt-1 leading-relaxed">{t.empQuickAttendanceDesc}</p>
           </div>
         </div>
@@ -411,7 +411,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
               type="date"
               value={quickDate}
               onChange={(e) => setQuickDate(e.target.value)}
-              className="bg-gray-800 border-white/10 text-white w-[160px]"
+              className="bg-background border-border text-foreground w-[160px]"
               disabled={quickLoading}
             />
           </div>
@@ -421,7 +421,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
               type="time"
               value={quickCheckIn}
               onChange={(e) => setQuickCheckIn(e.target.value)}
-              className="bg-gray-800 border-white/10 text-white w-[130px]"
+              className="bg-background border-border text-foreground w-[130px]"
               disabled={quickLoading}
             />
           </div>
@@ -431,14 +431,14 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
               type="time"
               value={quickCheckOut}
               onChange={(e) => setQuickCheckOut(e.target.value)}
-              className="bg-gray-800 border-white/10 text-white w-[130px]"
+              className="bg-background border-border text-foreground w-[130px]"
               disabled={quickLoading}
             />
           </div>
           <label className={`flex items-center gap-2 text-xs text-gray-300 cursor-pointer ${isRTL ? "flex-row-reverse" : ""} pb-1`}>
             <input
               type="checkbox"
-              className="rounded border-white/20 bg-gray-800 text-amber-500 focus:ring-amber-500/30"
+              className="rounded border-border bg-background text-amber-500 focus:ring-amber-500/30"
               checked={quickOnlyMissing}
               onChange={(e) => setQuickOnlyMissing(e.target.checked)}
               disabled={quickLoading}
@@ -452,7 +452,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             type="button"
             onClick={() => runQuickFill("PRESENT_DEFAULT")}
             disabled={quickLoading}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-9"
+            className="bg-emerald-600 hover:bg-emerald-500 text-foreground dark:text-white text-xs h-9"
           >
             {quickLoading ? t.empQuickWorking : t.empQuickFillPresent}
           </Button>
@@ -461,7 +461,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             variant="outline"
             onClick={() => runQuickFill("COPY_PREVIOUS")}
             disabled={quickLoading}
-            className="border-white/15 text-gray-200 hover:bg-white/5 text-xs h-9"
+            className="border-border text-foreground hover:bg-muted text-xs h-9"
           >
             {t.empQuickFillCopy}
           </Button>
@@ -496,12 +496,12 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
       )}
 
       {loading ? (
-        <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
+        <div className="py-12 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
       ) : (
         <>
-          <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className={`w-full min-w-[700px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-              <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+              <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">{t.empColEmployee}</th>
                   <th className="px-4 py-3">{t.empColDate}</th>
@@ -512,20 +512,20 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                   <th className="px-4 py-3">{t.actions}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {rows.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-gray-500">{t.empNoData}</td></tr>}
+              <tbody className="divide-y divide-border">
+                {rows.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-muted-foreground">{t.empNoData}</td></tr>}
                 {rows.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-3 font-medium text-white">{r.user?.firstName} {r.user?.lastName}</td>
-                    <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(r.date, lang)}</td>
-                    <td className="px-4 py-3 text-gray-300 tabular-nums">{fmtTime(r.checkIn)}</td>
-                    <td className="px-4 py-3 text-gray-300 tabular-nums">{fmtTime(r.checkOut)}</td>
-                    <td className="px-4 py-3 text-gray-300 tabular-nums">{diffHours(r.checkIn, r.checkOut)}</td>
+                  <tr key={r.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
+                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtDate(r.date, lang)}</td>
+                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtTime(r.checkIn)}</td>
+                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtTime(r.checkOut)}</td>
+                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{diffHours(r.checkIn, r.checkOut)}</td>
                     <td className="px-4 py-3">{statusBadge(r.status)}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(r)} className="h-7 w-7 text-gray-400 hover:text-white"><Edit className="h-3.5 w-3.5" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-gray-400 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(r)} className="h-7 w-7 text-muted-foreground hover:text-foreground"><Edit className="h-3.5 w-3.5" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-muted-foreground hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></Button>
                       </div>
                     </td>
                   </tr>
@@ -535,8 +535,8 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           </div>
 
           {summaryByEmployee.length > 0 && (
-            <div className="bg-gray-900 border border-white/5 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-white mb-4">{t.empMonthlySummary}</h3>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4">{t.empMonthlySummary}</h3>
               <div className="overflow-x-auto">
                 <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
                   <thead className="text-gray-400">
@@ -549,10 +549,10 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                       <th className="pb-2 px-3">{t.empStatusHoliday}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                     {summaryByEmployee.map((e) => (
                       <tr key={e.userId} className={e.absent >= 3 ? "bg-red-500/5" : ""}>
-                        <td className="py-2 pr-4 font-medium text-white">{e.name}</td>
+                        <td className="py-2 pr-4 font-medium text-foreground">{e.name}</td>
                         <td className="py-2 px-3 text-emerald-400 tabular-nums">{e.present}</td>
                         <td className="py-2 px-3 text-red-400 tabular-nums">{e.absent} {e.absent >= 3 && <AlertTriangle className="h-3 w-3 inline text-red-400" />}</td>
                         <td className="py-2 px-3 text-amber-400 tabular-nums">{e.late}</td>
@@ -574,24 +574,24 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={(v) => setForm((p) => ({ ...p, userId: v }))} disabled={!!editRec}>
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 {(staff || []).map((s) => <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColDate}</label>
-            <Input type="date" value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} className="bg-gray-800 border-white/10 text-white" disabled={!!editRec} />
+            <Input type="date" value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} className="bg-background border-border text-foreground" disabled={!!editRec} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckIn}</label>
-              <Input type="time" value={form.checkIn} onChange={(e) => setForm((p) => ({ ...p, checkIn: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="time" value={form.checkIn} onChange={(e) => setForm((p) => ({ ...p, checkIn: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckOut}</label>
-              <Input type="time" value={form.checkOut} onChange={(e) => setForm((p) => ({ ...p, checkOut: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="time" value={form.checkOut} onChange={(e) => setForm((p) => ({ ...p, checkOut: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
@@ -606,8 +606,8 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                 }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 {["PRESENT","ABSENT","LATE","HALF_DAY","HOLIDAY"].map((s) => (
                   <SelectItem key={s} value={s}>{t[`empStatus${s.charAt(0)+s.slice(1).toLowerCase().replace(/_([a-z])/g, (_,c) => c.toUpperCase())}`] || s}</SelectItem>
                 ))}
@@ -616,11 +616,11 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColNotes}</label>
-            <Input value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+            <Input value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">{t.cancel}</Button>
+          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-muted">{t.cancel}</Button>
           <Button onClick={handleSave} disabled={saving} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{saving ? t.saving : t.save}</Button>
         </div>
       </Dialog>
@@ -699,7 +699,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
             { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-400" },
             { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
           ].map((item) => (
-            <div key={item.label} className="bg-gray-900 border border-white/5 rounded-xl p-4">
+            <div key={item.label} className="bg-card border border-border rounded-xl p-4">
               <p className="text-xs text-gray-500">{item.label}</p>
               <p className={`text-xl font-bold tabular-nums mt-1 ${item.color}`}>{item.value} {t.currency}</p>
             </div>
@@ -710,9 +710,9 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
       {loading ? (
         <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
       ) : (
-        <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className={`w-full min-w-[700px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empColEmployee}</th>
                 <th className="px-4 py-3">{t.empColBase}</th>
@@ -723,11 +723,11 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
                 <th className="px-4 py-3">{t.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {records.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-gray-500">{t.empNoData}</td></tr>}
+            <tbody className="divide-y divide-border">
+              {records.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-muted-foreground">{t.empNoData}</td></tr>}
               {records.map((r) => (
-                <tr key={r.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-medium text-white">{r.user?.firstName} {r.user?.lastName}</td>
+                <tr key={r.id} className="hover:bg-muted/40">
+                  <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
                   <td className="px-4 py-3 tabular-nums text-gray-300">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">+{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">-{fmt(r.deductions, lang)}</td>
@@ -753,8 +753,8 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={onSelectEmp}>
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 {(staff || []).map((s) => <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -763,29 +763,29 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empSelectMonth}</label>
               <Select value={String(form.month)} onValueChange={(v) => setForm((p) => ({ ...p, month: Number(v) }))}>
-                <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-                <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+                <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+                <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                   {months.map((m, i) => <SelectItem key={i+1} value={String(i+1)}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empSelectYear}</label>
-              <Input type="number" value={form.year} onChange={(e) => setForm((p) => ({ ...p, year: Number(e.target.value) }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="number" value={form.year} onChange={(e) => setForm((p) => ({ ...p, year: Number(e.target.value) }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColBase} ({t.currency})</label>
-            <Input type="number" value={form.baseSalary} onChange={(e) => setForm((p) => ({ ...p, baseSalary: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+            <Input type="number" value={form.baseSalary} onChange={(e) => setForm((p) => ({ ...p, baseSalary: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColBonuses}</label>
-              <Input type="number" value={form.bonuses} onChange={(e) => setForm((p) => ({ ...p, bonuses: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="number" value={form.bonuses} onChange={(e) => setForm((p) => ({ ...p, bonuses: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColDeductions}</label>
-              <Input type="number" value={form.deductions} onChange={(e) => setForm((p) => ({ ...p, deductions: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="number" value={form.deductions} onChange={(e) => setForm((p) => ({ ...p, deductions: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div className="bg-amber-500/10 rounded-lg p-3 flex justify-between items-center">
@@ -794,7 +794,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">{t.cancel}</Button>
+          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-muted">{t.cancel}</Button>
           <Button onClick={handleSave} disabled={saving} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{saving ? t.saving : t.save}</Button>
         </div>
       </Dialog>
@@ -860,9 +860,9 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
       {loading ? (
         <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
       ) : (
-        <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className={`w-full min-w-[800px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empColEmployee}</th>
                 <th className="px-4 py-3">{t.empColLeaveType}</th>
@@ -873,11 +873,11 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
                 <th className="px-4 py-3">{t.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {leaves.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-gray-500">{t.empNoData}</td></tr>}
+            <tbody className="divide-y divide-border">
+              {leaves.length === 0 && <tr><td colSpan="7" className="px-4 py-10 text-center text-muted-foreground">{t.empNoData}</td></tr>}
               {leaves.map((l) => (
-                <tr key={l.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-medium text-white">{l.user?.firstName} {l.user?.lastName}</td>
+                <tr key={l.id} className="hover:bg-muted/40">
+                  <td className="px-4 py-3 font-medium text-foreground">{l.user?.firstName} {l.user?.lastName}</td>
                   <td className="px-4 py-3">{typeBadge(l.type)}</td>
                   <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(l.fromDate, lang)}</td>
                   <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(l.toDate, lang)}</td>
@@ -904,8 +904,8 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={(v) => setForm((p) => ({ ...p, userId: v }))}>
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 {(staff || []).map((s) => <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -913,8 +913,8 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveType}</label>
             <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v }))}>
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
+              <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="ANNUAL">{t.empLeaveAnnual}</SelectItem>
                 <SelectItem value="SICK">{t.empLeaveSick}</SelectItem>
                 <SelectItem value="EMERGENCY">{t.empLeaveEmergency}</SelectItem>
@@ -925,20 +925,20 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveFrom}</label>
-              <Input type="date" value={form.fromDate} onChange={(e) => setForm((p) => ({ ...p, fromDate: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="date" value={form.fromDate} onChange={(e) => setForm((p) => ({ ...p, fromDate: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveTo}</label>
-              <Input type="date" value={form.toDate} onChange={(e) => setForm((p) => ({ ...p, toDate: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+              <Input type="date" value={form.toDate} onChange={(e) => setForm((p) => ({ ...p, toDate: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveReason}</label>
-            <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-gray-800 border-white/10 text-white" />
+            <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-white/10">{t.cancel}</Button>
+          <Button variant="ghost" onClick={() => setDialogOpen(false)} className="hover:bg-muted">{t.cancel}</Button>
           <Button onClick={handleSave} disabled={saving} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{saving ? t.saving : t.save}</Button>
         </div>
       </Dialog>
@@ -1026,20 +1026,20 @@ function RolesTab({ t, lang, isRTL }) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {ROLES.map((role) => (
-          <div key={role.key} className="bg-gray-900 border border-white/5 rounded-xl p-5">
+          <div key={role.key} className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
               <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-amber-400"}`}>
                 <Shield className="h-3 w-3" /> {role.name}
               </div>
               {role.key === "ADMIN" ? (
-                <span className="text-[10px] text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{t.empRolesAdminLocked}</span>
+                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">{t.empRolesAdminLocked}</span>
               ) : (
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
                   disabled={!!resetting}
-                  className="h-7 text-[10px] border-white/15 text-gray-300 hover:bg-white/10"
+                  className="h-7 text-[10px] border-border text-muted-foreground hover:bg-muted hover:text-foreground"
                   onClick={() => handleReset(role.key)}
                 >
                   {resetting === role.key ? "…" : role.key === "MANAGER" ? t.empRolesResetManager : t.empRolesResetCashier}
@@ -1054,18 +1054,18 @@ function RolesTab({ t, lang, isRTL }) {
       <p className="text-xs text-gray-500 leading-relaxed max-w-3xl">{t.empRolesHint}</p>
       {permError ? <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{permError}</div> : null}
 
-      <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-white">{t.empRolesTitle}</h3>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">{t.empRolesTitle}</h3>
           {permLoading ? <span className="text-xs text-gray-500">{lang === "ar" ? "جاري التحميل…" : "Loading…"}</span> : null}
         </div>
         <div className="overflow-x-auto">
           <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/40 text-gray-400">
+            <thead className="bg-muted/60 text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empPermModule}</th>
                 {MATRIX_ROLES.map((rk) => (
-                  <th key={rk} colSpan={4} className="px-4 py-3 text-center border-l border-white/5">
+                  <th key={rk} colSpan={4} className="px-4 py-3 text-center border-l border-border">
                     {rk === "ADMIN" ? t.empRoleAdmin : rk === "MANAGER" ? t.empRoleManager : t.empRoleCashier}
                   </th>
                 ))}
@@ -1081,9 +1081,9 @@ function RolesTab({ t, lang, isRTL }) {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {PERMISSION_MODULES.map((mod) => (
-                <tr key={mod} className="hover:bg-white/[0.02]">
+                <tr key={mod} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-gray-300 whitespace-nowrap">{pLabels[mod]}</td>
                   {MATRIX_ROLES.map((rk) => {
                     const rec = byRoleModule.get(`${rk}-${mod}`);
@@ -1143,24 +1143,24 @@ function ReportsTab({ data, t, lang, isRTL }) {
   return (
     <div className="space-y-6 emp-reports-print">
       <div className="flex items-center justify-between accounting-no-print">
-        <h2 className="text-white font-semibold">{t.empTabReports}</h2>
+        <h2 className="text-foreground font-semibold">{t.empTabReports}</h2>
         <div className="flex gap-2">
-          <Button onClick={handleCsvAttendance} variant="outline" size="sm" className="border-white/10 text-gray-300 hover:bg-white/5">
+          <Button onClick={handleCsvAttendance} variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground">
             <Download className="h-4 w-4 mr-2" />{t.empExportCsv}
           </Button>
-          <Button onClick={handlePrint} variant="outline" size="sm" className="border-white/10 text-gray-300 hover:bg-white/5">
+          <Button onClick={handlePrint} variant="outline" size="sm" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground">
             <Printer className="h-4 w-4 mr-2" />{t.empPrint}
           </Button>
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5">
-          <h3 className="text-sm font-semibold text-white">{t.empMonthlySummary}</h3>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">{t.empMonthlySummary}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className={`w-full text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empColEmployee}</th>
                 <th className="px-4 py-3 text-emerald-400">{t.empStatusPresent}</th>
@@ -1170,20 +1170,20 @@ function ReportsTab({ data, t, lang, isRTL }) {
                 <th className="px-4 py-3">{lang === "ar" ? "معدل الحضور %" : "Attendance Rate %"}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {rows.length === 0 && <tr><td colSpan="6" className="px-4 py-10 text-center text-gray-500">{t.empNoData}</td></tr>}
+            <tbody className="divide-y divide-border">
+              {rows.length === 0 && <tr><td colSpan="6" className="px-4 py-10 text-center text-muted-foreground">{t.empNoData}</td></tr>}
               {rows.map((e) => {
                 const rate = e.totalDays > 0 ? Math.round(((e.present + e.late * 0.5 + e.halfDay * 0.5) / e.totalDays) * 100) : 0;
                 return (
-                  <tr key={e.userId} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 font-medium text-white">{e.name}</td>
+                  <tr key={e.userId} className="hover:bg-muted/40">
+                    <td className="px-4 py-3 font-medium text-foreground">{e.name}</td>
                     <td className="px-4 py-3 text-emerald-400 tabular-nums">{e.present}</td>
                     <td className="px-4 py-3 text-red-400 tabular-nums">{e.absent}</td>
                     <td className="px-4 py-3 text-amber-400 tabular-nums">{e.late}</td>
                     <td className="px-4 py-3 text-gray-400 tabular-nums">{e.halfDay}</td>
                     <td className="px-4 py-3 tabular-nums">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
                           <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${rate}%` }} />
                         </div>
                         <span className="text-xs text-gray-300">{rate}%</span>
@@ -1197,9 +1197,9 @@ function ReportsTab({ data, t, lang, isRTL }) {
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-white/5 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/5">
-          <h3 className="text-sm font-semibold text-white">{lang === "ar" ? "تقرير الرواتب" : "Payroll Report"}</h3>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-foreground">{lang === "ar" ? "تقرير الرواتب" : "Payroll Report"}</h3>
         </div>
         <div className="p-5 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           {[
@@ -1208,7 +1208,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
             { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-400" },
             { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
           ].map((item) => (
-            <div key={item.label} className="bg-gray-800/40 rounded-xl p-4">
+            <div key={item.label} className="bg-muted/40 rounded-xl p-4">
               <p className="text-xs text-gray-500">{item.label}</p>
               <p className={`text-lg font-bold tabular-nums mt-1 ${item.color}`}>{item.value} {t.currency}</p>
             </div>
@@ -1216,7 +1216,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
         </div>
         <div className="overflow-x-auto">
           <table className={`w-full text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/40 text-xs uppercase text-gray-400">
+            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empColEmployee}</th>
                 <th className="px-4 py-3">{t.empColBase}</th>
@@ -1226,11 +1226,11 @@ function ReportsTab({ data, t, lang, isRTL }) {
                 <th className="px-4 py-3">{t.empColPayStatus}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {records.length === 0 && <tr><td colSpan="6" className="px-4 py-10 text-center text-gray-500">{t.empNoData}</td></tr>}
+            <tbody className="divide-y divide-border">
+              {records.length === 0 && <tr><td colSpan="6" className="px-4 py-10 text-center text-muted-foreground">{t.empNoData}</td></tr>}
               {records.map((r) => (
-                <tr key={r.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-medium text-white">{r.user?.firstName} {r.user?.lastName}</td>
+                <tr key={r.id} className="hover:bg-muted/40">
+                  <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
                   <td className="px-4 py-3 tabular-nums text-gray-300">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">{fmt(r.deductions, lang)}</td>
@@ -1298,12 +1298,12 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="overflow-x-auto">
-        <div className="flex gap-1 bg-gray-900/50 border border-white/5 rounded-xl p-1 w-fit min-w-full sm:min-w-0">
+        <div className="flex gap-1 bg-card/60 border border-border rounded-xl p-1 w-fit min-w-full sm:min-w-0">
           {TABS_CONFIG.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
             >
               <Icon className="h-3.5 w-3.5" />
               {label}
@@ -1315,7 +1315,7 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
       <AnimatePresence mode="wait">
         <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
           {isPending && (
-            <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
+            <div className="py-12 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
           )}
           {!isPending && (
             <>

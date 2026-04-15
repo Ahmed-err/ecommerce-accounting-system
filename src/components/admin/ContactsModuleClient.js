@@ -76,14 +76,14 @@ export default function ContactsModuleClient() {
   return (
     <div className={cn("space-y-6", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
       <div>
-        <h1 className="text-2xl font-black text-white">{t.adminContactsTitle}</h1>
-        <p className="text-sm text-gray-500">{t.adminContactsSubtitle}</p>
+        <h1 className="text-2xl font-black text-foreground">{t.adminContactsTitle}</h1>
+        <p className="text-sm text-muted-foreground">{t.adminContactsSubtitle}</p>
       </div>
 
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value)}
-        className="rounded-xl border border-white/10 bg-gray-900 px-3 py-2 text-sm text-white"
+        className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
       >
         <option value="all">{t.filterAll}</option>
         <option value="NEW">{t.contactStatusNew}</option>
@@ -91,10 +91,10 @@ export default function ContactsModuleClient() {
         <option value="REPLIED">{t.contactStatusReplied}</option>
       </select>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full text-sm text-gray-300">
+      <div className="overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full text-sm text-muted-foreground">
           <thead>
-            <tr className="border-b border-white/10 bg-white/5 text-xs uppercase text-gray-500">
+            <tr className="border-b border-border bg-muted/60 text-xs uppercase text-muted-foreground">
               <th className="p-3">{t.fullName}</th>
               <th className="p-3">{t.email}</th>
               <th className="p-3">{t.subject}</th>
@@ -105,8 +105,8 @@ export default function ContactsModuleClient() {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="cursor-pointer border-b border-white/5 hover:bg-white/5" onClick={() => open(r.id)}>
-                <td className="p-3 text-white">{r.name}</td>
+              <tr key={r.id} className="cursor-pointer border-b border-border hover:bg-muted/40" onClick={() => open(r.id)}>
+                <td className="p-3 text-foreground">{r.name}</td>
                 <td className="p-3">{r.email}</td>
                 <td className="p-3">{r.subject}</td>
                 <td className="p-3">{new Date(r.createdAt).toLocaleString()}</td>
@@ -131,7 +131,7 @@ export default function ContactsModuleClient() {
       </div>
 
       <Sheet open={!!sel} onOpenChange={(o) => !o && setSel(null)}>
-        <SheetContent side={isRTL ? "left" : "right"} className="w-full border-white/10 bg-gray-950 text-white sm:max-w-lg">
+        <SheetContent side={isRTL ? "left" : "right"} className="w-full border-border bg-card text-foreground sm:max-w-lg">
           <SheetHeader>
             <SheetTitle>{t.contactsMessageDetail}</SheetTitle>
           </SheetHeader>
@@ -151,7 +151,7 @@ export default function ContactsModuleClient() {
               <p>
                 <strong>{t.subject}:</strong> {detail.subject}
               </p>
-              <p className="whitespace-pre-wrap text-gray-300">{detail.message}</p>
+              <p className="whitespace-pre-wrap text-muted-foreground">{detail.message}</p>
               {detail.adminReply ? (
                 <div className="rounded border border-amber-500/30 bg-amber-500/10 p-2 text-xs">
                   <strong>{t.contactsAdminReply}</strong>
@@ -159,7 +159,7 @@ export default function ContactsModuleClient() {
                 </div>
               ) : null}
               <textarea
-                className="min-h-28 w-full rounded-lg border border-white/10 bg-black/40 p-2 text-sm"
+                className="min-h-28 w-full rounded-lg border border-border bg-background p-2 text-sm"
                 placeholder={t.contactsReplyPlaceholder}
                 value={reply}
                 onChange={(e) => setReply(e.target.value)}

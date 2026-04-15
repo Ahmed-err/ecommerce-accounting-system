@@ -42,19 +42,19 @@ export default function NotificationsPageClient() {
 
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">{lang === "ar" ? "الإشعارات" : "Notifications"}</h1>
-        <p className="mt-1 text-sm text-gray-400 sm:text-base">{lang === "ar" ? "متابعة إشعارات النظام والطلبات." : "Track system and order notifications."}</p>
+      <div className="rounded-2xl border border-border bg-card/70 p-4 sm:p-6">
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{lang === "ar" ? "الإشعارات" : "Notifications"}</h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">{lang === "ar" ? "متابعة إشعارات النظام والطلبات." : "Track system and order notifications."}</p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-gray-900/70 p-4 sm:p-5">
+      <div className="rounded-2xl border border-border bg-card/80 p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="h-10 w-full min-w-[10rem] bg-gray-900 border-white/10 text-white sm:w-[11rem]">
+              <SelectTrigger className="h-10 w-full min-w-[10rem] bg-background border-border text-foreground sm:w-[11rem]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border text-popover-foreground">
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="NEW_ORDER">NEW_ORDER</SelectItem>
                 <SelectItem value="LOW_STOCK">LOW_STOCK</SelectItem>
@@ -65,10 +65,10 @@ export default function NotificationsPageClient() {
               </SelectContent>
             </Select>
             <Select value={read} onValueChange={setRead}>
-              <SelectTrigger className="h-10 w-full min-w-[9rem] bg-gray-900 border-white/10 text-white sm:w-[10rem]">
+              <SelectTrigger className="h-10 w-full min-w-[9rem] bg-background border-border text-foreground sm:w-[10rem]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border text-popover-foreground">
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="unread">Unread</SelectItem>
                 <SelectItem value="read">Read</SelectItem>
@@ -78,13 +78,13 @@ export default function NotificationsPageClient() {
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="h-10 w-full min-w-[10rem] rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white sm:w-auto"
+              className="h-10 w-full min-w-[10rem] rounded-md border border-border bg-background px-3 py-2 text-foreground sm:w-auto"
             />
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="h-10 w-full min-w-[10rem] rounded-md border border-white/10 bg-gray-900 px-3 py-2 text-white sm:w-auto"
+              className="h-10 w-full min-w-[10rem] rounded-md border border-border bg-background px-3 py-2 text-foreground sm:w-auto"
             />
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
@@ -98,7 +98,7 @@ export default function NotificationsPageClient() {
             <Button
               variant="outline"
               onClick={cleanup}
-              className="h-10 w-full whitespace-nowrap border-white/10 text-white sm:w-auto"
+              className="h-10 w-full whitespace-nowrap border-border text-foreground hover:bg-muted sm:w-auto"
               type="button"
             >
               {lang === "ar" ? "حذف الأقدم من 30 يوماً" : "Delete >30d"}
@@ -109,16 +109,16 @@ export default function NotificationsPageClient() {
 
       <div className="space-y-3">
         {rows.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-gray-900 p-6 text-center text-sm text-gray-400 sm:p-8">
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground sm:p-8">
             {lang === "ar" ? "لا توجد إشعارات" : "No notifications"}
           </div>
         ) : rows.map((n) => (
-          <div key={n.id} className={`rounded-xl border p-4 sm:p-5 ${n.read ? "border-white/10 bg-gray-900" : "border-amber-500/40 bg-amber-500/10"}`}>
+          <div key={n.id} className={`rounded-xl border p-4 sm:p-5 ${n.read ? "border-border bg-card" : "border-amber-500/40 bg-amber-500/10"}`}>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-              <p className="font-semibold text-sm text-white sm:text-base">{lang === "ar" ? n.titleAr : n.titleEn}</p>
-              <span className="shrink-0 text-[11px] text-gray-400 sm:text-xs">{new Date(n.createdAt).toLocaleString()}</span>
+              <p className="font-semibold text-sm text-foreground sm:text-base">{lang === "ar" ? n.titleAr : n.titleEn}</p>
+              <span className="shrink-0 text-[11px] text-muted-foreground sm:text-xs">{new Date(n.createdAt).toLocaleString()}</span>
             </div>
-            <p className="mt-1 text-sm text-gray-300">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
             {n.link ? <p className="mt-1 break-all text-xs text-amber-400">{n.link}</p> : null}
           </div>
         ))}
