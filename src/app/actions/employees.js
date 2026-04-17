@@ -154,6 +154,7 @@ export async function getEmployees({
      }
     const where = {
       role: { not: "CUSTOMER" },
+      isActive: true,
       ...(search
         ? {
             OR: [
@@ -209,7 +210,7 @@ export async function getDepartments() {
       return [];
     }
     const rows = await db.user.findMany({
-      where: { role: { not: "CUSTOMER" }, department: { not: null } },
+      where: { role: { not: "CUSTOMER" }, isActive: true, department: { not: null } },
       select: { department: true },
       distinct: ["department"],
       orderBy: { department: "asc" },
@@ -301,6 +302,13 @@ export async function deleteEmployee(id) {
     const admin = await ensureAdmin();
     if (admin.id === id) {
       return { success: false, error: "You cannot delete your own admin account." };
+    }
+    const target = await db.user.findFirst({
+      where: { id, role: { not: "CUSTOMER" } },
+      select: { id: true },
+    });
+    if (!target) {
+      return { success: false, error: "Employee not found." };
     }
     await db.user.update({ where: { id }, data: { isActive: false } });
     await logAction("DELETE_EMPLOYEE", { employeeId: id });
