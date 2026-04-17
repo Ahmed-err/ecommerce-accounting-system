@@ -1,9 +1,8 @@
-import { unstable_noStore as noStore } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { translations } from "@/lib/translations";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 
-export async function getStoreBranding() {
-  noStore();
+async function fetchStoreBranding() {
   try {
     const store = await getOrCreateStoreSettings();
     return {
@@ -31,6 +30,11 @@ export async function getStoreBranding() {
     addressEn: null,
   };
 }
+
+export const getStoreBranding = unstable_cache(fetchStoreBranding, ["store-branding"], {
+  tags: ["branding"],
+  revalidate: 300,
+});
 
 export function getBrandingForLang(branding, lang) {
   const isRTL = lang === "ar";

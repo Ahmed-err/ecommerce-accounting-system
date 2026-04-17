@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 export default function AdminError({ error, reset }) {
   useEffect(() => {
-    const details = {
-      name: error?.name || "UnknownError",
-      message: error?.message || "No message",
-      digest: error?.digest || null,
-      stack: error?.stack || null,
-    };
-    console.error("Admin error:", details, error);
+    console.error("Admin error:", error?.digest || error?.message);
   }, [error]);
 
   return (
@@ -21,11 +16,16 @@ export default function AdminError({ error, reset }) {
         <div className="inline-flex items-center justify-center p-4 bg-red-500/10 rounded-full">
           <AlertTriangle className="h-12 w-12 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-white">Dashboard Error</h1>
-        <p className="text-gray-400">Something went wrong loading this page.</p>
-        <Button onClick={reset} className="bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-xl">
-          Try Again
-        </Button>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard Error</h1>
+        <p className="text-muted-foreground">Something went wrong loading this page.</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button onClick={reset} className="bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-xl">
+            Try Again
+          </Button>
+          <Button asChild variant="outline" className="rounded-xl">
+            <Link href="/admin">Back to Dashboard</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

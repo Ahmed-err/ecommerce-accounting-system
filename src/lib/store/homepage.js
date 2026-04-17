@@ -1,10 +1,9 @@
-import { unstable_noStore as noStore } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
 import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
 
-export async function getHomepageData() {
-  noStore();
+async function fetchHomepageData() {
   try {
     const [banners, categories, featured, offers] = await Promise.all([
       db.banner.findMany({
@@ -75,3 +74,8 @@ export async function getHomepageData() {
     };
   }
 }
+
+export const getHomepageData = unstable_cache(fetchHomepageData, ["homepage-data"], {
+  tags: ["homepage"],
+  revalidate: 60,
+});

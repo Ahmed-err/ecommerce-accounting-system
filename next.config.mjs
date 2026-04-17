@@ -9,7 +9,6 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {},
   images: {
     qualities: [75, 90],
     dangerouslyAllowSVG: true,

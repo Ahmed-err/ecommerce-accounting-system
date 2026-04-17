@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma as db } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
 import {
@@ -220,6 +220,7 @@ export async function createProduct(data) {
     });
     await logAction("CREATE_PRODUCT", { productId: product.id, name: d.name });
     revalidatePath("/admin/inventory");
+    revalidateTag("homepage");
     return { success: true, product };
   } catch (error) {
     console.error("Failed to create product:", error);
@@ -269,6 +270,7 @@ export async function updateProduct(id, data) {
     });
     await logAction("UPDATE_PRODUCT", { productId: id, name: d.name });
     revalidatePath("/admin/inventory");
+    revalidateTag("homepage");
     return { success: true, product };
   } catch (error) {
     console.error("Failed to update product:", error);
@@ -328,6 +330,7 @@ export async function createCategory(data) {
     await logAction("CREATE_CATEGORY", { categoryId: category.id, name: category.name });
     revalidatePath("/admin/inventory");
     revalidatePath("/products");
+    revalidateTag("homepage");
     return { success: true, category };
   } catch (error) {
     console.error("createCategory:", error);
@@ -354,6 +357,7 @@ export async function updateCategory(id, data) {
     await logAction("UPDATE_CATEGORY", { categoryId: id, name: category.name });
     revalidatePath("/admin/inventory");
     revalidatePath("/products");
+    revalidateTag("homepage");
     return { success: true, category };
   } catch (error) {
     console.error("updateCategory:", error);
@@ -397,6 +401,7 @@ export async function deleteCategory(id, input = {}) {
     });
     revalidatePath("/admin/inventory");
     revalidatePath("/products");
+    revalidateTag("homepage");
     return { success: true };
   } catch (error) {
     console.error("deleteCategory:", error);

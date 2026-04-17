@@ -11,8 +11,6 @@ import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
-export const dynamic = "force-dynamic";
-
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],

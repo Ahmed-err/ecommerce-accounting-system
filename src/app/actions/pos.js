@@ -67,6 +67,9 @@ export async function createPOSOrder(cartItems, paymentDetails) {
         if (!product) {
           throw new Error(`Product ${item.id} is unavailable or not found.`);
         }
+        if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+          throw new Error(`Invalid quantity for ${product.name}.`);
+        }
         if (product.stock < item.quantity) {
           throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
         }

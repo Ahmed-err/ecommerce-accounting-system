@@ -104,6 +104,13 @@ export default function ContactsModuleClient() {
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground italic">
+                  {isRTL ? "لا توجد رسائل" : "No messages found"}
+                </td>
+              </tr>
+            )}
             {rows.map((r) => (
               <tr key={r.id} className="cursor-pointer border-b border-border hover:bg-muted/40" onClick={() => open(r.id)}>
                 <td className="p-3 text-foreground">{r.name}</td>
