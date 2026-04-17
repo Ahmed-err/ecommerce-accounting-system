@@ -47,6 +47,19 @@ const CHART_COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#a855f7", "#ef4444", "#0
 
 const EXPENSE_PRESETS = ["Rent", "Utilities", "Salaries", "Shipping", "Maintenance", "Marketing", "Supplies", "Taxes", "Other"];
 
+function mapAccountingDeleteError(code, t) {
+  switch (code) {
+    case "locked_system_transaction":
+      return t.accErrLockedSystemTx;
+    case "manager_cannot_delete_income":
+      return t.accErrManagerDeleteIncome;
+    case "nothing_deletable":
+      return t.accErrNothingDeletable;
+    default:
+      return code || t.genericError;
+  }
+}
+
 function Money({ value, lang, t, signed }) {
   const n = Number(value) || 0;
   const str = Math.abs(n).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", {
@@ -621,10 +634,11 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                 if (!window.confirm(t.accountingDeleteConfirm)) return;
                 const res = await bulkDeleteTransactions([...selected]);
                 if (res.success) {
-                  toast.success(t.save);
+                  if (res.skipped > 0) toast.message(t.accBulkDeletedPartial);
+                  else toast.success(t.toastDeleted || t.save);
                   setSelected(new Set());
                   onRefresh();
-                } else toast.error(res.error);
+                } else toast.error(mapAccountingDeleteError(res.error, t));
               }}
             >
               {t.accBulkDelete}
@@ -688,8 +702,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                               onClick={async () => {
                                 if (!window.confirm(t.accountingDeleteConfirm)) return;
                                 const res = await deleteTransaction(r.id);
-                                if (res.success) onRefresh();
-                                else toast.error(res.error);
+                                if (res.success) {
+                                  toast.success(t.toastDeleted || t.save);
+                                  onRefresh();
+                                } else toast.error(mapAccountingDeleteError(res.error, t));
                               }}
                             >
                               {t.accDelete}

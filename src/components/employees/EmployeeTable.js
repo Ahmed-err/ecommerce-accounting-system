@@ -11,6 +11,7 @@ import { deleteEmployee } from "@/app/actions/employees";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
+import { toast } from "sonner";
 
 const ROLE_COLORS = {
   ADMIN: "bg-purple-500/15 text-purple-700 dark:text-purple-400",
@@ -97,9 +98,19 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t.employeesDeleteConfirm)) {
-      await deleteEmployee(id);
+    if (!window.confirm(t.employeesDeleteConfirm)) return;
+    const res = await deleteEmployee(id);
+    if (res?.success) {
+      toast.success(t.employeesRemoved);
+      router.refresh();
+      return;
     }
+    const err = res?.error || "";
+    if (err.includes("cannot delete your own admin account")) {
+      toast.error(t.employeesErrSelfDelete);
+      return;
+    }
+    toast.error(err || t.genericError);
   };
 
   const openEdit = (emp) => { setEditingEmployee(emp); setIsFormOpen(true); };

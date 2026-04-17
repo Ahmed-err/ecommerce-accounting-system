@@ -43,6 +43,14 @@ async function ensureAccountingAdmin() {
   return session;
 }
 
+function canRoleDeleteTransaction(role, tx) {
+  if (!tx) return false;
+  if (isSystemGeneratedTransaction(tx)) return false;
+  if (role === "ADMIN") return true;
+  if (role === "MANAGER") return tx.type === "OUTGOING";
+  return false;
+}
+
 function parseDateInput(v) {
   if (!v) return new Date();
   const d = v instanceof Date ? v : new Date(v);
@@ -52,11 +60,14 @@ function parseDateInput(v) {
 export async function getAccountingPermissions() {
   try {
     const session = await ensureAccountingView();
+    const canDelete =
+      session.user.role === "ADMIN" ||
+      (session.user.role === "MANAGER");
     return {
       ok: true,
       role: session.user.role,
-      canDelete: session.user.role === "ADMIN",
-      canBulkDelete: session.user.role === "ADMIN",
+      canDelete,
+      canBulkDelete: canDelete,
       canMarkLedgerPaid: session.user.role === "ADMIN",
       canExportAll: true,
     };
@@ -238,7 +249,20 @@ export async function updateTransaction(id, data) {
 
 export async function deleteTransaction(id) {
   try {
-    await ensureAccountingAdmin();
+    const session = await ensureAccountingView();
+    const existing = await db.transaction.findUnique({ where: { id } });
+    if (!existing) {
+      return { success: false, error: "not_found" };
+    }
+    if (!canRoleDeleteTransaction(session.user.role, existing)) {
+      if (isSystemGeneratedTransaction(existing)) {
+        return { success: false, error: "locked_system_transaction" };
+      }
+      if (session.user.role === "MANAGER" && existing.type === "INCOMING") {
+        return { success: false, error: "manager_cannot_delete_income" };
+      }
+      return { success: false, error: "Unauthorized" };
+    }
     await db.transaction.delete({ where: { id } });
 
     await logAction("DELETE_TRANSACTION", { transactionId: id });
@@ -253,14 +277,19 @@ export async function deleteTransaction(id) {
 
 export async function bulkDeleteTransactions(ids) {
   try {
-    await ensureAccountingAdmin();
+    const session = await ensureAccountingView();
     if (!Array.isArray(ids) || ids.length === 0) {
       return { success: false, error: "no_ids" };
     }
-    await db.transaction.deleteMany({ where: { id: { in: ids } } });
-    await logAction("BULK_DELETE_TRANSACTIONS", { count: ids.length });
+    const rows = await db.transaction.findMany({ where: { id: { in: ids } } });
+    const deletable = rows.filter((r) => canRoleDeleteTransaction(session.user.role, r)).map((r) => r.id);
+    if (deletable.length === 0) {
+      return { success: false, error: "nothing_deletable" };
+    }
+    await db.transaction.deleteMany({ where: { id: { in: deletable } } });
+    await logAction("BULK_DELETE_TRANSACTIONS", { count: deletable.length });
     revalidatePath("/admin/accounting");
-    return { success: true };
+    return { success: true, deleted: deletable.length, skipped: ids.length - deletable.length };
   } catch (error) {
     console.error("Bulk delete failed:", error);
     return { success: false, error: error.message };

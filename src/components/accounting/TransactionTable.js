@@ -12,6 +12,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { isSystemGeneratedTransaction } from "@/lib/accounting";
 
 const CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -32,7 +33,26 @@ export default function TransactionTable({ initialTransactions, total, searchPar
   const searchParamsHook = useSearchParams();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const canDelete = session?.user?.role === "ADMIN";
+  const role = session?.user?.role;
+
+  function canDeleteTransaction(tx) {
+    if (!tx || !role) return false;
+    if (isSystemGeneratedTransaction(tx)) return false;
+    if (role === "ADMIN") return true;
+    if (role === "MANAGER") return tx.type === "OUTGOING";
+    return false;
+  }
+
+  function mapTxDeleteError(code) {
+    switch (code) {
+      case "locked_system_transaction":
+        return t.accErrLockedSystemTx;
+      case "manager_cannot_delete_income":
+        return t.accErrManagerDeleteIncome;
+      default:
+        return code || t.genericError;
+    }
+  }
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -85,15 +105,18 @@ export default function TransactionTable({ initialTransactions, total, searchPar
     router.refresh();
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm(t.accountingDeleteConfirm)) {
-      const res = await deleteTransaction(id);
-      if (res?.success) {
-        toast.success(t.toastDeleted || "Deleted");
-        router.refresh();
-      } else {
-        toast.error(res?.error || t.genericError || "Failed to delete");
-      }
+  const handleDelete = async (tx) => {
+    if (!canDeleteTransaction(tx)) {
+      toast.error(mapTxDeleteError("locked_system_transaction"));
+      return;
+    }
+    if (!window.confirm(t.accountingDeleteConfirm)) return;
+    const res = await deleteTransaction(tx.id);
+    if (res?.success) {
+      toast.success(t.toastDeleted || "Deleted");
+      router.refresh();
+    } else {
+      toast.error(mapTxDeleteError(res?.error) || t.genericError);
     }
   };
 
@@ -247,8 +270,8 @@ export default function TransactionTable({ initialTransactions, total, searchPar
                   <Button variant="ghost" size="icon" onClick={() => openEdit(tx)} className="text-muted-foreground hover:text-foreground">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  {canDelete && (
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(tx.id)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400">
+                  {canDeleteTransaction(tx) && (
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(tx)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
