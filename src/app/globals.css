@@ -73,7 +73,7 @@
     --secondary: #f2f2f2;
     --secondary-foreground: #2e2e2e;
     --muted: #f2f2f2;
-    --muted-foreground: #6f6f6f;
+    --muted-foreground: #5a5a5a;
     --accent: #f2f2f2;
     --accent-foreground: #2e2e2e;
     --destructive: #dc2626;
@@ -131,23 +131,23 @@
 
 :root {
   color-scheme: light;
-  --background: oklch(0.982 0.006 84);
-  --foreground: oklch(0.205 0.012 252);
-  --card: oklch(0.998 0.002 80);
-  --card-foreground: oklch(0.205 0.012 252);
-  --popover: oklch(0.998 0.002 80);
-  --popover-foreground: oklch(0.205 0.012 252);
+  --background: oklch(0.985 0.005 85);
+  --foreground: oklch(0.195 0.014 252);
+  --card: oklch(1 0.002 85);
+  --card-foreground: oklch(0.195 0.014 252);
+  --popover: oklch(1 0.002 85);
+  --popover-foreground: oklch(0.195 0.014 252);
   --primary: oklch(0.548 0.177 47);
   --primary-foreground: oklch(0.995 0.004 95);
-  --secondary: oklch(0.958 0.01 84);
+  --secondary: oklch(0.955 0.012 84);
   --secondary-foreground: oklch(0.255 0.012 252);
-  --muted: oklch(0.956 0.008 84);
-  --muted-foreground: oklch(0.47 0.013 252);
-  --accent: oklch(0.948 0.017 74);
+  --muted: oklch(0.945 0.01 84);
+  --muted-foreground: oklch(0.4 0.012 252);
+  --accent: oklch(0.94 0.018 74);
   --accent-foreground: oklch(0.255 0.012 252);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.892 0.01 80);
-  --input: oklch(0.892 0.01 80);
+  --border: oklch(0.88 0.012 82);
+  --input: oklch(0.88 0.012 82);
   --ring: oklch(0.64 0.13 50);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
@@ -155,13 +155,13 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-  --sidebar: oklch(0.99 0.004 85);
-  --sidebar-foreground: oklch(0.23 0.012 252);
+  --sidebar: oklch(0.993 0.004 85);
+  --sidebar-foreground: oklch(0.22 0.012 252);
   --sidebar-primary: oklch(0.548 0.177 47);
   --sidebar-primary-foreground: oklch(0.995 0.004 95);
-  --sidebar-accent: oklch(0.952 0.012 84);
+  --sidebar-accent: oklch(0.948 0.014 84);
   --sidebar-accent-foreground: oklch(0.255 0.012 252);
-  --sidebar-border: oklch(0.91 0.008 80);
+  --sidebar-border: oklch(0.9 0.01 82);
   --sidebar-ring: oklch(0.64 0.13 50);
 }
 
@@ -197,6 +197,57 @@
   --sidebar-accent-foreground: oklch(0.99 0 0);
   --sidebar-border: oklch(0.2 0 0);
   --sidebar-ring: oklch(0.5 0 0);
+}
+
+/* Light-mode redesign for all admin system sections */
+:root:not(.dark) .admin-shell {
+  background:
+    radial-gradient(1200px 420px at 8% -10%, oklch(0.96 0.03 80 / 0.7), transparent 65%),
+    radial-gradient(900px 300px at 96% 0%, oklch(0.95 0.02 240 / 0.45), transparent 60%),
+    var(--background);
+}
+
+:root:not(.dark) .admin-shell [class*="bg-card"] {
+  background-color: color-mix(in oklab, var(--card) 92%, white 8%);
+}
+
+:root:not(.dark) .admin-shell .shadow-2xl {
+  box-shadow: 0 24px 48px -28px rgba(15, 23, 42, 0.28);
+}
+
+:root:not(.dark) .admin-shell [class~="bg-black/20"],
+:root:not(.dark) .admin-shell [class~="bg-black/30"],
+:root:not(.dark) .admin-shell [class~="bg-black/40"] {
+  background-color: color-mix(in oklab, var(--muted) 85%, white 15%);
+}
+
+:root:not(.dark) .admin-shell [class~="text-gray-300"],
+:root:not(.dark) .admin-shell [class~="text-gray-400"],
+:root:not(.dark) .admin-shell [class~="text-gray-500"] {
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .admin-shell [class~="text-amber-300"] {
+  color: oklch(0.52 0.16 55) !important;
+}
+
+:root:not(.dark) .admin-shell .recharts-cartesian-grid line {
+  stroke: color-mix(in oklab, var(--border) 85%, transparent) !important;
+}
+
+:root:not(.dark) .admin-shell .recharts-text {
+  fill: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .admin-shell .recharts-default-tooltip {
+  background-color: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.625rem !important;
+  box-shadow: 0 12px 32px -22px rgba(15, 23, 42, 0.38) !important;
+}
+
+:root:not(.dark) .admin-shell .recharts-default-tooltip * {
+  color: var(--popover-foreground) !important;
 }
 
 @layer utilities {

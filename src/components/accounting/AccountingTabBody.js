@@ -112,9 +112,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
 
   if (!data?.ok) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-gray-900/80 p-12 text-center text-gray-400">
+      <div className="rounded-2xl border border-border bg-card/80 p-12 text-center text-muted-foreground">
         <p>{t.accLoadError}</p>
-        <Button variant="outline" className="mt-4 border-white/10" onClick={onRefresh}>
+        <Button variant="outline" className="mt-4 border-border" onClick={onRefresh}>
           {t.accRetry}
         </Button>
       </div>
@@ -177,17 +177,17 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
-              className="relative overflow-hidden rounded-2xl border border-white/5 bg-gray-900 p-5"
+              className="relative overflow-hidden rounded-2xl border border-border bg-card p-5"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs font-medium text-gray-500">{card.label}</p>
+                  <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
                   <p
                     className={cn(
                       "mt-2 text-xl font-bold tabular-nums",
                       card.key === "net" && card.value < 0 && "text-red-400",
                       card.key === "net" && card.value >= 0 && "text-emerald-400",
-                      card.key !== "net" && "text-white"
+                      card.key !== "net" && "text-foreground"
                     )}
                   >
                     <Money value={card.value} lang={lang} t={t} />
@@ -205,10 +205,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
-            <h3 className="mb-4 text-sm font-semibold text-white">{t.accChartStoreVsPos}</h3>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">{t.accChartStoreVsPos}</h3>
             {barData.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-500">{t.accNoData}</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">{t.accNoData}</p>
             ) : (
               <div className="h-64 w-full" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
@@ -229,10 +229,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
-            <h3 className="mb-4 text-sm font-semibold text-white">{t.accChartExpenseCats}</h3>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">{t.accChartExpenseCats}</h3>
             {pieData.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-500">{t.accNoData}</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">{t.accNoData}</p>
             ) : (
               <div className="h-64 w-full" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
@@ -250,20 +250,20 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <div className={`accounting-no-print mb-3 flex flex-wrap items-center justify-between gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
-            <h3 className="text-sm font-semibold text-white">{t.accRecentActivity}</h3>
-            <Button size="sm" variant="outline" className="border-white/10 text-white" onClick={() => setExpenseOpen(true)}>
+            <h3 className="text-sm font-semibold text-foreground">{t.accRecentActivity}</h3>
+            <Button size="sm" variant="outline" className="border-border text-foreground" onClick={() => setExpenseOpen(true)}>
               {t.accAddExpense}
             </Button>
           </div>
-          <ul className="divide-y divide-white/5">
-            {(recent || []).length === 0 && <li className="py-6 text-center text-gray-500">{t.accNoData}</li>}
+          <ul className="divide-y divide-border">
+            {(recent || []).length === 0 && <li className="py-6 text-center text-muted-foreground">{t.accNoData}</li>}
             {(recent || []).map((r) => (
               <li key={r.id + r.kind} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                 <div className={cn("min-w-0", isRTL ? "text-right" : "text-left")}>
-                  <p className="truncate font-medium text-white">{r.label}</p>
-                  <p className="text-xs text-gray-500">{r.sub}</p>
+                  <p className="truncate font-medium text-foreground">{r.label}</p>
+                  <p className="text-xs text-muted-foreground">{r.sub}</p>
                 </div>
                 <span className={cn("tabular-nums font-semibold", r.amount >= 0 ? "text-emerald-400" : "text-red-400")}>
                   <Money value={r.amount} lang={lang} t={t} signed />
@@ -367,16 +367,16 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
     const { statement, trend } = data;
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-white/5 bg-gray-900 p-6 space-y-3 max-w-lg">
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-3 max-w-lg">
           <PlLine label={t.accPlGrossRevenue} value={statement.grossRevenue} lang={lang} t={t} tone="in" />
           <PlLine label={t.accPlCogs} value={statement.cogs} lang={lang} t={t} tone="out" />
           <PlLine label={t.accPlGrossProfit} value={statement.grossProfit} lang={lang} t={t} tone="net" />
           <PlLine label={t.accPlOpEx} value={statement.operatingExpenses} lang={lang} t={t} tone="out" />
-          <div className="border-t border-white/10 pt-3 mt-2">
+          <div className="border-t border-border pt-3 mt-2">
             <PlLine label={t.accPlNet} value={statement.netProfit} lang={lang} t={t} tone="emphasis" />
           </div>
         </div>
-        <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="mb-2 text-sm font-semibold">{t.accPlTrend}</h3>
           <div className="h-72 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
@@ -391,7 +391,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </div>
         </div>
         <div className="accounting-no-print flex gap-2">
-          <Button type="button" variant="outline" className="border-white/10" onClick={() => printElementById("accounting-tab-print")}>
+          <Button type="button" variant="outline" className="border-border" onClick={() => printElementById("accounting-tab-print")}>
             {t.accExportPdf}
           </Button>
         </div>
@@ -404,20 +404,20 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-white/5 bg-gray-900 p-4">
-            <p className="text-xs text-gray-500">{t.accCashOpening}</p>
-            <p className="text-lg font-bold text-white tabular-nums">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">{t.accCashOpening}</p>
+            <p className="text-lg font-bold text-foreground tabular-nums">
               <Money value={openingBalance} lang={lang} t={t} />
             </p>
           </div>
-          <div className="rounded-xl border border-white/5 bg-gray-900 p-4">
-            <p className="text-xs text-gray-500">{t.accCashClosing}</p>
-            <p className="text-lg font-bold text-white tabular-nums">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">{t.accCashClosing}</p>
+            <p className="text-lg font-bold text-foreground tabular-nums">
               <Money value={closingBalance} lang={lang} t={t} />
             </p>
           </div>
         </div>
-        <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="mb-2 text-sm font-semibold">{t.accCashMonthlyChart}</h3>
           <div className="h-64 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
@@ -433,9 +433,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-2xl border border-white/5">
+        <div className="overflow-x-auto rounded-2xl border border-border">
           <table className={`w-full min-w-[640px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-gray-800/50 text-xs uppercase text-gray-500">
+            <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.accountingColDate}</th>
                 <th className="px-4 py-3">{t.accCashIn}</th>
@@ -444,10 +444,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                 <th className="px-4 py-3">{t.accountingColDesc}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-gray-300">
+            <tbody className="divide-y divide-border text-foreground">
               {(rows || []).length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                     {t.accNoData}
                   </td>
                 </tr>
@@ -460,7 +460,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <td className="px-4 py-2 font-medium tabular-nums">
                     <Money value={r.balance} lang={lang} t={t} />
                   </td>
-                  <td className="px-4 py-2 max-w-[200px] truncate text-gray-500">{r.note}</td>
+                  <td className="px-4 py-2 max-w-[200px] truncate text-muted-foreground">{r.note}</td>
                 </tr>
               ))}
             </tbody>
@@ -478,7 +478,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         PAID: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
         PENDING: "bg-amber-500/15 text-amber-400 border-amber-500/30",
         OVERDUE: "bg-red-500/15 text-red-400 border-red-500/30",
-        CANCELLED: "bg-gray-500/15 text-gray-400 border-gray-500/30",
+        CANCELLED: "bg-gray-500/15 text-muted-foreground border-gray-500/30",
       };
       const label =
         s === "PAID" ? t.accStatusPaid : s === "PENDING" ? t.accStatusPending : s === "OVERDUE" ? t.accStatusOverdue : s === "CANCELLED" ? t.accStatusCancelled : s;
@@ -507,10 +507,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         />
 
         <section>
-          <h3 className="mb-3 text-sm font-semibold text-white">{t.accInvoicesLedger}</h3>
-          <div className="overflow-x-auto rounded-2xl border border-white/5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">{t.accInvoicesLedger}</h3>
+          <div className="overflow-x-auto rounded-2xl border border-border">
             <table className={`w-full min-w-[720px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-              <thead className="bg-gray-800/50 text-xs uppercase text-gray-500">
+              <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">{t.accColInvoiceNo}</th>
                   <th className="px-4 py-3">{t.accColParty}</th>
@@ -521,10 +521,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <th className="px-4 py-3 accounting-no-print">{t.actions}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border">
                 {(ledger || []).length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                       {t.accNoData}
                     </td>
                   </tr>
@@ -537,7 +537,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                     <td className="px-4 py-2 tabular-nums">
                       <Money value={inv.amount} lang={lang} t={t} />
                     </td>
-                    <td className="px-4 py-2 text-gray-500">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
+                    <td className="px-4 py-2 text-muted-foreground">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
                     <td className="px-4 py-2">{statusBadge(inv.displayStatus)}</td>
                     <td className="px-4 py-2 accounting-no-print">
                       {inv.status === "PENDING" && (
@@ -559,10 +559,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         </section>
 
         <section>
-          <h3 className="mb-3 text-sm font-semibold text-white">{t.accInvoicesSales}</h3>
-          <div className="overflow-x-auto rounded-2xl border border-white/5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">{t.accInvoicesSales}</h3>
+          <div className="overflow-x-auto rounded-2xl border border-border">
             <table className={`w-full min-w-[640px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-              <thead className="bg-gray-800/50 text-xs uppercase text-gray-500">
+              <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">{t.accColInvoiceNo}</th>
                   <th className="px-4 py-3">{t.accColParty}</th>
@@ -570,10 +570,10 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <th className="px-4 py-3">{t.accColStatus}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border">
                 {(sales || []).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
                       {t.accNoData}
                     </td>
                   </tr>
@@ -633,15 +633,15 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 overflow-x-auto rounded-2xl border border-white/5">
+          <div className="lg:col-span-2 overflow-x-auto rounded-2xl border border-border">
             <table className={`w-full min-w-[800px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-              <thead className="bg-gray-800/50 text-xs uppercase text-gray-500">
+              <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
                 <tr>
                   {permissions.canBulkDelete && (
                     <th className="px-3 py-3 w-10">
                       <input
                         type="checkbox"
-                        className="rounded border-white/20"
+                        className="rounded border-border"
                         onChange={(e) => {
                           if (e.target.checked) setSelected(new Set((expenses?.rows || []).filter((x) => x.editable).map((x) => x.id)));
                           else setSelected(new Set());
@@ -657,13 +657,13 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <th className="px-4 py-3 accounting-no-print">{t.actions}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border">
                 {(expenses?.rows || []).map((r) => (
                   <tr key={r.id}>
                     {permissions.canBulkDelete && (
                       <td className="px-3 py-2">
                         {r.editable ? (
-                          <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} className="rounded border-white/20" />
+                          <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} className="rounded border-border" />
                         ) : null}
                       </td>
                     )}
@@ -708,7 +708,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               </tbody>
             </table>
           </div>
-          <div className="rounded-2xl border border-white/5 bg-gray-900 p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold mb-2">{t.accChartExpenseCats}</h3>
             <div className="h-56 w-full" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
@@ -722,7 +722,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-[10px] text-gray-500 mt-2">{t.accExpenseCategoriesHint}</p>
+            <p className="text-[10px] text-muted-foreground mt-2">{t.accExpenseCategoriesHint}</p>
           </div>
         </div>
 
@@ -766,7 +766,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         <div className="accounting-no-print flex flex-wrap gap-2">
           <Button
             variant="outline"
-            className="border-white/10"
+            className="border-border"
             onClick={() =>
               exportCsv("monthly-summary", ["Metric", "Value"], [
                 ["Gross revenue", pl?.grossRevenue],
@@ -779,13 +779,13 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           >
             {t.accExportCsv}
           </Button>
-          <Button variant="outline" className="border-white/10" onClick={() => printElementById("accounting-report-print")}>
+          <Button variant="outline" className="border-border" onClick={() => printElementById("accounting-report-print")}>
             {t.accPrint}
           </Button>
         </div>
 
-        <section className="rounded-2xl border border-white/5 bg-gray-900 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">{t.accReportMonthly}</h3>
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">{t.accReportMonthly}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <ReportRow label={t.accPlGrossRevenue} value={pl?.grossRevenue} lang={lang} t={t} />
             <ReportRow label={t.accPlCogs} value={pl?.cogs} lang={lang} t={t} />
@@ -795,11 +795,11 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/5 bg-gray-900 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">{t.accReportExpenseByCat}</h3>
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">{t.accReportExpenseByCat}</h3>
           <ul className="space-y-2 text-sm">
             {(cats || []).map((c) => (
-              <li key={c.name} className="flex justify-between border-b border-white/5 py-2">
+              <li key={c.name} className="flex justify-between border-b border-border py-2">
                 <span>{lang === "ar" ? t[c.name] || c.name : c.name}</span>
                 <Money value={c.value} lang={lang} t={t} />
               </li>
@@ -807,8 +807,8 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </ul>
         </section>
 
-        <section className="rounded-2xl border border-white/5 bg-gray-900 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">{t.accReportRevBySource}</h3>
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">{t.accReportRevBySource}</h3>
           <div className="h-56 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={revSplit || []}>
@@ -824,16 +824,16 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/5 bg-gray-900 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">{t.accReportTopProducts}</h3>
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">{t.accReportTopProducts}</h3>
           <table className={`w-full text-sm ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="text-xs uppercase text-gray-500">
+            <thead className="text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="py-2">{t.inventoryColProduct}</th>
                 <th className="py-2">{t.adminTotal}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {(top || []).map((p) => (
                 <tr key={p.productId}>
                   <td className="py-2">{lang === "ar" ? p.nameAr || p.name : p.nameEn || p.name}</td>
@@ -867,7 +867,7 @@ function PlLine({ label, value, lang, t, tone }) {
             ? n >= 0
               ? "text-emerald-400 font-bold"
               : "text-red-400 font-bold"
-            : "text-white";
+            : "text-foreground";
   const display =
     tone === "out" ? (
       <span dir="ltr" className="tabular-nums">
@@ -879,7 +879,7 @@ function PlLine({ label, value, lang, t, tone }) {
     );
   return (
     <div className="flex justify-between gap-4 text-sm">
-      <span className="text-gray-400">{label}</span>
+      <span className="text-muted-foreground">{label}</span>
       <span className={cn("tabular-nums font-medium", color)}>{display}</span>
     </div>
   );
@@ -887,8 +887,8 @@ function PlLine({ label, value, lang, t, tone }) {
 
 function ReportRow({ label, value, lang, t, strong }) {
   return (
-    <div className="flex justify-between border-b border-white/5 py-2">
-      <span className="text-gray-400">{label}</span>
+    <div className="flex justify-between border-b border-border py-2">
+      <span className="text-muted-foreground">{label}</span>
       <span className={cn("tabular-nums font-semibold", strong && (value >= 0 ? "text-emerald-400" : "text-red-400"))}>
         <Money value={value} lang={lang} t={t} />
       </span>
@@ -898,14 +898,14 @@ function ReportRow({ label, value, lang, t, strong }) {
 
 function DataTable({ title, rows, total, cols, t, lang, isRTL, actions, extra }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-gray-900 flex flex-col">
-      <div className={`flex flex-wrap items-center justify-between gap-2 border-b border-white/5 p-4 ${isRTL ? "flex-row-reverse" : ""}`}>
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
+    <div className="rounded-2xl border border-border bg-card flex flex-col">
+      <div className={`flex flex-wrap items-center justify-between gap-2 border-b border-border p-4 ${isRTL ? "flex-row-reverse" : ""}`}>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         {extra}
       </div>
       <div className="overflow-x-auto">
         <table className={`w-full min-w-[480px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
-          <thead className="bg-gray-800/50 text-xs uppercase text-gray-500">
+          <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               {cols.map((c) => (
                 <th key={c.key} className={cn("px-4 py-3", c.num && (isRTL ? "text-left" : "text-right"))}>
@@ -915,10 +915,10 @@ function DataTable({ title, rows, total, cols, t, lang, isRTL, actions, extra })
               {actions && <th className="px-4 py-3 accounting-no-print">{t.actions}</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5 text-gray-300">
+          <tbody className="divide-y divide-border text-foreground">
             {(rows || []).length === 0 && (
               <tr>
-                <td colSpan={cols.length + (actions ? 1 : 0)} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={cols.length + (actions ? 1 : 0)} className="px-4 py-8 text-center text-muted-foreground">
                   {t.accNoData}
                 </td>
               </tr>
@@ -936,7 +936,7 @@ function DataTable({ title, rows, total, cols, t, lang, isRTL, actions, extra })
           </tbody>
           {(rows || []).length > 0 && (
             <tfoot>
-              <tr className="border-t border-white/10 bg-gray-800/30 font-semibold text-white">
+              <tr className="border-t border-border bg-muted/40 font-semibold text-foreground">
                 <td colSpan={Math.max(1, cols.length - 1)} className="px-4 py-3">
                   {t.accTotals}
                 </td>
@@ -980,17 +980,17 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md px-5 pt-6 pb-0 sm:px-6">
+      <DialogContent className="bg-card border-border text-foreground max-w-md px-5 pt-6 pb-0 sm:px-6">
         <DialogHeader className="pr-8">
           <DialogTitle>{t.accAddExpense}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-3 sm:py-4">
-          <Input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className="bg-gray-800 border-white/10" />
+          <Input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className="bg-background border-border" />
           <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
-            <SelectTrigger className="bg-gray-800 border-white/10">
+            <SelectTrigger className="bg-background border-border">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-white/10 text-white">
+            <SelectContent className="bg-background border-border text-foreground">
               {EXPENSE_PRESETS.map((c) => (
                 <SelectItem key={c} value={c}>
                   {lang === "ar" ? t[c] || c : c}
@@ -998,20 +998,20 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
               ))}
             </SelectContent>
           </Select>
-          <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-gray-800 border-white/10 tabular-nums" dir="ltr" />
-          <Input placeholder={t.accountingColDesc} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} className="bg-gray-800 border-white/10" />
-          <Input placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="bg-gray-800 border-white/10" />
+          <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-background border-border tabular-nums" dir="ltr" />
+          <Input placeholder={t.accountingColDesc} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} className="bg-background border-border" />
+          <Input placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="bg-background border-border" />
           <Select value={form.paymentMethod} onValueChange={(v) => setForm((f) => ({ ...f, paymentMethod: v }))}>
-            <SelectTrigger className="bg-gray-800 border-white/10">
+            <SelectTrigger className="bg-background border-border">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-white/10 text-white">
+            <SelectContent className="bg-background border-border text-foreground">
               <SelectItem value="CASH">CASH</SelectItem>
               <SelectItem value="BANK_TRANSFER">BANK_TRANSFER</SelectItem>
               <SelectItem value="CARD">CARD</SelectItem>
             </SelectContent>
           </Select>
-          <div className="rounded-xl border border-dashed border-white/10 px-4 py-4">
+          <div className="rounded-xl border border-dashed border-border px-4 py-4">
             <UploadButton
               endpoint="expenseReceipt"
               content={{
@@ -1028,7 +1028,7 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
         </div>
         <DialogFooter
           className={cn(
-            "-mx-5 -mb-5 mt-2 rounded-b-xl border-white/10 bg-gray-950/50 sm:-mx-6 sm:-mb-6",
+            "-mx-5 -mb-5 mt-2 rounded-b-xl border-border bg-muted/40 sm:-mx-6 sm:-mb-6",
             isRTL && "flex-row-reverse"
           )}
         >
@@ -1068,28 +1068,28 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md px-5 pt-6 pb-0 sm:px-6">
+      <DialogContent className="bg-card border-border text-foreground max-w-md px-5 pt-6 pb-0 sm:px-6">
         <DialogHeader className="pr-8">
           <DialogTitle>{t.accAddInvoice}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-3 sm:py-4">
           <Select value={form.direction} onValueChange={(v) => setForm((f) => ({ ...f, direction: v }))}>
-            <SelectTrigger className="bg-gray-800 border-white/10">
+            <SelectTrigger className="bg-background border-border">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-white/10 text-white">
+            <SelectContent className="bg-background border-border text-foreground">
               <SelectItem value="PAYABLE">{t.accInvoicePayable}</SelectItem>
               <SelectItem value="RECEIVABLE">{t.accInvoiceReceivable}</SelectItem>
             </SelectContent>
           </Select>
-          <Input placeholder={t.accColParty} value={form.partyName} onChange={(e) => setForm((f) => ({ ...f, partyName: e.target.value }))} className="bg-gray-800 border-white/10" />
-          <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-gray-800 border-white/10 tabular-nums" dir="ltr" />
-          <Input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} className="bg-gray-800 border-white/10" />
-          <textarea placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full min-h-[80px] rounded-md bg-gray-800 border border-white/10 px-3 py-2.5 text-sm" />
+          <Input placeholder={t.accColParty} value={form.partyName} onChange={(e) => setForm((f) => ({ ...f, partyName: e.target.value }))} className="bg-background border-border" />
+          <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-background border-border tabular-nums" dir="ltr" />
+          <Input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} className="bg-background border-border" />
+          <textarea placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full min-h-[80px] rounded-md bg-background border border-border px-3 py-2.5 text-sm" />
         </div>
         <DialogFooter
           className={cn(
-            "-mx-5 -mb-5 mt-2 rounded-b-xl border-white/10 bg-gray-950/50 sm:-mx-6 sm:-mb-6",
+            "-mx-5 -mb-5 mt-2 rounded-b-xl border-border bg-muted/40 sm:-mx-6 sm:-mb-6",
             isRTL && "flex-row-reverse"
           )}
         >

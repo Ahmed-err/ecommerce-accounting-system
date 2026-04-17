@@ -401,12 +401,12 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">{t.empQuickAttendanceTitle}</h3>
-            <p className="text-xs text-gray-400 mt-1 leading-relaxed">{t.empQuickAttendanceDesc}</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{t.empQuickAttendanceDesc}</p>
           </div>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColDate}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColDate}</label>
             <Input
               type="date"
               value={quickDate}
@@ -416,7 +416,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckIn}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColCheckIn}</label>
             <Input
               type="time"
               value={quickCheckIn}
@@ -426,7 +426,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckOut}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColCheckOut}</label>
             <Input
               type="time"
               value={quickCheckOut}
@@ -435,7 +435,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
               disabled={quickLoading}
             />
           </div>
-          <label className={`flex items-center gap-2 text-xs text-gray-300 cursor-pointer ${isRTL ? "flex-row-reverse" : ""} pb-1`}>
+          <label className={`flex items-center gap-2 text-xs text-foreground cursor-pointer ${isRTL ? "flex-row-reverse" : ""} pb-1`}>
             <input
               type="checkbox"
               className="rounded border-border bg-background text-amber-500 focus:ring-amber-500/30"
@@ -480,7 +480,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             className={`text-xs rounded-lg px-3 py-2 ${quickMsg.ok ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" : "bg-red-500/10 text-red-300 border border-red-500/20"}`}
           >
             <p>{quickMsg.text}</p>
-            {quickMsg.detail ? <p className="mt-1 text-gray-400">{quickMsg.detail}</p> : null}
+            {quickMsg.detail ? <p className="mt-1 text-muted-foreground">{quickMsg.detail}</p> : null}
           </div>
         )}
       </div>
@@ -539,7 +539,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
               <h3 className="text-sm font-semibold text-foreground mb-4">{t.empMonthlySummary}</h3>
               <div className="overflow-x-auto">
                 <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
-                  <thead className="text-gray-400">
+                  <thead className="text-muted-foreground">
                     <tr>
                       <th className="pb-2 pr-4">{t.empColEmployee}</th>
                       <th className="pb-2 px-3 text-emerald-400">{t.empStatusPresent}</th>
@@ -556,8 +556,8 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                         <td className="py-2 px-3 text-emerald-400 tabular-nums">{e.present}</td>
                         <td className="py-2 px-3 text-red-400 tabular-nums">{e.absent} {e.absent >= 3 && <AlertTriangle className="h-3 w-3 inline text-red-400" />}</td>
                         <td className="py-2 px-3 text-amber-400 tabular-nums">{e.late}</td>
-                        <td className="py-2 px-3 text-gray-400 tabular-nums">{e.halfDay}</td>
-                        <td className="py-2 px-3 text-gray-400 tabular-nums">{e.holiday}</td>
+                        <td className="py-2 px-3 text-muted-foreground tabular-nums">{e.halfDay}</td>
+                        <td className="py-2 px-3 text-muted-foreground tabular-nums">{e.holiday}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -572,7 +572,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
         {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={(v) => setForm((p) => ({ ...p, userId: v }))} disabled={!!editRec}>
               <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -581,21 +581,21 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             </Select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColDate}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColDate}</label>
             <Input type="date" value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} className="bg-background border-border text-foreground" disabled={!!editRec} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckIn}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColCheckIn}</label>
               <Input type="time" value={form.checkIn} onChange={(e) => setForm((p) => ({ ...p, checkIn: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColCheckOut}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColCheckOut}</label>
               <Input type="time" value={form.checkOut} onChange={(e) => setForm((p) => ({ ...p, checkOut: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColStatus}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColStatus}</label>
             <Select
               value={form.status}
               onValueChange={(v) =>
@@ -615,7 +615,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             </Select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColNotes}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColNotes}</label>
             <Input value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
         </div>
@@ -728,7 +728,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
               {records.map((r) => (
                 <tr key={r.id} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
-                  <td className="px-4 py-3 tabular-nums text-gray-300">{fmt(r.baseSalary, lang)}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">+{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">-{fmt(r.deductions, lang)}</td>
                   <td className="px-4 py-3 tabular-nums font-bold text-amber-400">{fmt(r.netSalary, lang)} {t.currency}</td>
@@ -751,7 +751,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
         {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={onSelectEmp}>
               <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -761,7 +761,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empSelectMonth}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empSelectMonth}</label>
               <Select value={String(form.month)} onValueChange={(v) => setForm((p) => ({ ...p, month: Number(v) }))}>
                 <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
                 <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -770,21 +770,21 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
               </Select>
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empSelectYear}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empSelectYear}</label>
               <Input type="number" value={form.year} onChange={(e) => setForm((p) => ({ ...p, year: Number(e.target.value) }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColBase} ({t.currency})</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColBase} ({t.currency})</label>
             <Input type="number" value={form.baseSalary} onChange={(e) => setForm((p) => ({ ...p, baseSalary: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColBonuses}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColBonuses}</label>
               <Input type="number" value={form.bonuses} onChange={(e) => setForm((p) => ({ ...p, bonuses: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColDeductions}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColDeductions}</label>
               <Input type="number" value={form.deductions} onChange={(e) => setForm((p) => ({ ...p, deductions: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
@@ -879,9 +879,9 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
                 <tr key={l.id} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-foreground">{l.user?.firstName} {l.user?.lastName}</td>
                   <td className="px-4 py-3">{typeBadge(l.type)}</td>
-                  <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(l.fromDate, lang)}</td>
-                  <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(l.toDate, lang)}</td>
-                  <td className="px-4 py-3 text-gray-300 tabular-nums">{l.days}</td>
+                  <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtDate(l.fromDate, lang)}</td>
+                  <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtDate(l.toDate, lang)}</td>
+                  <td className="px-4 py-3 text-foreground tabular-nums">{l.days}</td>
                   <td className="px-4 py-3">{statusBadge(l.status)}</td>
                   <td className="px-4 py-3">
                     {l.status === "PENDING" && (
@@ -902,7 +902,7 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
         {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColEmployee}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
             <Select value={form.userId} onValueChange={(v) => setForm((p) => ({ ...p, userId: v }))}>
               <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue placeholder={t.empSelectEmployee} /></SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -911,7 +911,7 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
             </Select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveType}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColLeaveType}</label>
             <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v }))}>
               <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -924,16 +924,16 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveFrom}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColLeaveFrom}</label>
               <Input type="date" value={form.fromDate} onChange={(e) => setForm((p) => ({ ...p, fromDate: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveTo}</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t.empColLeaveTo}</label>
               <Input type="date" value={form.toDate} onChange={(e) => setForm((p) => ({ ...p, toDate: e.target.value }))} className="bg-background border-border text-foreground" />
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.empColLeaveReason}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.empColLeaveReason}</label>
             <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
         </div>
@@ -1046,7 +1046,7 @@ function RolesTab({ t, lang, isRTL }) {
                 </Button>
               )}
             </div>
-            <p className="text-xs text-gray-400 leading-relaxed">{role.desc}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{role.desc}</p>
           </div>
         ))}
       </div>
@@ -1084,7 +1084,7 @@ function RolesTab({ t, lang, isRTL }) {
             <tbody className="divide-y divide-border">
               {PERMISSION_MODULES.map((mod) => (
                 <tr key={mod} className="hover:bg-muted/40">
-                  <td className="px-4 py-3 font-medium text-gray-300 whitespace-nowrap">{pLabels[mod]}</td>
+                  <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">{pLabels[mod]}</td>
                   {MATRIX_ROLES.map((rk) => {
                     const rec = byRoleModule.get(`${rk}-${mod}`);
                     return PERM_FIELDS.map((field) => {
@@ -1180,13 +1180,13 @@ function ReportsTab({ data, t, lang, isRTL }) {
                     <td className="px-4 py-3 text-emerald-400 tabular-nums">{e.present}</td>
                     <td className="px-4 py-3 text-red-400 tabular-nums">{e.absent}</td>
                     <td className="px-4 py-3 text-amber-400 tabular-nums">{e.late}</td>
-                    <td className="px-4 py-3 text-gray-400 tabular-nums">{e.halfDay}</td>
+                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{e.halfDay}</td>
                     <td className="px-4 py-3 tabular-nums">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
                           <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${rate}%` }} />
                         </div>
-                        <span className="text-xs text-gray-300">{rate}%</span>
+                        <span className="text-xs text-foreground">{rate}%</span>
                       </div>
                     </td>
                   </tr>
@@ -1231,7 +1231,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
               {records.map((r) => (
                 <tr key={r.id} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
-                  <td className="px-4 py-3 tabular-nums text-gray-300">{fmt(r.baseSalary, lang)}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">{fmt(r.deductions, lang)}</td>
                   <td className="px-4 py-3 tabular-nums font-bold text-amber-400">{fmt(r.netSalary, lang)} {t.currency}</td>

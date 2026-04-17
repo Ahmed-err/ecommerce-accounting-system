@@ -86,7 +86,7 @@ export default function InventoryStockSection({
   return (
     <div
       className={cn(
-        "space-y-4 rounded-2xl border border-white/5 bg-gray-900 p-4 md:p-6",
+        "space-y-4 rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm md:p-6",
         isRTL && "text-right"
       )}
       dir={isRTL ? "rtl" : "ltr"}
@@ -97,7 +97,7 @@ export default function InventoryStockSection({
           isRTL && "sm:flex-row-reverse"
         )}
       >
-        <h2 className="text-lg font-bold text-white">{t.inventoryStockLog}</h2>
+        <h2 className="text-lg font-bold text-foreground">{t.inventoryStockLog}</h2>
         {canStockOps && (
           <div className={cn("flex flex-wrap gap-2", isRTL && "sm:flex-row-reverse")}>
             <Button
@@ -112,7 +112,7 @@ export default function InventoryStockSection({
               type="button"
               variant="outline"
               onClick={() => setIssueOpen(true)}
-              className="border-red-400/50 text-red-300 hover:bg-red-500/10"
+              className="border-red-300/60 text-red-700 hover:bg-red-500/10 dark:border-red-400/50 dark:text-red-300"
             >
               <ArrowUpCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               {t.inventoryIssueStock}
@@ -123,10 +123,10 @@ export default function InventoryStockSection({
 
       <div className="flex flex-wrap items-center gap-2">
         <Select value={mType || "all"} onValueChange={(v) => { setMPage(1); setMType(v === "all" ? "" : v); }}>
-          <SelectTrigger className="h-9 w-40 bg-gray-800/80 border-white/10 text-white">
+          <SelectTrigger className="h-9 w-40 border-border bg-background text-foreground">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-white/10 text-white">
+          <SelectContent className="border-border bg-popover text-popover-foreground">
             <SelectItem value="all">{t.inventoryAllTypes}</SelectItem>
             <SelectItem value="IN">{t.inventoryMovementIn}</SelectItem>
             <SelectItem value="OUT">{t.inventoryMovementOut}</SelectItem>
@@ -134,9 +134,9 @@ export default function InventoryStockSection({
         </Select>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-white/5">
-        <table className="w-full min-w-[640px] text-sm text-gray-300">
-          <thead className="border-b border-white/5 bg-gray-800/40 text-xs uppercase text-gray-500">
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full min-w-[640px] text-sm text-foreground">
+          <thead className="border-b border-border bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-3 py-2">{t.inventoryMovementDate}</th>
               <th className="px-3 py-2">{t.inventoryMovementType}</th>
@@ -145,23 +145,23 @@ export default function InventoryStockSection({
               <th className="px-3 py-2">{t.inventoryNotes}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {loading && movements.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">
                   …
                 </td>
               </tr>
             ) : movements.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">
                   {t.inventoryNoMovements}
                 </td>
               </tr>
             ) : (
               movements.map((m) => (
-                <tr key={m.id} className="hover:bg-white/[0.03]">
-                  <td className="regular-nums px-3 py-2 text-xs text-gray-400">
+                <tr key={m.id} className="hover:bg-muted/40">
+                  <td className="regular-nums px-3 py-2 text-xs text-muted-foreground">
                     {new Date(m.createdAt).toLocaleString(lang === "ar" ? "ar-SD" : "en-GB")}
                   </td>
                   <td className="px-3 py-2">
@@ -169,19 +169,19 @@ export default function InventoryStockSection({
                       className={cn(
                         "rounded-full px-2 py-0.5 text-xs font-bold",
                         m.type === "IN"
-                          ? "bg-emerald-500/15 text-emerald-400"
-                          : "bg-red-500/15 text-red-400"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-red-500/15 text-red-700 dark:text-red-400"
                       )}
                     >
                       {m.type === "IN" ? t.inventoryMovementIn : t.inventoryMovementOut}
                     </span>
                   </td>
                   <td className="px-3 py-2">
-                    <div className="font-medium text-white">{m.product?.name}</div>
-                    <div className="font-mono text-[10px] text-gray-500">{m.product?.sku}</div>
+                    <div className="font-medium text-foreground">{m.product?.name}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">{m.product?.sku}</div>
                   </td>
-                  <td className="regular-nums px-3 py-2 font-semibold text-white">{m.quantity}</td>
-                  <td className="max-w-[200px] truncate px-3 py-2 text-xs text-gray-500">
+                  <td className="regular-nums px-3 py-2 font-semibold text-foreground">{m.quantity}</td>
+                  <td className="max-w-[200px] truncate px-3 py-2 text-xs text-muted-foreground">
                     {[m.reason, m.notes, m.user?.name || m.user?.email].filter(Boolean).join(" · ") ||
                       "—"}
                   </td>
@@ -197,19 +197,19 @@ export default function InventoryStockSection({
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 bg-gray-800 text-white"
+            className="border-border bg-background text-foreground hover:bg-muted"
             disabled={mPage <= 1 || loading}
             onClick={() => setMPage((p) => Math.max(1, p - 1))}
           >
             {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground">
             {mPage} / {mPages}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 bg-gray-800 text-white"
+            className="border-border bg-background text-foreground hover:bg-muted"
             disabled={mPage >= mPages || loading}
             onClick={() => setMPage((p) => p + 1)}
           >
@@ -293,31 +293,31 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-          className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
+          className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-border bg-card p-0 text-card-foreground"
       >
-        <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+        <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryReceiveStock}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventorySearchPlaceholder}</label>
+            <label className="text-xs text-muted-foreground">{t.inventorySearchPlaceholder}</label>
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="border-border bg-background"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventorySelectProduct}</label>
+            <label className="text-xs text-muted-foreground">{t.inventorySelectProduct}</label>
             <Select
               modal={false}
               value={productId || null}
               onValueChange={(v) => setProductId(typeof v === "string" ? v : "")}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="border-border bg-background text-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder="—" />
               </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 border-border bg-popover text-popover-foreground">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -328,38 +328,38 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-xs text-gray-400">{t.inventoryColStock}</label>
+              <label className="text-xs text-muted-foreground">{t.inventoryColStock}</label>
               <Input
                 type="number"
                 min={1}
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
-                className="bg-gray-800 border-white/10 regular-nums"
+                className="regular-nums border-border bg-background"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-gray-400">{t.inventoryUnitCost}</label>
+              <label className="text-xs text-muted-foreground">{t.inventoryUnitCost}</label>
               <Input
                 type="number"
                 step="0.01"
                 value={unitCost}
                 onChange={(e) => setUnitCost(e.target.value)}
-                className="bg-gray-800 border-white/10 regular-nums"
+                className="regular-nums border-border bg-background"
                 placeholder="—"
               />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventorySupplier}</label>
+            <label className="text-xs text-muted-foreground">{t.inventorySupplier}</label>
             <Select
               modal={false}
               value={supplierId || "none"}
               onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+              <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] border-border bg-popover text-popover-foreground">
                 <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -370,11 +370,11 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventoryNotes}</label>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-gray-800 border-white/10" />
+            <label className="text-xs text-muted-foreground">{t.inventoryNotes}</label>
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="border-border bg-background" />
           </div>
         </div>
-        <DialogFooter className={cn("border-t border-white/10 bg-gray-900/80 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
+        <DialogFooter className={cn("border-t border-border bg-muted/30 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
           <Button variant="ghost" onClick={() => onOpenChange(false)} type="button" className="w-full sm:w-auto">
             {t.cancel}
           </Button>
@@ -444,31 +444,31 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton
-        className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-white/10 bg-gray-900 p-0 text-white"
+        className="max-h-[90dvh] w-full max-w-xl overflow-y-auto border-border bg-card p-0 text-card-foreground"
       >
-        <DialogHeader className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
+        <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>{t.inventoryIssueStock}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventorySearchPlaceholder}</label>
+            <label className="text-xs text-muted-foreground">{t.inventorySearchPlaceholder}</label>
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="border-border bg-background"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventorySelectProduct}</label>
+            <label className="text-xs text-muted-foreground">{t.inventorySelectProduct}</label>
             <Select
               modal={false}
               value={productId || null}
               onValueChange={(v) => setProductId(typeof v === "string" ? v : "")}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10 text-white" dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className="border-border bg-background text-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder="—" />
               </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 border-border bg-popover text-popover-foreground">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -478,25 +478,25 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventoryColStock}</label>
+            <label className="text-xs text-muted-foreground">{t.inventoryColStock}</label>
             <Input
               type="number"
               min={1}
               value={qty}
               onChange={(e) => setQty(e.target.value)}
-              className="bg-gray-800 border-white/10 regular-nums"
+              className="regular-nums border-border bg-background"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventoryReason}</label>
-            <Input value={reason} onChange={(e) => setReason(e.target.value)} className="bg-gray-800 border-white/10" />
+            <label className="text-xs text-muted-foreground">{t.inventoryReason}</label>
+            <Input value={reason} onChange={(e) => setReason(e.target.value)} className="border-border bg-background" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400">{t.inventoryNotes}</label>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-gray-800 border-white/10" />
+            <label className="text-xs text-muted-foreground">{t.inventoryNotes}</label>
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} className="border-border bg-background" />
           </div>
         </div>
-        <DialogFooter className={cn("border-t border-white/10 bg-gray-900/80 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
+        <DialogFooter className={cn("border-t border-border bg-muted/30 px-4 py-3 sm:px-6", isRTL && "sm:flex-row-reverse")}>
           <Button variant="ghost" onClick={() => onOpenChange(false)} type="button" className="w-full sm:w-auto">
             {t.cancel}
           </Button>

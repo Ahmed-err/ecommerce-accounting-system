@@ -483,7 +483,7 @@ export default function ProductTable({
             <div className="relative h-10 w-full min-w-[200px] group sm:col-span-2 lg:max-w-xs">
               <Search
                 className={cn(
-                  "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-gray-500 group-focus-within:text-amber-500",
+                  "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-muted-foreground group-focus-within:text-amber-600",
                   isRTL ? "right-3" : "left-3"
                 )}
               />
@@ -880,7 +880,7 @@ export default function ProductTable({
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-gray-400">
+                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                       {p.sku}
                     </td>
                     <td className="min-w-[11rem] align-top px-4 py-3">
@@ -1039,7 +1039,7 @@ export default function ProductTable({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-gray-500 hover:text-red-400"
+                              className="h-8 w-8 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
                               onClick={() => handleDelete(p.id)}
                             >
                               <Trash2 className="h-4 w-4" />

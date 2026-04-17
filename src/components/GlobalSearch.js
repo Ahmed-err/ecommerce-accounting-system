@@ -124,7 +124,7 @@ export default function GlobalSearch({ inputId }) {
       </div>
 
       {isOpen && (query.trim().length >= 2) && (
-        <div className={`absolute top-full left-0 right-0 mt-2 bg-popover border border-white/10 text-popover-foreground rounded-2xl shadow-2xl overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2`}>
+        <div className={`absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2`}>
           {loading ? (
             <div className="p-4 flex items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
@@ -136,7 +136,7 @@ export default function GlobalSearch({ inputId }) {
                   key={product.id}
                   href={`/products/${product.id}`}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                  className={`flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-muted ${isRTL ? "text-right" : "text-left"}`}
                 >
                   <div className="relative h-12 w-12 rounded-lg bg-black/20 overflow-hidden shrink-0">
                     <Image
@@ -148,7 +148,7 @@ export default function GlobalSearch({ inputId }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{product.category?.name || ""}</p>
+                    <p className="truncate text-xs text-muted-foreground">{product.category?.name || ""}</p>
                   </div>
                   <div className="text-sm font-black text-amber-500 whitespace-nowrap">
                     {product.sellingPrice.toLocaleString()} {t.currency}
@@ -158,13 +158,13 @@ export default function GlobalSearch({ inputId }) {
               <Link
                 href={`/products?search=${query}`}
                 onClick={() => setIsOpen(false)}
-                className="block p-3 text-center text-xs font-bold text-amber-500 hover:text-amber-400 border-t border-white/5"
+                className="block border-t border-border p-3 text-center text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400"
               >
                 {t.viewAll}
               </Link>
             </div>
           ) : (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="p-4 text-center text-sm text-muted-foreground">
               {t.noSearchResults}
             </div>
           )}

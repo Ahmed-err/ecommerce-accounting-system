@@ -201,17 +201,17 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
       <DialogContent
         showCloseButton
         className={cn(
-          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-4xl flex-col gap-0 overflow-hidden border-white/10 bg-gray-900 p-0 text-white sm:w-full",
+          "flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-4xl flex-col gap-0 overflow-hidden border-border bg-card p-0 text-card-foreground sm:w-full",
           isRTL && "text-right"
         )}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className={cn("shrink-0 border-b border-white/10 px-6 pb-4 pt-6", isRTL ? "ps-12 pe-6" : "pe-12 ps-6")}>
+        <div className={cn("shrink-0 border-b border-border px-6 pb-4 pt-6", isRTL ? "ps-12 pe-6" : "pe-12 ps-6")}>
           <DialogHeader className={cn("space-y-2 p-0", isRTL ? "text-end" : "text-start")}>
-            <DialogTitle className="text-lg text-white">
+            <DialogTitle className="text-lg text-foreground">
               {isEditing ? t.inventoryEditProduct : t.inventoryAddNewProduct}
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-muted-foreground">
               {isEditing ? t.inventoryUpdateDetails : t.inventoryFillDetails}
             </DialogDescription>
           </DialogHeader>
@@ -225,7 +225,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
           )}
 
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t.inventoryBasicInfo}
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -236,35 +236,35 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.inventoryNameEn}</label>
-                <Input name="nameEn" value={formData.nameEn} onChange={handleChange} className="bg-gray-800 border-white/10" />
+                <Input name="nameEn" value={formData.nameEn} onChange={handleChange} className="bg-background border-border" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.inventoryNameAr}</label>
-                <Input name="nameAr" value={formData.nameAr} onChange={handleChange} className="bg-gray-800 border-white/10" />
+                <Input name="nameAr" value={formData.nameAr} onChange={handleChange} className="bg-background border-border" />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <div className="flex flex-wrap items-end gap-2">
                   <div className="min-w-0 flex-1 space-y-2">
                     <label className="text-sm font-medium">{t.inventorySkuModel}</label>
-                    <Input name="sku" value={formData.sku} onChange={handleChange} required className="bg-gray-800 border-white/10 font-mono text-sm" />
+                    <Input name="sku" value={formData.sku} onChange={handleChange} required className="bg-background border-border font-mono text-sm" />
                   </div>
-                  <Button type="button" variant="outline" className="border-white/20 text-white" onClick={handleGenSku}>
+                  <Button type="button" variant="outline" className="border-border text-foreground" onClick={handleGenSku}>
                     {t.inventoryGenSku}
                   </Button>
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.inventoryColBarcode}</label>
-                <Input name="barcode" value={formData.barcode} onChange={handleChange} className="bg-gray-800 border-white/10 font-mono text-sm" />
+                <Input name="barcode" value={formData.barcode} onChange={handleChange} className="bg-background border-border font-mono text-sm" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.inventoryColUnit}</label>
-                <Input name="unit" value={formData.unit} onChange={handleChange} className="bg-gray-800 border-white/10" />
+                <Input name="unit" value={formData.unit} onChange={handleChange} className="bg-background border-border" />
               </div>
             </div>
 
@@ -275,10 +275,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.categoryId?.toString() || ""}
                   onValueChange={(v) => setFormData((p) => ({ ...p, categoryId: v }))}
                 >
-                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                  <SelectTrigger className="border-border bg-background text-foreground">
                     <SelectValue placeholder={t.inventorySelectCategory} />
                   </SelectTrigger>
-                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                  <SelectContent className="border-border bg-popover text-popover-foreground">
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.name}
@@ -295,10 +295,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                     setFormData((p) => ({ ...p, supplierId: v === "none" ? "" : v }))
                   }
                 >
-                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                  <SelectTrigger className="border-border bg-background text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                  <SelectContent className="border-border bg-popover text-popover-foreground">
                     <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
                     {suppliers.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
@@ -317,7 +317,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                 value={formData.description}
                 onChange={handleChange}
                 rows={2}
-                className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+                className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground"
               />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -328,7 +328,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.descriptionEn}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+                  className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -338,20 +338,20 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.descriptionAr}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full rounded-md border border-white/10 bg-gray-800 p-2 text-sm text-white"
+                  className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground"
                 />
               </div>
             </div>
 
             {formData.barcode || formData.sku ? (
-              <div className="rounded-lg border border-white/10 bg-white p-3" dir="ltr">
+              <div className="rounded-lg border border-border bg-white p-3" dir="ltr">
                 <InventoryBarcode value={formData.barcode || formData.sku} />
               </div>
             ) : null}
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t.inventoryPriceStock}
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -364,7 +364,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.purchasePrice}
                   onChange={handleChange}
                   required
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -376,7 +376,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.sellingPrice}
                   onChange={handleChange}
                   required
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -387,7 +387,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.stock}
                   onChange={handleChange}
                   required
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -398,7 +398,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.minStock}
                   onChange={handleChange}
                   required
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
             </div>
@@ -408,14 +408,14 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                 name="isActive"
                 checked={formData.isActive}
                 onChange={handleChange}
-                className="rounded border-white/20"
+                className="rounded border-border"
               />
               {t.inventoryActive}
             </label>
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t.inventoryProductOriginSection}
             </h4>
             {isEditing && product?.origin && product.origin !== formData.origin ? (
@@ -430,10 +430,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.origin}
                   onValueChange={(v) => setFormData((p) => ({ ...p, origin: v }))}
                 >
-                  <SelectTrigger className="bg-gray-800 border-white/10 text-white">
+                  <SelectTrigger className="border-border bg-background text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="border-white/10 bg-gray-800 text-white">
+                  <SelectContent className="border-border bg-popover text-popover-foreground">
                     <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
                     <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
                   </SelectContent>
@@ -447,7 +447,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.countryOfOrigin}
                   onChange={handleChange}
                   required={formData.origin === "IMPORTED"}
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
                 <datalist id="origin-country-list">
                   {COUNTRY_OPTIONS.map((country) => (
@@ -463,7 +463,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   name="localPrice"
                   value={formData.localPrice}
                   onChange={handleChange}
-                  className="bg-gray-800 border-white/10"
+                  className="bg-background border-border"
                 />
               </div>
               {formData.origin === "IMPORTED" ? (
@@ -476,7 +476,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                       name="importedPrice"
                       value={formData.importedPrice}
                       onChange={handleChange}
-                      className="bg-gray-800 border-white/10"
+                      className="bg-background border-border"
                     />
                   </div>
                   <div className="space-y-2">
@@ -489,7 +489,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                       name="importTaxRate"
                       value={formData.importTaxRate}
                       onChange={handleChange}
-                      className="bg-gray-800 border-white/10"
+                      className="bg-background border-border"
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
@@ -500,7 +500,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                         Number(formData.importedPrice || 0) *
                         (1 + Number(formData.importTaxRate || 0) / 100)
                       ).toFixed(2)}
-                      className="bg-gray-800 border-white/10"
+                      className="bg-background border-border"
                     />
                   </div>
                 </>
@@ -510,10 +510,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t.inventoryProductImages}
               </h4>
-              <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-gray-500">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                 {formData.images.length}/{MAX_PRODUCT_IMAGES}
               </span>
             </div>
@@ -521,7 +521,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             {formData.images.length > 0 && (
               <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {formData.images.map((img, i) => (
-                  <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-white/10">
+                  <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
                     <Image
                       src={img}
                       alt=""
@@ -552,7 +552,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
               </div>
             )}
 
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 bg-gray-800/30 p-6">
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 p-6">
               {formData.images.length >= MAX_PRODUCT_IMAGES ? (
                 <p className="text-xs text-amber-300">
                   {lang === "ar"
@@ -598,9 +598,9 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-white/10 bg-gray-950/90 px-6 py-4">
+          <div className="shrink-0 border-t border-border bg-muted/40 px-6 py-4">
             <div className={cn("flex flex-wrap justify-end gap-3", isRTL && "flex-row-reverse")}>
-              <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="text-white hover:bg-white/10">
+              <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="text-foreground hover:bg-muted">
                 {t.cancel}
               </Button>
               <Button type="submit" disabled={loading} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">

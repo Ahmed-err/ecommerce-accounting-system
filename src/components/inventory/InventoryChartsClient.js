@@ -87,11 +87,11 @@ export default function InventoryChartsClient({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className="rounded-2xl border border-white/5 bg-gray-900 p-4 md:p-5"
+      className="rounded-2xl border border-border bg-card p-4 md:p-5"
     >
       <h3
         className={cn(
-          "mb-4 text-sm font-bold text-white",
+          "mb-4 text-sm font-bold text-foreground",
           isRTL && "text-right"
         )}
       >
@@ -122,7 +122,7 @@ export default function InventoryChartsClient({
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-gray-500">
+          <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
             {t.inventoryNoMovements}
           </p>
         ),
@@ -152,7 +152,7 @@ export default function InventoryChartsClient({
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-gray-500">—</p>
+          <p className="flex h-full items-center justify-center text-sm text-muted-foreground">—</p>
         ),
         0.08
       )}
@@ -177,7 +177,7 @@ export default function InventoryChartsClient({
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-gray-500">
+          <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
             {t.inventoryNoMovements}
           </p>
         ),
@@ -198,7 +198,7 @@ export default function InventoryChartsClient({
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-gray-500">{t.inventoryNoMovements}</p>
+          <p className="flex h-full items-center justify-center text-sm text-muted-foreground">{t.inventoryNoMovements}</p>
         ),
         0.24
       )}
@@ -220,22 +220,22 @@ export default function InventoryChartsClient({
         </div>,
         0.3
       )}
-      <div className="rounded-2xl border border-white/5 bg-gray-900 p-4 md:col-span-3">
+      <div className="rounded-2xl border border-border bg-card p-4 md:col-span-3">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white">{t.inventoryImportTaxSummaryTitle}</h3>
+          <h3 className="text-sm font-bold text-foreground">{t.inventoryImportTaxSummaryTitle}</h3>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="border-white/10 text-white" onClick={exportImportedTaxCsv}>
+            <Button size="sm" variant="outline" className="border-border text-foreground" onClick={exportImportedTaxCsv}>
               {t.inventoryExportCsv}
             </Button>
-            <Button size="sm" variant="outline" className="border-white/10 text-white" onClick={() => window.print()}>
+            <Button size="sm" variant="outline" className="border-border text-foreground" onClick={() => window.print()}>
               {t.accExportPdf}
             </Button>
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-gray-300">
+          <table className="w-full text-xs text-foreground">
             <thead>
-              <tr className="text-gray-400">
+              <tr className="text-muted-foreground">
                 <th className="py-1 text-left">{t.inventoryColProduct}</th>
                 <th className="py-1 text-left">{t.inventoryCountryOfOrigin}</th>
                 <th className="py-1 text-left">{t.inventoryImportedPrice}</th>
@@ -248,7 +248,7 @@ export default function InventoryChartsClient({
               {importedRows.map((r) => {
                 const landed = Number(r.importedPrice || 0) * (1 + Number(r.importTaxRate || 0) / 100);
                 return (
-                  <tr key={r.id} className="border-t border-white/5">
+                  <tr key={r.id} className="border-t border-border">
                     <td className="py-1">{r.name}</td>
                     <td className="py-1">{r.countryOfOrigin || "-"}</td>
                     <td className="py-1">{Number(r.importedPrice || 0).toFixed(2)}</td>

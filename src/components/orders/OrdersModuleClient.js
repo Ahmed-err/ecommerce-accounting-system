@@ -357,7 +357,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Link href={`/admin/orders/${order.id}/invoice`} target="_blank">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-amber-400">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-amber-400">
                           <Printer className="h-3.5 w-3.5" />
                         </Button>
                       </Link>
@@ -755,9 +755,9 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
             {returns.map((r) => (
               <tr key={r.id} className="hover:bg-muted/40">
                 <td className="px-4 py-3 font-mono text-xs text-amber-400">{r.returnNumber}</td>
-                <td className="px-4 py-3 font-mono text-xs text-gray-300">#{r.orderId.slice(-8).toUpperCase()}</td>
-                <td className="px-4 py-3 text-gray-400 tabular-nums">{fmtDate(r.createdAt, lang)}</td>
-                <td className="px-4 py-3 text-gray-300 truncate max-w-40">{r.reason}</td>
+                <td className="px-4 py-3 font-mono text-xs text-foreground">#{r.orderId.slice(-8).toUpperCase()}</td>
+                <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtDate(r.createdAt, lang)}</td>
+                <td className="px-4 py-3 text-foreground truncate max-w-40">{r.reason}</td>
                 <td className="px-4 py-3 font-bold text-foreground tabular-nums">{fmt(r.refundAmount, lang)} {t.currency}</td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${RETURN_STATUS_CONFIG[r.status] || "bg-muted text-muted-foreground"}`}>
@@ -786,7 +786,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
         )}
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.ordOrigOrder} ID</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.ordOrigOrder} ID</label>
             <div className={`flex flex-wrap gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
               <Input
                 value={form.orderId}
@@ -824,7 +824,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
           </div>
           {orderItems.length > 0 && (
             <div>
-              <label className="text-xs text-gray-400 mb-2 block">{t.ordSelectItems}</label>
+              <label className="text-xs text-muted-foreground mb-2 block">{t.ordSelectItems}</label>
               <div className="space-y-2">
                 {orderItems.map((item) => {
                   const sel = selectedItems.find((s) => s.lineId === item.id);
@@ -860,11 +860,11 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
             </div>
           )}
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.ordReturnReason}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.ordReturnReason}</label>
             <Input value={form.reason} onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))} className="bg-background border-border text-foreground" />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">{t.ordRefundMethod}</label>
+            <label className="text-xs text-muted-foreground mb-1 block">{t.ordRefundMethod}</label>
             <Select value={form.refundMethod} onValueChange={(v) => setForm((p) => ({ ...p, refundMethod: v }))}>
               <SelectTrigger className="bg-background border-border text-foreground" dir={isRTL ? "rtl" : "ltr"}><SelectValue /></SelectTrigger>
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
@@ -971,7 +971,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
               <tbody className="divide-y divide-white/5">
                 {topCustomers.map((c, i) => (
                   <tr key={i} className="hover:bg-muted/40">
-                    <td className="py-3 text-gray-300 dir-ltr">{c.guestPhone || "—"}</td>
+                    <td className="py-3 text-foreground dir-ltr">{c.guestPhone || "—"}</td>
                     <td className="py-3 text-center tabular-nums text-foreground">{c._count?.id || 0}</td>
                     <td className="py-3 tabular-nums font-bold text-amber-400">{fmt(c._sum?.totalAmount, lang)} {t.currency}</td>
                   </tr>

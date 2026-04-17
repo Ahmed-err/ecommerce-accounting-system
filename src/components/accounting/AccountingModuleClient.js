@@ -123,7 +123,7 @@ export default function AccountingModuleClient({ initialTab, initialPayload, per
             >
               {x.label}
               {x.badge != null && (
-                <span className="ms-1 inline-flex min-w-[1.25rem] justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-foreground dark:text-white">
+                <span className="ms-1 inline-flex min-w-[1.25rem] justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
                   {x.badge}
                 </span>
               )}

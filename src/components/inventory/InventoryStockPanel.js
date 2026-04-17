@@ -157,7 +157,7 @@ export default function InventoryStockPanel({
   return (
     <div
       className={cn(
-        "space-y-4 rounded-2xl border border-white/5 bg-gray-900 p-4 md:p-6",
+        "space-y-4 rounded-2xl border border-border bg-card text-card-foreground p-4 md:p-6",
         isRTL && "text-right"
       )}
     >
@@ -181,7 +181,7 @@ export default function InventoryStockPanel({
         <Button
           type="button"
           variant="outline"
-          className="border-red-500/40 text-red-400 hover:bg-red-500/10"
+          className="border-red-400/50 text-red-700 hover:bg-red-500/10 dark:border-red-500/40 dark:text-red-400"
           onClick={() => {
             resetProductPickers();
             setIssueOpen(true);
@@ -199,21 +199,21 @@ export default function InventoryStockPanel({
             isRTL && "flex-row-reverse"
           )}
         >
-          <h3 className="text-sm font-bold text-white">{t.inventoryStockLog}</h3>
+          <h3 className="text-sm font-bold text-foreground">{t.inventoryStockLog}</h3>
           <Select value={mType || "all"} onValueChange={(v) => setMType(v === "all" ? "" : v)}>
-            <SelectTrigger className="h-9 w-40 bg-gray-800 border-white/10 text-white">
+            <SelectTrigger className="h-9 w-40 bg-background border-border text-foreground">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-white/10 text-white">
+            <SelectContent className="bg-background border-border text-foreground">
               <SelectItem value="all">{t.inventoryAllTypes}</SelectItem>
               <SelectItem value="IN">{t.inventoryMovementIn}</SelectItem>
               <SelectItem value="OUT">{t.inventoryMovementOut}</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-white/5">
-          <table className="w-full min-w-[640px] text-left text-xs text-gray-300 rtl:text-right">
-            <thead className="border-b border-white/5 bg-gray-800/40 text-[10px] uppercase text-gray-500">
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[640px] text-left text-xs text-foreground rtl:text-right">
+            <thead className="border-b border-border bg-muted/50 text-[10px] uppercase text-muted-foreground">
               <tr>
                 <th className="px-3 py-2">{t.inventoryMovementType}</th>
                 <th className="px-3 py-2">{t.inventoryColProduct}</th>
@@ -224,41 +224,41 @@ export default function InventoryStockPanel({
                 <th className="px-3 py-2">{t.inventoryNotes}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {movements.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
                     {t.inventoryNoMovements}
                   </td>
                 </tr>
               ) : (
                 movements.map((m) => (
-                  <tr key={m.id} className="hover:bg-white/[0.02]">
+                  <tr key={m.id} className="hover:bg-muted/40">
                     <td className="px-3 py-2">
                       <span
                         className={cn(
                           "rounded px-1.5 py-0.5 font-semibold",
                           m.type === "IN"
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-red-500/15 text-red-400"
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                            : "bg-red-500/15 text-red-700 dark:text-red-400"
                         )}
                       >
                         {m.type === "IN" ? t.inventoryMovementIn : t.inventoryMovementOut}
                       </span>
                     </td>
                     <td className="px-3 py-2">
-                      <div className="font-medium text-white">{m.product?.name}</div>
-                      <div className="font-mono text-[10px] text-gray-500">{m.product?.sku}</div>
+                      <div className="font-medium text-foreground">{m.product?.name}</div>
+                      <div className="font-mono text-[10px] text-muted-foreground">{m.product?.sku}</div>
                     </td>
-                    <td className="regular-nums px-3 py-2 font-bold text-white">{m.quantity}</td>
+                    <td className="regular-nums px-3 py-2 font-bold text-foreground">{m.quantity}</td>
                     <td className="px-3 py-2">{m.supplier?.name || "—"}</td>
                     <td className="max-w-[120px] truncate px-3 py-2">
                       {m.user?.name || m.user?.email || "—"}
                     </td>
-                    <td className="regular-nums px-3 py-2 text-gray-400">
+                    <td className="regular-nums px-3 py-2 text-muted-foreground">
                       {new Date(m.createdAt).toLocaleString(lang === "ar" ? "ar-SD" : "en-GB")}
                     </td>
-                    <td className="max-w-[160px] truncate px-3 py-2 text-gray-500">
+                    <td className="max-w-[160px] truncate px-3 py-2 text-muted-foreground">
                       {m.reason || m.notes || "—"}
                     </td>
                   </tr>
@@ -281,7 +281,7 @@ export default function InventoryStockPanel({
 
       <Dialog open={receiveOpen} onOpenChange={setReceiveOpen}>
         <DialogContent
-          className="max-h-[90dvh] max-w-lg overflow-y-auto border-white/10 bg-gray-900 text-white"
+          className="max-h-[90dvh] max-w-lg overflow-y-auto border-border bg-card text-card-foreground"
           showCloseButton
         >
           <DialogHeader>
@@ -292,17 +292,17 @@ export default function InventoryStockPanel({
               placeholder={t.inventorySearchPlaceholder}
               value={productQuery}
               onChange={(e) => setProductQuery(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Select
               modal={false}
               value={selectedProductId || null}
               onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10">
+              <SelectTrigger className="bg-background border-border">
                 <SelectValue placeholder={t.inventorySelectProduct} />
               </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
                 {productHits.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -315,17 +315,17 @@ export default function InventoryStockPanel({
               min={1}
               value={qty}
               onChange={(e) => setQty(Number(e.target.value) || 1)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Select
               modal={false}
               value={supplierId || "none"}
               onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10">
+              <SelectTrigger className="bg-background border-border">
                 <SelectValue placeholder={t.inventorySupplier} />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] bg-background border-border text-foreground">
                 <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -340,16 +340,16 @@ export default function InventoryStockPanel({
               placeholder={t.inventoryUnitCost}
               value={unitCost}
               onChange={(e) => setUnitCost(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Input
               placeholder={t.inventoryNotes}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
           </div>
-          <DialogFooter className="border-t border-white/10 bg-gray-900/80">
+          <DialogFooter className="border-t border-border bg-muted/30">
             <Button variant="ghost" onClick={() => setReceiveOpen(false)}>
               {t.cancel}
             </Button>
@@ -362,7 +362,7 @@ export default function InventoryStockPanel({
 
       <Dialog open={issueOpen} onOpenChange={setIssueOpen}>
         <DialogContent
-          className="max-h-[90dvh] max-w-lg overflow-y-auto border-white/10 bg-gray-900 text-white"
+          className="max-h-[90dvh] max-w-lg overflow-y-auto border-border bg-card text-card-foreground"
           showCloseButton
         >
           <DialogHeader>
@@ -373,17 +373,17 @@ export default function InventoryStockPanel({
               placeholder={t.inventorySearchPlaceholder}
               value={productQuery}
               onChange={(e) => setProductQuery(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Select
               modal={false}
               value={selectedProductId || null}
               onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
             >
-              <SelectTrigger className="bg-gray-800 border-white/10">
+              <SelectTrigger className="bg-background border-border">
                 <SelectValue placeholder={t.inventorySelectProduct} />
               </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-gray-800 border-white/10 text-white">
+              <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
                 {productHits.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} ({p.sku}) — {p.stock}
@@ -396,22 +396,22 @@ export default function InventoryStockPanel({
               min={1}
               value={qty}
               onChange={(e) => setQty(Number(e.target.value) || 1)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Input
               placeholder={t.inventoryReason}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
             <Input
               placeholder={t.inventoryNotes}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="bg-gray-800 border-white/10"
+              className="bg-background border-border"
             />
           </div>
-          <DialogFooter className="border-t border-white/10 bg-gray-900/80">
+          <DialogFooter className="border-t border-border bg-muted/30">
             <Button variant="ghost" onClick={() => setIssueOpen(false)}>
               {t.cancel}
             </Button>

@@ -570,7 +570,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
       <Dialog open={!!reviewLightbox} onOpenChange={(o) => !o && setReviewLightbox(null)}>
         <DialogContent
           showCloseButton
-          className="max-h-[min(92dvh,880px)] w-[min(96vw,920px)] gap-0 overflow-hidden border-border bg-zinc-950 p-0 text-white"
+          className="max-h-[min(92dvh,880px)] w-[min(96vw,920px)] gap-0 overflow-hidden border-border bg-card p-0 text-card-foreground"
         >
           <div className="relative aspect-square w-full bg-black">
             {reviewLightbox ? (
