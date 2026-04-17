@@ -103,49 +103,49 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-2xl overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+      <SheetContent side={isRTL ? "right" : "left"} className={`w-full overflow-y-auto border-border bg-card pb-24 text-card-foreground sm:max-w-2xl ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
         <SheetHeader>
-          <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>
+          <SheetTitle className={isRTL ? "text-right" : "text-left"}>
             {isEditing ? t.employeesEditEmployeeHeader : t.employeesAddNewEmployeeHeader}
           </SheetTitle>
-          <SheetDescription className={`text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+          <SheetDescription className={isRTL ? "text-right" : "text-left"}>
             {isEditing ? t.employeesUpdateDetails : t.employeesFillDetails}
           </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-8 px-2 pb-6">
-          {error && <div className="p-3 bg-red-500/20 text-red-400 rounded-md text-sm">{error}</div>}
+          {error && <div className="rounded-md bg-red-500/15 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
 
           {/* Personal Info */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.employeesPersonalInfo}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t.employeesPersonalInfo}</h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesFirstName}</label>
-                <Input name="firstName" value={formData.firstName} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: أحمد" : "John"} />
+                <label className="text-sm font-medium text-foreground">{t.employeesFirstName}</label>
+                <Input name="firstName" value={formData.firstName} onChange={handleChange} required className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} placeholder={lang === 'ar' ? "مثال: أحمد" : "John"} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesLastName}</label>
-                <Input name="lastName" value={formData.lastName} onChange={handleChange} required className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder={lang === 'ar' ? "مثال: علي" : "Doe"} />
+                <label className="text-sm font-medium text-foreground">{t.employeesLastName}</label>
+                <Input name="lastName" value={formData.lastName} onChange={handleChange} required className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} placeholder={lang === 'ar' ? "مثال: علي" : "Doe"} />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesEmail}</label>
-                <Input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={isEditing} className={`bg-gray-800 border-white/10 disabled:opacity-60 ${isRTL ? 'text-right' : 'text-left'}`} placeholder="admin@example.com" />
+                <label className="text-sm font-medium text-foreground">{t.employeesEmail}</label>
+                <Input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={isEditing} className={`border-border bg-background disabled:opacity-60 ${isRTL ? "text-right" : "text-left"}`} placeholder="admin@example.com" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesPhone} <span className="text-gray-600 text-xs">{t.optional}</span></label>
-                <Input name="phone" value={formData.phone} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder="+249..." />
+                <label className="text-sm font-medium text-foreground">{t.employeesPhone} <span className="text-xs text-muted-foreground">{t.optional}</span></label>
+                <Input name="phone" value={formData.phone} onChange={handleChange} className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} placeholder="+249..." />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t.employeesPassword} {isEditing && <span className="text-gray-600 text-xs">{t.employeesPasswordHint}</span>}
+              <label className="text-sm font-medium text-foreground">
+                {t.employeesPassword} {isEditing && <span className="text-xs text-muted-foreground">{t.employeesPasswordHint}</span>}
               </label>
               <div className="relative">
-                <Input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? "pl-10 text-right" : "pr-10 text-left"}`} placeholder={isEditing ? "••••••" : t.employeesPasswordPlaceholder} required={!isEditing} />
-                <button type="button" onClick={() => setShowPassword((v) => !v)} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-3" : "right-3"} text-gray-400 hover:text-white`} aria-label={showPassword ? "Hide password" : "Show password"}>
+                <Input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className={`border-border bg-background ${isRTL ? "pl-10 text-right" : "pr-10 text-left"}`} placeholder={isEditing ? "••••••" : t.employeesPasswordPlaceholder} required={!isEditing} />
+                <button type="button" onClick={() => setShowPassword((v) => !v)} className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-3" : "right-3"} text-muted-foreground hover:text-foreground`} aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
@@ -153,34 +153,34 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
           </div>
 
           {/* Work Details */}
-          <div className="pt-2 space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t.employeesWorkDetails}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-4 pt-2">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t.employeesWorkDetails}</h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesRole}</label>
+                <label className="text-sm font-medium text-foreground">{t.employeesRole}</label>
                 <Select value={formData.role} onValueChange={(val) => setFormData((p) => ({ ...p, role: val }))}>
-                  <SelectTrigger className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'} h-12 rounded-xl`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectTrigger className={`h-12 rounded-xl border-border bg-background ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectValue placeholder={t.employeesSelectRole}>
                       {formData.role === 'ADMIN' ? t.roleAdmin : formData.role === 'MANAGER' ? t.roleManager : t.roleCashier}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className={`bg-gray-800 border-white/10 text-white rounded-xl ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectContent className={`rounded-xl border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectItem value="ADMIN">{t.roleAdmin}</SelectItem>
                     <SelectItem value="MANAGER">{t.roleManager}</SelectItem>
                     <SelectItem value="CASHIER">{t.roleCashier}</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-[10px] text-gray-500 mt-1.5 leading-relaxed bg-white/5 p-2 rounded-lg border border-white/5">
+                <p className="mt-1.5 rounded-lg border border-border bg-muted/50 p-2 text-[10px] leading-relaxed text-muted-foreground">
                    {formData.role === 'ADMIN' ? t.roleAdminDesc : formData.role === 'MANAGER' ? t.roleManagerDesc : t.roleCashierDesc}
                 </p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesDept}</label>
+                <label className="text-sm font-medium text-foreground">{t.employeesDept}</label>
                 <Select value={formData.department || "none"} onValueChange={(val) => setFormData((p) => ({ ...p, department: val === "none" ? "" : val }))}>
-                  <SelectTrigger className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectTrigger className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectValue placeholder={t.employeesSelectDept}>{formData.department || (lang === 'ar' ? "لاشيء" : "None")}</SelectValue>
                   </SelectTrigger>
-                  <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectItem value="none">{lang === 'ar' ? "لاشيء" : "None"}</SelectItem>
                     {departmentOptions.map((d) => (
                       <SelectItem key={d} value={d}>{d}</SelectItem>
@@ -189,21 +189,21 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className={`text-sm font-medium text-amber-500/80`}>{t.employeesMonthlySalary} ({t.currency})</label>
-                <Input type="number" step="0.01" name="salary" value={formData.salary} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} placeholder="0.00" />
+                <label className="text-sm font-medium text-amber-700 dark:text-amber-500/90">{t.employeesMonthlySalary} ({t.currency})</label>
+                <Input type="number" step="0.01" name="salary" value={formData.salary} onChange={handleChange} className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} placeholder="0.00" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.employeesHireDate}</label>
-                <Input type="date" name="hireDate" value={formData.hireDate} onChange={handleChange} className={`bg-gray-800 border-white/10 ${isRTL ? 'text-right' : 'text-left'}`} />
+                <label className="text-sm font-medium text-foreground">{t.employeesHireDate}</label>
+                <Input type="date" name="hireDate" value={formData.hireDate} onChange={handleChange} className={`border-border bg-background ${isRTL ? "text-right" : "text-left"}`} />
               </div>
             </div>
           </div>
 
-          <div className="pt-8 pb-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">{t.cancel}</Button>
-            <Button type="submit" disabled={loading} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+          <div className="flex justify-end gap-3 pb-4 pt-8">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-muted">{t.cancel}</Button>
+            <Button type="submit" disabled={loading} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
               {loading ? t.saving : t.employeesSaveEmployee}
             </Button>
           </div>

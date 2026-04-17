@@ -112,32 +112,32 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side={isRTL ? "right" : "left"} className={`bg-gray-900 border-white/10 text-white w-full sm:max-w-lg overflow-y-auto pb-24 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+      <SheetContent side={isRTL ? "right" : "left"} className={`w-full overflow-y-auto border-border bg-card pb-24 text-card-foreground sm:max-w-lg ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
         <SheetHeader>
-          <SheetTitle className={`text-white ${isRTL ? 'text-right' : 'text-left'}`}>
+          <SheetTitle className={isRTL ? "text-right" : "text-left"}>
             {isEditing ? t.accountingEditTransactionHeader : t.accountingAddNewTransactionHeader}
           </SheetTitle>
-          <SheetDescription className={`text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+          <SheetDescription className={isRTL ? "text-right" : "text-left"}>
             {isEditing ? t.accountingUpdateDetails : t.accountingFillDetails}
           </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 px-2 pb-6">
           {error && (
-            <div className="p-3 bg-red-500/20 text-red-400 rounded-md text-sm">{error}</div>
+            <div className="rounded-md bg-red-500/15 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>
           )}
 
           {/* Type Toggle */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t.accountingType}</label>
-            <div className={`flex rounded-xl overflow-hidden border border-white/10 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
+            <label className="text-sm font-medium text-foreground">{t.accountingType}</label>
+            <div className={`flex overflow-hidden rounded-xl border border-border ${isRTL ? "flex-row-reverse" : "flex-row"}`}>
               <button
                 type="button"
                 disabled={managerNoIncome}
                 onClick={() => setFormData((p) => ({ ...p, type: "INCOMING" }))}
                 className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
-                  isIncoming ? "bg-emerald-500 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
-                } ${managerNoIncome ? "opacity-40 cursor-not-allowed" : ""}`}
+                  isIncoming ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                } ${managerNoIncome ? "cursor-not-allowed opacity-40" : ""}`}
               >
                 {isRTL ? "إيراد ↑" : "↑ Incoming"}
               </button>
@@ -145,7 +145,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                 type="button"
                 onClick={() => setFormData((p) => ({ ...p, type: "OUTGOING" }))}
                 className={`flex-1 py-2.5 text-sm font-semibold transition-all ${
-                  !isIncoming ? "bg-red-500 text-white" : "bg-gray-800 text-gray-400 hover:text-white"
+                  !isIncoming ? "bg-red-600 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 }`}
               >
                 {isRTL ? "مصروف ↓" : "↓ Outgoing"}
@@ -155,7 +155,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
           {/* Amount */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t.accountingAmount} ({t.currency})</label>
+            <label className="text-sm font-medium text-foreground">{t.accountingAmount} ({t.currency})</label>
             <Input
               type="number"
               name="amount"
@@ -165,36 +165,36 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
               onChange={handleChange}
               placeholder="0.00"
               required
-              className={`bg-gray-800 border-white/10 text-white text-lg ${isRTL ? 'text-right' : 'text-left'}`}
+              className={`border-border bg-background text-lg text-foreground ${isRTL ? "text-right" : "text-left"}`}
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t.accountingDesc}</label>
+            <label className="text-sm font-medium text-foreground">{t.accountingDesc}</label>
             <Input
               name="description"
               value={formData.description}
               onChange={handleChange}
               placeholder={lang === 'ar' ? "مثال: دفع إيجار المحل" : "e.g. Monthly rent payment"}
               required
-              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
+              className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`}
             />
           </div>
 
           {/* Category */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t.accountingCategory}</label>
+            <label className="text-sm font-medium text-foreground">{t.accountingCategory}</label>
             <Select
               value={formData.category}
               onValueChange={(val) => setFormData((p) => ({ ...p, category: val }))}
             >
-              <SelectTrigger className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder={t.accountingSelectCategory}>
                   {formData.category || undefined}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 {PRESET_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                 ))}
@@ -204,43 +204,43 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
 
           {/* Reference */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">
-              {t.accountingRef} <span className="text-gray-600 text-xs">{t.optional}</span>
+            <label className="text-sm font-medium text-foreground">
+              {t.accountingRef} <span className="text-xs text-muted-foreground">{t.optional}</span>
             </label>
             <Input
               name="reference"
               value={formData.reference}
               onChange={handleChange}
               placeholder="INV-2024-001"
-              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
+              className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`}
             />
           </div>
 
           {/* Date */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">{t.accountingDate}</label>
+            <label className="text-sm font-medium text-foreground">{t.accountingDate}</label>
             <Input
               type="date"
               name="date"
               value={formData.date}
               onChange={handleChange}
               required
-              className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`}
+              className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`}
             />
           </div>
 
           {!isIncoming && (
             <>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">{t.accFilterPayment}</label>
+                <label className="text-sm font-medium text-foreground">{t.accFilterPayment}</label>
                 <Select
                   value={formData.paymentMethod || "CASH"}
                   onValueChange={(val) => setFormData((p) => ({ ...p, paymentMethod: val }))}
                 >
-                  <SelectTrigger className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectTrigger className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-white/10 text-white">
+                  <SelectContent className="border-border bg-popover text-popover-foreground">
                     <SelectItem value="CASH">CASH</SelectItem>
                     <SelectItem value="BANK_TRANSFER">BANK_TRANSFER</SelectItem>
                     <SelectItem value="CARD">CARD</SelectItem>
@@ -248,8 +248,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">{t.accReceipt}</label>
-                <div className="rounded-xl border border-dashed border-white/10 p-4">
+                <label className="text-sm font-medium text-foreground">{t.accReceipt}</label>
+                <div className="rounded-xl border border-dashed border-border p-4">
                   <UploadButton
                     endpoint="expenseReceipt"
                     content={{
@@ -267,8 +267,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
             </>
           )}
 
-          <div className="pt-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-white/10">
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-muted">
               {t.cancel}
             </Button>
             <Button

@@ -23,7 +23,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0, pe
 
   return (
     <div
-      className={`flex min-h-dvh w-full flex-col bg-background text-foreground selection:bg-amber-500/30 md:h-dvh md:max-h-dvh md:flex-row md:overflow-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
+      className={`admin-shell flex min-h-dvh w-full flex-col bg-background text-foreground selection:bg-amber-500/30 md:h-dvh md:max-h-dvh md:flex-row md:overflow-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
       <aside className="hidden h-full min-h-0 w-64 max-w-full shrink-0 overflow-y-auto md:block">

@@ -7,7 +7,7 @@ import { printElementById } from "@/lib/print";
 export default function PrintReportButton({ label, isRTL, targetId }) {
   return (
     <Button 
-      className="bg-gray-800 border border-white/5 text-white hover:bg-gray-700 font-medium" 
+      className="bg-background border border-border text-foreground hover:bg-muted font-medium" 
       onClick={() => (targetId ? printElementById(targetId) : window.print())}
       type="button"
     >

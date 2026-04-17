@@ -65,7 +65,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
 
   return (
     <div
-      className={`flex h-full flex-col bg-card/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-border text-muted-foreground w-64 max-w-full overflow-x-hidden ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
+      className={`flex h-full flex-col bg-card/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-border text-muted-foreground w-64 max-w-full overflow-x-hidden shadow-sm ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="p-8">
@@ -78,7 +78,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
               {brandName}
             </span>
             <div
-              className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 ${isRTL ? "text-right" : "text-left"}`}
+              className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
             >
               {t.adminErp}
             </div>
@@ -99,8 +99,8 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
               onClick={onNavigate}
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative ${
                 isActive
-                  ? "bg-amber-500/10 text-amber-500 font-bold"
-                  : "hover:bg-muted hover:text-foreground"
+                  ? "bg-amber-500/15 text-amber-600 font-bold border border-amber-500/20"
+                  : "hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
               }`}
             >
               {isActive && (
@@ -112,7 +112,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
                 className={`h-5 w-5 shrink-0 transition-all duration-300 ${
                   isActive
                     ? "scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                    : "opacity-60 group-hover:scale-110 group-hover:text-amber-400 group-hover:opacity-100"
+                    : "opacity-60 group-hover:scale-110 group-hover:text-amber-500 group-hover:opacity-100"
                 }`}
               />
               <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap tracking-wide">
@@ -131,7 +131,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
       <div className="p-6 border-t border-border mt-auto bg-muted/40">
         <Link 
           href="/" 
-          className={`text-sm text-muted-foreground hover:text-foreground transition-all duration-300 flex items-center justify-center gap-2 p-3 bg-muted/50 hover:bg-muted rounded-2xl border border-border group`}
+          className={`text-sm text-muted-foreground hover:text-foreground transition-all duration-300 flex items-center justify-center gap-2 p-3 bg-background/80 hover:bg-background rounded-2xl border border-border group`}
         >
           <span className="group-hover:translate-x-[-2px] transition-transform">
              {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}

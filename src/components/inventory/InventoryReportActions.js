@@ -504,7 +504,7 @@ export default function InventoryReportActions({
       <Button
         type="button"
         variant="outline"
-        className="h-10 border-white/10 bg-gray-800 text-white"
+        className="h-10 border-border bg-background text-foreground hover:bg-muted"
         onClick={() => setPreviewOpen(true)}
       >
         <Eye className={cn("h-4 w-4 shrink-0", isRTL ? "ms-2" : "me-2")} />

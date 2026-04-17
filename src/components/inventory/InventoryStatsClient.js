@@ -92,8 +92,8 @@ export default function InventoryStatsClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: i * 0.05 }}
             className={cn(
-              "relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-gray-900 p-5 transition-colors",
-              stat.href && "cursor-pointer hover:bg-white/[0.02]"
+              "relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 transition-colors",
+              stat.href && "cursor-pointer hover:bg-muted/40"
             )}
           >
             <div className="flex items-start justify-between">
@@ -111,10 +111,10 @@ export default function InventoryStatsClient({
               )}
             </div>
             <div className="mt-4">
-              <p className="mb-1 text-xs font-medium text-gray-500">
+              <p className="mb-1 text-xs font-medium text-muted-foreground">
                 {stat.label}
               </p>
-              <p className="regular-nums text-xl font-bold text-white">
+              <p className="regular-nums text-xl font-bold text-foreground">
                 {stat.value}
               </p>
             </div>

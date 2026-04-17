@@ -49,11 +49,11 @@ function timeAgo(iso, lang) {
 }
 
 function statusClass(status) {
-  if (status === "DELIVERED") return "bg-emerald-500/15 text-emerald-400";
-  if (status === "SHIPPED") return "bg-blue-500/15 text-blue-400";
-  if (status === "CANCELLED") return "bg-red-500/15 text-red-400";
-  if (status === "PROCESSING") return "bg-violet-500/15 text-violet-400";
-  return "bg-amber-500/15 text-amber-300";
+  if (status === "DELIVERED") return "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400";
+  if (status === "SHIPPED") return "bg-blue-500/15 text-blue-800 dark:text-blue-400";
+  if (status === "CANCELLED") return "bg-red-500/15 text-red-800 dark:text-red-400";
+  if (status === "PROCESSING") return "bg-violet-500/15 text-violet-800 dark:text-violet-400";
+  return "bg-amber-500/15 text-amber-900 dark:text-amber-300";
 }
 
 const KPI_ICONS = {
@@ -128,7 +128,7 @@ export default function DashboardClient({ data, filters }) {
                         ? Number(k.value).toLocaleString()
                         : `${Number(k.value).toLocaleString()} ${t.currency}`}
                     </div>
-                    <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-emerald-400" : "text-red-400"}`}>
+                    <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
                       {up ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
                       <span>{k.change}%</span>
                     </div>

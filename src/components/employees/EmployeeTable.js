@@ -13,9 +13,9 @@ import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
 const ROLE_COLORS = {
-  ADMIN: "bg-purple-500/10 text-purple-400",
-  MANAGER: "bg-blue-500/10 text-blue-400",
-  CASHIER: "bg-amber-500/10 text-amber-400",
+  ADMIN: "bg-purple-500/15 text-purple-700 dark:text-purple-400",
+  MANAGER: "bg-blue-500/15 text-blue-700 dark:text-blue-400",
+  CASHIER: "bg-amber-500/15 text-amber-800 dark:text-amber-400",
 };
 
 function formatDate(date, lang, mounted) {
@@ -106,22 +106,22 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   const openNew = () => { setEditingEmployee(null); setIsFormOpen(true); };
 
   return (
-    <div className={`bg-gray-900 border border-white/5 rounded-xl flex flex-col w-full h-full min-h-[500px] ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+    <div className={`flex min-h-[500px] w-full flex-col rounded-xl border border-border bg-card text-card-foreground shadow-sm ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       {/* Filter Bar */}
       {mounted && (
-        <div className="p-4 border-b border-white/5 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-3 sm:gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:flex-wrap gap-2 w-full xl:w-auto">
+        <div className="flex flex-col items-stretch justify-between gap-3 border-b border-border p-4 sm:gap-4 xl:flex-row xl:items-center">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap">
             {/* Search */}
             <div className="relative group h-10 w-full sm:col-span-2 xl:w-64">
-              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} inset-y-0 my-auto h-4 w-4 text-gray-400 group-focus-within:text-amber-500 transition-colors pointer-events-none`} />
+              <Search className={`pointer-events-none absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-amber-600`} />
               <Input
                 placeholder={t.employeesSearchPlaceholder}
-                className={`h-full ${isRTL ? 'pr-10 pl-10' : 'pl-10 pr-10'} bg-gray-800 border-white/10 text-white focus:border-amber-500/50 transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`h-full border-border bg-background text-foreground transition-all focus:border-amber-500/50 ${isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"}`}
                 value={searchValue}
                 onChange={handleSearch}
               />
               {searchValue && (
-                <button onClick={clearSearch} className={`absolute ${isRTL ? 'left-3' : 'right-3'} inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors`}>
+                <button onClick={clearSearch} className={`absolute ${isRTL ? "left-3" : "right-3"} inset-y-0 my-auto flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground`}>
                   <X className="h-4 w-4" />
                 </button>
               )}
@@ -132,10 +132,10 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
               value={searchParamsHook.get("role") || "all"}
               onValueChange={(val) => handleFilter("role", val, "all")}
             >
-              <SelectTrigger className={`w-full sm:w-[140px] bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className={`w-full border-border bg-background sm:w-[140px] ${isRTL ? "text-right" : "text-left"} text-foreground`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder={t.employeesColRole} />
               </SelectTrigger>
-              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="all">{t.employeesRoleAll}</SelectItem>
                 <SelectItem value="admin">{t.roleAdmin}</SelectItem>
                 <SelectItem value="manager">{t.roleManager}</SelectItem>
@@ -148,14 +148,14 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
               value={searchParamsHook.get("department") || "all"}
               onValueChange={(val) => handleFilter("department", val, "all")}
             >
-              <SelectTrigger className={`w-full sm:w-[160px] bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className={`w-full border-border bg-background sm:w-[160px] ${isRTL ? "text-right" : "text-left"} text-foreground`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder={t.employeesColDept}>
                   {searchParamsHook.get("department") && searchParamsHook.get("department") !== "all"
                     ? searchParamsHook.get("department")
                     : undefined}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="all">{t.employeesDeptAll}</SelectItem>
                 {departments.map((d) => (
                   <SelectItem key={d} value={d}>{d}</SelectItem>
@@ -164,66 +164,66 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
             </Select>
           </div>
 
-          <Button onClick={openNew} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-semibold shrink-0">
-            <Plus className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} /> {t.employeesAddEmployee}
+          <Button onClick={openNew} className="w-full shrink-0 bg-amber-500 font-semibold text-black hover:bg-amber-600 sm:w-auto">
+            <Plus className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4`} /> {t.employeesAddEmployee}
           </Button>
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto flex-1">
-        <table className={`w-full min-w-[900px] ${isRTL ? 'text-right' : 'text-left'} text-sm text-gray-300`}>
-          <thead className="bg-gray-800/50 text-xs uppercase text-gray-400">
+      <div className="flex-1 overflow-x-auto">
+        <table className={`w-full min-w-[900px] text-sm text-foreground ${isRTL ? "text-right" : "text-left"}`}>
+          <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-6 py-4 font-medium">{t.employeesColEmployee}</th>
               <th className="px-6 py-4 font-medium">{t.employeesColRole}</th>
               <th className="px-6 py-4 font-medium">{t.employeesColDept}</th>
               <th className="px-6 py-4 font-medium">{t.employeesColSalary}</th>
               <th className="px-6 py-4 font-medium">{t.employeesColHireDate}</th>
-              <th className={`px-6 py-4 font-medium ${isRTL ? 'text-left' : 'text-right'}`}>{t.actions}</th>
+              <th className={`px-6 py-4 font-medium ${isRTL ? "text-left" : "text-right"}`}>{t.actions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {initialEmployees.length === 0 && (
               <tr>
-                <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-10 text-center text-muted-foreground">
                   {t.employeesNoEmployees}
                 </td>
               </tr>
             )}
             {initialEmployees.map((emp) => (
-              <tr key={emp.id} className="hover:bg-white/[0.02] transition-colors">
+              <tr key={emp.id} className="transition-colors hover:bg-muted/40">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-gray-800 flex items-center justify-center border border-white/5 text-xs font-bold text-amber-500 uppercase shrink-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-xs font-bold uppercase text-amber-700 dark:text-amber-500">
                       {emp.firstName?.[0]}{emp.lastName?.[0]}
                     </div>
                     <div>
-                      <div className="font-medium text-white">{emp.firstName} {emp.lastName}</div>
-                      <div className="text-xs text-gray-500">{emp.email}</div>
+                      <div className="font-medium text-foreground">{emp.firstName} {emp.lastName}</div>
+                      <div className="text-xs text-muted-foreground">{emp.email}</div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${ROLE_COLORS[emp.role] || "bg-gray-500/10 text-gray-400"}`}>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold ${ROLE_COLORS[emp.role] || "bg-muted text-muted-foreground"}`}>
                     <Shield className="h-3 w-3" />
                     {roleLabels[emp.role] || emp.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-gray-400">{emp.department || "—"}</td>
+                <td className="px-6 py-4 text-muted-foreground">{emp.department || "—"}</td>
                 <td className="px-6 py-4">
                   {emp.salary ? (
-                    <span className="text-emerald-400 font-mono font-semibold regular-nums">{emp.salary.toLocaleString()} {t.currency}</span>
+                    <span className="font-mono font-semibold text-emerald-700 regular-nums dark:text-emerald-400">{emp.salary.toLocaleString()} {t.currency}</span>
                   ) : (
-                    <span className="text-gray-500">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </td>
-                 <td className="px-6 py-4 text-gray-400 whitespace-nowrap">{formatDate(emp.hireDate, lang, mounted)}</td>
-                <td className={`px-6 py-4 ${isRTL ? 'text-left' : 'text-right'}`}>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(emp)} className="text-gray-400 hover:text-white">
+                <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">{formatDate(emp.hireDate, lang, mounted)}</td>
+                <td className={`px-6 py-4 ${isRTL ? "text-left" : "text-right"}`}>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(emp)} className="text-muted-foreground hover:text-foreground">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(emp.id)} className="text-gray-400 hover:text-red-400">
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(emp.id)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </td>
@@ -234,16 +234,17 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-border p-4 text-sm text-muted-foreground sm:flex-row">
         <div>
-          {t.tableShowing} <span className="text-white font-medium regular-nums">{initialEmployees.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> {t.tableTo}{" "}
-          <span className="text-white font-medium regular-nums">{Math.min(currentPage * 10, total)}</span> {t.tableOf}{" "}
-          <span className="text-white font-medium regular-nums">{total}</span> {t.tableResults}
+          {t.tableShowing}{" "}
+          <span className="font-medium text-foreground regular-nums">{initialEmployees.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span> {t.tableTo}{" "}
+          <span className="font-medium text-foreground regular-nums">{Math.min(currentPage * 10, total)}</span> {t.tableOf}{" "}
+          <span className="font-medium text-foreground regular-nums">{total}</span> {t.tableResults}
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline" size="sm"
-            className="bg-gray-800 border-white/10 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="border-border bg-background text-foreground hover:bg-muted disabled:opacity-50"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -253,12 +254,12 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
               <><ChevronLeft className="h-4 w-4 mr-1" /> {t.tablePrevious}</>
             )}
           </Button>
-          <div className="px-4 py-1.5 bg-gray-800 rounded-md border border-white/10 text-white font-medium regular-nums">
+          <div className="regular-nums rounded-md border border-border bg-muted/50 px-4 py-1.5 font-medium text-foreground">
             {t.tablePage} {currentPage} {t.tablePageOf} {totalPages}
           </div>
           <Button
             variant="outline" size="sm"
-            className="bg-gray-800 border-white/10 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="border-border bg-background text-foreground hover:bg-muted disabled:opacity-50"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >

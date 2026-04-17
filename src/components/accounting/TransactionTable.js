@@ -125,24 +125,24 @@ export default function TransactionTable({ initialTransactions, total, searchPar
   const openNew = () => { setEditingTransaction(null); setIsFormOpen(true); };
 
   return (
-    <div className={`bg-gray-900 border border-white/5 rounded-2xl flex flex-col w-full h-full min-h-[500px] ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? "rtl" : "ltr"}>
+    <div className={`flex min-h-[500px] w-full flex-col rounded-2xl border border-border bg-card text-card-foreground shadow-sm ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       {/* Filter Bar */}
       {mounted && (
-        <div className="p-4 sm:p-6 border-b border-white/5 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-3 sm:gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:flex-wrap gap-2 w-full xl:w-auto">
+        <div className="flex flex-col items-stretch justify-between gap-3 border-b border-border p-4 sm:gap-4 sm:p-6 xl:flex-row xl:items-center">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap">
             {/* Search */}
             <div className={`relative group h-10 w-full sm:col-span-2 xl:w-72`}>
-              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} inset-y-0 my-auto h-4 w-4 text-gray-500 group-focus-within:text-amber-500 transition-colors pointer-events-none`} />
+              <Search className={`pointer-events-none absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-amber-600`} />
               <Input
                 placeholder={t.accountingSearchPlaceholder}
-                className={`h-full ${isRTL ? 'pr-10 pl-10' : 'pl-10 pr-10'} bg-gray-800/50 border-white/5 text-white focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all ${isRTL ? 'text-right' : 'text-left'} rounded-xl`}
+                className={`h-full rounded-xl border-border bg-background ${isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"} text-foreground transition-all focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/40`}
                 value={searchValue}
                 onChange={handleSearch}
               />
               {searchValue && (
                 <button
                   onClick={clearSearch}
-                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} inset-y-0 my-auto flex items-center justify-center text-gray-500 hover:text-white transition-colors`}
+                  className={`absolute ${isRTL ? "left-3" : "right-3"} inset-y-0 my-auto flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground`}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -154,10 +154,10 @@ export default function TransactionTable({ initialTransactions, total, searchPar
               value={searchParamsHook.get("type") || "all"}
               onValueChange={(val) => handleFilter("type", val, "all")}
             >
-              <SelectTrigger className={`h-10 w-full sm:w-[140px] bg-gray-800/50 border-white/5 text-white ${isRTL ? 'text-right' : 'text-left'} rounded-xl`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className={`h-10 w-full rounded-xl border-border bg-background sm:w-[140px] ${isRTL ? "text-right" : "text-left"} text-foreground`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder={t.accountingColType} />
               </SelectTrigger>
-              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'} rounded-xl`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectContent className={`rounded-xl border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="all">{t.accountingTypeAll}</SelectItem>
                 <SelectItem value="incoming">{t.accountingTypeIn}</SelectItem>
                 <SelectItem value="outgoing">{t.accountingTypeOut}</SelectItem>
@@ -169,14 +169,14 @@ export default function TransactionTable({ initialTransactions, total, searchPar
               value={searchParamsHook.get("category") || "all"}
               onValueChange={(val) => handleFilter("category", val, "all")}
             >
-              <SelectTrigger className={`h-10 w-full sm:w-[150px] bg-gray-800/50 border-white/5 text-white ${isRTL ? 'text-right' : 'text-left'} rounded-xl`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectTrigger className={`h-10 w-full rounded-xl border-border bg-background sm:w-[150px] ${isRTL ? "text-right" : "text-left"} text-foreground`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectValue placeholder={t.accountingColCategory}>
                   {searchParamsHook.get("category") && searchParamsHook.get("category") !== "all"
                     ? (lang === 'ar' ? t[searchParamsHook.get("category")] || searchParamsHook.get("category") : searchParamsHook.get("category"))
                     : undefined}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className={`bg-gray-800 border-white/10 text-white ${isRTL ? 'text-right' : 'text-left'} rounded-xl`} dir={isRTL ? "rtl" : "ltr"}>
+              <SelectContent className={`rounded-xl border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="all">{t.accountingCatAll}</SelectItem>
                 {CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>{lang === 'ar' ? (t[cat] || cat) : cat}</SelectItem>
@@ -184,71 +184,71 @@ export default function TransactionTable({ initialTransactions, total, searchPar
               </SelectContent>
             </Select>
 
-            <Button 
-                variant="outline" 
-                onClick={downloadCSV}
-                className="h-10 w-full sm:w-auto bg-gray-800/50 border-white/5 text-gray-400 hover:text-white rounded-xl"
+            <Button
+              variant="outline"
+              onClick={downloadCSV}
+              className="h-10 w-full rounded-xl border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground sm:w-auto"
             >
-                <Download className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} /> {t.adminExportCSV}
+              <Download className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4`} /> {t.adminExportCSV}
             </Button>
           </div>
 
-          <Button onClick={openNew} className="h-10 w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold shrink-0 rounded-xl px-6">
-            <Plus className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} /> {t.accountingAddTransaction}
+          <Button onClick={openNew} className="h-10 w-full shrink-0 rounded-xl bg-amber-500 px-6 font-bold text-black hover:bg-amber-600 sm:w-auto">
+            <Plus className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4`} /> {t.accountingAddTransaction}
           </Button>
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto flex-1">
-        <table className={`w-full min-w-[1000px] ${isRTL ? 'text-right' : 'text-left'} text-sm text-gray-300`}>
-          <thead className="bg-gray-800/50 text-xs uppercase text-gray-400">
+      <div className="flex-1 overflow-x-auto">
+        <table className={`w-full min-w-[1000px] text-sm text-foreground ${isRTL ? "text-right" : "text-left"}`}>
+          <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-6 py-4 font-medium">{t.accountingColDate}</th>
               <th className="px-6 py-4 font-medium">{t.accountingColDesc}</th>
               <th className="px-6 py-4 font-medium">{t.accountingColCategory}</th>
               <th className="px-6 py-4 font-medium">{t.accountingColRef}</th>
               <th className="px-6 py-4 font-medium">{t.accountingColType}</th>
-              <th className={`px-6 py-4 font-medium ${isRTL ? 'text-left' : 'text-right'}`}>{t.accountingColAmount}</th>
-              <th className={`px-6 py-4 font-medium ${isRTL ? 'text-left' : 'text-right'}`}>{t.actions}</th>
+              <th className={`px-6 py-4 font-medium ${isRTL ? "text-left" : "text-right"}`}>{t.accountingColAmount}</th>
+              <th className={`px-6 py-4 font-medium ${isRTL ? "text-left" : "text-right"}`}>{t.actions}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-border">
             {initialTransactions.length === 0 && (
               <tr>
-                <td colSpan="7" className="px-6 py-10 text-center text-gray-500">
+                <td colSpan="7" className="px-6 py-10 text-center text-muted-foreground">
                   {t.accountingNoTransactions}
                 </td>
               </tr>
             )}
             {initialTransactions.map((tx) => (
-              <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="px-6 py-4 text-gray-400 whitespace-nowrap">{formatDate(tx.date, lang, mounted)}</td>
-                <td className="px-6 py-4 font-medium text-white max-w-[300px] truncate">{tx.description}</td>
+              <tr key={tx.id} className="transition-colors hover:bg-muted/40">
+                <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">{formatDate(tx.date, lang, mounted)}</td>
+                <td className="max-w-[300px] truncate px-6 py-4 font-medium text-foreground">{tx.description}</td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-0.5 bg-white/5 rounded text-xs text-gray-400">{lang === 'ar' ? (t[tx.category] || tx.category) : tx.category}</span>
+                  <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{lang === 'ar' ? (t[tx.category] || tx.category) : tx.category}</span>
                 </td>
-                <td className="px-6 py-4 text-gray-500 text-xs regular-nums">{tx.reference || "—"}</td>
+                <td className="regular-nums px-6 py-4 text-xs text-muted-foreground">{tx.reference || "—"}</td>
                 <td className="px-6 py-4">
                   {tx.type === "INCOMING" ? (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                       <ArrowDownCircle className="h-3 w-3" /> {t.accountingTypeIn}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-xs font-semibold">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-700 dark:text-red-400">
                       <ArrowUpCircle className="h-3 w-3" /> {t.accountingTypeOut}
                     </span>
                   )}
                 </td>
-                <td className={`px-6 py-4 ${isRTL ? 'text-left' : 'text-right'} font-mono font-semibold ${tx.type === "INCOMING" ? "text-emerald-400" : "text-red-400"}`}>
+                <td className={`regular-nums px-6 py-4 font-mono font-semibold ${isRTL ? "text-left" : "text-right"} ${tx.type === "INCOMING" ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
                   {tx.type === "INCOMING" ? "+" : "-"}{tx.amount.toLocaleString()} {t.currency}
                 </td>
                 <td className="px-6 py-4 text-left">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(tx)} className="text-gray-400 hover:text-white">
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(tx)} className="text-muted-foreground hover:text-foreground">
                     <Edit className="h-4 w-4" />
                   </Button>
                   {canDelete && (
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(tx.id)} className="text-gray-400 hover:text-red-400">
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(tx.id)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
@@ -260,17 +260,18 @@ export default function TransactionTable({ initialTransactions, total, searchPar
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-border p-4 text-sm text-muted-foreground sm:flex-row">
         <div>
-          {t.tableShowing} <span className="text-white font-medium regular-nums">{initialTransactions.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span>–
-          <span className="text-white font-medium regular-nums">{Math.min(currentPage * 10, total)}</span> {t.tableOf}{" "}
-          <span className="text-white font-medium regular-nums">{total}</span>
+          {t.tableShowing}{" "}
+          <span className="font-medium text-foreground regular-nums">{initialTransactions.length > 0 ? (currentPage - 1) * 10 + 1 : 0}</span>–
+          <span className="font-medium text-foreground regular-nums">{Math.min(currentPage * 10, total)}</span> {t.tableOf}{" "}
+          <span className="font-medium text-foreground regular-nums">{total}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="bg-gray-800 border-white/10 text-white hover:bg-gray-700"
+            className="border-border bg-background text-foreground hover:bg-muted"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -280,13 +281,13 @@ export default function TransactionTable({ initialTransactions, total, searchPar
               <><ChevronLeft className="h-4 w-4 mr-1" /> {t.tablePrevious}</>
             )}
           </Button>
-          <span className="px-3 py-1 bg-gray-800 rounded-md border border-white/10 text-white text-xs regular-nums">
+          <span className="regular-nums rounded-md border border-border bg-muted/50 px-3 py-1 text-xs text-foreground">
             {t.tablePage} {currentPage} / {totalPages}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="bg-gray-800 border-white/10 text-white hover:bg-gray-700"
+            className="border-border bg-background text-foreground hover:bg-muted"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >
