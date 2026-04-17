@@ -6,7 +6,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getSettingsRolesPage, getSettingsUsersPage, updateSettings } from "@/app/actions/settings";
+import {
+  clearTestDataAction,
+  getSettingsRolesPage,
+  getSettingsUsersPage,
+  updateSettings,
+} from "@/app/actions/settings";
 import { updateRolePermission } from "@/app/actions/permissions";
 import { translations } from "@/lib/translations";
 
@@ -99,6 +104,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [permCellSaving, setPermCellSaving] = useState("");
   const [backupBusy, setBackupBusy] = useState(false);
   const [backupFormat, setBackupFormat] = useState("custom");
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearConfirm, setClearConfirm] = useState("");
   const [legal, setLegal] = useState({
     termsAr: initialData.legal?.terms?.contentAr ?? "",
     termsEn: initialData.legal?.terms?.contentEn ?? "",
@@ -261,6 +268,47 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         toast.error(msg);
       })
       .finally(() => setSaving(false));
+  }
+
+  async function handleClearTestData() {
+    const expected = "DELETE TEST DATA";
+    if (clearConfirm.trim().toUpperCase() !== expected) {
+      toast.error(
+        lang === "ar"
+          ? "اكتب عبارة التأكيد الصحيحة: DELETE TEST DATA"
+          : "Type the exact confirmation phrase: DELETE TEST DATA"
+      );
+      return;
+    }
+    const finalConfirm = window.confirm(
+      lang === "ar"
+        ? "سيتم حذف كل بيانات التجربة (المنتجات، الأقسام، الموردين، المشتريات، الطلبات، التقييمات...). لا يمكن التراجع. متابعة؟"
+        : "This will delete all test/demo operational data (products, categories, suppliers, purchases, orders, reviews...). This cannot be undone. Continue?"
+    );
+    if (!finalConfirm) return;
+
+    setClearBusy(true);
+    const res = await clearTestDataAction({ confirmation: clearConfirm });
+    setClearBusy(false);
+    if (!res?.success) {
+      if (res?.error === "confirmation_mismatch") {
+        toast.error(
+          lang === "ar"
+            ? "عبارة التأكيد غير صحيحة."
+            : "Confirmation phrase does not match."
+        );
+      } else {
+        toast.error(res?.error || (lang === "ar" ? "فشل الحذف" : "Clear operation failed"));
+      }
+      return;
+    }
+    setClearConfirm("");
+    toast.success(
+      lang === "ar"
+        ? "تم حذف بيانات التجربة بنجاح."
+        : "Test/demo data cleared successfully."
+    );
+    router.refresh();
   }
 
   return (
@@ -1556,11 +1604,49 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       )}
 
       {activeTab === "system" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="text-sm text-muted-foreground">App version: {store.appVersion || "0.1.0"}</p>
-          <Button disabled={saving} onClick={() => save("system", { maintenanceMode: !store.maintenanceMode })}>
-            {store.maintenanceMode ? (lang === "ar" ? "إلغاء وضع الصيانة" : "Disable Maintenance") : (lang === "ar" ? "تفعيل وضع الصيانة" : "Enable Maintenance")}
+          <Button
+            disabled={saving}
+            onClick={() => save("system", { maintenanceMode: !store.maintenanceMode })}
+          >
+            {store.maintenanceMode
+              ? (lang === "ar" ? "إلغاء وضع الصيانة" : "Disable Maintenance")
+              : (lang === "ar" ? "تفعيل وضع الصيانة" : "Enable Maintenance")}
           </Button>
+
+          <div className="space-y-3 rounded-xl border border-red-500/40 bg-red-500/10 p-4">
+            <p className="text-sm font-semibold text-red-300">
+              {lang === "ar" ? "منطقة خطرة: تنظيف بيانات التجربة" : "Danger Zone: Clear Test Data"}
+            </p>
+            <p className="text-xs text-red-200/90">
+              {lang === "ar"
+                ? "يحذف كل بيانات التشغيل التجريبية: المنتجات، الأقسام، الموردين، المشتريات، الطلبات، التقييمات، العروض، القسائم..."
+                : "Deletes all demo operational data: products, categories, suppliers, purchases, orders, reviews, offers, coupons..."}
+            </p>
+            <p className="text-xs text-red-200/90">
+              {lang === "ar"
+                ? "لن يتم حذف المستخدمين أو إعدادات المتجر."
+                : "Users and store settings are not deleted."}
+            </p>
+            <Input
+              value={clearConfirm}
+              onChange={(e) => setClearConfirm(e.target.value)}
+              placeholder="DELETE TEST DATA"
+              dir="ltr"
+              className="max-w-sm border-red-400/60 bg-black/30 font-mono text-xs"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={clearBusy}
+              onClick={handleClearTestData}
+            >
+              {clearBusy
+                ? (lang === "ar" ? "جاري الحذف..." : "Clearing...")
+                : (lang === "ar" ? "حذف بيانات التجربة" : "Clear Test Data")}
+            </Button>
+          </div>
         </div>
       )}
     </div>

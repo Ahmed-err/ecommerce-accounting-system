@@ -6,6 +6,12 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,6 +44,9 @@ import {
   bulkDeleteProducts,
   bulkSetCategory,
   updateProductOriginAction,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
@@ -118,6 +127,15 @@ export default function ProductTable({
   const [selected, setSelected] = useState(() => new Set());
   const [bulkCategoryId, setBulkCategoryId] = useState("");
   const [hideClassifyBanner, setHideClassifyBanner] = useState(false);
+  const [categoriesState, setCategoriesState] = useState(categories);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [categoryForm, setCategoryForm] = useState({
+    id: "",
+    name: "",
+    description: "",
+    image: "",
+  });
+  const [categorySaving, setCategorySaving] = useState(false);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -127,6 +145,9 @@ export default function ProductTable({
   useEffect(() => {
     setSelected(new Set());
   }, [searchParamsKey]);
+  useEffect(() => {
+    setCategoriesState(categories);
+  }, [categories]);
   useEffect(() => {
     setHideClassifyBanner(localStorage.getItem("inventory-origin-banner-dismissed") === "1");
   }, []);
@@ -250,6 +271,79 @@ export default function ProductTable({
   const openNew = () => {
     setEditingProduct(null);
     setIsFormOpen(true);
+  };
+
+  const resetCategoryForm = () => {
+    setCategoryForm({ id: "", name: "", description: "", image: "" });
+  };
+
+  const openCategoryCreate = () => {
+    resetCategoryForm();
+    setIsCategoriesOpen(true);
+  };
+
+  const openCategoryEdit = (category) => {
+    setCategoryForm({
+      id: category.id,
+      name: category.name || "",
+      description: category.description || "",
+      image: category.image || "",
+    });
+    setIsCategoriesOpen(true);
+  };
+
+  const saveCategory = async () => {
+    if (!canManage) return;
+    if (!categoryForm.name.trim()) {
+      toast.error(lang === "ar" ? "اسم القسم مطلوب" : "Category name is required.");
+      return;
+    }
+    setCategorySaving(true);
+    const payload = {
+      name: categoryForm.name.trim(),
+      description: categoryForm.description.trim() || null,
+      image: categoryForm.image.trim() || null,
+    };
+    const res = categoryForm.id
+      ? await updateCategory(categoryForm.id, payload)
+      : await createCategory(payload);
+    setCategorySaving(false);
+    if (!res.success) {
+      toast.error(formatServerActionError(res.error) || t.genericError);
+      return;
+    }
+    toast.success(lang === "ar" ? "تم حفظ القسم" : "Category saved");
+    resetCategoryForm();
+    setIsCategoriesOpen(false);
+    router.refresh();
+  };
+
+  const handleCategoryDelete = async (category) => {
+    if (!canManage) return;
+    const productCount = Number(category.productCount || 0);
+    const baseConfirm =
+      lang === "ar"
+        ? `حذف القسم "${category.name}"؟`
+        : `Delete category "${category.name}"?`;
+    if (!window.confirm(baseConfirm)) return;
+
+    let options = {};
+    if (productCount > 0) {
+      const forceConfirm =
+        lang === "ar"
+          ? `هذا القسم يحتوي على ${productCount} منتج. حذف القسم بالقوة سيحذف كل هذه المنتجات نهائيا. متابعة؟`
+          : `This category has ${productCount} products. Force delete will permanently delete all of them. Continue?`;
+      if (!window.confirm(forceConfirm)) return;
+      options = { force: true };
+    }
+
+    const res = await deleteCategory(category.id, options);
+    if (!res.success) {
+      toast.error(formatServerActionError(res.error) || t.genericError);
+      return;
+    }
+    toast.success(lang === "ar" ? "تم حذف القسم" : "Category deleted");
+    router.refresh();
   };
 
   const allPageIds = useMemo(() => initialProducts.map((p) => p.id), [initialProducts]);
@@ -452,7 +546,7 @@ export default function ProductTable({
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryStatusAll}</SelectItem>
-                {categories.map((c) => (
+                {categoriesState.map((c) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     {c.name}
                   </SelectItem>
@@ -528,12 +622,22 @@ export default function ProductTable({
           </div>
 
           {canManage && (
-            <Button
-              onClick={openNew}
-              className="h-10 shrink-0 rounded-xl bg-amber-500 px-6 font-bold text-black hover:bg-amber-600"
-            >
-              <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} /> {t.inventoryAddProduct}
-            </Button>
+            <div className="flex shrink-0 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 border-border bg-card text-foreground hover:bg-muted"
+                onClick={openCategoryCreate}
+              >
+                {lang === "ar" ? "إدارة الأقسام" : "Manage Categories"}
+              </Button>
+              <Button
+                onClick={openNew}
+                className="h-10 rounded-xl bg-amber-500 px-6 font-bold text-black hover:bg-amber-600"
+              >
+                <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} /> {t.inventoryAddProduct}
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -586,7 +690,7 @@ export default function ProductTable({
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground">
                 <SelectItem value="x">{t.inventoryBulkCategory}</SelectItem>
-                {categories.map((c) => (
+                {categoriesState.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
                   </SelectItem>
@@ -1010,10 +1114,110 @@ export default function ProductTable({
           isOpen={isFormOpen}
           onClose={() => setIsFormOpen(false)}
           product={editingProduct}
-          categories={categories}
+          categories={categoriesState}
           suppliers={suppliers}
         />
       )}
+
+      <Dialog
+        open={isCategoriesOpen}
+        onOpenChange={(open) => {
+          setIsCategoriesOpen(open);
+          if (!open) resetCategoryForm();
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card text-foreground">
+          <DialogHeader>
+            <DialogTitle>{lang === "ar" ? "إدارة الأقسام" : "Manage Categories"}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <Input
+              value={categoryForm.name}
+              onChange={(e) =>
+                setCategoryForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder={lang === "ar" ? "اسم القسم" : "Category name"}
+              className="border-border bg-background"
+            />
+            <Input
+              value={categoryForm.description}
+              onChange={(e) =>
+                setCategoryForm((prev) => ({ ...prev, description: e.target.value }))
+              }
+              placeholder={lang === "ar" ? "وصف (اختياري)" : "Description (optional)"}
+              className="border-border bg-background"
+            />
+            <Input
+              value={categoryForm.image}
+              onChange={(e) =>
+                setCategoryForm((prev) => ({ ...prev, image: e.target.value }))
+              }
+              placeholder={lang === "ar" ? "رابط صورة (اختياري)" : "Image URL (optional)"}
+              className="border-border bg-background"
+            />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                className="bg-amber-500 text-black hover:bg-amber-600"
+                onClick={saveCategory}
+                disabled={categorySaving}
+              >
+                {categorySaving
+                  ? t.saving
+                  : categoryForm.id
+                    ? lang === "ar"
+                      ? "تحديث القسم"
+                      : "Update Category"
+                    : lang === "ar"
+                      ? "إضافة قسم"
+                      : "Add Category"}
+              </Button>
+              {categoryForm.id ? (
+                <Button type="button" variant="ghost" onClick={resetCategoryForm}>
+                  {lang === "ar" ? "إلغاء التعديل" : "Cancel edit"}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {categoriesState.map((category) => (
+              <div
+                key={category.id}
+                className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{category.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(category.productCount || 0).toLocaleString()}{" "}
+                    {lang === "ar" ? "منتج" : "products"}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => openCategoryEdit(category)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="text-red-400 hover:text-red-300"
+                    onClick={() => handleCategoryDelete(category)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -94,3 +94,19 @@ export const bulkIdsSchema = z.object({
 export const bulkCategorySchema = bulkIdsSchema.extend({
   categoryId: z.string().min(1),
 });
+
+export const categoryMutationSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  description: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : String(v)),
+    z.string().max(2000).optional().nullable()
+  ),
+  image: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : String(v).trim()),
+    z.string().max(2000).optional().nullable()
+  ),
+});
+
+export const categoryDeleteSchema = z.object({
+  force: z.boolean().optional().default(false),
+});

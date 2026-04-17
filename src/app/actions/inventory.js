@@ -20,6 +20,8 @@ import {
   issueStockSchema,
   bulkIdsSchema,
   bulkCategorySchema,
+  categoryMutationSchema,
+  categoryDeleteSchema,
 } from "@/lib/schemas/inventory";
 import { createAdminBroadcastNotification } from "@/lib/notifications";
 import { formatServerActionError } from "@/lib/utils";
@@ -77,12 +79,32 @@ function redactProductsIfCashier(role, products) {
   return products;
 }
 
+async function deleteProductsInTx(tx, productIds) {
+  if (!Array.isArray(productIds) || productIds.length === 0) return;
+  await tx.orderItem.deleteMany({ where: { productId: { in: productIds } } });
+  await tx.purchaseItem.deleteMany({ where: { productId: { in: productIds } } });
+  await tx.orderReturnItem.deleteMany({ where: { productId: { in: productIds } } });
+  await tx.product.deleteMany({ where: { id: { in: productIds } } });
+}
+
 export async function getCategories() {
   try {
     await ensureStaff();
-    return await db.category.findMany({
+    const rows = await db.category.findMany({
       orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
     });
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      image: row.image,
+      productCount: row._count.products,
+    }));
   } catch (error) {
     console.error("Failed to fetch categories:", error);
     return [];
@@ -258,10 +280,7 @@ export async function deleteProduct(id) {
   try {
     await ensureManager();
     await db.$transaction(async (tx) => {
-      await tx.orderItem.deleteMany({ where: { productId: id } });
-      await tx.purchaseItem.deleteMany({ where: { productId: id } });
-      await tx.orderReturnItem.deleteMany({ where: { productId: id } });
-      await tx.product.delete({ where: { id } });
+      await deleteProductsInTx(tx, [id]);
     });
     await logAction("DELETE_PRODUCT", { productId: id });
     revalidatePath("/admin/inventory");
@@ -280,16 +299,107 @@ export async function bulkDeleteProducts(ids) {
     const valid = await getProductIdsForBulk(parsed.data.ids);
     const idList = valid.map((x) => x.id);
     await db.$transaction(async (tx) => {
-      await tx.orderItem.deleteMany({ where: { productId: { in: idList } } });
-      await tx.purchaseItem.deleteMany({ where: { productId: { in: idList } } });
-      await tx.orderReturnItem.deleteMany({ where: { productId: { in: idList } } });
-      await tx.product.deleteMany({ where: { id: { in: idList } } });
+      await deleteProductsInTx(tx, idList);
     });
     await logAction("BULK_DELETE_PRODUCTS", { count: idList.length });
     revalidatePath("/admin/inventory");
     return { success: true, count: idList.length };
   } catch (error) {
     console.error("bulkDeleteProducts:", error);
+    return { success: false, error: toActionErrorString(error) };
+  }
+}
+
+export async function createCategory(data) {
+  try {
+    await ensureManager();
+    const parsed = categoryMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const d = parsed.data;
+    const category = await db.category.create({
+      data: {
+        name: d.name,
+        description: d.description || null,
+        image: d.image || null,
+      },
+    });
+    await logAction("CREATE_CATEGORY", { categoryId: category.id, name: category.name });
+    revalidatePath("/admin/inventory");
+    revalidatePath("/products");
+    return { success: true, category };
+  } catch (error) {
+    console.error("createCategory:", error);
+    return { success: false, error: toActionErrorString(error) };
+  }
+}
+
+export async function updateCategory(id, data) {
+  try {
+    await ensureManager();
+    const parsed = categoryMutationSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.flatten().fieldErrors };
+    }
+    const d = parsed.data;
+    const category = await db.category.update({
+      where: { id },
+      data: {
+        name: d.name,
+        description: d.description || null,
+        image: d.image || null,
+      },
+    });
+    await logAction("UPDATE_CATEGORY", { categoryId: id, name: category.name });
+    revalidatePath("/admin/inventory");
+    revalidatePath("/products");
+    return { success: true, category };
+  } catch (error) {
+    console.error("updateCategory:", error);
+    return { success: false, error: toActionErrorString(error) };
+  }
+}
+
+export async function deleteCategory(id, input = {}) {
+  try {
+    await ensureManager();
+    const parsed = categoryDeleteSchema.safeParse(input || {});
+    if (!parsed.success) return { success: false, error: "invalid_input" };
+    const force = !!parsed.data.force;
+    const category = await db.category.findUnique({
+      where: { id },
+      include: { _count: { select: { products: true } } },
+    });
+    if (!category) return { success: false, error: "not_found" };
+    if (category._count.products > 0 && !force) {
+      return { success: false, error: "has_products", count: category._count.products };
+    }
+
+    await db.$transaction(async (tx) => {
+      if (force) {
+        const products = await tx.product.findMany({
+          where: { categoryId: id },
+          select: { id: true },
+        });
+        await deleteProductsInTx(
+          tx,
+          products.map((p) => p.id)
+        );
+      }
+      await tx.category.delete({ where: { id } });
+    });
+    await logAction("DELETE_CATEGORY", {
+      categoryId: id,
+      name: category.name,
+      force,
+      productCount: category._count.products,
+    });
+    revalidatePath("/admin/inventory");
+    revalidatePath("/products");
+    return { success: true };
+  } catch (error) {
+    console.error("deleteCategory:", error);
     return { success: false, error: toActionErrorString(error) };
   }
 }

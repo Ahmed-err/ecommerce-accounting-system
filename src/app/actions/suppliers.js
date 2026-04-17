@@ -185,14 +185,34 @@ export async function updateSupplierAction(id, raw) {
   }
 }
 
-export async function deleteSupplierAction(id) {
+export async function deleteSupplierAction(id, options = {}) {
   try {
-    await ensure();
-    if (await supplierHasPurchases(id)) {
+    const user = await ensure();
+    const force = options?.force === true;
+    if (await supplierHasPurchases(id) && !force) {
       return { ok: false, error: "has_purchases" };
     }
-    await db.supplier.delete({ where: { id } });
+    if (force && user.role !== "ADMIN") {
+      return { ok: false, error: "unauthorized_force" };
+    }
+    await db.$transaction(async (tx) => {
+      if (force) {
+        await tx.product.updateMany({
+          where: { supplierId: id },
+          data: { supplierId: null },
+        });
+        await tx.stockMovement.updateMany({
+          where: { supplierId: id },
+          data: { supplierId: null },
+        });
+        await tx.purchase.deleteMany({
+          where: { supplierId: id },
+        });
+      }
+      await tx.supplier.delete({ where: { id } });
+    });
     revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/inventory");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message };
@@ -401,26 +421,61 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
   }
 }
 
-export async function deletePurchaseAction(purchaseId) {
+export async function deletePurchaseAction(purchaseId, options = {}) {
   try {
-    await ensure();
-    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
+    const user = await ensure();
+    const force = options?.force === true;
+    if (force && user.role !== "ADMIN") {
+      return { ok: false, error: "unauthorized_force" };
+    }
+
+    const p = await db.purchase.findUnique({
+      where: { id: purchaseId },
+      include: { items: true },
+    });
     if (!p) return { ok: false, error: "not_found" };
-    if (p.deliveryStatus !== "PENDING") {
+    if (!force && p.deliveryStatus !== "PENDING") {
       return { ok: false, error: "blocked" };
     }
-    if (Number(p.paidAmount) > 0.005) {
+    if (!force && Number(p.paidAmount) > 0.005) {
       return { ok: false, error: "has_payment" };
     }
-    const movements = await db.stockMovement.count({ where: { purchaseId } });
-    if (movements > 0) {
+    const movements = await db.stockMovement.findMany({
+      where: { purchaseId, type: "IN", reason: "PURCHASE" },
+      select: { id: true, productId: true, quantity: true },
+    });
+    if (!force && movements.length > 0) {
       return { ok: false, error: "has_movements" };
     }
-    await db.purchase.delete({ where: { id: purchaseId } });
+
+    await db.$transaction(async (tx) => {
+      if (force && movements.length > 0) {
+        const movedByProduct = movements.reduce((acc, m) => {
+          acc[m.productId] = (acc[m.productId] || 0) + Number(m.quantity || 0);
+          return acc;
+        }, {});
+        for (const [productId, movedQty] of Object.entries(movedByProduct)) {
+          if (movedQty <= 0) continue;
+          const updated = await tx.product.updateMany({
+            where: { id: productId, stock: { gte: movedQty } },
+            data: { stock: { decrement: movedQty } },
+          });
+          if (updated.count === 0) {
+            throw Object.assign(new Error("stock_conflict"), { code: "STOCK_CONFLICT" });
+          }
+        }
+        await tx.stockMovement.deleteMany({ where: { purchaseId } });
+      }
+
+      await tx.purchase.delete({ where: { id: purchaseId } });
+    });
     revalidatePath("/admin/suppliers");
     revalidatePath("/admin/inventory");
     return { ok: true };
   } catch (e) {
+    if (e?.code === "STOCK_CONFLICT" || e?.message === "stock_conflict") {
+      return { ok: false, error: "stock_conflict" };
+    }
     return { ok: false, error: e.message };
   }
 }
