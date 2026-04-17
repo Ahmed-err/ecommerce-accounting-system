@@ -25,5 +25,5 @@ export default async function AdminSuppliersPage() {
   if (!(await staffCanViewModule(session.user.role, "inventory"))) {
     redirect("/admin");
   }
-  return <SuppliersModuleClient />;
+  return <SuppliersModuleClient role={session.user.role} />;
 }

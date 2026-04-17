@@ -557,3 +557,92 @@ export async function updateSettings(input) {
     return { success: false, error: error?.message || "Failed to save settings" };
   }
 }
+
+const clearDemoSchema = z.object({
+  confirmation: z.string().trim(),
+});
+
+function normalizeDeleteResult(v) {
+  if (typeof v?.count === "number") return v.count;
+  if (typeof v === "number") return v;
+  return 0;
+}
+
+export async function clearTestDataAction(input = {}) {
+  try {
+    await ensureAdmin();
+    const parsed = clearDemoSchema.safeParse(input);
+    if (!parsed.success) return { success: false, error: "invalid_input" };
+    const phrase = parsed.data.confirmation.toUpperCase();
+    if (phrase !== "DELETE TEST DATA") {
+      return { success: false, error: "confirmation_mismatch" };
+    }
+
+    const stats = await db.$transaction(async (tx) => {
+      const out = {};
+      out.notifications = normalizeDeleteResult(await tx.notification.deleteMany({}));
+      out.auditLogs = normalizeDeleteResult(
+        await tx.auditLog.deleteMany({
+          where: {
+            action: {
+              in: [
+                "CREATE_PRODUCT",
+                "UPDATE_PRODUCT",
+                "DELETE_PRODUCT",
+                "BULK_DELETE_PRODUCTS",
+                "BULK_CATEGORY_PRODUCTS",
+                "CREATE_CATEGORY",
+                "UPDATE_CATEGORY",
+                "DELETE_CATEGORY",
+                "STOCK_RECEIVE",
+                "STOCK_ISSUE",
+              ],
+            },
+          },
+        })
+      );
+
+      out.contactMessages = normalizeDeleteResult(await tx.contactMessage.deleteMany({}));
+      out.newsletter = normalizeDeleteResult(await tx.newsletter.deleteMany({}));
+      out.transactions = normalizeDeleteResult(await tx.transaction.deleteMany({}));
+      out.coupons = normalizeDeleteResult(await tx.coupon.deleteMany({}));
+      out.offers = normalizeDeleteResult(await tx.offer.deleteMany({}));
+      out.banners = normalizeDeleteResult(await tx.banner.deleteMany({}));
+      out.faq = normalizeDeleteResult(await tx.faq.deleteMany({}));
+
+      out.reviewHelpfulVotes = normalizeDeleteResult(await tx.reviewHelpfulVote.deleteMany({}));
+      out.reviews = normalizeDeleteResult(await tx.review.deleteMany({}));
+      out.wishlistItems = normalizeDeleteResult(await tx.wishlistItem.deleteMany({}));
+      out.stockAlerts = normalizeDeleteResult(await tx.productStockAlert.deleteMany({}));
+
+      out.returnItems = normalizeDeleteResult(await tx.orderReturnItem.deleteMany({}));
+      out.orderReturns = normalizeDeleteResult(await tx.orderReturn.deleteMany({}));
+      out.orderItems = normalizeDeleteResult(await tx.orderItem.deleteMany({}));
+      out.invoices = normalizeDeleteResult(await tx.invoice.deleteMany({}));
+      out.orders = normalizeDeleteResult(await tx.order.deleteMany({}));
+
+      out.stockMovements = normalizeDeleteResult(await tx.stockMovement.deleteMany({}));
+      out.purchaseItems = normalizeDeleteResult(await tx.purchaseItem.deleteMany({}));
+      out.purchases = normalizeDeleteResult(await tx.purchase.deleteMany({}));
+
+      out.products = normalizeDeleteResult(await tx.product.deleteMany({}));
+      out.categories = normalizeDeleteResult(await tx.category.deleteMany({}));
+      out.suppliers = normalizeDeleteResult(await tx.supplier.deleteMany({}));
+
+      return out;
+    });
+
+    revalidatePublicStorefront();
+    revalidatePath("/admin");
+    revalidatePath("/admin/inventory");
+    revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/accounting");
+    revalidatePath("/admin/settings");
+
+    return { success: true, stats };
+  } catch (error) {
+    console.error("clearTestDataAction failed:", error);
+    return { success: false, error: error?.message || "Failed to clear test data." };
+  }
+}

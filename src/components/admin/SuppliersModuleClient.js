@@ -74,6 +74,8 @@ function purchaseActionToastError(t, res) {
     blocked: t.suppliersPoDeleteBlocked,
     has_movements: t.suppliersPoDeleteHasMoves,
     has_payment: t.suppliersPoDeleteHasPayment,
+    unauthorized_force: t.errGeneric,
+    stock_conflict: t.errGeneric,
     fully_paid: t.suppliersPurchaseFullyPaid,
     amount_over_remaining: t.suppliersPurchasePayOver,
     invalid_total: t.errGeneric,
@@ -96,7 +98,7 @@ function csvEscape(s) {
   return x;
 }
 
-export default function SuppliersModuleClient() {
+export default function SuppliersModuleClient({ role = "" }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
   const router = useRouter();
@@ -148,8 +150,8 @@ export default function SuppliersModuleClient() {
       </div>
 
       {tab === "overview" && <OverviewTab data={ov} loading={loadingOv} onRefresh={loadOv} />}
-      {tab === "suppliers" && <SuppliersTab t={t} isRTL={isRTL} />}
-      {tab === "purchases" && <PurchasesTab t={t} isRTL={isRTL} />}
+      {tab === "suppliers" && <SuppliersTab t={t} isRTL={isRTL} role={role} />}
+      {tab === "purchases" && <PurchasesTab t={t} isRTL={isRTL} role={role} />}
       {tab === "reports" && <ReportsTab t={t} isRTL={isRTL} />}
 
       
@@ -271,7 +273,9 @@ function OverviewTab({ data, loading, onRefresh }) {
   );
 }
 
-function SuppliersTab({ t, isRTL }) {
+function SuppliersTab({ t, isRTL, role = "" }) {
+  const isAdmin = String(role || "").toUpperCase() === "ADMIN";
+  const { lang } = useLanguage();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [cat, setCat] = useState("");
@@ -344,12 +348,29 @@ function SuppliersTab({ t, isRTL }) {
 
   const del = async (id) => {
     if (!confirm(t.suppliersConfirmDelete)) return;
-    const r = await deleteSupplierAction(id);
+    let r = await deleteSupplierAction(id);
+    if (r?.error === "has_purchases") {
+      if (!isAdmin) {
+        toast.error(t.suppliersDeleteBlocked);
+        return;
+      }
+      const forceConfirm =
+        lang === "ar"
+          ? "هذا المورد لديه سجل مشتريات. هل تريد الحذف الإجباري؟ سيتم حذف أوامر الشراء وفصل المورد من المنتجات المرتبطة."
+          : "This supplier has purchase history. Force delete? This will remove purchase orders and detach this supplier from linked products.";
+      if (!confirm(forceConfirm)) {
+        toast.error(t.suppliersDeleteBlocked);
+        return;
+      }
+      r = await deleteSupplierAction(id, { force: true });
+    }
     if (r.ok) {
       toast.success(t.toastDeleted);
       load();
     } else if (r.error === "has_purchases") toast.error(t.suppliersDeleteBlocked);
-    else toast.error(t.errGeneric);
+    else if (r.error === "unauthorized_force") {
+      toast.error(lang === "ar" ? "الحذف الإجباري متاح للمدير العام فقط" : "Force delete is available to admins only.");
+    } else toast.error(t.errGeneric);
   };
 
   const openSheet = async (id) => {
@@ -533,7 +554,8 @@ function SuppliersTab({ t, isRTL }) {
   );
 }
 
-function PurchasesTab({ t, isRTL }) {
+function PurchasesTab({ t, isRTL, role = "" }) {
+  const isAdmin = String(role || "").toUpperCase() === "ADMIN";
   const [q, setQ] = useState("");
   const dq = useDebounced(q, 300);
   const [rows, setRows] = useState([]);
@@ -775,21 +797,52 @@ function PurchasesTab({ t, isRTL }) {
                       size="icon"
                       variant="ghost"
                       className="h-8 w-8 text-red-400 disabled:opacity-30"
-                      disabled={!u.canDelete}
+                      disabled={!u.canDelete && !isAdmin}
                       title={
-                        u.canDelete
+                        u.canDelete || isAdmin
                           ? t.suppliersTooltipDelete
                           : t.suppliersPoDeleteBlocked
                       }
                       onClick={async () => {
-                        if (!u.canDelete) return;
+                        const normalDelete = u.canDelete;
+                        if (!normalDelete && !isAdmin) return;
                         if (!confirm(t.suppliersConfirmDeletePo)) return;
-                        const x = await deletePurchaseAction(r.id);
+                        let x = await deletePurchaseAction(r.id);
+                        if (!x.ok && x.error === "blocked" && isAdmin) {
+                          const forceMsg =
+                            lang === "ar"
+                              ? "هذا أمر شراء مستلم أو مرتبط بحركات مخزون. حذفه بالقوة سيعكس حركة المخزون تلقائيا. متابعة؟"
+                              : "This purchase is received or linked to stock movements. Force delete will rollback stock movement automatically. Continue?";
+                          if (!confirm(forceMsg)) return;
+                          x = await deletePurchaseAction(r.id, { force: true });
+                        } else if (!x.ok && x.error === "has_payment" && isAdmin) {
+                          const forceMsg =
+                            lang === "ar"
+                              ? "هذا الأمر يحتوي على دفعات مسجلة. حذفه بالقوة سيزيله نهائيا. متابعة؟"
+                              : "This purchase has recorded payments. Force delete will permanently remove it. Continue?";
+                          if (!confirm(forceMsg)) return;
+                          x = await deletePurchaseAction(r.id, { force: true });
+                        } else if (!x.ok && x.error === "has_movements" && isAdmin) {
+                          const forceMsg =
+                            lang === "ar"
+                              ? "هذا الأمر يحتوي على حركات مخزون. حذفه بالقوة سيعكس المخزون ويحذف الحركات المرتبطة. متابعة؟"
+                              : "This purchase has stock movements. Force delete will roll back stock and remove related movements. Continue?";
+                          if (!confirm(forceMsg)) return;
+                          x = await deletePurchaseAction(r.id, { force: true });
+                        }
                         if (x.ok) {
                           toast.success(t.toastDeleted);
                           load();
                         } else {
-                          toast.error(purchaseActionToastError(t, x));
+                          if (x.error === "stock_conflict") {
+                            toast.error(
+                              lang === "ar"
+                                ? "تعذر الحذف القسري لأن المخزون الحالي أقل من الكمية المستلمة سابقا. عدّل المخزون أو قم بإرجاع المنتجات أولا."
+                                : "Force delete failed because current stock is lower than previously received quantity. Adjust stock first."
+                            );
+                          } else {
+                            toast.error(purchaseActionToastError(t, x));
+                          }
                         }
                       }}
                     >
