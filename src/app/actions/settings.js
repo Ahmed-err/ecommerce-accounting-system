@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
@@ -48,6 +48,8 @@ function revalidatePublicStorefront() {
   revalidatePath("/terms");
   revalidatePath("/privacy");
   revalidatePath("/sitemap.xml");
+  revalidateTag("branding");
+  revalidateTag("homepage");
 }
 
 const updateStoreSchema = z.object({

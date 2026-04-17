@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma as db } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import QRCode from "qrcode";
 import { PAYMENT_METHODS, SUDAN_CITIES, CHECKOUT_TAX_RATE } from "@/lib/constants";
@@ -641,6 +641,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
       revalidatePath("/admin");
       revalidatePath("/admin/accounting");
       revalidatePath("/products");
+      revalidateTag("homepage");
     } catch (e) {
       console.error("revalidatePath after checkout:", e);
     }

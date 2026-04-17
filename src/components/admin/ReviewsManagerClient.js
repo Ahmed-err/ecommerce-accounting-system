@@ -57,6 +57,13 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan="8" className="px-6 py-12 text-center text-muted-foreground italic">
+                  {lang === "ar" ? "لا توجد مراجعات" : "No reviews found"}
+                </td>
+              </tr>
+            )}
             {filtered.map((r) => (
               <tr key={r.id} className="bg-card/70">
                 <td className="px-3 py-2"><input type="checkbox" checked={selected.has(r.id)} onChange={() => setSelected((prev) => { const n = new Set(prev); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} /></td>
