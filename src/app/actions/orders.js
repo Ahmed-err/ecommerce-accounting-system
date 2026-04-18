@@ -224,11 +224,21 @@ export async function approveOrderReturn(returnId) {
 
     const returnRecord = await db.orderReturn.findUnique({
       where: { id: returnId },
-      include: { items: true },
+      include: { items: true, order: { include: { items: true } } },
     });
     if (!returnRecord) return { success: false, error: "Return not found" };
     if (returnRecord.status !== "PENDING") {
       return { success: false, error: "Return is not pending" };
+    }
+
+    const orderItemMap = new Map(
+      (returnRecord.order?.items || []).map((i) => [i.productId, i.quantity])
+    );
+    for (const ri of returnRecord.items) {
+      const orderedQty = orderItemMap.get(ri.productId) ?? 0;
+      if (ri.quantity > orderedQty) {
+        return { success: false, error: `Return quantity exceeds ordered quantity for product ${ri.productId}` };
+      }
     }
 
     await db.$transaction(async (tx) => {

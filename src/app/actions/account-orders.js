@@ -87,7 +87,7 @@ export async function submitCustomerOrderReturn(raw) {
 
     const order = await db.order.findFirst({
       where: { id: p.orderId, userId: session.user.id },
-      include: { items: true, returns: { where: { status: "PENDING" } } },
+      include: { items: true, returns: { where: { status: { in: ["PENDING", "APPROVED"] } } } },
     });
     if (!order) {
       return { success: false, error: "Order not found", errorCode: "NOT_FOUND" };

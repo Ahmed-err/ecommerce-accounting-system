@@ -96,6 +96,12 @@ function validatePassword(password) {
 
 export async function resetPassword(email, token, newPassword) {
   try {
+    const ip = await getClientIP();
+    const resetAttemptAllowed = await checkRateLimit(`reset_attempt_${ip}`, 10, 15 * 60 * 1000);
+    if (!resetAttemptAllowed) {
+      return { success: false, error: "Too many attempts. Try again in 15 minutes." };
+    }
+
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
       return { success: false, error: passwordError };

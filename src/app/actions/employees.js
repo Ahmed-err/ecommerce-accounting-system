@@ -568,6 +568,9 @@ export async function createSalaryRecord(raw) {
 export async function markSalaryPaid(id) {
   try {
     await ensureAdmin();
+    const existing = await db.salaryRecord.findUnique({ where: { id }, select: { status: true } });
+    if (!existing) return { success: false, error: "Salary record not found." };
+    if (existing.status === "PAID") return { success: false, error: "Already marked as paid." };
     const record = await db.salaryRecord.update({
       where: { id },
       data: { status: "PAID", paidAt: new Date() },

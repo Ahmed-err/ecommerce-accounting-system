@@ -46,7 +46,8 @@ export async function submitReviewAction(raw) {
     const session = await auth();
     const h = await headers();
     const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
-    const allowed = await checkRateLimit(`review:${ip}`, 3, 60 * 60 * 1000);
+    const rateLimitKey = session?.user?.id ? `review:user:${session.user.id}` : `review:ip:${ip}`;
+    const allowed = await checkRateLimit(rateLimitKey, 3, 60 * 60 * 1000);
     if (!allowed) return { success: false, error: "Too many reviews, try again later" };
 
     const p = parsed.data;

@@ -700,7 +700,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
           : "Checkout failed. Please try again.";
     emitAlert("checkout_failure", {
       error: message || "unknown_checkout_error",
-      userId,
+      userId: effectiveUserId,
     }).catch(() => {});
     return { success: false, error: message || "Checkout failed. Please try again." };
   }

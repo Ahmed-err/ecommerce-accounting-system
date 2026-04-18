@@ -35,7 +35,7 @@ export async function validateCartStock(cartItems) {
         };
       }
 
-      if (!Number.isInteger(qty) || qty <= 0) {
+      if (!Number.isInteger(qty) || qty <= 0 || qty > 1000) {
         return {
           valid: false,
           issues: [
