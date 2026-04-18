@@ -276,7 +276,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.categoryId?.toString() || ""}
                   onValueChange={(v) => setFormData((p) => ({ ...p, categoryId: v }))}
                 >
-                  <SelectTrigger className="border-border bg-background text-foreground">
+                  <SelectTrigger className="w-full border-border bg-background text-foreground">
                     <SelectValue placeholder={t.inventorySelectCategory} />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
@@ -296,8 +296,8 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                     setFormData((p) => ({ ...p, supplierId: v === "none" ? "" : v }))
                   }
                 >
-                  <SelectTrigger className="border-border bg-background text-foreground">
-                    <SelectValue />
+                  <SelectTrigger className="w-full border-border bg-background text-foreground">
+                    <SelectValue placeholder={t.inventoryAllSuppliers} />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
                     <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
@@ -431,7 +431,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   value={formData.origin}
                   onValueChange={(v) => setFormData((p) => ({ ...p, origin: v }))}
                 >
-                  <SelectTrigger className="border-border bg-background text-foreground">
+                  <SelectTrigger className="w-full border-border bg-background text-foreground">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
