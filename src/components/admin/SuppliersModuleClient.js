@@ -286,6 +286,13 @@ function SuppliersTab({ t, isRTL, role = "" }) {
   const [sheetId, setSheetId] = useState(null);
   const [sheetData, setSheetData] = useState(null);
   const [form, setForm] = useState({});
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    import("@/app/actions/inventory").then(({ getCategories }) => {
+      getCategories().then((cats) => setCategories(cats || []));
+    });
+  }, []);
 
   const load = useCallback(async () => {
     const r = await loadSuppliersTableAction({ search: dq, status, category: cat, take: 200 });
@@ -473,7 +480,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
             <DialogTitle>{edit ? t.suppliersEdit : t.suppliersAdd}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-5">
-            {["name", "companyName", "phone", "email", "category", "taxId", "address", "notes"].map((f) => (
+            {["name", "companyName", "phone", "email", "taxId", "address", "notes"].map((f) => (
               <div key={f} className={cn("space-y-1.5", f === "address" || f === "notes" ? "sm:col-span-2" : "")}>
                 <label className="text-sm font-medium text-foreground">{t[`suppliersField_${f}`] || f}</label>
                 {f === "notes" || f === "address" ? (
@@ -492,6 +499,19 @@ function SuppliersTab({ t, isRTL, role = "" }) {
                 )}
               </div>
             ))}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.suppliersField_category || (lang === "ar" ? "الفئة" : "Category")}</label>
+              <select
+                className="w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                value={form.category || ""}
+                onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+              >
+                <option value="">{lang === "ar" ? "— بدون فئة —" : "— None —"}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">{t.suppliersField_paymentTerms}</label>
               <select
@@ -528,11 +548,11 @@ function SuppliersTab({ t, isRTL, role = "" }) {
 
       <Sheet open={!!sheetId} onOpenChange={(o) => !o && setSheetId(null)}>
         <SheetContent side={isRTL ? "left" : "right"} className="w-full overflow-y-auto border-border bg-card text-foreground sm:max-w-lg">
-          <SheetHeader>
+          <SheetHeader className="px-6 pt-6">
             <SheetTitle>{sheetData?.supplier?.name}</SheetTitle>
           </SheetHeader>
           {sheetData && (
-            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <div className="mt-4 space-y-3 px-6 pb-8 text-sm text-muted-foreground">
               <p>
                 {t.suppliersOutstanding}: {sheetData.stats.outstanding.toLocaleString()}
               </p>
@@ -557,6 +577,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
 
 function PurchasesTab({ t, isRTL, role = "" }) {
   const isAdmin = String(role || "").toUpperCase() === "ADMIN";
+  const { lang } = useLanguage();
   const [q, setQ] = useState("");
   const dq = useDebounced(q, 300);
   const [rows, setRows] = useState([]);

@@ -41,6 +41,7 @@ import {
   Wallet,
   ArrowUpRight,
   ArrowDownRight,
+  ExternalLink,
 } from "lucide-react";
 
 const CHART_COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#a855f7", "#ef4444", "#06b6d4", "#eab308"];
@@ -581,12 +582,13 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <th className="px-4 py-3">{t.accColParty}</th>
                   <th className="px-4 py-3">{t.accountingColAmount}</th>
                   <th className="px-4 py-3">{t.accColStatus}</th>
+                  <th className="px-4 py-3 accounting-no-print">{t.suppliersColActions || (lang === "ar" ? "إجراءات" : "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {(sales || []).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                       {t.accNoData}
                     </td>
                   </tr>
@@ -599,6 +601,19 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                       <Money value={inv.amount} lang={lang} t={t} />
                     </td>
                     <td className="px-4 py-2">{statusBadge(inv.displayStatus)}</td>
+                    <td className="px-4 py-2 accounting-no-print">
+                      {inv.orderId && (
+                        <a
+                          href={`/admin/orders/${inv.orderId}/invoice`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-amber-500/50 hover:text-foreground"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          {lang === "ar" ? "عرض" : "View"}
+                        </a>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

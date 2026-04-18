@@ -131,6 +131,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
       setFormData((p) => ({ ...p, categoryId: res.category.id.toString() }));
       setNewCatName("");
       setCatDialogOpen(false);
+      router.refresh();
     } else {
       setCatError(typeof res.error === "string" ? res.error : (lang === "ar" ? "فشل إنشاء الفئة" : "Failed to create category"));
     }
