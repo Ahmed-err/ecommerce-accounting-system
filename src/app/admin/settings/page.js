@@ -23,7 +23,7 @@ export default async function AdminSettingsPage({ searchParams }) {
   return (
     <div className="space-y-8 p-4">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">
           {t.adminSettings || "Admin Settings"}
         </h1>
         <p className="text-muted-foreground text-sm">

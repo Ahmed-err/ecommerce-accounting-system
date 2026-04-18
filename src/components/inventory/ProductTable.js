@@ -100,8 +100,8 @@ function originBadgeClass(origin) {
   return cn(
     "inline-flex max-w-full items-center rounded-md border px-2.5 py-1 text-[11px] font-bold uppercase leading-snug tracking-wide sm:text-xs",
     origin === "IMPORTED"
-      ? "border-sky-400/45 bg-sky-500/20 text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]"
-      : "border-emerald-400/45 bg-emerald-500/20 text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+      ? "border-sky-400/45 bg-sky-500/20 text-sky-700 dark:text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]"
+      : "border-emerald-400/45 bg-emerald-500/20 text-emerald-700 dark:text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
   );
 }
 
@@ -1126,12 +1126,12 @@ export default function ProductTable({
           if (!open) resetCategoryForm();
         }}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card text-foreground">
-          <DialogHeader>
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card p-0 text-foreground">
+          <DialogHeader className="border-b border-border px-6 py-4">
             <DialogTitle>{lang === "ar" ? "إدارة الأقسام" : "Manage Categories"}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3">
+          <div className="space-y-3 px-6 pt-5">
             <Input
               value={categoryForm.name}
               onChange={(e) =>
@@ -1181,7 +1181,7 @@ export default function ProductTable({
             </div>
           </div>
 
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-2 px-6 pb-6">
             {categoriesState.map((category) => (
               <div
                 key={category.id}

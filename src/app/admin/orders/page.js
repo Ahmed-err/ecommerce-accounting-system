@@ -67,7 +67,7 @@ export default async function AdminOrdersPage({ searchParams }) {
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           {t.adminOrders || (lang === "ar" ? "إدارة الطلبات" : "Orders Management")}
         </h1>
         <p className="text-muted-foreground mt-1">
