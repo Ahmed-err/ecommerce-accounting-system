@@ -20,10 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UploadButton } from "@/lib/uploader";
-import { createProduct, updateProduct, generateSkuSuggestion } from "@/app/actions/inventory";
+import { createProduct, updateProduct, generateSkuSuggestion, createCategory } from "@/app/actions/inventory";
+import { createSupplierAction } from "@/app/actions/suppliers";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { cn, formatServerActionError } from "@/lib/utils";
 import InventoryBarcode from "./InventoryBarcode";
 
@@ -98,6 +99,61 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
   const [formData, setFormData] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Local copies so newly created items appear immediately without re-fetching
+  const [localCategories, setLocalCategories] = useState(categories || []);
+  const [localSuppliers, setLocalSuppliers] = useState(suppliers || []);
+
+  useEffect(() => { setLocalCategories(categories || []); }, [categories]);
+  useEffect(() => { setLocalSuppliers(suppliers || []); }, [suppliers]);
+
+  // Quick-add category state
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [catSaving, setCatSaving] = useState(false);
+  const [catError, setCatError] = useState("");
+
+  // Quick-add supplier state
+  const [supDialogOpen, setSupDialogOpen] = useState(false);
+  const [newSupName, setNewSupName] = useState("");
+  const [newSupPhone, setNewSupPhone] = useState("");
+  const [supSaving, setSupSaving] = useState(false);
+  const [supError, setSupError] = useState("");
+
+  const handleQuickAddCategory = async (e) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    setCatSaving(true);
+    setCatError("");
+    const res = await createCategory({ name: newCatName.trim() });
+    if (res.success) {
+      setLocalCategories((prev) => [...prev, res.category]);
+      setFormData((p) => ({ ...p, categoryId: res.category.id.toString() }));
+      setNewCatName("");
+      setCatDialogOpen(false);
+    } else {
+      setCatError(typeof res.error === "string" ? res.error : (lang === "ar" ? "فشل إنشاء الفئة" : "Failed to create category"));
+    }
+    setCatSaving(false);
+  };
+
+  const handleQuickAddSupplier = async (e) => {
+    e.preventDefault();
+    if (!newSupName.trim()) return;
+    setSupSaving(true);
+    setSupError("");
+    const res = await createSupplierAction({ name: newSupName.trim(), phone: newSupPhone.trim() || null });
+    if (res.ok) {
+      setLocalSuppliers((prev) => [...prev, res.supplier]);
+      setFormData((p) => ({ ...p, supplierId: res.supplier.id }));
+      setNewSupName("");
+      setNewSupPhone("");
+      setSupDialogOpen(false);
+    } else {
+      setSupError(res.error || (lang === "ar" ? "فشل إنشاء المورد" : "Failed to create supplier"));
+    }
+    setSupSaving(false);
+  };
 
   useEffect(() => {
     if (product) {
@@ -270,8 +326,19 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Category */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.categoriesTab}</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">{t.categoriesTab}</label>
+                  <button
+                    type="button"
+                    onClick={() => { setCatError(""); setCatDialogOpen(true); }}
+                    className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+                  >
+                    <Plus className="h-3 w-3" />
+                    {lang === "ar" ? "إضافة فئة" : "Add new"}
+                  </button>
+                </div>
                 <Select
                   value={formData.categoryId?.toString() || ""}
                   onValueChange={(v) => setFormData((p) => ({ ...p, categoryId: v }))}
@@ -280,7 +347,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                     <SelectValue placeholder={t.inventorySelectCategory} />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
-                    {categories.map((c) => (
+                    {localCategories.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.name}
                       </SelectItem>
@@ -288,8 +355,20 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Supplier */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t.inventorySupplier}</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">{t.inventorySupplier}</label>
+                  <button
+                    type="button"
+                    onClick={() => { setSupError(""); setSupDialogOpen(true); }}
+                    className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+                  >
+                    <Plus className="h-3 w-3" />
+                    {lang === "ar" ? "إضافة مورد" : "Add new"}
+                  </button>
+                </div>
                 <Select
                   value={formData.supplierId || "none"}
                   onValueChange={(v) =>
@@ -297,11 +376,11 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   }
                 >
                   <SelectTrigger className="w-full border-border bg-background text-foreground">
-                    <SelectValue placeholder={t.inventoryAllSuppliers} />
+                    <SelectValue placeholder={lang === "ar" ? "بدون مورد" : "None"} />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
-                    <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
-                    {suppliers.map((s) => (
+                    <SelectItem value="none">{lang === "ar" ? "بدون مورد" : "None"}</SelectItem>
+                    {localSuppliers.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.name}
                       </SelectItem>
@@ -310,6 +389,90 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                 </Select>
               </div>
             </div>
+
+            {/* Quick-add category dialog */}
+            <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
+              <DialogContent className="max-w-sm border-border bg-card text-card-foreground">
+                <DialogHeader>
+                  <DialogTitle>{lang === "ar" ? "إضافة فئة جديدة" : "Add New Category"}</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    {lang === "ar" ? "ستُضاف الفئة وتُحدد تلقائياً." : "The category will be created and auto-selected."}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleQuickAddCategory} className="mt-2 space-y-3">
+                  {catError && <p className="rounded-md bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-400">{catError}</p>}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {lang === "ar" ? "اسم الفئة" : "Category name"} <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={newCatName}
+                      onChange={(e) => setNewCatName(e.target.value)}
+                      placeholder={lang === "ar" ? "مثال: إلكترونيات" : "e.g. Electronics"}
+                      required
+                      className="border-border bg-background text-foreground"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="ghost" onClick={() => setCatDialogOpen(false)} className="text-foreground hover:bg-muted">
+                      {lang === "ar" ? "إلغاء" : "Cancel"}
+                    </Button>
+                    <Button type="submit" disabled={catSaving} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
+                      {catSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : (lang === "ar" ? "إنشاء" : "Create")}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Quick-add supplier dialog */}
+            <Dialog open={supDialogOpen} onOpenChange={setSupDialogOpen}>
+              <DialogContent className="max-w-sm border-border bg-card text-card-foreground">
+                <DialogHeader>
+                  <DialogTitle>{lang === "ar" ? "إضافة مورد جديد" : "Add New Supplier"}</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    {lang === "ar" ? "سيُضاف المورد ويُحدد تلقائياً." : "The supplier will be created and auto-selected."}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleQuickAddSupplier} className="mt-2 space-y-3">
+                  {supError && <p className="rounded-md bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-400">{supError}</p>}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {lang === "ar" ? "اسم المورد" : "Supplier name"} <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={newSupName}
+                      onChange={(e) => setNewSupName(e.target.value)}
+                      placeholder={lang === "ar" ? "مثال: شركة الأمل للتوريد" : "e.g. Acme Supplies Co."}
+                      required
+                      className="border-border bg-background text-foreground"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {lang === "ar" ? "رقم الهاتف" : "Phone"}{" "}
+                      <span className="text-xs text-muted-foreground">{lang === "ar" ? "(اختياري)" : "(optional)"}</span>
+                    </label>
+                    <Input
+                      value={newSupPhone}
+                      onChange={(e) => setNewSupPhone(e.target.value)}
+                      placeholder="+249..."
+                      className="border-border bg-background text-foreground"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="ghost" onClick={() => setSupDialogOpen(false)} className="text-foreground hover:bg-muted">
+                      {lang === "ar" ? "إلغاء" : "Cancel"}
+                    </Button>
+                    <Button type="submit" disabled={supSaving} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
+                      {supSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : (lang === "ar" ? "إنشاء" : "Create")}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.accountingDesc}</label>

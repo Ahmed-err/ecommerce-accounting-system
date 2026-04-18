@@ -135,7 +135,7 @@ export async function createSupplierAction(raw) {
     const parsed = supplierSchema.safeParse(raw);
     if (!parsed.success) return { ok: false, error: "validation" };
     const d = parsed.data;
-    await db.supplier.create({
+    const supplier = await db.supplier.create({
       data: {
         name: d.name,
         companyName: d.companyName || null,
@@ -150,7 +150,7 @@ export async function createSupplierAction(raw) {
       },
     });
     revalidatePath("/admin/suppliers");
-    return { ok: true };
+    return { ok: true, supplier };
   } catch (e) {
     console.error(e);
     return { ok: false, error: e.message };
