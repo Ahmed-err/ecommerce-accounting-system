@@ -10,7 +10,7 @@ import { createEmployee, updateEmployee } from "@/app/actions/employees";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const ROLES = ["ADMIN", "MANAGER", "CASHIER"];
 const DEPARTMENTS = ["Management", "Sales", "Warehouse", "Support", "IT", "Finance"];
@@ -204,7 +204,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
           <div className="flex justify-end gap-3 pb-4 pt-8">
             <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="hover:bg-muted">{t.cancel}</Button>
             <Button type="submit" disabled={loading} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
-              {loading ? t.saving : t.employeesSaveEmployee}
+              {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : t.employeesSaveEmployee}
             </Button>
           </div>
         </form>

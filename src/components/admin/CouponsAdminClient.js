@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Plus, Trash2, TicketPercent } from "lucide-react";
+import { Edit, Loader2, Trash2, TicketPercent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,50 +14,70 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
-function CouponForm({ value, onChange, onSubmit, onCancel, saving, t, isEdit = false }) {
+function CouponForm({ value, onChange, onSubmit, onCancel, saving, t, isEdit = false, lang = "en" }) {
+  const isAr = lang === "ar";
   return (
-    <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-xl border border-border bg-card/70 p-4 md:grid-cols-5">
-      <Input
-        value={value.code}
-        onChange={(e) => onChange({ ...value, code: e.target.value.toUpperCase() })}
-        placeholder={t.couponCode || "Coupon code"}
-        className="border-border bg-background text-foreground md:col-span-2"
-        required
-      />
-      <Input
-        type="number"
-        min={1}
-        max={100}
-        value={value.percentOff}
-        onChange={(e) => onChange({ ...value, percentOff: e.target.value })}
-        placeholder={t.discountLabel || "Discount %"}
-        className="border-border bg-background text-foreground"
-        required
-      />
-      <Input
-        type="datetime-local"
-        value={value.expiresAt}
-        onChange={(e) => onChange({ ...value, expiresAt: e.target.value })}
-        className="border-border bg-background text-foreground"
-      />
-      <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm text-foreground">
-        <input
-          type="checkbox"
-          checked={value.isActive}
-          onChange={(e) => onChange({ ...value, isActive: e.target.checked })}
-          className="h-4 w-4 accent-amber-500"
-        />
-        {t.status || "Active"}
-      </label>
-      <div className="flex items-center gap-2 md:col-span-5 md:justify-end">
-        {isEdit ? (
-          <Button type="button" variant="outline" onClick={onCancel} className="border-border text-foreground hover:bg-muted">
-            {t.cancel || "Cancel"}
+    <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-card/70 p-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-1.5 sm:col-span-2">
+          <label className="text-sm font-medium text-foreground">
+            {t.couponCode || (isAr ? "كود الخصم" : "Coupon Code")} <span className="text-red-500">*</span>
+          </label>
+          <Input
+            value={value.code}
+            onChange={(e) => onChange({ ...value, code: e.target.value.toUpperCase() })}
+            placeholder={isAr ? "مثال: SAVE20" : "e.g. SAVE20"}
+            className="border-border bg-background font-mono text-foreground uppercase"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-foreground">
+            {t.discountLabel || (isAr ? "نسبة الخصم %" : "Discount %")} <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="number"
+            min={1}
+            max={100}
+            value={value.percentOff}
+            onChange={(e) => onChange({ ...value, percentOff: e.target.value })}
+            placeholder="10"
+            className="border-border bg-background text-foreground"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-foreground">
+            {isAr ? "تاريخ الانتهاء" : "Expires At"} <span className="text-xs text-muted-foreground">{isAr ? "(اختياري)" : "(optional)"}</span>
+          </label>
+          <Input
+            type="datetime-local"
+            value={value.expiresAt}
+            onChange={(e) => onChange({ ...value, expiresAt: e.target.value })}
+            className="border-border bg-background text-foreground"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted/50">
+          <input
+            type="checkbox"
+            checked={value.isActive}
+            onChange={(e) => onChange({ ...value, isActive: e.target.checked })}
+            className="h-4 w-4 accent-amber-500"
+          />
+          {t.status || (isAr ? "مفعل" : "Active")}
+        </label>
+        <div className="flex items-center gap-2">
+          {isEdit ? (
+            <Button type="button" variant="outline" onClick={onCancel} className="border-border text-foreground hover:bg-muted">
+              {t.cancel || (isAr ? "إلغاء" : "Cancel")}
+            </Button>
+          ) : null}
+          <Button type="submit" disabled={saving} className="bg-amber-500 text-black hover:bg-amber-600">
+            {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving || (isAr ? "جاري الحفظ..." : "Saving...")}</> : isEdit ? (t.edit || (isAr ? "تحديث" : "Update")) : (t.save || (isAr ? "إنشاء" : "Create"))}
           </Button>
-        ) : null}
-        <Button type="submit" disabled={saving} className="bg-amber-500 text-black hover:bg-amber-600">
-          {saving ? (t.saving || "Saving...") : isEdit ? (t.edit || "Update") : (t.save || "Create")}
-        </Button>
+        </div>
       </div>
     </form>
   );
@@ -190,11 +210,11 @@ export default function CouponsAdminClient({
         <p className="mt-1 text-muted-foreground">{lang === "ar" ? "إنشاء وتعديل كوبونات الخصم في المتجر." : "Create and manage discount coupons for checkout."}</p>
       </div>
 
-      {error ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {error ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</div> : null}
 
       <div ref={formWrapRef} className="space-y-2">
         {editingId ? (
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-300">
             {lang === "ar" ? "وضع التعديل مفعل" : "Edit mode is active"}
           </div>
         ) : null}
@@ -205,6 +225,7 @@ export default function CouponsAdminClient({
           onCancel={resetForm}
           saving={isPending}
           t={t}
+          lang={lang}
           isEdit={!!editingId}
         />
       </div>
@@ -254,13 +275,13 @@ export default function CouponsAdminClient({
             ) : (
               rows.map((row) => (
                 <tr key={row.id} className="hover:bg-muted/40">
-                  <td className="px-4 py-3 font-mono text-amber-400">{row.code}</td>
+                  <td className="px-4 py-3 font-mono text-amber-600 dark:text-amber-400">{row.code}</td>
                   <td className="px-4 py-3 text-foreground">{row.percentOff}%</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {row.expiresAt ? new Date(row.expiresAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : (lang === "ar" ? "بدون تاريخ" : "No expiry")}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-1 text-xs font-bold ${isExpired(row) ? "bg-red-500/15 text-red-300" : row.isActive ? "bg-emerald-500/15 text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+                    <span className={`rounded-full px-2 py-1 text-xs font-bold ${isExpired(row) ? "bg-red-500/15 text-red-700 dark:text-red-300" : row.isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
                       {isExpired(row) ? (lang === "ar" ? "منتهي" : "Expired") : row.isActive ? (lang === "ar" ? "نشط" : "Active") : (lang === "ar" ? "غير نشط" : "Inactive")}
                     </span>
                   </td>

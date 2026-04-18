@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-[40px] p-8 md:p-10 shadow-2xl">
+        <div className="bg-card border border-border rounded-[40px] p-8 md:p-10 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-8">
             {message && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-4 rounded-2xl text-sm font-bold text-center">
@@ -69,15 +69,15 @@ export default function ForgotPasswordPage() {
             )}
 
             <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-400 uppercase tracking-widest px-1">{t.email}</label>
+              <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">{t.email}</label>
               <div className="relative group">
-                <Mail className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300`} />
+                <Mail className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300`} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6' : 'pl-14 pr-6'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                  className={`w-full bg-muted border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6' : 'pl-14 pr-6'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                   placeholder="name@example.com"
                 />
               </div>

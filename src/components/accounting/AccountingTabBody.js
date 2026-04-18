@@ -226,12 +226,12 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               <div className="h-64 w-full" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff18" />
-                    <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} />
-                    <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
                     <Tooltip
-                      contentStyle={{ background: "#111827", border: "1px solid #ffffff22", borderRadius: 8 }}
-                      labelStyle={{ color: "#fff" }}
+                      contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
+                      labelStyle={{ color: "var(--muted-foreground)" }}
                     />
                     <Legend />
                     <Bar dataKey="store" stackId="a" fill="#10b981" name={t.accSourceStore} />
@@ -255,7 +255,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                         <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff22" }} />
+                    <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -278,7 +278,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <p className="truncate font-medium text-foreground">{r.label}</p>
                   <p className="text-xs text-muted-foreground">{r.sub}</p>
                 </div>
-                <span className={cn("tabular-nums font-semibold", r.amount >= 0 ? "text-emerald-400" : "text-red-400")}>
+                <span className={cn("tabular-nums font-semibold", r.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                   <Money value={r.amount} lang={lang} t={t} signed />
                 </span>
               </li>

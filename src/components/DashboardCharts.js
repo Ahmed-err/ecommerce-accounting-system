@@ -4,6 +4,17 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
+const CHART_TOOLTIP = {
+  contentStyle: {
+    background: "var(--popover)",
+    border: "1px solid var(--border)",
+    borderRadius: 8,
+    color: "var(--popover-foreground)",
+  },
+  labelStyle: { color: "var(--muted-foreground)" },
+  itemStyle: { color: "#f59e0b" },
+};
+
 export default function DashboardCharts({ chartData }) {
   const { lang, isRTL } = useLanguage();
   const t = translations[lang];
@@ -18,7 +29,7 @@ export default function DashboardCharts({ chartData }) {
           data={data}
           margin={{
             top: 10,
-            right: -20, // adjust standard right offset for RTL
+            right: -20,
             left: 10,
             bottom: 0,
           }}
@@ -29,37 +40,37 @@ export default function DashboardCharts({ chartData }) {
               <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-          <XAxis 
-            dataKey="name" 
-            stroke="#94a3b8" 
-            fontSize={12} 
-            tickLine={false} 
-            axisLine={false} 
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+          <XAxis
+            dataKey="name"
+            stroke="var(--muted-foreground)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
             dy={10}
             reversed={isRTL}
           />
-          <YAxis 
+          <YAxis
             orientation={isRTL ? "right" : "left"}
-            stroke="#94a3b8" 
-            fontSize={12} 
-            tickLine={false} 
-            axisLine={false} 
+            stroke="var(--muted-foreground)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
             tickFormatter={(value) => `${value.toLocaleString()} ${t.currency}`}
             dx={isRTL ? 10 : -10}
           />
-          <Tooltip 
-            contentStyle={{ backgroundColor: "#0f172a", borderColor: "#ffffff10", color: "#f8fafc", borderRadius: "8px", textAlign: isRTL ? "right" : "left" }}
-            itemStyle={{ color: "#f59e0b" }}
-            formatter={(value) => [`${value.toLocaleString()} ${t.currency}`, lang === 'ar' ? "الإيرادات" : "Revenue"]}
+          <Tooltip
+            {...CHART_TOOLTIP}
+            contentStyle={{ ...CHART_TOOLTIP.contentStyle, textAlign: isRTL ? "right" : "left" }}
+            formatter={(value) => [`${value.toLocaleString()} ${t.currency}`, lang === "ar" ? "الإيرادات" : "Revenue"]}
           />
-          <Area 
-            type="monotone" 
-            dataKey="revenue" 
-            stroke="#f59e0b" 
+          <Area
+            type="monotone"
+            dataKey="revenue"
+            stroke="#f59e0b"
             strokeWidth={2}
-            fillOpacity={1} 
-            fill="url(#colorRevenue)" 
+            fillOpacity={1}
+            fill="url(#colorRevenue)"
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -64,16 +64,16 @@ export default function ResetPasswordPage() {
   if (isSuccess) {
     return (
       <div className={`min-h-screen bg-background flex items-center justify-center p-6 ${isRTL ? 'font-arabic' : 'font-sans'}`} dir={isRTL ? "rtl" : "ltr"}>
-        <div className="bg-gray-900 border border-white/5 rounded-[40px] p-12 text-center max-w-md shadow-2xl animate-in zoom-in duration-500">
+        <div className="bg-card border border-border rounded-[40px] p-12 text-center max-w-md shadow-2xl animate-in zoom-in duration-500">
            <div className="flex justify-center mb-6">
               <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
                 <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </div>
            </div>
-           <h1 className="text-3xl font-black text-white mb-4">
+           <h1 className="text-3xl font-black text-foreground mb-4">
               {lang === 'ar' ? 'تم التغيير بنجاح!' : 'Password Updated!'}
            </h1>
-           <p className="text-gray-400 mb-8 font-medium">
+           <p className="text-muted-foreground mb-8 font-medium">
               {lang === 'ar' ? 'يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة. سيتم تحويلك قريباً...' : "Your password has been changed successfully. Redirecting to login..."}
            </p>
            <Link href="/login" className="text-amber-500 font-bold hover:underline">
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-white/5 rounded-[40px] p-8 md:p-10 shadow-2xl relative">
+        <div className="bg-card border border-border rounded-[40px] p-8 md:p-10 shadow-2xl relative">
           <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-2xl text-sm font-bold text-center animate-shake">
@@ -111,21 +111,21 @@ export default function ResetPasswordPage() {
             )}
 
             <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-400 uppercase tracking-widest px-1">{t.password}</label>
+              <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">{t.password}</label>
               <div className="relative group">
-                <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300`} />
+                <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300`} />
                 <input
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                  className={`w-full bg-muted border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword((v) => !v)}
-                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-500`}
+                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-muted-foreground hover:text-amber-500`}
                   aria-label={showNewPassword ? "Hide password" : "Show password"}
                 >
                   {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -134,21 +134,21 @@ export default function ResetPasswordPage() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-sm font-bold text-gray-400 uppercase tracking-widest px-1">{lang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
+              <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">{lang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
               <div className="relative group">
-                <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300`} />
+                <Lock className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300`} />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                  className={`w-full bg-muted border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14' : 'pl-14 pr-14'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-gray-400 hover:text-amber-500`}
+                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-1/2 -translate-y-1/2 text-muted-foreground hover:text-amber-500`}
                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

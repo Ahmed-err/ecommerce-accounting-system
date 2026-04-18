@@ -26,7 +26,7 @@ export default async function AdminSettingsPage({ searchParams }) {
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
           {t.adminSettings || "Admin Settings"}
         </h1>
-        <p className="text-gray-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           {lang === 'ar' ? 'إدارة إعدادات حسابك وتفضيلات النظام.' : 'Manage your account settings and system preferences.'}
         </p>
       </div>

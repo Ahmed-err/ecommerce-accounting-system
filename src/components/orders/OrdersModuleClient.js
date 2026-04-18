@@ -294,7 +294,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
     }
   };
 
-  if (isLoading) return <div className="py-16 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>;
+  if (isLoading) return <div className="py-16 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>;
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -747,7 +747,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
           </thead>
           <tbody className="divide-y divide-border">
             {returns.length === 0 && (
-              <tr><td colSpan="7" className="px-4 py-14 text-center text-gray-500">
+              <tr><td colSpan="7" className="px-4 py-14 text-center text-muted-foreground">
                 <RotateCcw className="h-8 w-8 mx-auto mb-2 opacity-20" />
                 <p>{t.ordNoReturns}</p>
               </td></tr>
@@ -810,7 +810,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                 {t.ordReturnLoadOrder}
               </Button>
             </div>
-            <p className="text-[10px] text-gray-500 mt-1.5 leading-relaxed">{t.ordReturnOrderIdHint}</p>
+            <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">{t.ordReturnOrderIdHint}</p>
             {loadErr && (
               <p className="text-xs text-red-400 mt-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2" role="status">
                 {loadErr}
@@ -833,7 +833,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                     <div key={item.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-foreground">{item.product?.name}</p>
-                        <p className="text-[10px] text-gray-500 tabular-nums">
+                        <p className="text-[10px] text-muted-foreground tabular-nums">
                           {fmt(item.price, lang)} × {lang === "ar" ? "الحد الأقصى" : "max"} {item.quantity}
                         </p>
                       </div>
@@ -933,11 +933,11 @@ function ReportsTab({ data, t, lang, isRTL }) {
                 <Pie data={statusPie} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name">
                   {statusPie.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff10", borderRadius: 8 }} />
+                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }} />
                 <Legend iconType="circle" iconSize={8} />
               </PieChart>
             </ResponsiveContainer>
-          ) : <div className="py-8 text-center text-gray-500 text-sm">{t.empNoData}</div>}
+          ) : <div className="py-8 text-center text-muted-foreground text-sm">{t.empNoData}</div>}
         </div>
 
         <div className="bg-card border border-border rounded-xl p-5">
@@ -945,14 +945,14 @@ function ReportsTab({ data, t, lang, isRTL }) {
           {revData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={revData} barSize={40}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                <XAxis dataKey="name" tick={{ fill: "#6b7280", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#6b7280", fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff10", borderRadius: 8 }} formatter={(v) => [`${fmt(v, lang)} ${t.currency}`, ""]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+                <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }} formatter={(v) => [`${fmt(v, lang)} ${t.currency}`, ""]} />
                 <Bar dataKey="value" fill="#f59e0b" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          ) : <div className="py-8 text-center text-gray-500 text-sm">{t.empNoData}</div>}
+          ) : <div className="py-8 text-center text-muted-foreground text-sm">{t.empNoData}</div>}
         </div>
       </div>
 
@@ -1051,7 +1051,7 @@ export default function OrdersModuleClient({ initialData, initialTab, initialLis
 
       <AnimatePresence mode="wait">
         <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-          {isPending && <div className="py-16 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>}
+          {isPending && <div className="py-16 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>}
           {!isPending && (
             <>
               {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}

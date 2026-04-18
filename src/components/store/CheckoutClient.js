@@ -969,35 +969,35 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 >
                   <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">{t.bankTransferInstructions}</p>
                   <p className="text-sm text-foreground/90">{t.transferToFollowing}</p>
-                  <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 text-sm space-y-1">
+                  <div className="bg-muted/50 p-3 rounded-lg border border-border text-sm space-y-1">
                     <p>
-                      <span className="text-gray-500">{t.bankLabel}:</span>{" "}
-                      <span className="text-white font-medium">
+                      <span className="text-muted-foreground">{t.bankLabel}:</span>{" "}
+                      <span className="text-foreground font-medium">
                         {lang === "ar" ? resolvedBankDetails.arBankName : resolvedBankDetails.bankName}
                       </span>
                     </p>
                     <p>
-                      <span className="text-gray-500">{t.accountNumberLabel}:</span>{" "}
-                      <span className="text-white font-mono font-bold">{resolvedBankDetails.accountNumber}</span>
+                      <span className="text-muted-foreground">{t.accountNumberLabel}:</span>{" "}
+                      <span className="text-foreground font-mono font-bold">{resolvedBankDetails.accountNumber}</span>
                     </p>
                     <p>
-                      <span className="text-gray-500">{t.accountNameLabel}:</span>{" "}
-                      <span className="text-white font-medium">
+                      <span className="text-muted-foreground">{t.accountNameLabel}:</span>{" "}
+                      <span className="text-foreground font-medium">
                         {lang === "ar" ? resolvedBankDetails.arAccountName : resolvedBankDetails.accountName}
                       </span>
                     </p>
                   </div>
-                  <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 space-y-2">
-                    <p className="text-xs text-gray-400 font-semibold">
+                  <div className="bg-muted/50 p-3 rounded-lg border border-border space-y-2">
+                    <p className="text-xs text-muted-foreground font-semibold">
                       {lang === "ar" ? "رقم واتساب التأكيد" : "Confirmation WhatsApp"}
                     </p>
-                    <p className="text-white font-mono font-bold">+{bankProofWaDigits}</p>
+                    <p className="text-foreground font-mono font-bold">+{bankProofWaDigits}</p>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={copyWhatsApp}
-                        className="h-8 text-xs bg-gray-800 border-white/10 text-white hover:bg-gray-700"
+                        className="h-8 text-xs bg-muted border-border text-foreground hover:bg-muted/70"
                       >
                         {copiedWhatsApp
                           ? (lang === "ar" ? "تم النسخ" : "Copied")
@@ -1013,8 +1013,8 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                       </a>
                     </div>
                   </div>
-                  <div className="bg-gray-950/50 p-3 rounded-lg border border-white/5 space-y-2">
-                    <p className="text-xs text-gray-400 font-semibold">
+                  <div className="bg-muted/50 p-3 rounded-lg border border-border space-y-2">
+                    <p className="text-xs text-muted-foreground font-semibold">
                       {lang === "ar" ? "رفع لقطة شاشة التحويل (اختياري)" : "Upload transfer screenshot (optional)"}
                     </p>
                     <UploadButton

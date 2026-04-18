@@ -16,7 +16,7 @@ export default function ComparePageClient({ products }) {
 
   if (!products.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 py-16 text-center">
+      <div className="rounded-2xl border border-dashed border-border bg-muted/30 py-16 text-center">
         <p className="text-muted-foreground">{t.catalogComparePage}</p>
         <p className="mt-2 text-sm text-muted-foreground">{t.noProductsFound}</p>
         <Link
@@ -48,11 +48,11 @@ export default function ComparePageClient({ products }) {
       <table className="w-full min-w-[640px] border-collapse text-sm">
         <thead>
           <tr>
-            <th className="w-36 border border-white/10 bg-white/5 p-3 text-left text-muted-foreground rtl:text-right" />
+            <th className="w-36 border border-border bg-muted/30 p-3 text-left text-muted-foreground rtl:text-right" />
             {products.map((p) => (
               <th
                 key={p.id}
-                className="min-w-[180px] border border-white/10 bg-white/5 p-3 align-bottom"
+                className="min-w-[180px] border border-border bg-muted/30 p-3 align-bottom"
               >
                 <div className="relative mx-auto mb-2 h-32 w-full max-w-[140px] overflow-hidden rounded-xl bg-muted">
                   {p.images?.[0] ? (
@@ -92,13 +92,13 @@ export default function ComparePageClient({ products }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.key}>
-              <td className="border border-white/10 bg-white/[0.03] p-3 font-medium text-muted-foreground">
+              <td className="border border-border bg-muted/10 p-3 font-medium text-muted-foreground">
                 {row.label}
               </td>
               {products.map((p) => (
                 <td
                   key={`${row.key}-${p.id}`}
-                  className="border border-white/10 p-3 text-foreground"
+                  className="border border-border p-3 text-foreground"
                 >
                   {row.fn(p)}
                 </td>

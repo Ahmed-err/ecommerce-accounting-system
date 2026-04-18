@@ -70,7 +70,7 @@ export default async function AdminOrdersPage({ searchParams }) {
         <h1 className="text-3xl font-bold tracking-tight text-white">
           {t.adminOrders || (lang === "ar" ? "إدارة الطلبات" : "Orders Management")}
         </h1>
-        <p className="text-gray-400 mt-1">
+        <p className="text-muted-foreground mt-1">
           {t.adminRecentOrders || (lang === "ar" ? "عرض وإدارة طلبات العملاء." : "View and manage customer orders.")}
         </p>
       </div>

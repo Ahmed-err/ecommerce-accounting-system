@@ -9,15 +9,15 @@ export default function ProductRow({ product, onAddToCart }) {
   const currency = lang === "ar" ? "ج.س" : "SDG";
 
   return (
-    <div 
+    <div
       onClick={() => onAddToCart(product)}
-      className={`bg-gray-900 border rounded-2xl p-3 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${product.stock === 0 ? 'opacity-50 grayscale border-red-500/30' : 'border-white/5 hover:border-amber-500/50'}`}
+      className={`bg-card border rounded-2xl p-3 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${product.stock === 0 ? 'opacity-50 grayscale border-red-500/30' : 'border-border hover:border-amber-500/50'}`}
     >
-      <div className="aspect-square bg-gray-950 rounded-xl mb-3 relative overflow-hidden flex items-center justify-center">
+      <div className="aspect-square bg-muted rounded-xl mb-3 relative overflow-hidden flex items-center justify-center">
         {product.images?.[0] ? (
           <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
         ) : (
-          <ShoppingCart className="w-8 h-8 text-gray-800" />
+          <ShoppingCart className="w-8 h-8 text-muted-foreground" />
         )}
         {product.stock === 0 && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -25,11 +25,11 @@ export default function ProductRow({ product, onAddToCart }) {
           </div>
         )}
       </div>
-      
+
       <div className="flex flex-col h-16 justify-between">
-        <h3 className="text-sm font-bold text-white line-clamp-2 leading-tight">{product.name}</h3>
+        <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-tight">{product.name}</h3>
         <div className="flex justify-between items-end">
-          <span className="font-mono text-xs text-gray-500">{product.sku}</span>
+          <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
           <span className="font-bold text-amber-500">{product.sellingPrice.toFixed(2)} {currency}</span>
         </div>
       </div>

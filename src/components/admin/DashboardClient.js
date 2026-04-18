@@ -154,9 +154,9 @@ export default function DashboardClient({ data, filters }) {
                   <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff12" />
-              <XAxis dataKey="label" stroke="#94a3b8" />
-              <YAxis stroke="#94a3b8" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" />
+              <YAxis stroke="var(--muted-foreground)" />
               <Tooltip contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
               <Area type="monotone" dataKey="total" fill="url(#totalFill)" stroke="transparent" />
               <Line type="monotone" dataKey="store" stroke="#3b82f6" strokeWidth={2} dot={false} />
@@ -179,15 +179,15 @@ export default function DashboardClient({ data, filters }) {
                   <p className="text-xs text-muted-foreground">{o.customer} - {timeAgo(o.createdAt, lang)}</p>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
-                  <div className="text-sm font-bold text-emerald-400">{o.total.toLocaleString()} {t.currency}</div>
+                  <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{o.total.toLocaleString()} {t.currency}</div>
                   <div className="mt-1 flex items-center gap-2">
-                    <Badge className={o.source === "POS" ? "bg-blue-500/15 text-blue-300" : "bg-violet-500/15 text-violet-300"}>{o.source}</Badge>
+                    <Badge className={o.source === "POS" ? "bg-blue-500/15 text-blue-700 dark:text-blue-300" : "bg-violet-500/15 text-violet-700 dark:text-violet-300"}>{o.source}</Badge>
                     <Badge className={statusClass(o.status)}>{o.status}</Badge>
                   </div>
                 </div>
               </Link>
             ))}
-            <Link href="/admin/orders" className="inline-flex text-xs text-amber-400 hover:text-amber-300">{lang === "ar" ? "عرض كل الطلبات" : "View all orders"}</Link>
+            <Link href="/admin/orders" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض كل الطلبات" : "View all orders"}</Link>
           </CardContent>
         </Card>
 
@@ -204,11 +204,11 @@ export default function DashboardClient({ data, filters }) {
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
                   <p className="text-xs text-muted-foreground">{p.unitsSold} {lang === "ar" ? "وحدة" : "units"}</p>
-                  <p className="text-xs text-emerald-400">{p.revenue.toLocaleString()} {t.currency}</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">{p.revenue.toLocaleString()} {t.currency}</p>
                 </div>
               </div>
             ))}
-            <Link href="/admin/inventory" className="inline-flex text-xs text-amber-400 hover:text-amber-300">{lang === "ar" ? "عرض المخزون" : "View inventory"}</Link>
+            <Link href="/admin/inventory" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض المخزون" : "View inventory"}</Link>
           </CardContent>
         </Card>
       </div>
@@ -293,18 +293,18 @@ export default function DashboardClient({ data, filters }) {
           <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "ملخص مالي" : "Financial Summary"}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "الإيراد" : "Revenue"}</span><span className="text-emerald-400">{data.finance.revenue.toLocaleString()} {t.currency}</span></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "الإيراد" : "Revenue"}</span><span className="text-emerald-700 dark:text-emerald-400">{data.finance.revenue.toLocaleString()} {t.currency}</span></div>
               <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-emerald-500" style={{ width: "100%" }} /></div>
             </div>
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-400">{data.finance.expenses.toLocaleString()} {t.currency}</span></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-600 dark:text-red-400">{data.finance.expenses.toLocaleString()} {t.currency}</span></div>
               <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-red-500" style={{ width: `${Math.min(100, data.finance.revenue ? (data.finance.expenses / data.finance.revenue) * 100 : 0)}%` }} /></div>
             </div>
             <div className="rounded border border-border p-3">
               <p className="text-xs text-muted-foreground">{lang === "ar" ? "صافي الربح" : "Net Profit"}</p>
-              <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-400" : "text-red-400"}`}>{data.finance.net.toLocaleString()} {t.currency}</p>
+              <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>{data.finance.net.toLocaleString()} {t.currency}</p>
             </div>
-            <Link href="/admin/accounting" className="inline-flex text-xs text-amber-400 hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>
+            <Link href="/admin/accounting" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>
           </CardContent>
         </Card>
       </div>

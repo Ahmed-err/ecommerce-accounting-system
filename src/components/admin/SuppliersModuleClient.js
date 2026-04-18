@@ -209,10 +209,10 @@ function OverviewTab({ data, loading, onRefresh }) {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={top}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
-                    <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                    <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                    <Tooltip contentStyle={{ background: "#111", border: "1px solid #333" }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                    <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
                     <Bar dataKey="total" fill="#f59e0b" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -223,10 +223,10 @@ function OverviewTab({ data, loading, onRefresh }) {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={trend}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
-                    <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                    <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                    <Tooltip contentStyle={{ background: "#111", border: "1px solid #333" }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                    <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
                     <Line type="monotone" dataKey="total" stroke="#f59e0b" strokeWidth={2} dot />
                   </LineChart>
                 </ResponsiveContainer>
@@ -472,44 +472,45 @@ function SuppliersTab({ t, isRTL, role = "" }) {
           <DialogHeader className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
             <DialogTitle>{edit ? t.suppliersEdit : t.suppliersAdd}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-5">
+          <div className="grid gap-4 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-5">
             {["name", "companyName", "phone", "email", "category", "taxId", "address", "notes"].map((f) => (
-              <div key={f} className={f === "address" || f === "notes" ? "sm:col-span-2" : ""}>
-                <label className="text-xs text-muted-foreground">{t[`suppliersField_${f}`] || f}</label>
+              <div key={f} className={cn("space-y-1.5", f === "address" || f === "notes" ? "sm:col-span-2" : "")}>
+                <label className="text-sm font-medium text-foreground">{t[`suppliersField_${f}`] || f}</label>
                 {f === "notes" || f === "address" ? (
                   <textarea
-                    className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2 text-sm"
+                    className="w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                     rows={f === "address" ? 2 : 3}
                     value={form[f] || ""}
                     onChange={(e) => setForm((p) => ({ ...p, [f]: e.target.value }))}
                   />
                 ) : (
                   <Input
-                    className="mt-1 border-border bg-black/40"
+                    className="border-border bg-background text-foreground"
                     value={form[f] || ""}
                     onChange={(e) => setForm((p) => ({ ...p, [f]: e.target.value }))}
                   />
                 )}
               </div>
             ))}
-            <div>
-              <label className="text-xs text-muted-foreground">{t.suppliersField_paymentTerms}</label>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.suppliersField_paymentTerms}</label>
               <select
-                className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2 text-sm"
+                className="w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 value={form.paymentTerms || "NET30"}
                 onChange={(e) => setForm((p) => ({ ...p, paymentTerms: e.target.value }))}
               >
-                <option value="CASH">CASH</option>
-                <option value="NET30">NET30</option>
-                <option value="NET60">NET60</option>
-                <option value="NET90">NET90</option>
+                <option value="CASH">{lang === "ar" ? "نقداً" : "Cash"}</option>
+                <option value="NET30">{lang === "ar" ? "صافي 30 يوم" : "Net 30 Days"}</option>
+                <option value="NET60">{lang === "ar" ? "صافي 60 يوم" : "Net 60 Days"}</option>
+                <option value="NET90">{lang === "ar" ? "صافي 90 يوم" : "Net 90 Days"}</option>
               </select>
             </div>
-            <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground hover:bg-muted/50 sm:col-span-2">
               <input
                 type="checkbox"
                 checked={!!form.isActive}
                 onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))}
+                className="h-4 w-4 accent-amber-500"
               />
               {t.active}
             </label>
@@ -517,7 +518,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
               <Button variant="ghost" onClick={() => setOpen(false)} type="button" className="w-full sm:w-auto">
                 {t.cancel}
               </Button>
-              <Button className="w-full bg-amber-500 text-black sm:w-auto" onClick={save}>
+              <Button className="w-full bg-amber-500 text-black hover:bg-amber-600 sm:w-auto" onClick={save}>
                 {t.save}
               </Button>
             </div>
@@ -865,9 +866,9 @@ function PurchasesTab({ t, isRTL, role = "" }) {
           {opts && (
             <div className="space-y-4 px-4 py-4 text-sm sm:px-6 sm:py-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">{t.suppliersColSupplier}</label>
+                <label className="text-sm font-medium text-foreground">{t.suppliersColSupplier} <span className="text-red-500">*</span></label>
                 <select
-                  className="mt-1 w-full rounded-lg border border-border bg-black/40 p-2"
+                  className="w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   value={pForm.supplierId}
                   onChange={(e) => setPForm((p) => ({ ...p, supplierId: e.target.value }))}
                 >
@@ -879,11 +880,11 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                 </select>
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground">{t.suppliersAddLine}</p>
+                <p className="text-sm font-medium text-foreground">{t.suppliersAddLine}</p>
                 {lines.map((l, i) => (
-                <div key={i} className="grid gap-2 rounded-lg border border-border bg-black/20 p-2 sm:grid-cols-4">
+                <div key={i} className="grid gap-2 rounded-lg border border-border bg-muted/30 p-2 sm:grid-cols-4">
                   <select
-                    className="rounded-lg border border-border bg-black/40 p-2 sm:col-span-2"
+                    className="rounded-lg border border-border bg-background p-2 text-sm text-foreground sm:col-span-2 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                     value={l.productId}
                     onChange={(e) => {
                       const pr = opts.products.find((x) => x.id === e.target.value);
@@ -905,7 +906,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                   <Input
                     type="number"
                     min="1"
-                    className="border-border bg-black/40"
+                    className="border-border bg-background"
                     value={l.quantity}
                     onChange={(e) => {
                       const next = [...lines];
@@ -917,7 +918,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                     type="number"
                     min="0"
                     step="0.01"
-                    className="border-border bg-black/40"
+                    className="border-border bg-background"
                     value={l.unitCost}
                     onChange={(e) => {
                       const next = [...lines];
@@ -936,46 +937,47 @@ function PurchasesTab({ t, isRTL, role = "" }) {
               >
                 + {t.suppliersAddLine}
               </Button>
-              <p className="font-bold text-amber-400">
+              <p className="font-bold text-amber-700 dark:text-amber-400">
                 {t.suppliersTotal}: {totalPreview.toLocaleString()}
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersColDue}</label>
+                  <label className="text-sm font-medium text-foreground">{t.suppliersColDue}</label>
                   <Input
                     type="date"
-                    className="border-border bg-black/40"
+                    className="border-border bg-background"
                     value={pForm.dueDate}
                     onChange={(e) => setPForm((p) => ({ ...p, dueDate: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersInvoiceRef}</label>
+                  <label className="text-sm font-medium text-foreground">{t.suppliersInvoiceRef}</label>
                   <Input
                     placeholder={t.suppliersInvoiceRef}
-                    className="border-border bg-black/40"
+                    className="border-border bg-background"
                     value={pForm.invoiceRef}
                     onChange={(e) => setPForm((p) => ({ ...p, invoiceRef: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-semibold text-muted-foreground">{t.suppliersPaidNow}</label>
+                  <label className="text-sm font-medium text-foreground">{t.suppliersPaidNow}</label>
                   <Input
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder={t.suppliersPaidNow}
-                    className="border-border bg-black/40"
+                    className="border-border bg-background"
                     value={pForm.paidAmount}
                     onChange={(e) => setPForm((p) => ({ ...p, paidAmount: e.target.value }))}
                   />
                 </div>
               </div>
-              <label className="flex items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground hover:bg-muted/50">
                 <input
                   type="checkbox"
                   checked={pForm.receiveNow}
                   onChange={(e) => setPForm((p) => ({ ...p, receiveNow: e.target.checked }))}
+                  className="h-4 w-4 accent-amber-500"
                 />
                 {t.suppliersReceiveNow}
               </label>
@@ -999,29 +1001,42 @@ function PurchasesTab({ t, isRTL, role = "" }) {
           </DialogHeader>
           <div className="space-y-3 px-4 py-4 sm:px-6 sm:py-5">
             {activePayRow ? (
-              <div className="rounded-lg border border-border bg-black/30 p-3 text-xs text-muted-foreground">
+              <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
                 <p className="font-mono text-foreground">{activePayRow.purchaseNumber}</p>
                 <p className="mt-1">
                   {t.suppliersColTotal}: {Number(activePayRow.totalAmount).toLocaleString()} · {t.suppliersColPaid}:{" "}
                   {Number(activePayRow.paidAmount).toLocaleString()}
                 </p>
-                <p className="mt-1 font-semibold text-amber-400">
+                <p className="mt-1 font-semibold text-amber-700 dark:text-amber-400">
                   {t.suppliersPurchaseRemaining}: {purchaseRowUi(activePayRow).remaining.toLocaleString()}
                 </p>
               </div>
             ) : null}
-            <Input
-              placeholder={t.suppliersPayAmount}
-              className="border-border bg-black/40"
-              value={payForm.amount}
-              onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
-            />
-            <Input
-              placeholder={t.suppliersPayMethod}
-              className="border-border bg-black/40"
-              value={payForm.method}
-              onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
-            />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.suppliersPayAmount} <span className="text-red-500">*</span></label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="border-border bg-background"
+                value={payForm.amount}
+                onChange={(e) => setPayForm((p) => ({ ...p, amount: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.suppliersPayMethod}</label>
+              <select
+                className="w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                value={payForm.method || "CASH"}
+                onChange={(e) => setPayForm((p) => ({ ...p, method: e.target.value }))}
+              >
+                <option value="CASH">{lang === "ar" ? "نقداً" : "Cash"}</option>
+                <option value="BANK_TRANSFER">{lang === "ar" ? "تحويل بنكي" : "Bank Transfer"}</option>
+                <option value="CARD">{lang === "ar" ? "بطاقة" : "Card"}</option>
+                <option value="CHECK">{lang === "ar" ? "شيك" : "Check"}</option>
+              </select>
+            </div>
             <div className={cn("flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:justify-end", isRTL && "sm:flex-row-reverse")}>
               <Button variant="ghost" onClick={() => setPayOpen(null)} type="button" className="w-full sm:w-auto">
                 {t.cancel}
@@ -1111,10 +1126,10 @@ function ReportsTab({ t, isRTL }) {
               <h3 className="mb-2 text-sm font-bold text-foreground">{t.suppliersReportMonthly}</h3>
               <ResponsiveContainer width="100%" height="90%">
                 <BarChart data={data.monthly.map((m) => ({ name: new Date(m.month).toLocaleDateString(undefined, { month: "short" }), total: m.total }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
-                  <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                  <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
-                  <Tooltip contentStyle={{ background: "#111", border: "1px solid #333" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                  <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
                   <Bar dataKey="total" fill="#f59e0b" />
                 </BarChart>
               </ResponsiveContainer>
@@ -1124,7 +1139,7 @@ function ReportsTab({ t, isRTL }) {
               <ResponsiveContainer width="100%" height="90%">
                 <PieChart>
                   <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label />
-                  <Tooltip contentStyle={{ background: "#111", border: "1px solid #333" }} />
+                  <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

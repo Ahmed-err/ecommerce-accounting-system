@@ -23,6 +23,7 @@ import { UploadButton } from "@/lib/uploader";
 import { createProduct, updateProduct, generateSkuSuggestion } from "@/app/actions/inventory";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import { Loader2 } from "lucide-react";
 import { cn, formatServerActionError } from "@/lib/utils";
 import InventoryBarcode from "./InventoryBarcode";
 
@@ -221,7 +222,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
             <div className="space-y-6">
           {error && (
-            <div className="rounded-md bg-red-500/20 p-3 text-center text-sm text-red-400">{error}</div>
+            <div className="rounded-md bg-red-500/15 p-3 text-center text-sm text-red-700 dark:text-red-400">{error}</div>
           )}
 
           <div className="space-y-4">
@@ -344,7 +345,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             </div>
 
             {formData.barcode || formData.sku ? (
-              <div className="rounded-lg border border-border bg-white p-3" dir="ltr">
+              <div className="rounded-lg border border-border bg-background p-3" dir="ltr">
                 <InventoryBarcode value={formData.barcode || formData.sku} />
               </div>
             ) : null}
@@ -356,7 +357,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-amber-500/80">{t.inventoryPurchasePrice}</label>
+                <label className="text-sm font-medium text-amber-700 dark:text-amber-400">{t.inventoryPurchasePrice}</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -368,7 +369,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-emerald-500/80">{t.inventorySellingPrice}</label>
+                <label className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{t.inventorySellingPrice}</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -419,7 +420,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
               {t.inventoryProductOriginSection}
             </h4>
             {isEditing && product?.origin && product.origin !== formData.origin ? (
-              <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+              <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
                 {t.inventoryOriginChangeWarning}
               </div>
             ) : null}
@@ -554,7 +555,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
 
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 p-6">
               {formData.images.length >= MAX_PRODUCT_IMAGES ? (
-                <p className="text-xs text-amber-300">
+                <p className="text-xs text-amber-700 dark:text-amber-300">
                   {lang === "ar"
                     ? `تم الوصول للحد الأقصى (${MAX_PRODUCT_IMAGES}) للصور. احذف صورة لإضافة أخرى.`
                     : `Maximum ${MAX_PRODUCT_IMAGES} images reached. Remove one to upload another.`}
@@ -604,7 +605,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                 {t.cancel}
               </Button>
               <Button type="submit" disabled={loading} className="bg-amber-500 font-semibold text-black hover:bg-amber-600">
-                {loading ? t.saving : t.inventorySaveProduct}
+                {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : t.inventorySaveProduct}
               </Button>
             </div>
           </div>
