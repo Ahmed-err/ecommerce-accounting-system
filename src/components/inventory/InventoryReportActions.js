@@ -513,7 +513,7 @@ export default function InventoryReportActions({
       <Button
         type="button"
         variant="outline"
-        className="h-10 border-amber-500/40 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20"
+        className="h-10 border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-100"
         onClick={openPrint}
       >
         <Printer className={cn("h-4 w-4 shrink-0", isRTL ? "ms-2" : "me-2")} />

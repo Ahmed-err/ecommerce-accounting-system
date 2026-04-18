@@ -535,9 +535,14 @@ export async function issueStockAction(raw) {
       });
       if (!cur) throw new Error("Product not found");
       if (cur.stock < quantity) throw new Error("Insufficient stock");
-      const updated = await tx.product.update({
-        where: { id: productId },
+      const upd = await tx.product.updateMany({
+        where: { id: productId, stock: { gte: quantity } },
         data: { stock: { decrement: quantity } },
+      });
+      if (upd.count === 0) throw new Error("Insufficient stock — please retry.");
+      const updated = await tx.product.findUnique({
+        where: { id: productId },
+        select: { stock: true },
       });
       newStock = updated.stock;
       productName = cur.name;

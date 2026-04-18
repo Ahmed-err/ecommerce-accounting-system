@@ -80,7 +80,11 @@ export async function createPOSOrder(cartItems, paymentDetails) {
         validatedItems.push({ id: item.id, quantity: item.quantity, price });
       }
 
-      const finalTotalAmount = totalAmount - (paymentDetails.discountAmount || 0);
+      const discountAmount = paymentDetails.discountAmount || 0;
+      if (discountAmount < 0 || discountAmount > totalAmount) {
+        throw new Error("Invalid discount amount.");
+      }
+      const finalTotalAmount = totalAmount - discountAmount;
 
       const newOrder = await tx.order.create({
         data: {
@@ -102,9 +106,22 @@ export async function createPOSOrder(cartItems, paymentDetails) {
       });
 
       for (const item of validatedItems) {
-        await tx.product.update({
-          where: { id: item.id },
+        const upd = await tx.product.updateMany({
+          where: { id: item.id, stock: { gte: item.quantity } },
           data: { stock: { decrement: item.quantity } },
+        });
+        if (upd.count === 0) {
+          const p = productMap.get(item.id);
+          throw new Error(`Stock changed for ${p?.name || item.id}. Please retry.`);
+        }
+        await tx.stockMovement.create({
+          data: {
+            type: "OUT",
+            quantity: item.quantity,
+            productId: item.id,
+            userId: staff.id,
+            reason: "POS Sale",
+          },
         });
       }
 
@@ -114,7 +131,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
           orderId: newOrder.id,
           totalAmount: finalTotalAmount,
           taxAmount: paymentDetails.taxAmount || 0,
-          discountAmount: paymentDetails.discountAmount || 0,
+          discountAmount: discountAmount,
         }
       });
 
