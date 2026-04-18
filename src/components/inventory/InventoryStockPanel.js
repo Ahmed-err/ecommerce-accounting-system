@@ -27,7 +27,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn, formatServerActionError } from "@/lib/utils";
 import { toast } from "sonner";
-import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Loader2 } from "lucide-react";
 
 export default function InventoryStockPanel({
   suppliers = [],
@@ -287,74 +287,92 @@ export default function InventoryStockPanel({
           <DialogHeader>
             <DialogTitle>{t.inventoryReceiveStock}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 py-2">
-            <Input
-              placeholder={t.inventorySearchPlaceholder}
-              value={productQuery}
-              onChange={(e) => setProductQuery(e.target.value)}
-              className="bg-background border-border"
-            />
-            <Select
-              modal={false}
-              value={selectedProductId || null}
-              onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
-            >
-              <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder={t.inventorySelectProduct} />
-              </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
-                {productHits.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.sku}) — {p.stock}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value) || 1)}
-              className="bg-background border-border"
-            />
-            <Select
-              modal={false}
-              value={supplierId || "none"}
-              onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
-            >
-              <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder={t.inventorySupplier} />
-              </SelectTrigger>
-              <SelectContent className="z-[100] bg-background border-border text-foreground">
-                <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
-                {suppliers.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              type="number"
-              step="0.01"
-              placeholder={t.inventoryUnitCost}
-              value={unitCost}
-              onChange={(e) => setUnitCost(e.target.value)}
-              className="bg-background border-border"
-            />
-            <Input
-              placeholder={t.inventoryNotes}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="bg-background border-border"
-            />
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventorySearchPlaceholder || (lang === "ar" ? "بحث عن منتج" : "Search product")}</label>
+              <Input
+                placeholder={lang === "ar" ? "اسم المنتج أو كود SKU..." : "Product name or SKU..."}
+                value={productQuery}
+                onChange={(e) => setProductQuery(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventorySelectProduct || (lang === "ar" ? "اختر المنتج" : "Select product")} <span className="text-red-500">*</span></label>
+              <Select
+                modal={false}
+                value={selectedProductId || null}
+                onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
+              >
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder={t.inventorySelectProduct} />
+                </SelectTrigger>
+                <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
+                  {productHits.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name} ({p.sku}) — {lang === "ar" ? "المخزون:" : "stock:"} {p.stock}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryColStock || (lang === "ar" ? "الكمية" : "Quantity")} <span className="text-red-500">*</span></label>
+              <Input
+                type="number"
+                min={1}
+                value={qty}
+                onChange={(e) => setQty(Number(e.target.value) || 1)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventorySupplier || (lang === "ar" ? "المورد" : "Supplier")} <span className="text-xs text-muted-foreground">{t.optional || "(اختياري)"}</span></label>
+              <Select
+                modal={false}
+                value={supplierId || "none"}
+                onValueChange={(v) => setSupplierId(v === "none" ? "" : v)}
+              >
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder={t.inventorySupplier} />
+                </SelectTrigger>
+                <SelectContent className="z-[100] bg-background border-border text-foreground">
+                  <SelectItem value="none">{t.inventoryAllSuppliers}</SelectItem>
+                  {suppliers.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryUnitCost || (lang === "ar" ? "تكلفة الوحدة" : "Unit cost")} <span className="text-xs text-muted-foreground">{t.optional || "(اختياري)"}</span></label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={unitCost}
+                onChange={(e) => setUnitCost(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryNotes || (lang === "ar" ? "ملاحظات" : "Notes")} <span className="text-xs text-muted-foreground">{t.optional || "(اختياري)"}</span></label>
+              <Input
+                placeholder={lang === "ar" ? "أي ملاحظات إضافية..." : "Any additional notes..."}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
           </div>
-          <DialogFooter className="border-t border-border bg-muted/30">
+          <DialogFooter className="border-t border-border bg-muted/30 pt-3">
             <Button variant="ghost" onClick={() => setReceiveOpen(false)}>
               {t.cancel}
             </Button>
-            <Button className="bg-amber-500 text-black" disabled={busy} onClick={submitReceive}>
-              {t.submitMessage?.split(" ")[0] || "OK"}
+            <Button className="bg-emerald-600 text-white hover:bg-emerald-700" disabled={busy} onClick={submitReceive}>
+              {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : (t.inventoryReceiveStock)}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -368,55 +386,70 @@ export default function InventoryStockPanel({
           <DialogHeader>
             <DialogTitle>{t.inventoryIssueStock}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 py-2">
-            <Input
-              placeholder={t.inventorySearchPlaceholder}
-              value={productQuery}
-              onChange={(e) => setProductQuery(e.target.value)}
-              className="bg-background border-border"
-            />
-            <Select
-              modal={false}
-              value={selectedProductId || null}
-              onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
-            >
-              <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder={t.inventorySelectProduct} />
-              </SelectTrigger>
-              <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
-                {productHits.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.sku}) — {p.stock}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value) || 1)}
-              className="bg-background border-border"
-            />
-            <Input
-              placeholder={t.inventoryReason}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="bg-background border-border"
-            />
-            <Input
-              placeholder={t.inventoryNotes}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="bg-background border-border"
-            />
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{lang === "ar" ? "بحث عن منتج" : "Search product"}</label>
+              <Input
+                placeholder={lang === "ar" ? "اسم المنتج أو كود SKU..." : "Product name or SKU..."}
+                value={productQuery}
+                onChange={(e) => setProductQuery(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventorySelectProduct || (lang === "ar" ? "اختر المنتج" : "Select product")} <span className="text-red-500">*</span></label>
+              <Select
+                modal={false}
+                value={selectedProductId || null}
+                onValueChange={(v) => setSelectedProductId(typeof v === "string" ? v : "")}
+              >
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder={t.inventorySelectProduct} />
+                </SelectTrigger>
+                <SelectContent className="z-[100] max-h-56 bg-background border-border text-foreground">
+                  {productHits.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name} ({p.sku}) — {lang === "ar" ? "المخزون:" : "stock:"} {p.stock}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryColStock || (lang === "ar" ? "الكمية" : "Quantity")} <span className="text-red-500">*</span></label>
+              <Input
+                type="number"
+                min={1}
+                value={qty}
+                onChange={(e) => setQty(Number(e.target.value) || 1)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryReason || (lang === "ar" ? "السبب" : "Reason")} <span className="text-xs text-muted-foreground">{t.optional || "(اختياري)"}</span></label>
+              <Input
+                placeholder={lang === "ar" ? "مثال: صرف للإنتاج، تالف، إلخ..." : "e.g. Production use, damaged, etc..."}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t.inventoryNotes || (lang === "ar" ? "ملاحظات" : "Notes")} <span className="text-xs text-muted-foreground">{t.optional || "(اختياري)"}</span></label>
+              <Input
+                placeholder={lang === "ar" ? "أي ملاحظات إضافية..." : "Any additional notes..."}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="bg-background border-border"
+              />
+            </div>
           </div>
-          <DialogFooter className="border-t border-border bg-muted/30">
+          <DialogFooter className="border-t border-border bg-muted/30 pt-3">
             <Button variant="ghost" onClick={() => setIssueOpen(false)}>
               {t.cancel}
             </Button>
             <Button className="bg-red-600 text-white hover:bg-red-700" disabled={busy} onClick={submitIssue}>
-              {t.inventoryIssueStock}
+              {busy ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : t.inventoryIssueStock}
             </Button>
           </DialogFooter>
         </DialogContent>

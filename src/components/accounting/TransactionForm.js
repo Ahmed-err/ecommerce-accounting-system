@@ -11,6 +11,7 @@ import { translations } from "@/lib/translations";
 import { useSession } from "next-auth/react";
 import { UploadButton } from "@/lib/uploader";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const PRESET_CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -241,9 +242,9 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
-                    <SelectItem value="CASH">CASH</SelectItem>
-                    <SelectItem value="BANK_TRANSFER">BANK_TRANSFER</SelectItem>
-                    <SelectItem value="CARD">CARD</SelectItem>
+                    <SelectItem value="CASH">{lang === "ar" ? "نقداً" : "Cash"}</SelectItem>
+                    <SelectItem value="BANK_TRANSFER">{lang === "ar" ? "تحويل بنكي" : "Bank Transfer"}</SelectItem>
+                    <SelectItem value="CARD">{lang === "ar" ? "بطاقة" : "Card"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -280,7 +281,7 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
                   : "bg-red-600 hover:bg-red-700"
               }`}
             >
-              {loading ? t.saving : t.accountingSaveTransaction}
+              {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : t.accountingSaveTransaction}
             </Button>
           </div>
         </form>

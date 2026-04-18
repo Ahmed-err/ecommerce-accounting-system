@@ -81,9 +81,9 @@ function diffHours(cin, cout) {
 
 function Badge({ color, children }) {
   const map = {
-    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    green: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
     amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    red: "bg-red-500/10 text-red-400 border-red-500/20",
+    red: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     gray: "bg-muted text-muted-foreground border-border",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
@@ -171,9 +171,9 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
 
   const kpiCards = [
     { label: t.empKpiTotal, value: kpis.total || 0, icon: Users, color: "bg-blue-500/10 text-blue-400" },
-    { label: t.empKpiActive, value: kpis.active || 0, icon: CheckCircle, color: "bg-emerald-500/10 text-emerald-400" },
+    { label: t.empKpiActive, value: kpis.active || 0, icon: CheckCircle, color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
     { label: t.empKpiOnLeave, value: kpis.onLeaveToday || 0, icon: Clock, color: "bg-amber-500/10 text-amber-400" },
-    { label: t.empKpiMissingSheet, value: kpis.missingAttendanceToday ?? 0, icon: XCircle, color: "bg-red-500/10 text-red-400" },
+    { label: t.empKpiMissingSheet, value: kpis.missingAttendanceToday ?? 0, icon: XCircle, color: "bg-red-500/10 text-red-700 dark:text-red-400" },
   ];
 
   const chartData = attendance30d.map((d) => ({ ...d, date: d.date.slice(5) }));
@@ -190,10 +190,10 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barSize={8}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} />
-                <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff10", borderRadius: 8 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }} />
                 <Legend />
                 <Bar dataKey="present" name={t.empStatusPresent} fill="#10b981" radius={[3,3,0,0]} />
                 <Bar dataKey="absent" name={t.empStatusAbsent} fill="#ef4444" radius={[3,3,0,0]} />
@@ -212,7 +212,7 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
                 <Pie data={deptBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" nameKey="name">
                   {deptBreakdown.map((_, i) => <Cell key={i} fill={DEPT_COLORS[i % DEPT_COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#111827", border: "1px solid #ffffff10", borderRadius: 8 }} />
+                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }} />
                 <Legend iconType="circle" iconSize={8} />
               </PieChart>
               </ResponsiveContainer>
@@ -446,7 +446,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
             <span>{t.empQuickOnlyMissing}</span>
           </label>
         </div>
-        <p className="text-[10px] text-gray-500">{t.empQuickDefaultTimes}</p>
+        <p className="text-[10px] text-muted-foreground">{t.empQuickDefaultTimes}</p>
         <div className={`flex flex-wrap gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
           <Button
             type="button"
@@ -542,9 +542,9 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                   <thead className="text-muted-foreground">
                     <tr>
                       <th className="pb-2 pr-4">{t.empColEmployee}</th>
-                      <th className="pb-2 px-3 text-emerald-400">{t.empStatusPresent}</th>
-                      <th className="pb-2 px-3 text-red-400">{t.empStatusAbsent}</th>
-                      <th className="pb-2 px-3 text-amber-400">{t.empStatusLate}</th>
+                      <th className="pb-2 px-3 text-emerald-700 dark:text-emerald-400">{t.empStatusPresent}</th>
+                      <th className="pb-2 px-3 text-red-700 dark:text-red-400">{t.empStatusAbsent}</th>
+                      <th className="pb-2 px-3 text-amber-700 dark:text-amber-400">{t.empStatusLate}</th>
                       <th className="pb-2 px-3">{t.empStatusHalfDay}</th>
                       <th className="pb-2 px-3">{t.empStatusHoliday}</th>
                     </tr>
@@ -553,9 +553,9 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
                     {summaryByEmployee.map((e) => (
                       <tr key={e.userId} className={e.absent >= 3 ? "bg-red-500/5" : ""}>
                         <td className="py-2 pr-4 font-medium text-foreground">{e.name}</td>
-                        <td className="py-2 px-3 text-emerald-400 tabular-nums">{e.present}</td>
-                        <td className="py-2 px-3 text-red-400 tabular-nums">{e.absent} {e.absent >= 3 && <AlertTriangle className="h-3 w-3 inline text-red-400" />}</td>
-                        <td className="py-2 px-3 text-amber-400 tabular-nums">{e.late}</td>
+                        <td className="py-2 px-3 text-emerald-700 dark:text-emerald-400 tabular-nums">{e.present}</td>
+                        <td className="py-2 px-3 text-red-700 dark:text-red-400 tabular-nums">{e.absent} {e.absent >= 3 && <AlertTriangle className="h-3 w-3 inline text-red-600 dark:text-red-400" />}</td>
+                        <td className="py-2 px-3 text-amber-700 dark:text-amber-400 tabular-nums">{e.late}</td>
                         <td className="py-2 px-3 text-muted-foreground tabular-nums">{e.halfDay}</td>
                         <td className="py-2 px-3 text-muted-foreground tabular-nums">{e.holiday}</td>
                       </tr>
@@ -695,12 +695,12 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
-            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-400" },
-            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-400" },
+            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
+            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
             { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
           ].map((item) => (
             <div key={item.label} className="bg-card border border-border rounded-xl p-4">
-              <p className="text-xs text-gray-500">{item.label}</p>
+              <p className="text-xs text-muted-foreground">{item.label}</p>
               <p className={`text-xl font-bold tabular-nums mt-1 ${item.color}`}>{item.value} {t.currency}</p>
             </div>
           ))}
@@ -708,7 +708,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
       )}
 
       {loading ? (
-        <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
+        <div className="py-12 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
       ) : (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className={`w-full min-w-[700px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
@@ -858,7 +858,7 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-gray-500 animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
+        <div className="py-12 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>
       ) : (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className={`w-full min-w-[800px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
@@ -1051,13 +1051,13 @@ function RolesTab({ t, lang, isRTL }) {
         ))}
       </div>
 
-      <p className="text-xs text-gray-500 leading-relaxed max-w-3xl">{t.empRolesHint}</p>
+      <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">{t.empRolesHint}</p>
       {permError ? <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{permError}</div> : null}
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold text-foreground">{t.empRolesTitle}</h3>
-          {permLoading ? <span className="text-xs text-gray-500">{lang === "ar" ? "جاري التحميل…" : "Loading…"}</span> : null}
+          {permLoading ? <span className="text-xs text-muted-foreground">{lang === "ar" ? "جاري التحميل…" : "Loading…"}</span> : null}
         </div>
         <div className="overflow-x-auto">
           <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
@@ -1070,7 +1070,7 @@ function RolesTab({ t, lang, isRTL }) {
                   </th>
                 ))}
               </tr>
-              <tr className="text-[10px] text-gray-500">
+              <tr className="text-[10px] text-muted-foreground">
                 <th className="px-4 py-2" />
                 {MATRIX_ROLES.map((rk) =>
                   permHeaders.map((ph) => (
@@ -1093,7 +1093,7 @@ function RolesTab({ t, lang, isRTL }) {
                       if (rk === "ADMIN") {
                         return (
                           <td key={`${rk}-${mod}-${field}`} className="px-2 py-3 text-center">
-                            {checked ? <Check className="h-3.5 w-3.5 text-emerald-400 mx-auto" aria-hidden /> : <X className="h-3.5 w-3.5 text-gray-700 mx-auto" aria-hidden />}
+                            {checked ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 mx-auto" aria-hidden /> : <X className="h-3.5 w-3.5 text-muted-foreground mx-auto" aria-hidden />}
                           </td>
                         );
                       }
@@ -1204,12 +1204,12 @@ function ReportsTab({ data, t, lang, isRTL }) {
         <div className="p-5 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           {[
             { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
-            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-400" },
-            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-400" },
+            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
+            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
             { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
           ].map((item) => (
             <div key={item.label} className="bg-muted/40 rounded-xl p-4">
-              <p className="text-xs text-gray-500">{item.label}</p>
+              <p className="text-xs text-muted-foreground">{item.label}</p>
               <p className={`text-lg font-bold tabular-nums mt-1 ${item.color}`}>{item.value} {t.currency}</p>
             </div>
           ))}

@@ -49,7 +49,7 @@ export default async function EmployeesPage({ searchParams }) {
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">{t.adminEmployeesTitle}</h1>
-        <p className="text-gray-400 mt-1">{t.adminEmployeesDesc}</p>
+        <p className="text-muted-foreground mt-1">{t.adminEmployeesDesc}</p>
       </div>
 
       <EmployeesModuleClient

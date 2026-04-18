@@ -108,14 +108,15 @@ export default function InventoryChartsClient({
         receiptData.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={receiptData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-              <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} width={40} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+              <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} width={40} />
               <Tooltip
                 contentStyle={{
-                  background: "#111827",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
+                  color: "var(--popover-foreground)",
                 }}
               />
               <Line type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={2} dot={false} />
@@ -133,19 +134,20 @@ export default function InventoryChartsClient({
         topData.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topData} layout="vertical" margin={{ left: 4, right: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-              <XAxis type="number" tick={{ fill: "#9ca3af", fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
               <YAxis
                 type="category"
                 dataKey="name"
                 width={100}
-                tick={{ fill: "#9ca3af", fontSize: 9 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 9 }}
               />
               <Tooltip
                 contentStyle={{
-                  background: "#111827",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
+                  color: "var(--popover-foreground)",
                 }}
               />
               <Bar dataKey="qty" fill="#10b981" radius={[0, 4, 4, 0]} />
@@ -161,14 +163,15 @@ export default function InventoryChartsClient({
         moveData.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={moveData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-              <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} width={36} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+              <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} width={36} />
               <Tooltip
                 contentStyle={{
-                  background: "#111827",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
+                  color: "var(--popover-foreground)",
                 }}
               />
               <Legend />
@@ -188,9 +191,9 @@ export default function InventoryChartsClient({
         marginData.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={marginData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-              <XAxis dataKey="category" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="category" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+              <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
               <Legend />
               <Bar dataKey="local" name={t.inventoryOriginLocal} fill="#16a34a" />

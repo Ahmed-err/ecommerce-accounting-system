@@ -92,7 +92,7 @@ export function UploadButton({
         {buttonText}
       </button>
       {content?.allowedContent ? (
-        <p className="text-xs text-gray-500">{content.allowedContent}</p>
+        <p className="text-xs text-muted-foreground">{content.allowedContent}</p>
       ) : null}
       {uploading ? (
         <div className="h-1.5 w-full overflow-hidden rounded bg-white/10">

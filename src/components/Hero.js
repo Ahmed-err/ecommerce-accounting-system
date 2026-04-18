@@ -48,7 +48,7 @@ export default function Hero() {
     };
 
     return (
-        <section className={`relative overflow-hidden bg-gray-950 pt-16 pb-24 ${isRTL ? 'font-arabic' : 'font-sans'}`}>
+        <section className={`relative overflow-hidden bg-background pt-16 pb-24 ${isRTL ? 'font-arabic' : 'font-sans'}`}>
             {/* Animated Background Elements */}
             <motion.div 
                 className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"
@@ -105,7 +105,7 @@ export default function Hero() {
 
                     {/* Title */}
                     <motion.h1 
-                        className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+                        className="text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground mb-6 leading-tight"
                         variants={fadeInUp}
                     >
                         {t.heroTitle1}
@@ -127,7 +127,7 @@ export default function Hero() {
 
                     {/* Description */}
                     <motion.p 
-                        className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+                        className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
                         variants={fadeInUp}
                     >
                         {t.heroDesc}
@@ -178,7 +178,7 @@ export default function Hero() {
                     {stats.map((item, index) => (
                         <motion.div
                             key={item.title}
-                            className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm"
+                            className="flex items-center gap-4 bg-card/80 border border-border rounded-xl p-4 backdrop-blur-sm"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.9 + index * 0.1, duration: 0.5 }}
@@ -202,8 +202,8 @@ export default function Hero() {
                                 <item.icon className="h-6 w-6 text-amber-500" />
                             </motion.div>
                             <div className={isRTL ? 'text-right' : 'text-left'}>
-                                <h3 className="text-white font-semibold">{item.title}</h3>
-                                <p className="text-gray-400 text-sm">{item.desc}</p>
+                                <h3 className="text-foreground font-semibold">{item.title}</h3>
+                                <p className="text-muted-foreground text-sm">{item.desc}</p>
                             </div>
                         </motion.div>
                     ))}

@@ -90,7 +90,7 @@ export default function LoginPage() {
               <p className="text-muted-foreground mt-2 font-medium">{t.loginToManage}</p>
           </div>
 
-          <div className="bg-gray-900 border border-white/5 rounded-[40px] p-8 md:p-12 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+          <div className="bg-card border border-border rounded-[40px] p-8 md:p-12 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <form onSubmit={handleSubmit} className="space-y-8">
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-2xl text-sm font-bold text-center animate-in fade-in zoom-in duration-300">
@@ -100,18 +100,18 @@ export default function LoginPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.email}</label>
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.email}</label>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Mail className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
                     type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6 text-right' : 'pl-14 pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                    className={`w-full bg-muted border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-6 text-right' : 'pl-14 pr-6 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                     placeholder={lang === 'ar' ? 'البريد الإلكتروني أو رقم الهاتف' : 'Email or Phone Number'}
                   />
                 </div>
@@ -119,27 +119,27 @@ export default function LoginPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.password}</label>
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.password}</label>
                   <Link href="/forgot-password" title="Reset Password" className="text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-widest">
                     {t.forgotPassword}
                   </Link>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Lock className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14 text-right' : 'pl-14 pr-14 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                    className={`w-full bg-muted border-2 border-transparent rounded-[20px] h-14 ${isRTL ? 'pr-14 pl-14 text-right' : 'pl-14 pr-14 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className={`absolute inset-y-0 ${isRTL ? "left-4" : "right-4"} flex items-center text-gray-400 hover:text-amber-500`}
+                    className={`absolute inset-y-0 ${isRTL ? "left-4" : "right-4"} flex items-center text-muted-foreground hover:text-amber-500`}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -148,9 +148,9 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center px-1">
-                <label className="flex items-center gap-3 text-gray-400 cursor-pointer group">
-                  <input type="checkbox" className="w-5 h-5 rounded-lg border-2 border-white/10 bg-gray-800 text-amber-500 focus:ring-amber-500 transition-all" />
-                  <span className="text-sm font-bold group-hover:text-gray-300 transition-colors">{t.rememberMe}</span>
+                <label className="flex items-center gap-3 text-muted-foreground cursor-pointer group">
+                  <input type="checkbox" className="w-5 h-5 rounded-lg border-2 border-border bg-muted text-amber-500 focus:ring-amber-500 transition-all" />
+                  <span className="text-sm font-bold group-hover:text-foreground transition-colors">{t.rememberMe}</span>
                 </label>
               </div>
 
@@ -170,12 +170,12 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="relative border-t border-white/5 mt-8">
+            <div className="relative border-t border-border mt-8">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                <div className="w-full border-t border-white/5"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase tracking-widest font-bold">
-                <span className="bg-gray-900 px-4 text-gray-500">{lang === 'ar' ? 'أو عبر' : 'Or continue with'}</span>
+                <span className="bg-card px-4 text-muted-foreground">{lang === 'ar' ? 'أو عبر' : 'Or continue with'}</span>
               </div>
             </div>
 
@@ -183,7 +183,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => signIn("google")}
-                className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
+                className="w-full bg-muted hover:bg-muted/70 text-foreground font-bold py-4 rounded-xl border border-border flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
               >
                  <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -196,7 +196,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-10 text-center">
-              <p className="text-gray-500 text-sm font-bold">
+              <p className="text-muted-foreground text-sm font-bold">
                   {t.dontHaveAccount}{" "}
                 <Link href="/register" className="text-amber-500 hover:underline transition-all">
                   {t.createNewAccountLink}

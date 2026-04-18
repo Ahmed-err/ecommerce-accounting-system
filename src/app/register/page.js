@@ -122,7 +122,7 @@ export default function RegisterPage() {
               <p className="text-muted-foreground mt-2 font-medium">{t.joinPowerStore}</p>
           </div>
 
-          <div className="bg-gray-900 border border-white/5 rounded-[28px] sm:rounded-[32px] md:rounded-[40px] p-5 sm:p-7 md:p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+          <div className="bg-card border border-border rounded-[28px] sm:rounded-[32px] md:rounded-[40px] p-5 sm:p-7 md:p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-2xl text-sm font-bold text-center animate-in fade-in zoom-in duration-300">
@@ -133,17 +133,17 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.firstName}</label>
+                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.firstName}</label>
                     </div>
                     <div className="relative group">
                         <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                            <User className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                         </div>
                         <input
                           type="text"
                           name="firstName"
                           required
-                          className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                          className={`w-full bg-muted border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                           placeholder={isRTL ? "أحمد" : "Ahmed"}
                         />
                     </div>
@@ -151,17 +151,17 @@ export default function RegisterPage() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.lastName}</label>
+                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.lastName}</label>
                     </div>
                     <div className="relative group">
                         <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                            <User className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                         </div>
                         <input
                           type="text"
                           name="lastName"
                           required
-                          className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                          className={`w-full bg-muted border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                           placeholder={isRTL ? "علي" : "Ali"}
                         />
                     </div>
@@ -170,17 +170,17 @@ export default function RegisterPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.email}</label>
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.email}</label>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Mail className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
                     type="email"
                     name="email"
                     required
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                    className={`w-full bg-muted border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                     placeholder="name@example.com"
                   />
                 </div>
@@ -188,19 +188,19 @@ export default function RegisterPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
                     {t.phoneOptional}
                   </label>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Phone className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Phone className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
                     type="tel"
                     name="phone"
                     required
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold regular-nums`}
+                    className={`w-full bg-muted border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-4 sm:pl-6 text-right' : 'pl-12 sm:pl-14 pr-4 sm:pr-6 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold regular-nums`}
                     placeholder="+249..."
                   />
                 </div>
@@ -208,24 +208,24 @@ export default function RegisterPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.password}</label>
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.password}</label>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Lock className="w-5 h-5 text-gray-500 group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     required
                     minLength={8}
-                    className={`w-full bg-gray-800 border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-12 sm:pl-14 text-right' : 'pl-12 sm:pl-14 pr-12 sm:pr-14 text-left'} text-white placeholder:text-gray-700 focus:border-amber-500 transition-all outline-none font-semibold`}
+                    className={`w-full bg-muted border-2 border-transparent rounded-2xl h-12 sm:h-14 ${isRTL ? 'pr-12 sm:pr-14 pl-12 sm:pl-14 text-right' : 'pl-12 sm:pl-14 pr-12 sm:pr-14 text-left'} text-foreground placeholder:text-muted-foreground focus:border-amber-500 transition-all outline-none font-semibold`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className={`absolute inset-y-0 ${isRTL ? "left-4 sm:left-5" : "right-4 sm:right-5"} flex items-center text-gray-400 hover:text-amber-500`}
+                    className={`absolute inset-y-0 ${isRTL ? "left-4 sm:left-5" : "right-4 sm:right-5"} flex items-center text-muted-foreground hover:text-amber-500`}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -249,12 +249,12 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <div className="relative border-t border-white/5 mt-6 sm:mt-8">
+            <div className="relative border-t border-border mt-6 sm:mt-8">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                <div className="w-full border-t border-white/5"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase tracking-widest font-bold">
-                <span className="bg-gray-900 px-4 text-gray-500">{lang === 'ar' ? 'أو عبر' : 'Or register with'}</span>
+                <span className="bg-card px-4 text-muted-foreground">{lang === 'ar' ? 'أو عبر' : 'Or register with'}</span>
               </div>
             </div>
 
@@ -262,7 +262,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => signIn("google")}
-                className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl border border-white/10 flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
+                className="w-full bg-muted hover:bg-muted/70 text-foreground font-bold py-4 rounded-xl border border-border flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
               >
                  <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -275,7 +275,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="mt-8 sm:mt-10 text-center">
-              <p className="text-gray-500 text-sm font-bold">
+              <p className="text-muted-foreground text-sm font-bold">
                   {t.alreadyHaveAccount}{" "}
                 <Link href="/login" className="text-amber-500 hover:underline transition-all">
                   {t.login}

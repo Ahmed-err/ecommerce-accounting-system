@@ -81,7 +81,7 @@ export default async function InventoryPage({ searchParams }) {
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
             {t.adminInventoryTitle}
           </h1>
-          <p className="mt-1 text-gray-400">{t.adminInventoryDesc}</p>
+          <p className="mt-1 text-muted-foreground">{t.adminInventoryDesc}</p>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default async function InventoryPage({ searchParams }) {
         currency={t.currency}
       />
 
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-gray-900/80" />}>
+      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-muted/50" />}>
         <ProductTable
           initialProducts={products}
           total={total}
@@ -118,7 +118,7 @@ export default async function InventoryPage({ searchParams }) {
         />
       </Suspense>
 
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-gray-900/80" />}>
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-muted/50" />}>
         <InventoryChartsClient
           receiptValueByMonth={summary.receiptValueByMonth}
           topByQuantity={summary.topByQuantity}
