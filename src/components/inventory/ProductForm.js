@@ -110,6 +110,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
   // Quick-add category state
   const [catDialogOpen, setCatDialogOpen] = useState(false);
   const [newCatName, setNewCatName] = useState("");
+  const [newCatNameAr, setNewCatNameAr] = useState("");
   const [catSaving, setCatSaving] = useState(false);
   const [catError, setCatError] = useState("");
 
@@ -125,11 +126,12 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
     if (!newCatName.trim()) return;
     setCatSaving(true);
     setCatError("");
-    const res = await createCategory({ name: newCatName.trim() });
+    const res = await createCategory({ name: newCatName.trim(), nameAr: newCatNameAr.trim() || null });
     if (res.success) {
       setLocalCategories((prev) => [...prev, res.category]);
       setFormData((p) => ({ ...p, categoryId: res.category.id.toString() }));
       setNewCatName("");
+      setNewCatNameAr("");
       setCatDialogOpen(false);
       router.refresh();
     } else {
@@ -350,7 +352,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   <SelectContent className="border-border bg-popover text-popover-foreground">
                     {localCategories.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
-                        {c.name}
+                        {lang === "ar" && c.nameAr ? c.nameAr : c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -404,15 +406,28 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                   {catError && <p className="rounded-md bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-400">{catError}</p>}
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">
-                      {lang === "ar" ? "اسم الفئة" : "Category name"} <span className="text-red-500">*</span>
+                      {lang === "ar" ? "الاسم بالإنجليزية" : "English name"} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
-                      placeholder={lang === "ar" ? "مثال: إلكترونيات" : "e.g. Electronics"}
+                      placeholder="e.g. Electronics"
                       required
                       className="border-border bg-background text-foreground"
+                      dir="ltr"
                       autoFocus
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {lang === "ar" ? "الاسم بالعربية" : "Arabic name"}
+                    </label>
+                    <Input
+                      value={newCatNameAr}
+                      onChange={(e) => setNewCatNameAr(e.target.value)}
+                      placeholder="مثال: إلكترونيات"
+                      className="border-border bg-background text-foreground"
+                      dir="rtl"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">

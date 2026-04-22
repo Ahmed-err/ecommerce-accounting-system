@@ -74,7 +74,7 @@ export default function CategoriesStrip({ categories }) {
               href={`/products?category=${cat.name}`}
               draggable={false}
               className="flex-shrink-0 snap-start group flex flex-col items-center gap-3 p-4 rounded-2xl bg-background border border-foreground/10 hover:border-amber-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-lg active:scale-95 w-28 sm:w-36 md:w-44 lg:w-48 sm:gap-4 sm:p-5 sm:rounded-3xl lg:p-6 lg:rounded-[2rem]"
-              aria-label={`${isRTL ? "تصفح فئة" : "Browse category"} ${translateCategory(cat.name, t)}`}
+              aria-label={`${isRTL ? "تصفح فئة" : "Browse category"} ${translateCategory(cat.name, t, cat.nameAr)}`}
             >
               {/* Image wrapper */}
               <div className="relative h-16 w-16 rounded-xl flex items-center justify-center bg-amber-500/5 overflow-hidden group-hover:scale-110 group-hover:bg-amber-500/10 transition-all duration-500 sm:h-20 sm:w-20 sm:rounded-2xl lg:h-24 lg:w-24">
@@ -90,7 +90,7 @@ export default function CategoriesStrip({ categories }) {
 
               {/* Name */}
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-amber-500 transition-colors truncate w-full text-center sm:text-[10px] sm:tracking-[0.22em] lg:text-[11px] lg:tracking-[0.25em]">
-                {translateCategory(cat.name, t)}
+                {translateCategory(cat.name, t, cat.nameAr)}
               </p>
             </Link>
           ))}

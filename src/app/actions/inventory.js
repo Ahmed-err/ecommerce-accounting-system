@@ -101,6 +101,7 @@ export async function getCategories() {
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
+      nameAr: row.nameAr,
       description: row.description,
       image: row.image,
       productCount: row._count.products,
@@ -323,6 +324,7 @@ export async function createCategory(data) {
     const category = await db.category.create({
       data: {
         name: d.name,
+        nameAr: d.nameAr || null,
         description: d.description || null,
         image: d.image || null,
       },
@@ -350,6 +352,7 @@ export async function updateCategory(id, data) {
       where: { id },
       data: {
         name: d.name,
+        nameAr: d.nameAr || null,
         description: d.description || null,
         image: d.image || null,
       },

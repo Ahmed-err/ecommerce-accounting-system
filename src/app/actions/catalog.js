@@ -323,6 +323,7 @@ export async function getCatalogCategories() {
       .map((c) => ({
         id: c.id,
         name: c.name,
+        nameAr: c.nameAr,
         description: c.description,
         image: c.image,
         productCount: c._count.products,
