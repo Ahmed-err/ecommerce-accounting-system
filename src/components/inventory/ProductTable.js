@@ -132,6 +132,7 @@ export default function ProductTable({
   const [categoryForm, setCategoryForm] = useState({
     id: "",
     name: "",
+    nameAr: "",
     description: "",
     image: "",
   });
@@ -274,7 +275,7 @@ export default function ProductTable({
   };
 
   const resetCategoryForm = () => {
-    setCategoryForm({ id: "", name: "", description: "", image: "" });
+    setCategoryForm({ id: "", name: "", nameAr: "", description: "", image: "" });
   };
 
   const openCategoryCreate = () => {
@@ -286,6 +287,7 @@ export default function ProductTable({
     setCategoryForm({
       id: category.id,
       name: category.name || "",
+      nameAr: category.nameAr || "",
       description: category.description || "",
       image: category.image || "",
     });
@@ -301,6 +303,7 @@ export default function ProductTable({
     setCategorySaving(true);
     const payload = {
       name: categoryForm.name.trim(),
+      nameAr: categoryForm.nameAr.trim() || null,
       description: categoryForm.description.trim() || null,
       image: categoryForm.image.trim() || null,
     };
@@ -1132,14 +1135,34 @@ export default function ProductTable({
           </DialogHeader>
 
           <div className="space-y-3 px-6 pt-5">
-            <Input
-              value={categoryForm.name}
-              onChange={(e) =>
-                setCategoryForm((prev) => ({ ...prev, name: e.target.value }))
-              }
-              placeholder={lang === "ar" ? "اسم القسم" : "Category name"}
-              className="border-border bg-background"
-            />
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {lang === "ar" ? "الاسم بالإنجليزية" : "English name"} <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={categoryForm.name}
+                onChange={(e) =>
+                  setCategoryForm((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="e.g. Lighting"
+                className="border-border bg-background"
+                dir="ltr"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {lang === "ar" ? "الاسم بالعربية" : "Arabic name"}
+              </label>
+              <Input
+                value={categoryForm.nameAr}
+                onChange={(e) =>
+                  setCategoryForm((prev) => ({ ...prev, nameAr: e.target.value }))
+                }
+                placeholder="مثال: الإضاءة"
+                className="border-border bg-background"
+                dir="rtl"
+              />
+            </div>
             <Input
               value={categoryForm.description}
               onChange={(e) =>
@@ -1188,7 +1211,12 @@ export default function ProductTable({
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium">{category.name}</p>
+                  <p className="truncate font-medium">
+                    {lang === "ar" && category.nameAr ? category.nameAr : category.name}
+                  </p>
+                  {lang === "ar" && category.nameAr && (
+                    <p className="truncate text-xs text-muted-foreground">{category.name}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     {(category.productCount || 0).toLocaleString()}{" "}
                     {lang === "ar" ? "منتج" : "products"}

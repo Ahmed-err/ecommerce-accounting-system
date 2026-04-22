@@ -32,6 +32,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { getCatalogCategories } from "@/app/actions/catalog";
 
 /**
  * Base UI Dialog/Trigger generates React useId-based ids. Session, theme, and cart
@@ -40,7 +41,7 @@ import {
  */
 function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline, isAdmin, isStaff }) {
     const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -150,6 +151,37 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                 </div>
                             )}
 
+                            {session && (
+                                <div className="space-y-2 border-t border-foreground/5 pt-6">
+                                    <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                        {lang === "ar" ? "حسابي" : "My Account"}
+                                    </p>
+                                    <Link
+                                        href="/my-orders"
+                                        onClick={() => setOpen(false)}
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-bold text-foreground transition-all hover:bg-foreground/5"
+                                    >
+                                        <Package className="h-5 w-5 shrink-0" />
+                                        {t.myOrders}
+                                    </Link>
+                                    <Link
+                                        href="/account/settings"
+                                        onClick={() => setOpen(false)}
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-bold text-foreground transition-all hover:bg-foreground/5"
+                                    >
+                                        <Settings className="h-5 w-5 shrink-0" />
+                                        {t.settings}
+                                    </Link>
+                                    <button
+                                        onClick={() => { setOpen(false); signOut(); }}
+                                        className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-bold text-red-500 transition-all hover:bg-red-500/10"
+                                    >
+                                        <LogOut className="h-5 w-5 shrink-0" />
+                                        {t.logout}
+                                    </button>
+                                </div>
+                            )}
+
                             <div className="space-y-4 border-t border-foreground/5 pt-6">
                                 <div className="flex items-center justify-between px-2">
                                     <span className="text-sm font-bold text-muted-foreground">
@@ -201,11 +233,16 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
-    
+    const [dbCategories, setDbCategories] = useState([]);
+
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        getCatalogCategories().then((cats) => setDbCategories(cats || []));
     }, []);
 
     useEffect(() => {
@@ -232,12 +269,11 @@ export default function Navbar() {
         };
     }, []);
 
-    const categories = [
-        { name: t.catLighting || "Lighting", icon: "💡", href: "/products?category=Lighting" },
-        { name: t.catCablesWires || "Cables", icon: "🔌", href: "/products?category=Cables & Wires" },
-        { name: t.catSwitchesSockets || "Switches", icon: "🎛️", href: "/products?category=Switches & Sockets" },
-        { name: t.catPowerSystems || "Power", icon: "🔋", href: "/products?category=Power Systems" },
-    ];
+    const categories = dbCategories.map((cat) => ({
+        id: cat.id,
+        name: lang === "ar" && cat.nameAr ? cat.nameAr : cat.name,
+        href: `/products?category=${encodeURIComponent(cat.name)}`,
+    }));
 
     const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER";
     const isStaff = isAdmin || session?.user?.role === "CASHIER";
@@ -318,18 +354,17 @@ export default function Navbar() {
 
                                 {/* Dropdown Menu */}
                                 <div className={cn(
-                                    "absolute top-full mt-2 w-64 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-300 z-[110] origin-top",
-                                    isRTL ? "left-0" : "right-0",
+                                    "absolute top-full mt-2 w-64 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-300 z-[110] origin-top max-h-[calc(100dvh-80px)] overflow-y-auto",
+                                    isRTL ? "right-0" : "left-0",
                                     showCategories ? "visible opacity-100 scale-100" : "invisible opacity-0 scale-95"
                                 )}>
                                     <div className="grid gap-1">
                                         {categories.map((cat) => (
                                             <Link
-                                                key={cat.name}
+                                                key={cat.id || cat.name}
                                                 href={cat.href}
                                                 className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-amber-500 transition-all group/item"
                                             >
-                                                <span className="text-xl group-hover/item:scale-125 transition-transform">{cat.icon}</span>
                                                 <span className="text-sm font-bold text-foreground group-hover/item:text-amber-500">{cat.name}</span>
                                             </Link>
                                         ))}
@@ -417,7 +452,7 @@ export default function Navbar() {
 
                                 {/* Dropdown */}
                                 <div className={cn(
-                                    "absolute top-full mt-2 w-56 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-200 z-[110] origin-top",
+                                    "absolute top-full mt-2 w-56 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-2xl p-2 transition-all duration-200 z-[110] origin-top max-h-[calc(100dvh-80px)] overflow-y-auto",
                                     showUserMenu ? "visible scale-100 opacity-100" : "invisible scale-95 opacity-0",
                                     isRTL ? "left-0" : "right-0"
                                 )}>

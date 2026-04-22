@@ -97,6 +97,10 @@ export const bulkCategorySchema = bulkIdsSchema.extend({
 
 export const categoryMutationSchema = z.object({
   name: z.string().trim().min(1).max(200),
+  nameAr: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : String(v).trim()),
+    z.string().max(200).optional().nullable()
+  ),
   description: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : String(v)),
     z.string().max(2000).optional().nullable()

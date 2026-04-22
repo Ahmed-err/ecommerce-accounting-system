@@ -2701,7 +2701,9 @@ export const getTranslations = (lang) => {
   return translations[lang] || translations.en;
 };
 
-export const translateCategory = (name, t) => {
+export const translateCategory = (name, t, nameAr) => {
+  const isArabic = t.catLighting === "الإضاءة";
+  if (isArabic && nameAr) return nameAr;
   const mapping = {
     "Lighting": t.catLighting,
     "Cables & Wires": t.catCablesWires,
