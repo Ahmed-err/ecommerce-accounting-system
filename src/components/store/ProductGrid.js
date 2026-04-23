@@ -262,7 +262,7 @@ export default function ProductGrid({
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                {translateCategory(cat.name, t)}{" "}
+                {translateCategory(cat.name, t, cat.nameAr)}{" "}
                 <span className="mx-1 text-muted-foreground/60">({cat.productCount})</span>
               </button>
             ))}
