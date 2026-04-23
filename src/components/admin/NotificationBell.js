@@ -196,7 +196,7 @@ export default function NotificationBell({ customerOnly = false }) {
             )}
           </div>
           <Link
-            href={customerOnly ? "/account/orders" : "/admin/notifications"}
+            href={customerOnly ? "/my-orders" : "/admin/notifications"}
             className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500"
           >
             {lang === "ar" ? "عرض الكل" : "View all"}
