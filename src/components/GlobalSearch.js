@@ -138,12 +138,12 @@ export default function GlobalSearch({ inputId }) {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-muted ${isRTL ? "text-right" : "text-left"}`}
                 >
-                  <div className="relative h-12 w-12 rounded-lg bg-black/20 overflow-hidden shrink-0">
+                  <div className="relative h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
                     <Image
                       src={product.images[0] || "/placeholder.png"}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-contain p-1"
                     />
                   </div>
                   <div className="flex-1 min-w-0">

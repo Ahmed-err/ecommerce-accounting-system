@@ -351,7 +351,7 @@ export default function CartPageClient() {
                           src={item.image}
                           alt=""
                           fill
-                          className="object-cover"
+                          className="object-contain p-1"
                           sizes="(max-width:640px) 200px, 112px"
                         />
                       ) : (

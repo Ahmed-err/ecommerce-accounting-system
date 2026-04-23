@@ -942,9 +942,9 @@ export default function ProductTable({
                         <span
                           className={cn(
                             "regular-nums text-sm font-bold",
-                            st === "out" && "text-red-400",
-                            rowLow && "text-amber-400",
-                            st === "ok" && "text-emerald-400"
+                            st === "out" && "text-red-600 dark:text-red-400",
+                            rowLow && "text-amber-700 dark:text-amber-400",
+                            st === "ok" && "text-emerald-700 dark:text-emerald-400"
                           )}
                         >
                           {p.stock}
@@ -993,9 +993,9 @@ export default function ProductTable({
                         <span
                           className={cn(
                             "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
-                            st === "ok" && "bg-emerald-500/15 text-emerald-400",
-                            rowLow && "bg-amber-500/15 text-amber-300",
-                            st === "out" && "bg-red-500/15 text-red-400"
+                            st === "ok" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+                            rowLow && "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                            st === "out" && "bg-red-500/15 text-red-700 dark:text-red-400"
                           )}
                         >
                           {st === "ok" && t.inventoryStatusBadgeOk}

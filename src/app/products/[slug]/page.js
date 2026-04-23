@@ -90,8 +90,8 @@ export default async function ProductDetailPage({ params }) {
   const [summary, reviewRows, relatedProducts, store, session] = await Promise.all([
     getProductReviewSummary(product.id).catch(() => ({ total: 0, average: 0 })),
     listApprovedReviews({ productId: product.id, page: 1, limit: 5 }).catch(() => ({ rows: [] })),
-    getRelatedStoreProducts(product.categoryId, product.id, 8),
-    getOrCreateStoreSettings(),
+    getRelatedStoreProducts(product.categoryId, product.id, 8).catch(() => []),
+    getOrCreateStoreSettings().catch(() => ({})),
     auth(),
   ]);
 
