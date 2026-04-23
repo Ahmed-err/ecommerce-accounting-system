@@ -81,7 +81,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { slug } = await params;
-  const product = await getStorefrontProductBySlug(slug);
+  const product = await getStorefrontProductBySlug(slug).catch(() => null);
   if (!product) notFound();
 
   const cookieStore = await cookies();
@@ -92,17 +92,21 @@ export default async function ProductDetailPage({ params }) {
     listApprovedReviews({ productId: product.id, page: 1, limit: 5 }).catch(() => ({ rows: [] })),
     getRelatedStoreProducts(product.categoryId, product.id, 8).catch(() => []),
     getOrCreateStoreSettings().catch(() => ({})),
-    auth(),
+    auth().catch(() => null),
   ]);
 
   let wishlistInitial = false;
   if (session?.user?.id) {
-    const w = await db.wishlistItem.findUnique({
-      where: {
-        userId_productId: { userId: session.user.id, productId: product.id },
-      },
-    });
-    wishlistInitial = !!w;
+    try {
+      const w = await db.wishlistItem.findUnique({
+        where: {
+          userId_productId: { userId: session.user.id, productId: product.id },
+        },
+      });
+      wishlistInitial = !!w;
+    } catch {
+      wishlistInitial = false;
+    }
   }
 
   const displayName =
