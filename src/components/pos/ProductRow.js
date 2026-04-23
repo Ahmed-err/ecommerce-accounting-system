@@ -15,7 +15,7 @@ export default function ProductRow({ product, onAddToCart }) {
     >
       <div className="aspect-square bg-muted rounded-xl mb-3 relative overflow-hidden flex items-center justify-center">
         {product.images?.[0] ? (
-          <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+          <Image src={product.images[0]} alt={product.name} fill className="object-contain p-1.5" />
         ) : (
           <ShoppingCart className="w-8 h-8 text-muted-foreground" />
         )}

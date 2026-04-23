@@ -105,7 +105,7 @@ export default function ProductCard({
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-contain p-2"
             sizes="448px"
             onError={() => setImgError(true)}
           />
@@ -301,12 +301,12 @@ export default function ProductCard({
               </span>
             )}
             {imageUrl && !imgError ? (
-              <div className="relative h-full w-full transition-transform duration-500 group-hover:scale-110">
+              <div className="relative h-full w-full transition-transform duration-500 group-hover:scale-105">
                 <Image
                   src={imageUrl}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-contain p-2"
                   sizes={
                     homeShowcase
                       ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 28vw, 22vw"

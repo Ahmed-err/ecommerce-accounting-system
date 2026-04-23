@@ -34,6 +34,7 @@ export function serializeCatalogProduct(p) {
     discountPct,
     specs: p.specs ?? null,
     highlights: p.highlights ?? null,
+    categoryId: p.categoryId ?? null,
     category: p.category
       ? {
           id: p.category.id,

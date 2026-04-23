@@ -60,7 +60,7 @@ export default function ComparePageClient({ products }) {
                       src={p.images[0]}
                       alt=""
                       fill
-                      className="object-cover"
+                      className="object-contain p-2"
                       sizes="140px"
                     />
                   ) : (

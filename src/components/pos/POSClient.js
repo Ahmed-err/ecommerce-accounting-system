@@ -58,7 +58,7 @@ function ProductCard({ product, onAdd, t }) {
             alt={product.name} 
             fill 
             unoptimized 
-            className="object-cover transition-transform duration-500 group-hover:scale-110" 
+            className="object-contain p-1.5 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-background">
@@ -130,7 +130,7 @@ function CartItem({ item, onUpdateQty, onRemove, t, isArabic }) {
     >
       <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 border border-border shadow-inner">
         {item.images?.[0]
-          ? <Image src={item.images[0]} alt={item.name} fill unoptimized className="object-cover" />
+          ? <Image src={item.images[0]} alt={item.name} fill unoptimized className="object-contain p-1" />
           : <Package className="w-6 h-6 text-muted-foreground/40 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         }
       </div>
