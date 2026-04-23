@@ -32,6 +32,9 @@ export default function ProductCard({
   const t = translations[lang];
   const { addToCart } = useCart();
 
+  const displayName =
+    lang === "ar" && product.nameAr ? product.nameAr : product.name;
+
   const purchase = Number(product.purchasePrice) || 0;
   const selling = Number(product.sellingPrice) || 0;
   const refPrice = purchase > 0 ? purchase * 1.5 : 0;
@@ -134,11 +137,11 @@ export default function ProductCard({
         )}
       >
         <p className="text-[11px] font-semibold uppercase tracking-widest text-amber-500">
-          {translateCategory(product.category?.name, t)}
+          {translateCategory(product.category?.name, t, product.category?.nameAr)}
         </p>
 
         <p className="text-base font-bold leading-snug text-foreground sm:text-lg">
-          {product.name}
+          {displayName}
         </p>
 
         <p className="text-2xl font-extrabold tabular-nums text-foreground">
@@ -362,7 +365,7 @@ export default function ProductCard({
                 homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
               )}
             >
-              {translateCategory(product.category?.name, t)}
+              {translateCategory(product.category?.name, t, product.category?.nameAr)}
             </span>
 
             <Link href={`/products/${product.id}`} className="min-h-0">
@@ -376,7 +379,7 @@ export default function ProductCard({
                       : "line-clamp-2 text-lg leading-snug sm:line-clamp-3"
                 )}
               >
-                {product.name}
+                {displayName}
               </h3>
             </Link>
 
@@ -482,7 +485,7 @@ export default function ProductCard({
         >
           <DialogHeader className="border-b border-border px-5 py-3.5">
             <DialogTitle className="line-clamp-1 text-sm font-semibold">
-              {product.name}
+              {displayName}
             </DialogTitle>
           </DialogHeader>
           {quickBody}
