@@ -55,10 +55,12 @@ export async function generateMetadata() {
     twitter: { card: "summary_large_image", title, description },
     manifest: "/manifest.json",
     icons: {
-      apple: "/icons/icon-192.svg",
+      shortcut: "/favicon.png",
+      apple: "/icons/icon-192.png",
       icon: [
-        { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
-        { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+        { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
       ],
     },
     other: {
