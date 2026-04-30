@@ -394,17 +394,25 @@
     overflow: visible !important;
   }
 
-  /* Invoice (and similar): wrap content height/width instead of filling the sheet with empty space */
+  /* Invoice (and similar): use static flow so multi-page content paginates instead of being clipped by position: fixed */
   body.print-target-mode .print-target-active.print-target-fit-content {
+    position: static !important;
     inset: auto !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
     width: 210mm !important;
     max-width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+  /* Collapse ancestor padding/margin so the print target sits at the top of the first page */
+  body.print-target-mode:has(.print-target-active.print-target-fit-content),
+  body.print-target-mode:has(.print-target-active.print-target-fit-content) > * {
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   body:has(.accounting-page-print) aside,

@@ -183,7 +183,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
         )}
         <a
           className={btnClass}
-          href={`/api/orders/${orderId}/invoice?lang=${lang === "ar" ? "ar" : "en"}`}
+          href={`/orders/${orderId}/invoice`}
           target="_blank"
           rel="noopener noreferrer"
         >
