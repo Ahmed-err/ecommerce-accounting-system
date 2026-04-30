@@ -267,7 +267,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Link href={`/admin/orders/${order.id}/invoice`} target="_blank" className="flex-1">
+            <Link href={`/orders/${order.id}/invoice`} target="_blank" className="flex-1">
               <Button variant="outline" size="sm" className="w-full border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                 <Printer className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />{t.ordPrintInvoice}
               </Button>
@@ -356,7 +356,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => onRowClick(order)}>
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
-                      <Link href={`/admin/orders/${order.id}/invoice`} target="_blank">
+                      <Link href={`/orders/${order.id}/invoice`} target="_blank">
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-amber-400">
                           <Printer className="h-3.5 w-3.5" />
                         </Button>

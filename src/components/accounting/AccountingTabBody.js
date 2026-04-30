@@ -604,7 +604,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                     <td className="px-4 py-2 accounting-no-print">
                       {inv.orderId && (
                         <a
-                          href={`/admin/orders/${inv.orderId}/invoice`}
+                          href={`/orders/${inv.orderId}/invoice`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-amber-500/50 hover:text-foreground"

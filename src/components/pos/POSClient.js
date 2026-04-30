@@ -584,7 +584,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         setIsCheckoutOpen(false);
         setAmountTendered("");
         setDiscountValue(0);
-        if (res.orderId) router.push(`/admin/orders/${res.orderId}/invoice`);
+        if (res.orderId) router.push(`/orders/${res.orderId}/invoice`);
         return;
       }
       if (res.success && res.receipt) {
@@ -1082,7 +1082,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               disabled={!lastOrderId}
               onClick={() => {
                 setCheckoutSuccessOpen(false);
-                router.push(`/admin/orders/${lastOrderId}/invoice`);
+                router.push(`/orders/${lastOrderId}/invoice`);
               }}
             >
               <FileText className="w-4 h-4 mr-2" />

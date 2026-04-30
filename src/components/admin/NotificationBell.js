@@ -22,6 +22,7 @@ export default function NotificationBell({ customerOnly = false }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [unread, setUnread] = useState(0);
+  const [loaded, setLoaded] = useState(false);
   const sseFailCountRef = useRef(0);
   const lastSeenRef = useRef(null);
   const timerRef = useRef(null);
@@ -41,6 +42,9 @@ export default function NotificationBell({ customerOnly = false }) {
         lastSeenRef.current = json.rows[0].createdAt;
       }
     } catch {}
+    finally {
+      setLoaded(true);
+    }
   }, [typeQuery]);
 
   useEffect(() => {
@@ -178,7 +182,11 @@ export default function NotificationBell({ customerOnly = false }) {
             </Button>
           </div>
           <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto space-y-2 pe-1 sm:max-h-[min(65vh,32rem)]">
-            {rows.length ? rows.map((n) => (
+            {!loaded ? (
+              <div className="rounded-xl border border-border bg-muted/50 p-4 text-xs text-muted-foreground">
+                {lang === "ar" ? "جارٍ التحميل..." : "Loading..."}
+              </div>
+            ) : rows.length ? rows.map((n) => (
               <button
                 key={n.id}
                 onClick={() => markOne(n.id, n.link)}
@@ -196,7 +204,8 @@ export default function NotificationBell({ customerOnly = false }) {
             )}
           </div>
           <Link
-            href={customerOnly ? "/my-orders" : "/admin/notifications"}
+            href={customerOnly ? "/account/notifications" : "/admin/notifications"}
+            onClick={() => setOpen(false)}
             className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500"
           >
             {lang === "ar" ? "عرض الكل" : "View all"}

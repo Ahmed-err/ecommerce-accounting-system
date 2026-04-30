@@ -8,7 +8,8 @@
   isolation: isolate;
 }
 
-:global(.invoice-print-a4-root) {
+.scope:global(.invoice-print-a4-root),
+.scope :global(.invoice-print-a4-root) {
   page: invoice-print;
 }
 
@@ -285,7 +286,8 @@
 }
 
 @media print {
-  :global(.invoice-print-a4-root) {
+  .scope:global(.invoice-print-a4-root),
+  .scope :global(.invoice-print-a4-root) {
     page: invoice-print;
   }
 

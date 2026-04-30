@@ -13,7 +13,8 @@ import {
     LayoutDashboard,
     ChevronDown,
     Globe,
-    Layers
+    Layers,
+    Bell
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/store/CartProvider";
@@ -163,6 +164,14 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     >
                                         <Package className="h-5 w-5 shrink-0" />
                                         {t.myOrders}
+                                    </Link>
+                                    <Link
+                                        href="/account/notifications"
+                                        onClick={() => setOpen(false)}
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-bold text-foreground transition-all hover:bg-foreground/5"
+                                    >
+                                        <Bell className="h-5 w-5 shrink-0" />
+                                        {lang === "ar" ? "الإشعارات" : "Notifications"}
                                     </Link>
                                     <Link
                                         href="/account/settings"
@@ -483,6 +492,10 @@ export default function Navbar() {
                                         <Link href="/my-orders" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-foreground hover:bg-foreground/5 rounded-xl transition-all">
                                             <Package className="h-4 w-4" />
                                             {t.myOrders}
+                                        </Link>
+                                        <Link href="/account/notifications" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-foreground hover:bg-foreground/5 rounded-xl transition-all">
+                                            <Bell className="h-4 w-4" />
+                                            {lang === "ar" ? "الإشعارات" : "Notifications"}
                                         </Link>
                                         <Link href="/account/settings" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-foreground hover:bg-foreground/5 rounded-xl transition-all">
                                             <Settings className="h-4 w-4" />

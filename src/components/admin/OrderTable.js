@@ -215,7 +215,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                               <option value="DELIVERED">{t.adminStatusDelivered}</option>
                               <option value="CANCELLED">{t.adminStatusCancelled}</option>
                             </select>
-                            <Link href={`/admin/orders/${order.id}/invoice`} target="_blank">
+                            <Link href={`/orders/${order.id}/invoice`} target="_blank">
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10">
                                 <Printer className="h-4 w-4" />
                               </Button>
