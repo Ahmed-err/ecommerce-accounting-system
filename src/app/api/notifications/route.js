@@ -18,7 +18,7 @@ export async function GET(req) {
     const limit = Number(searchParams.get("limit") || 20);
     const [rows, unread] = await Promise.all([
       listNotificationsForUser({ userId: session.user.id, isAdmin, type, read, from, to, limit }),
-      countUnreadNotifications(session.user.id, isAdmin),
+      countUnreadNotifications(session.user.id, isAdmin, type),
     ]);
     return NextResponse.json({ ok: true, rows, unread });
   } catch (error) {
