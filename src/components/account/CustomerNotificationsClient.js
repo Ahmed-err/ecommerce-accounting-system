@@ -34,7 +34,7 @@ export default function CustomerNotificationsClient({
   }, [load]);
 
   const markAll = async () => {
-    await fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
+    await fetch("/api/notifications/read-all?customerOnly=1", { method: "POST" }).catch(() => {});
     setRows((prev) => prev.map((r) => ({ ...r, read: true })));
   };
 

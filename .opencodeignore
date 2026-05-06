@@ -1,0 +1,7 @@
+node_modules/
+.git/
+test-results/
+perf-report*.json
+package-lock.json
+Dockerfile
+.next/

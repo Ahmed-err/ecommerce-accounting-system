@@ -71,8 +71,12 @@ export async function listNotificationsForUser({ userId, isAdmin = false, type, 
   });
 }
 
-export async function countUnreadNotifications(userId, isAdmin = false) {
+export async function countUnreadNotifications(userId, isAdmin = false, type) {
   const where = { userId, read: false };
-  if (!isAdmin) where.type = "ORDER_STATUS";
+  if (!isAdmin) {
+    where.type = "ORDER_STATUS";
+  } else if (type && type !== "all") {
+    where.type = type;
+  }
   return db.notification.count({ where });
 }
