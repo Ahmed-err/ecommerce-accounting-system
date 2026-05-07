@@ -14,6 +14,21 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
 
+const ORDER_STATUS_LABELS_AR = {
+  PENDING: "قيد الانتظار",
+  PROCESSING: "قيد المعالجة",
+  SHIPPED: "تم الشحن",
+  DELIVERED: "تم التسليم",
+  CANCELLED: "ملغي",
+};
+const ORDER_STATUS_LABELS_EN = {
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
 async function ensureStaff() {
   const session = await auth();
   if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
@@ -648,14 +663,26 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     }
 
     try {
+      const shortId = order.id.slice(-8).toUpperCase();
       await createAdminBroadcastNotification({
         type: "NEW_ORDER",
         titleAr: "طلب جديد من المتجر",
         titleEn: "New store order",
-        bodyAr: `تم استلام طلب جديد برقم ${order.id.slice(-8).toUpperCase()}.`,
-        bodyEn: `New order received: ${order.id.slice(-8).toUpperCase()}.`,
+        bodyAr: `تم استلام طلب جديد برقم ${shortId}.`,
+        bodyEn: `New order received: ${shortId}.`,
         link: `/admin/orders`,
       });
+      if (order.userId) {
+        await createNotification({
+          userId: order.userId,
+          type: "ORDER_STATUS",
+          titleAr: "تم استلام طلبك",
+          titleEn: "Order received",
+          bodyAr: `شكراً لطلبك. رقم الطلب ${shortId} وحالته الآن: قيد الانتظار.`,
+          bodyEn: `Thanks for your order. Order ${shortId} is now: Pending.`,
+          link: `/account/orders/${order.id}`,
+        });
+      }
     } catch (e) {
       console.error("createAdminBroadcastNotification after checkout:", e);
     }
@@ -870,13 +897,16 @@ export async function updateOrderStatus(orderId, newStatus) {
     revalidatePath("/admin/accounting");
     revalidatePath("/admin");
     if (order.userId) {
+      const shortId = order.id.slice(-8).toUpperCase();
+      const statusAr = ORDER_STATUS_LABELS_AR[newStatus] || newStatus;
+      const statusEn = ORDER_STATUS_LABELS_EN[newStatus] || newStatus;
       await createNotification({
         userId: order.userId,
         type: "ORDER_STATUS",
         titleAr: "تحديث حالة الطلب",
         titleEn: "Order status updated",
-        bodyAr: `تم تحديث حالة طلبك ${order.id.slice(-8).toUpperCase()} إلى ${newStatus}.`,
-        bodyEn: `Your order ${order.id.slice(-8).toUpperCase()} status is now ${newStatus}.`,
+        bodyAr: `تم تحديث حالة طلبك ${shortId} إلى ${statusAr}.`,
+        bodyEn: `Your order ${shortId} status is now ${statusEn}.`,
         link: `/account/orders/${order.id}`,
       });
     }
