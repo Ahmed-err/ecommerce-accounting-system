@@ -70,7 +70,6 @@ export default async function InvoicePage({ params }) {
       shippingAmount: Number(order.shippingCost || 0),
       vatNumber: STORE_VAT_NUMBER,
       qrImage: invoice.qrCode || "",
-      documentLabel: lang === "ar" ? "فاتورة ضريبية" : "Tax invoice",
       items: order.items.map((item) => ({
         name: item.product?.name || "Item",
         nameAr: item.product?.nameAr || item.product?.name || "",
