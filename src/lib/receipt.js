@@ -164,8 +164,15 @@ export function buildReceiptData({
   const d = receiptFromServer.createdAt ? new Date(receiptFromServer.createdAt) : new Date();
   const shipping = Number(receiptFromServer.shippingAmount || 0);
   const orderRef = receiptFromServer.orderRef || receiptFromServer.orderId || "";
-  const documentLabel =
-    receiptFromServer.documentLabel || (isAr ? "فاتورة ضريبية" : "Tax Invoice");
+  const hasTax = Number(receiptFromServer.taxAmount || 0) > 0;
+  const defaultDocumentLabel = isAr
+    ? hasTax
+      ? "فاتورة ضريبية"
+      : "فاتورة"
+    : hasTax
+      ? "Tax invoice"
+      : "Invoice";
+  const documentLabel = receiptFromServer.documentLabel || defaultDocumentLabel;
 
   return {
     storeName,
