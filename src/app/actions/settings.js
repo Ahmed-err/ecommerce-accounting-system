@@ -583,26 +583,8 @@ export async function clearTestDataAction(input = {}) {
     const stats = await db.$transaction(async (tx) => {
       const out = {};
       out.notifications = normalizeDeleteResult(await tx.notification.deleteMany({}));
-      out.auditLogs = normalizeDeleteResult(
-        await tx.auditLog.deleteMany({
-          where: {
-            action: {
-              in: [
-                "CREATE_PRODUCT",
-                "UPDATE_PRODUCT",
-                "DELETE_PRODUCT",
-                "BULK_DELETE_PRODUCTS",
-                "BULK_CATEGORY_PRODUCTS",
-                "CREATE_CATEGORY",
-                "UPDATE_CATEGORY",
-                "DELETE_CATEGORY",
-                "STOCK_RECEIVE",
-                "STOCK_ISSUE",
-              ],
-            },
-          },
-        })
-      );
+      // Clear all audit logs so control-panel activity history is removed when clearing test data
+      out.auditLogs = normalizeDeleteResult(await tx.auditLog.deleteMany({}));
 
       out.contactMessages = normalizeDeleteResult(await tx.contactMessage.deleteMany({}));
       out.newsletter = normalizeDeleteResult(await tx.newsletter.deleteMany({}));
