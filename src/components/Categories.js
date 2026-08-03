@@ -54,7 +54,7 @@ export default async function Categories() {
                         return (
                             <Link
                                 key={category.id}
-                                href={`/products?category=${encodeURIComponent(category.name)}`}
+                                href={`/products?category=${encodeURIComponent(category.id)}`}
                                 className="group relative bg-card border border-border rounded-2xl p-6 text-center hover:bg-muted/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/10"
                             >
                                 <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${style.color} mb-4 group-hover:scale-110 transition-transform duration-300`}>

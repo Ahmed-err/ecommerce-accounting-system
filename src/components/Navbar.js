@@ -281,7 +281,7 @@ export default function Navbar() {
     const categories = dbCategories.map((cat) => ({
         id: cat.id,
         name: lang === "ar" && cat.nameAr ? cat.nameAr : cat.name,
-        href: `/products?category=${encodeURIComponent(cat.name)}`,
+        href: `/products?category=${encodeURIComponent(cat.id)}`,
     }));
 
     const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER";
