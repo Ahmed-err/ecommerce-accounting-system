@@ -2,6 +2,33 @@ import { unstable_cache } from "next/cache";
 import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
 import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
+import { getFallbackCategories } from "@/lib/store/fallback-data";
+
+function buildFallbackFeatured() {
+  return {
+    bestSellers: [],
+    newArrivals: [],
+    topRated: [],
+    catalogActiveCount: 0,
+    featuredMeta: {
+      bestSellersPeriod: null,
+      newArrivalsWindowDays: null,
+      newArrivalsFilledOlder: false,
+      topRatedMinReviews: null,
+      topRatedRelaxed: false,
+    },
+  };
+}
+
+function buildFallbackCategories() {
+  return getFallbackCategories().map((category) => ({
+    id: category.id,
+    name: category.name,
+    nameAr: category.nameAr,
+    image: category.image,
+    productCount: category.productCount,
+  }));
+}
 
 async function fetchHomepageData() {
   try {
@@ -56,20 +83,8 @@ async function fetchHomepageData() {
         ...b,
         id: `fallback-banner-${i}`,
       })),
-      categories: [],
-      featured: {
-        bestSellers: [],
-        newArrivals: [],
-        topRated: [],
-        catalogActiveCount: 0,
-        featuredMeta: {
-          bestSellersPeriod: null,
-          newArrivalsWindowDays: null,
-          newArrivalsFilledOlder: false,
-          topRatedMinReviews: null,
-          topRatedRelaxed: false,
-        },
-      },
+      categories: buildFallbackCategories(),
+      featured: buildFallbackFeatured(),
       featuredOffer: null,
     };
   }

@@ -211,7 +211,11 @@ export default function ProductGrid({
   const categoryLabel =
     activeCategory === "all"
       ? t.allProducts
-      : translateCategory(activeCategory, t);
+      : translateCategory(
+          categories.find((cat) => cat.id === activeCategory)?.name || activeCategory,
+          t,
+          categories.find((cat) => cat.id === activeCategory)?.nameAr
+        );
 
   const filterPanel = (opts = {}) => {
     const { onNavigate } = opts;
@@ -251,13 +255,13 @@ export default function ProductGrid({
                 key={cat.id}
                 type="button"
                 onClick={() => {
-                  updateParams({ category: cat.name });
+                  updateParams({ category: cat.id });
                   onNavigate?.();
                 }}
                 className={cn(
                   "w-full rounded-lg px-3 py-2 text-sm transition-all",
                   isRTL ? "text-right" : "text-left",
-                  activeCategory === cat.name
+                  activeCategory === cat.id
                     ? "bg-amber-500/15 font-medium text-amber-500"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}

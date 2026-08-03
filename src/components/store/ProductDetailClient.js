@@ -250,9 +250,11 @@ export default function ProductDetailClient({
     }
   };
 
-  const categoryHref = product.category?.name
-    ? `/products?category=${encodeURIComponent(product.category.name)}`
-    : "/products";
+  const categoryHref = product.category?.id
+    ? `/products?category=${encodeURIComponent(product.category.id)}`
+    : product.category?.name
+      ? `/products?category=${encodeURIComponent(product.category.name)}`
+      : "/products";
 
   const avg = reviewSummary?.average ?? 0;
   const totalRev = reviewSummary?.total ?? 0;

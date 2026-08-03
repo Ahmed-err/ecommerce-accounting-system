@@ -13,6 +13,7 @@ import { emitAlert } from "@/lib/monitoring";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
+import { getFallbackCatalogProducts, getFallbackCategories } from "@/lib/store/fallback-data";
 
 const ORDER_STATUS_LABELS_AR = {
   PENDING: "قيد الانتظار",
@@ -195,6 +196,17 @@ export async function getCatalogProducts({
           }
         : {};
 
+    const normalizedCategory = String(category || "").trim();
+    const categoryFilter = normalizedCategory && normalizedCategory !== "all"
+      ? {
+          OR: [
+            { categoryId: normalizedCategory },
+            { category: { id: normalizedCategory } },
+            { category: { name: { equals: normalizedCategory, mode: "insensitive" } } },
+          ],
+        }
+      : {};
+
     const whereBase = {
       ...priceFilter,
       ...(inStockOnly === true || inStockOnly === "true" || inStockOnly === "1"
@@ -209,9 +221,7 @@ export async function getCatalogProducts({
             ],
           }
         : {}),
-      ...(category && category !== "all"
-        ? { category: { name: { equals: category, mode: "insensitive" } } }
-        : {}),
+      ...categoryFilter,
     };
 
     let orderBy = { createdAt: "desc" };
@@ -276,7 +286,11 @@ export async function getCatalogProducts({
     };
   } catch (error) {
     console.error("Failed to fetch catalog products:", error);
-    return { products: [], total: 0 };
+    const fallback = getFallbackCatalogProducts({ search, category, limit });
+    return {
+      products: fallback.products.map((product) => serializeCatalogProduct(product)),
+      total: fallback.total,
+    };
   }
 }
 
@@ -346,7 +360,7 @@ export async function getCatalogCategories() {
       .filter((c) => c.productCount > 0);
   } catch (error) {
     console.error("Failed to fetch catalog categories:", error);
-    return [];
+    return getFallbackCategories();
   }
 }
 

@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/prisma";
 import { serializeCatalogProduct } from "@/lib/catalog-serialize";
 import { productPublicFields } from "@/lib/store/product-public-fields";
+import { getFallbackCatalogProducts } from "@/lib/store/fallback-data";
 
 const DEFAULT_LIMIT = 6;
 
@@ -193,35 +194,53 @@ async function resolveTopRated(limit, catalogActiveCount, wishGroups) {
  * - Top rated: APPROVED reviews, avg rating (min 2 reviews; fills with 1-review products if needed) → wishlist → newest fallback.
  */
 export async function getHomepageFeaturedSets(limit = DEFAULT_LIMIT) {
-  const catalogActiveCount = await db.product.count({ where: { isActive: true } });
+  try {
+    const catalogActiveCount = await db.product.count({ where: { isActive: true } });
 
-  const [bestSellerResult, newArrivalResult, wishGroups] = await Promise.all([
-    resolveBestSellers(limit, catalogActiveCount),
-    catalogActiveCount > 0
-      ? resolveNewArrivals(limit)
-      : Promise.resolve({ products: [], windowDays: NEW_ARRIVAL_DAYS, filledOlder: false }),
-    db.wishlistItem.groupBy({
-      by: ["productId"],
-      where: { product: { isActive: true } },
-      _count: { _all: true },
-    }),
-  ]);
+    const [bestSellerResult, newArrivalResult, wishGroups] = await Promise.all([
+      resolveBestSellers(limit, catalogActiveCount),
+      catalogActiveCount > 0
+        ? resolveNewArrivals(limit)
+        : Promise.resolve({ products: [], windowDays: NEW_ARRIVAL_DAYS, filledOlder: false }),
+      db.wishlistItem.groupBy({
+        by: ["productId"],
+        where: { product: { isActive: true } },
+        _count: { _all: true },
+      }),
+    ]);
 
-  const topRatedResult = await resolveTopRated(limit, catalogActiveCount, wishGroups);
+    const topRatedResult = await resolveTopRated(limit, catalogActiveCount, wishGroups);
 
-  return {
-    bestSellers: bestSellerResult.products,
-    newArrivals: newArrivalResult.products,
-    topRated: topRatedResult.products,
-    catalogActiveCount,
-    featuredMeta: {
-      bestSellersPeriod: bestSellerResult.period,
-      newArrivalsWindowDays: newArrivalResult.windowDays,
-      newArrivalsFilledOlder: newArrivalResult.filledOlder,
-      topRatedMinReviews: topRatedResult.minReviewsUsed,
-      topRatedRelaxed: topRatedResult.relaxed,
-    },
-  };
+    return {
+      bestSellers: bestSellerResult.products,
+      newArrivals: newArrivalResult.products,
+      topRated: topRatedResult.products,
+      catalogActiveCount,
+      featuredMeta: {
+        bestSellersPeriod: bestSellerResult.period,
+        newArrivalsWindowDays: newArrivalResult.windowDays,
+        newArrivalsFilledOlder: newArrivalResult.filledOlder,
+        topRatedMinReviews: topRatedResult.minReviewsUsed,
+        topRatedRelaxed: topRatedResult.relaxed,
+      },
+    };
+  } catch (error) {
+    console.error("Falling back to homepage featured placeholder data:", error);
+    const fallbackProducts = getFallbackCatalogProducts({ limit }).products;
+    return {
+      bestSellers: fallbackProducts,
+      newArrivals: fallbackProducts,
+      topRated: fallbackProducts,
+      catalogActiveCount: fallbackProducts.length,
+      featuredMeta: {
+        bestSellersPeriod: "fallback",
+        newArrivalsWindowDays: NEW_ARRIVAL_DAYS,
+        newArrivalsFilledOlder: false,
+        topRatedMinReviews: null,
+        topRatedRelaxed: false,
+      },
+    };
+  }
 }
 
 /**
