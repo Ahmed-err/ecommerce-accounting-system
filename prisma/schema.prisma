@@ -107,9 +107,14 @@ model Category {
   nameAr      String?
   description String?
   image       String?
+  parentId    String?   @default(null)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   products    Product[]
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[]  @relation("CategoryHierarchy")
+
+  @@index([parentId])
 }
 
 model Supplier {
