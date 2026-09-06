@@ -107,7 +107,7 @@ model Category {
   nameAr      String?
   description String?
   image       String?
-  parentId    String?   @default(null)
+  parentId    String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   products    Product[]
