@@ -18,6 +18,8 @@
     "perf:baseline": "node scripts/perf-baseline.mjs",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy",
+    "db:local": "sh scripts/dev-db.sh",
+    "setup:local": "sh scripts/setup-local.sh",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
