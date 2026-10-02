@@ -14,7 +14,12 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 describe("actions/orders", () => {
   it("cancelOrder pending flow equivalent via reject/approve actions", async () => {
-    db.orderReturn.findUnique.mockResolvedValue({ id: "r1", status: "PENDING", items: [{ productId: "p1", quantity: 2 }] });
+    db.orderReturn.findUnique.mockResolvedValue({
+      id: "r1",
+      status: "PENDING",
+      items: [{ productId: "p1", quantity: 2 }],
+      order: { items: [{ productId: "p1", quantity: 2 }] },
+    });
     db.product.updateMany.mockResolvedValue({ count: 1 });
     const { approveOrderReturn } = await import("@/app/actions/orders");
     const out = await approveOrderReturn("r1");

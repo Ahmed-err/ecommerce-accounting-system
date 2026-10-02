@@ -37,7 +37,7 @@ describe("integration/api/notifications", () => {
   it("POST read-all marks all as read", async () => {
     authMock.mockResolvedValueOnce({ user: { id: "u1", role: "ADMIN" } });
     const { POST } = await import("@/app/api/notifications/read-all/route");
-    const res = await POST();
+    const res = await POST(new Request("http://localhost/api/notifications/read-all", { method: "POST" }) as any);
     expect(res.status).toBe(200);
   });
 });
