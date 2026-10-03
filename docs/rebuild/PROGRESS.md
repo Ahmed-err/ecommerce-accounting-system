@@ -5,10 +5,11 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.1 Local dev environment
-- **Step:** 6 — PR open, waiting for CI
-- **Last done:** P0.1 built on `rebuild/p0-1-local-dev` (plan: `docs/superpowers/plans/2026-10-03-p0-1-local-dev-environment.md`)
-- **Next:** merge P0.1 → start P0.2 whole-app audit (smoke findings in `docs/rebuild/parts/P0.1.md`)
+- **Current part:** P0.2 Whole-app audit
+- **Step:** 1 — audit in progress on `rebuild/p0-2-audit`
+- **Last done:** P0.1 merged (#3), dep audit merged (#4). Hotfix PRs opened from audit findings: #5 (unauthenticated `/api/admin/categories`), #6 (checkout errors thrown instead of returned).
+- **Blocked/attention:** production deploy of the P0.1 merge (`60f7c10`, dpl_HgusGkFP7xwGQhLqfQLEyQ8M9KCw) failed; preview of the same commit passed, prod still serves `2dc9b59`. Need the Vercel build log (user) — likely the prod-only `prisma migrate deploy` step.
+- **Next:** read deploy log → redeploy; continue audit by area (`docs/rebuild/audit/findings.md` → "Coverage"); user to merge #5 and #6
 
 ## Open decisions
 
@@ -21,8 +22,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 
 | ID | Part | Status | Branch / PR | Notes |
 |---|---|---|---|---|
-| P0.1 | Local dev environment | review | `rebuild/p0-1-local-dev` | |
-| P0.2 | Whole-app audit | todo | | |
+| P0.1 | Local dev environment | done | #3 | |
+| P0.2 | Whole-app audit | audit | `rebuild/p0-2-audit` | hotfixes #5, #6 |
 | P0.3 | Brand identity + design system | todo | | |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
@@ -50,3 +51,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 
 - 2026-10-03 — CI fixed (PR #2 merged: baseline migration, test suite). Roadmap agreed; spec written.
 - 2026-10-03 — P0.1 built: local DB script, guarded modular seed, CI seeds fresh DB.
+- 2026-10-03 — P0.1 merged (#3) with dependency audit (#4). P0.2 started; two live bugs split out as hotfix PRs #5, #6.
