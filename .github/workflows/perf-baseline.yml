@@ -1,11 +1,16 @@
 name: Performance Baseline
 
+# Lab numbers for the rebuild's before/after comparisons.
+# - No base_url: builds the app in production mode on the runner against a freshly
+#   seeded Postgres and measures that (repeatable, never touches production).
+# - base_url set: measures that deployment instead.
+
 on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: "Base URL to test (e.g. https://example.com)"
-        required: true
+        description: "Base URL to test (empty = local production build with seed data)"
+        required: false
         type: string
 
 permissions:
@@ -14,7 +19,28 @@ permissions:
 jobs:
   baseline:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: perf
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      LOCAL: ${{ inputs.base_url == '' }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perf?schema=public
+      AUTH_SECRET: perf-baseline-placeholder-secret-min-32-chars
+      AUTH_TRUST_HOST: "true"
+      NEXT_PUBLIC_URL: http://127.0.0.1:3000
+      PERF_BASE_URL: ${{ inputs.base_url || 'http://127.0.0.1:3000' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,21 +48,41 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run baseline script
+      - name: Migrate, seed, build and start
+        if: env.LOCAL == 'true'
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+          npm run build
+          nohup npm run start -- -H 127.0.0.1 -p 3000 > server.log 2>&1 &
+          npx --yes wait-on@8 -t 120000 http://127.0.0.1:3000/api/health
+          # Warm caches so the first measured run is not a cold start.
+          for p in / /products /cart /login; do curl -s -o /dev/null "http://127.0.0.1:3000$p"; done
+
+      - name: Server timings
         env:
-          PERF_BASE_URL: ${{ inputs.base_url }}
           PERF_RUNS: "5"
           PERF_TIMEOUT_MS: "20000"
-        run: npm run perf:baseline > perf-baseline-report.json
+        run: node scripts/perf-baseline.mjs > perf-baseline-report.json
 
-      - name: Upload report artifact
+      - name: Lighthouse
+        env:
+          PERF_RUNS: "3"
+        run: node scripts/perf-lighthouse.mjs > perf-lighthouse-report.json
+
+      - name: Upload reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: perf-baseline-report
-          path: perf-baseline-report.json
+          path: |
+            perf-baseline-report.json
+            perf-lighthouse-report.json
+            server.log
+          if-no-files-found: ignore
