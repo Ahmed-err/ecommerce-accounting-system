@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P0.1 Local dev environment
-- **Step:** 0 — roadmap spec awaiting user review
-- **Last done:** Roadmap written (branch `rebuild/roadmap`)
-- **Next:** User reviews roadmap spec → write implementation plan for Phase 0 → start P0.1
+- **Step:** 6 — PR open, waiting for CI
+- **Last done:** P0.1 built on `rebuild/p0-1-local-dev` (plan: `docs/superpowers/plans/2026-10-03-p0-1-local-dev-environment.md`)
+- **Next:** merge P0.1 → start P0.2 whole-app audit (smoke findings in `docs/rebuild/parts/P0.1.md`)
 
 ## Open decisions
 
@@ -21,7 +21,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 
 | ID | Part | Status | Branch / PR | Notes |
 |---|---|---|---|---|
-| P0.1 | Local dev environment | todo | | |
+| P0.1 | Local dev environment | review | `rebuild/p0-1-local-dev` | |
 | P0.2 | Whole-app audit | todo | | |
 | P0.3 | Brand identity + design system | todo | | |
 | P0.4 | App shell | todo | | |
@@ -49,3 +49,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 ## Log
 
 - 2026-10-03 — CI fixed (PR #2 merged: baseline migration, test suite). Roadmap agreed; spec written.
+- 2026-10-03 — P0.1 built: local DB script, guarded modular seed, CI seeds fresh DB.

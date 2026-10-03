@@ -42,6 +42,13 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
 
+      - name: Migrate and seed fresh database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci_test?schema=public
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+
       - name: Lint
         run: npm run lint
 
