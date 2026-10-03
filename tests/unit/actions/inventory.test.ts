@@ -6,13 +6,15 @@ const db = {
     update: vi.fn(),
     delete: vi.fn(),
     findUnique: vi.fn(),
+    findMany: vi.fn(),
     updateMany: vi.fn(),
     deleteMany: vi.fn(),
   },
-  orderItem: { deleteMany: vi.fn() },
-  purchaseItem: { deleteMany: vi.fn() },
-  orderReturnItem: { deleteMany: vi.fn() },
+  orderItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn() },
+  purchaseItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn() },
+  orderReturnItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn() },
   stockMovement: { create: vi.fn() },
+  category: { findUnique: vi.fn(), delete: vi.fn() },
   $transaction: vi.fn(async (fn: any) => fn(db)),
 };
 
@@ -45,15 +47,51 @@ describe("actions/inventory", () => {
     expect(out.success).toBe(false);
   });
 
-  it("deleteProduct removes dependent rows then the product in one transaction", async () => {
+  it("deleteProduct deletes a product that was never sold, bought or returned", async () => {
     const { deleteProduct } = await import("@/app/actions/inventory");
     const out = await deleteProduct("p1");
     expect(out.success).toBe(true);
-    expect(db.$transaction).toHaveBeenCalledTimes(1);
-    const byProduct = { where: { productId: { in: ["p1"] } } };
-    expect(db.orderItem.deleteMany).toHaveBeenCalledWith(byProduct);
-    expect(db.purchaseItem.deleteMany).toHaveBeenCalledWith(byProduct);
-    expect(db.orderReturnItem.deleteMany).toHaveBeenCalledWith(byProduct);
     expect(db.product.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ["p1"] } } });
+  });
+
+  it("deleteProduct refuses a product with order history and never touches order lines", async () => {
+    vi.clearAllMocks();
+    db.orderItem.findMany.mockResolvedValueOnce([{ productId: "p1" }]);
+    const { deleteProduct } = await import("@/app/actions/inventory");
+
+    const out = await deleteProduct("p1");
+
+    expect(out).toEqual({ success: false, error: "product_has_history" });
+    expect(db.product.deleteMany).not.toHaveBeenCalled();
+    expect(db.orderItem.deleteMany).not.toHaveBeenCalled();
+    expect(db.purchaseItem.deleteMany).not.toHaveBeenCalled();
+    expect(db.orderReturnItem.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("bulkDeleteProducts deletes only products without history and reports the rest", async () => {
+    vi.clearAllMocks();
+    db.product.findMany.mockResolvedValue([{ id: "p1" }, { id: "p2" }, { id: "p3" }]);
+    db.purchaseItem.findMany.mockResolvedValueOnce([{ productId: "p2" }]);
+    db.orderReturnItem.findMany.mockResolvedValueOnce([{ productId: "p3" }]);
+    const { bulkDeleteProducts } = await import("@/app/actions/inventory");
+
+    const out = await bulkDeleteProducts(["p1", "p2", "p3"]);
+
+    expect(out).toEqual({ success: true, count: 1, skipped: 2 });
+    expect(db.product.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ["p1"] } } });
+    expect(db.orderItem.deleteMany).not.toHaveBeenCalled();
+  });
+  it("force-deleting a category is refused when any of its products has history", async () => {
+    vi.clearAllMocks();
+    db.category.findUnique.mockResolvedValue({ id: "c1", name: "Tools", _count: { products: 2 } });
+    db.product.findMany.mockResolvedValue([{ id: "p1" }, { id: "p2" }]);
+    db.orderItem.findMany.mockResolvedValueOnce([{ productId: "p2" }]);
+    const { deleteCategory } = await import("@/app/actions/inventory");
+
+    const out = await deleteCategory("c1", { force: true });
+
+    expect(out).toEqual({ success: false, error: "products_have_history", count: 1 });
+    expect(db.product.deleteMany).not.toHaveBeenCalled();
+    expect(db.category.delete).not.toHaveBeenCalled();
   });
 });
