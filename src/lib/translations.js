@@ -54,6 +54,7 @@ export const translations = {
     brandName: "أعمال عصام الدين نصر للأدوات الكهربائية",
     brandWordmark: "همّت",
     brandGmLine: "المدير العام: رياض همت",
+    developerCredit: "تطوير:",
     brandTagline: "الأدوات الكهربائية + حلول الطاقة الشمسية",
 
     // Navbar
@@ -1408,6 +1409,7 @@ export const translations = {
     brandName: "Essam El-Din Nasr Electrical Tools",
     brandWordmark: "Himmat",
     brandGmLine: "General Manager: Riyadh Himmat",
+    developerCredit: "Built by",
     brandTagline: "Electrical Tools + Solar Solutions",
 
     // Navbar

@@ -6,6 +6,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 import BrandLockup from "@/components/brand/BrandLockup";
+import DeveloperCredit from "@/components/brand/DeveloperCredit";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
 function digitsForTel(s) {
@@ -166,6 +167,7 @@ export default function Footer() {
                     )}>
                         &copy; {new Date().getFullYear()} {brandName}. {t.allRightsReserved}
                     </p>
+                    <DeveloperCredit className="text-center" />
                     <div className="flex items-center gap-8">
                          <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest transition-colors">{t.privacyPolicy}</Link>
                          <Link href="/terms" className="text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest transition-colors">{t.termsOfService}</Link>
