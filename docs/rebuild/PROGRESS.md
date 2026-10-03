@@ -5,10 +5,11 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.1 Local dev environment
-- **Step:** 6 — PR open, waiting for CI
-- **Last done:** P0.1 built on `rebuild/p0-1-local-dev` (plan: `docs/superpowers/plans/2026-10-03-p0-1-local-dev-environment.md`)
-- **Next:** merge P0.1 → start P0.2 whole-app audit (smoke findings in `docs/rebuild/parts/P0.1.md`)
+- **Current part:** P0.2 Whole-app audit
+- **Step:** 6 — audit complete; P0.2 PR open for review
+- **Last done:** P0.2 audit: 45 findings in `docs/rebuild/audit/findings.md`, perf baseline in `docs/rebuild/audit/perf-baseline.md` (CI workflow `perf-baseline.yml`). Hotfix PRs #5–#10.
+- **Attention:** prod deploy of `60f7c10` failed with Prisma P1002 (migrate through Neon pooler). Fix in PR #7 (migrations use `DIRECT_URL`); merging it redeploys prod with P0.1. User to confirm Vercel `DIRECT_URL` is the unpooled string.
+- **Next:** user merges #7 first (unblocks prod deploys), then #5, #6, #8, #9, #10 and the P0.2 PR → start P0.3 brand identity (present 2–3 directions)
 
 ## Open decisions
 
@@ -21,8 +22,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 
 | ID | Part | Status | Branch / PR | Notes |
 |---|---|---|---|---|
-| P0.1 | Local dev environment | review | `rebuild/p0-1-local-dev` | |
-| P0.2 | Whole-app audit | todo | | |
+| P0.1 | Local dev environment | done | #3 | |
+| P0.2 | Whole-app audit | review | `rebuild/p0-2-audit` | hotfixes #5, #6, #8, #9, #10; deploy fix #7 |
 | P0.3 | Brand identity + design system | todo | | |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
@@ -50,3 +51,5 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 
 - 2026-10-03 — CI fixed (PR #2 merged: baseline migration, test suite). Roadmap agreed; spec written.
 - 2026-10-03 — P0.1 built: local DB script, guarded modular seed, CI seeds fresh DB.
+- 2026-10-03 — P0.1 merged (#3) with dependency audit (#4). P0.2 started; two live bugs split out as hotfix PRs #5, #6.
+- 2026-10-03 — Prod deploy of P0.1 failed (P1002, migrate via pooler) → #7. Audit complete: 45 findings, hotfixes #8 (inactive login), #9 (product delete history), #10 (JSON-LD XSS); Lighthouse baseline recorded.
