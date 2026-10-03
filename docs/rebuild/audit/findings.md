@@ -41,6 +41,18 @@ Severity: **Critical** (exploitable now / data loss) · **High** (broken flow fo
 | A-28 | Low | Inventory | Stock history is incomplete: store checkout, manual `updateStockQuantity`, product edit (`stock` set directly), cancellations and returns write no `StockMovement`; only POS and receive/issue do. | `actions/inventory.js`, `catalog.js` | P3.2 |
 | A-29 | Medium | Accounting | Single-entry cash ledger: "net profit" = all INCOMING − all OUTGOING, so unpaid COD orders count as income and there is no cost of goods. Order-generated sales rows can be edited/deleted (hard delete) like manual ones; MANAGER can edit an INCOMING row's type. | `actions/accounting.js` | P3.5 |
 | A-30 | Low | Auth | Password reset tokens are stored in plain text (should be hashed); reset lookup by email is case-sensitive while the rate-limit key is lower-cased. | `actions/reset-password.js` | P2.5 |
+| A-32 | High | Security | Stored XSS: product-page JSON-LD inlined `JSON.stringify` output (no `<` escaping) incl. approved reviews' reviewer names, which are the customer's own unrestricted first/last name; CSP allows `'unsafe-inline'`. **Hotfix #10:** `jsonLdHtml()` escaping at all 5 call sites + guard test. | `src/app/products/[slug]/page.js` and 3 more | hotfix |
+| A-33 | Medium | Security | CSP `script-src` relies on `'unsafe-inline'` in production, so any HTML injection becomes script execution. Move to nonces. | `next.config.mjs` | P4.1 |
+| A-34 | Low | Security | Names (register/profile) accept any characters; restrict to letters, spaces, `.-'` (AR + EN). | `actions/register.js`, `actions/user.js` | P2.5 |
+| A-35 | Medium | Accounting | Supplier payments (`recordPurchasePaymentAction`) and salary payments (`markSalaryPaid`) write nothing to the transaction ledger, and accounting reports read only `Transaction` — purchases and payroll are invisible to profit unless re-entered by hand. | `actions/suppliers.js`, `actions/employees.js`, `lib/accounting.js` | P3.5 |
+| A-36 | Medium | Suppliers | Force-deleting a supplier (ADMIN) deletes all its purchases (items cascade) without reversing received stock — purchase history lost. | `actions/suppliers.js` `deleteSupplierAction` | P3.6 |
+| A-37 | Low | Employees | `createEmployee`/`updateEmployee` take `salary` via `parseFloat` with no schema (NaN/negative accepted). | `actions/employees.js` | P3.7 |
+| A-38 | Medium | Tests | Unit coverage is 1.3% of measured code, and coverage `include` omits `src/app/actions/**`, where most business logic lives. 7 Playwright specs exist; e2e in CI runs against `next dev`, not a production build. | `vitest.config.ts`, `.github/workflows/test.yml` | P0.4 (then every part) |
+| A-39 | Low | i18n | Translation keys are in parity (1,230 AR/EN), but 594 inline `lang === "ar" ? … : …` strings in 58 files bypass the dictionary. | `src/components/**` | each part as touched |
+| A-40 | Medium | RTL | 693 physical direction classes (`ml-/mr-/pl-/pr-/left-/right-/text-left/right`) vs 136 logical ones (`ms-/me-/ps-/pe-/start-/end-`); layouts flip incorrectly in Arabic wherever physical ones are used for direction-dependent spacing. | `src/components/**` | P0.3/P0.4, then each part |
+| A-41 | Low | CI | CI and tests run Node 20 (end of life on Vercel since 2026-10-01; Vercel default is 24); `engines` is `>=20`. | `.github/workflows/*.yml`, `package.json` | P0.4 |
+| A-42 | Medium | Perf | Rate limiter runs 3 DB queries per check (delete expired, count, insert) on every guarded action; count-then-insert races under bursts; expired rows are only cleaned per key, so the table grows. | `src/lib/rate-limit.js` | P4.1 |
+| A-43 | High | Perf | Admin dashboard fires ~15 queries at once (pg `Pool` default max 10 → queueing/timeouts), then up to 12 sequential per-month `findMany` loading every order of each month for the chart, and loads every active product to count low stock in JS. Matches the P0.1 smoke (`/admin` 2.1 min, pool timeouts). Use grouped SQL (`date_trunc`), a raw `stock <= "minStock"` count, and bounded concurrency. | `src/lib/dashboard.js` | P3.1 |
 
 ## Checked, no finding
 
@@ -63,9 +75,9 @@ Severity: **Critical** (exploitable now / data loss) · **High** (broken flow fo
 | Order status changes, returns, stock restore | done |
 | Accounting logic | done (actions; reports in P3.5) |
 | Inventory actions | done |
-| Suppliers, employees actions | todo |
+| Suppliers, employees actions | done |
 | Auth flows (login, register, reset) | done |
-| Security headers, rate limiting, env/secrets | todo |
+| Security headers, rate limiting, env/secrets | done |
 | Performance (queries, bundle, images) and Lighthouse baseline | todo |
-| UI/UX, i18n/RTL, accessibility (static) | todo |
-| Lint, build, test coverage health | todo |
+| UI/UX, i18n/RTL, accessibility (static) | done (counts; visual review per part) |
+| Lint, build, test coverage health | done |
