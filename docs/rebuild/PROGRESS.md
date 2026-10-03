@@ -5,12 +5,11 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.3 Brand identity + design system
-- **Step:** 6 — PR #14 open (CI pending), awaiting user merge
-- **Last done:** P0.3 built (13 plan tasks) + final-review fixes; notes in `docs/rebuild/parts/P0.3.md` (Lighthouse before/after, deferred items).
-- **Brand sheet:** https://claude.ai/artifact/4RHEHcqGxih3z9BDEPAUuY (logo, colour tokens, type, components — today vs refined)
-- **Decisions (user, 2026-10-03):** refine the current look, do not redesign; must not look AI-made. Name: **Himmat / همّت** leads; "عصام الدين نصر للأدوات الكهربائية" and "المدير العام: رياض همت" as small labels. Audience: trade pros and households equally.
-- **Next:** user reviews screenshots + merges the P0.3 PR → start P0.4 App shell (navbar/footer/layouts; also fixes shared a11y audits button-name/link-name)
+- **Current part:** P0.4 App shell (not started)
+- **Step:** 0 — waiting for user go-ahead
+- **Last done:** P0.3 merged (#14, `8262cca`) and deployed; live site verified (title "همّت — …", navy theme colour, Sarmadax credit, health OK).
+- **Next:** P0.4 audit → design (navbar, footer, layouts, loading/error/not-found states; shared a11y fixes button-name/link-name; keep Sarmadax credit; `/styleguide` must return a real 404 on production — today it renders the not-found UI with HTTP 200 and title "Style guide" because root `loading.js` streams first)
+- **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
 
@@ -26,7 +25,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 |---|---|---|---|---|
 | P0.1 | Local dev environment | done | #3 | |
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
-| P0.3 | Brand identity + design system | review | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
+| P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
 | P1.2 | Product content | todo | | |
@@ -57,3 +56,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-03 — Prod deploy of P0.1 failed (P1002, migrate via pooler) → #7. Audit complete: 45 findings, hotfixes #8 (inactive login), #9 (product delete history), #10 (JSON-LD XSS); Lighthouse baseline recorded.
 - 2026-10-03 — All P0.2 PRs merged and deployed; build migrations made robust (#12 fallback, #13 no advisory lock via pooler). P0.3 started: brand sheet (before/after) shared.
 - 2026-10-04 — P0.3 built and reviewed (fresh reviewer: 4 Important + 3 re-graded fixed with tests); PR opened.
+- 2026-10-04 — P0.3 merged (#14) and deployed to production.
