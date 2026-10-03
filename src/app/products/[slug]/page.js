@@ -14,6 +14,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -182,7 +183,7 @@ export default async function ProductDetailPage({ params }) {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
