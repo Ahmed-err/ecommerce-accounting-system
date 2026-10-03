@@ -6,11 +6,11 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P0.3 Brand identity + design system
-- **Step:** 2 — design: brand sheet approved; spec written (`docs/superpowers/specs/2026-10-03-p0-3-brand-design-system-design.md`), awaiting user review
+- **Step:** 2 — spec approved (+ addendum: Arabic/light defaults, Sarmadax footer credit); plan written (`docs/superpowers/plans/2026-10-03-p0-3-brand-design-system.md`, 13 tasks), awaiting review + execution choice
 - **Last done:** P0.2 merged (#11); hotfixes #5, #6, #8, #9, #10 and deploy fixes #7, #12, #13 all live (prod deploys verified).
 - **Brand sheet:** https://claude.ai/artifact/4RHEHcqGxih3z9BDEPAUuY (logo, colour tokens, type, components — today vs refined)
 - **Decisions (user, 2026-10-03):** refine the current look, do not redesign; must not look AI-made. Name: **Himmat / همّت** leads; "عصام الدين نصر للأدوات الكهربائية" and "المدير العام: رياض همت" as small labels. Audience: trade pros and households equally.
-- **Next:** user reviews spec → writing-plans → build on `rebuild/p0-3-brand`
+- **Next:** user approves plan + picks execution (subagent-driven or native) → build Task 1 on `rebuild/p0-3-brand`
 
 ## Open decisions
 

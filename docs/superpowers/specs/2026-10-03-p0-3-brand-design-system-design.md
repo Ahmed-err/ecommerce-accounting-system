@@ -79,8 +79,8 @@ Result: every existing amber/emerald/slate-900 class takes the brand values in o
 
 Amber used as text on light backgrounds fails today (`amber-500` 2.15:1, `amber-400` 1.67:1, `amber-600` 3.19:1 on white).
 
-- Add utility `text-accent` → `var(--accent-text)` (amber-700 light / amber-500 dark).
-- Codemod (script committed in `scripts/codemods/`), run once and reviewed: in `src/components/**` and `src/app/**`, a class token `text-amber-400|500|600` **without** an accompanying `dark:` text class becomes `text-accent`. Tokens already paired with `dark:text-…`, or inside elements whose background is navy/black/amber (detected by `bg-(slate|gray|zinc|neutral|black|amber)-(8|9)\d\d|bg-black|bg-amber` in the same `className`), are left as they are and listed in the PR for manual check.
+- Add utility `text-accent-text` → `var(--accent-text)` (amber-700 light / amber-500 dark). (`text-accent` is already shadcn's grey accent, so the name differs.)
+- Codemod (script committed in `scripts/codemods/`), run once and reviewed: in `src/components/**` and `src/app/**`, a class token `text-amber-400|500|600` **without** an accompanying `dark:` text class becomes `text-accent-text`. Tokens already paired with `dark:text-…`, or inside elements whose background is navy/black/amber (detected by `bg-(slate|gray|zinc|neutral|black|amber)-(8|9)\d\d|bg-black|bg-amber` in the same `className`), are left as they are and listed in the PR for manual check.
 - The codemod prints every change; the PR includes the list.
 
 ## 4. Glow removal
@@ -122,6 +122,18 @@ Existing call sites keep working (same exports and variant names; `default` chan
 
 `src/app/styleguide/page.js`: tokens with contrast ratios, type scale, buttons/inputs/cards/badges in all variants, `BrandLockup` variants, `Price` examples; language and theme toggles. Returns `notFound()` when `VERCEL_ENV === "production"`, so it exists on previews and locally only.
 
+## 9. Defaults: Arabic + light (user request, 2026-10-03)
+
+Already the first-visit defaults in code (`normalizeAppLang` → `ar`; `ThemeProvider defaultTheme="light" enableSystem={false}`). Fixes so nobody ends up elsewhere by accident:
+- `ThemeToggle` switches light ↔ dark only (today it cycles into an unsupported "system" state).
+- `ThemeProvider storageKey="himmat-theme"`: stored theme choices reset once at launch, so everyone starts in light; later choices persist.
+- `LanguageProvider`: the `lang` cookie (read by the server) is the only source; the localStorage override on mount is removed (it caused a flash and a server/client mismatch). Explicit language choices are kept.
+- `manifest.json` `background_color` → paper (`#F7F6F3`) so the PWA splash is light.
+
+## 10. Developer credit (user request, 2026-10-03)
+
+Store footer bottom bar, next to the copyright: Arabic "تطوير: Sarmadax", English "Built by Sarmadax", linking to `https://sarmadax.com` (`target="_blank" rel="noopener"`), muted small text, accent colour on hover. Store footer only (not admin, login or invoices). Must survive P0.4's footer redesign.
+
 ## Testing
 
 - **Contrast test** (`tests/unit/brand/contrast.test.ts`): parses the token values from `globals.css` (light and dark blocks) and asserts every semantic text/background pair ≥ 4.5:1 (3:1 for the display size). Fails if a token change breaks readability.
@@ -130,6 +142,8 @@ Existing call sites keep working (same exports and variant names; `default` chan
 - **Component tests**: `Price` / `formatPrice` (grouping, compare price, discount %), `BrandLockup` (falls back to translation shop name when settings are missing; RTL/LTR order).
 - **Visual review**: Playwright screenshot job (CI, on demand) of `/`, `/products`, a product page, `/cart`, `/login`, `/admin`, `/styleguide` in AR/EN × light/dark × phone/desktop, uploaded as an artifact for the user to compare with the current site.
 - **Lighthouse**: re-run `perf-baseline.yml`; accessibility scores must not drop; target ≥ 90 on `/` and `/products` (baseline 79/82) from the contrast fix alone.
+- Defaults: `ThemeToggle` toggles light ↔ dark only; `LanguageProvider` keeps the server language when localStorage holds another value.
+- Footer credit renders with the right text per language and links to `https://sarmadax.com`.
 - `npm run lint`, `npm run build`, unit and e2e suites green.
 
 ## Rollout and risk
