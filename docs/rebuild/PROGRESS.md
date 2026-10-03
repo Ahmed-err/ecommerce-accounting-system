@@ -5,15 +5,17 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.2 Whole-app audit
-- **Step:** 6 — audit complete; P0.2 PR open for review
-- **Last done:** P0.2 audit: 45 findings in `docs/rebuild/audit/findings.md`, perf baseline in `docs/rebuild/audit/perf-baseline.md` (CI workflow `perf-baseline.yml`). Hotfix PRs #5–#10.
-- **Attention:** prod deploy of `60f7c10` failed with Prisma P1002 (migrate through Neon pooler). Fix in PR #7 (migrations use `DIRECT_URL`); merging it redeploys prod with P0.1. User to confirm Vercel `DIRECT_URL` is the unpooled string.
-- **Next:** user merges #7 first (unblocks prod deploys), then #5, #6, #8, #9, #10 and the P0.2 PR → start P0.3 brand identity (present 2–3 directions)
+- **Current part:** P0.3 Brand identity + design system
+- **Step:** 2 — design: before/after brand sheet shown, awaiting user feedback → then spec
+- **Last done:** P0.2 merged (#11); hotfixes #5, #6, #8, #9, #10 and deploy fixes #7, #12, #13 all live (prod deploys verified).
+- **Brand sheet:** https://claude.ai/artifact/4RHEHcqGxih3z9BDEPAUuY (logo, colour tokens, type, components — today vs refined)
+- **Decisions (user, 2026-10-03):** refine the current look, do not redesign; must not look AI-made. Name: **Himmat / همّت** leads; "عصام الدين نصر للأدوات الكهربائية" and "المدير العام: رياض همت" as small labels. Audience: trade pros and households equally.
+- **Next:** apply user feedback on the sheet → write P0.3 spec (`docs/superpowers/specs/`) → user approves → plan
 
 ## Open decisions
 
-- Brand direction (P0.3): user to pick from 2–3 directions.
+- Brand (P0.3): refine-not-redesign agreed; awaiting feedback on the brand sheet.
+- Vercel `DIRECT_URL` was a localhost value; user replaced it with the Neon unpooled string (2026-10-03).
 - Real catalog export (P1): user runs read-only export script when P1.1 starts.
 
 ## Parts
@@ -23,8 +25,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | ID | Part | Status | Branch / PR | Notes |
 |---|---|---|---|---|
 | P0.1 | Local dev environment | done | #3 | |
-| P0.2 | Whole-app audit | review | `rebuild/p0-2-audit` | hotfixes #5, #6, #8, #9, #10; deploy fix #7 |
-| P0.3 | Brand identity + design system | todo | | |
+| P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
+| P0.3 | Brand identity + design system | design | `rebuild/p0-3-brand` | refine, don't redesign |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
 | P1.2 | Product content | todo | | |
@@ -53,3 +55,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-03 — P0.1 built: local DB script, guarded modular seed, CI seeds fresh DB.
 - 2026-10-03 — P0.1 merged (#3) with dependency audit (#4). P0.2 started; two live bugs split out as hotfix PRs #5, #6.
 - 2026-10-03 — Prod deploy of P0.1 failed (P1002, migrate via pooler) → #7. Audit complete: 45 findings, hotfixes #8 (inactive login), #9 (product delete history), #10 (JSON-LD XSS); Lighthouse baseline recorded.
+- 2026-10-03 — All P0.2 PRs merged and deployed; build migrations made robust (#12 fallback, #13 no advisory lock via pooler). P0.3 started: brand sheet (before/after) shared.
