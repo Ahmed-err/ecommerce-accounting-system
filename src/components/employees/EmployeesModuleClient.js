@@ -1028,7 +1028,7 @@ function RolesTab({ t, lang, isRTL }) {
         {ROLES.map((role) => (
           <div key={role.key} className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-amber-400"}`}>
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-accent-text"}`}>
                 <Shield className="h-3 w-3" /> {role.name}
               </div>
               {role.key === "ADMIN" ? (

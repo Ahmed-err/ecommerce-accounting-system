@@ -342,7 +342,7 @@ export default function Navbar() {
                                                 href={cat.href}
                                                 className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-accent-text transition-all group/item"
                                             >
-                                                <span className="text-sm font-bold text-foreground group-hover/item:text-amber-500">{cat.name}</span>
+                                                <span className="text-sm font-bold text-foreground group-hover/item:text-accent-text">{cat.name}</span>
                                             </Link>
                                         ))}
                                         <div className="border-t border-foreground/5 mt-1 pt-1">

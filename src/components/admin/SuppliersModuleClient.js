@@ -460,7 +460,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-foreground" onClick={() => openSheet(s.id)}>
                       <FileText className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-400" onClick={() => openEdit(s)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-accent-text" onClick={() => openEdit(s)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-red-400" onClick={() => del(s.id)}>

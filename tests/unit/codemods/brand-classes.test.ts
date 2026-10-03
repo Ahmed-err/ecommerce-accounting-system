@@ -53,6 +53,29 @@ describe("transformClassString with convertDarkPairs", () => {
   });
 });
 
+describe("variants with a group name", () => {
+  it("converts group-hover/item: variants", () => {
+    expect(transformClassString("group-hover/item:text-amber-500 px-2").value).toBe("group-hover/item:text-accent-text px-2");
+  });
+
+  it("removes glows behind named variants", () => {
+    expect(transformClassString("group-hover/card:shadow-amber-500/40 p-2").value).toBe("p-2");
+  });
+});
+
+describe("transformSource leftovers", () => {
+  it("reports amber tokens it could not reach instead of missing them silently", () => {
+    const src = "const a = `pill ${isAdmin ? `x ${y}` : 'text-amber-500'} z`;";
+    const out = transformSource(src);
+    expect(out.leftovers).toEqual(["text-amber-500"]);
+  });
+
+  it("does not report tokens it already handled or deliberately skipped", () => {
+    const out = transformSource(`<p className="text-amber-500">a</p><p className="bg-slate-900 text-amber-400">b</p>`);
+    expect(out.leftovers).toEqual([]);
+  });
+});
+
 describe("transformSource", () => {
   it("rewrites class strings in all quote styles and leaves other code alone", () => {
     const src = [
