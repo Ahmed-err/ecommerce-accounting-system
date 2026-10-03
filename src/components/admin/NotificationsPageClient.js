@@ -119,7 +119,7 @@ export default function NotificationsPageClient() {
               <span className="shrink-0 text-[11px] text-muted-foreground sm:text-xs">{new Date(n.createdAt).toLocaleString()}</span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
-            {n.link ? <p className="mt-1 break-all text-xs text-amber-400">{n.link}</p> : null}
+            {n.link ? <p className="mt-1 break-all text-xs text-accent-text">{n.link}</p> : null}
           </div>
         ))}
       </div>

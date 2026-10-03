@@ -77,7 +77,7 @@ export default async function InventoryPage({ searchParams }) {
     >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
-          <p className="text-sm font-semibold text-amber-500/90">{b.brandName}</p>
+          <p className="text-sm font-semibold text-accent-text">{b.brandName}</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">
             {t.adminInventoryTitle}
           </h1>

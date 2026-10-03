@@ -108,7 +108,7 @@ export default function ProductShowcase({ featured }) {
                 isRTL ? "text-right lg:[direction:rtl]" : "text-left"
               )}
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-500 sm:px-4 sm:text-xs">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-accent-text sm:px-4 sm:text-xs">
                 <Star className="h-3.5 w-3.5" />
                 {t.featuredProducts || "Featured"}
               </div>
@@ -116,7 +116,7 @@ export default function ProductShowcase({ featured }) {
                 {t.popularProducts || "TOP PRODUCTS"}
               </h2>
               {activeTabHint ? (
-                <p className="text-sm font-semibold leading-relaxed text-amber-600/95 sm:text-base">
+                <p className="text-sm font-semibold leading-relaxed text-accent-text sm:text-base">
                   {activeTabHint}
                 </p>
               ) : null}
@@ -132,7 +132,7 @@ export default function ProductShowcase({ featured }) {
                       value={tab.value}
                       className={cn(
                         "flex items-center justify-start gap-2 rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition-all",
-                        "data-active:bg-background data-active:text-amber-500 data-active:shadow-premium",
+                        "data-active:bg-background data-active:text-accent-text",
                         isRTL && "flex-row-reverse justify-end"
                       )}
                     >
@@ -184,7 +184,7 @@ export default function ProductShowcase({ featured }) {
                   <Link
                     href={exploreHref}
                     className={cn(
-                      "group relative col-span-full flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.99] sm:min-h-[220px] sm:rounded-3xl sm:p-6 md:min-h-[200px] md:flex-row md:items-center md:justify-between md:gap-8 md:px-10 md:py-6",
+                      "group relative col-span-full flex min-h-[200px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-amber-500 p-4 text-center shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-amber-600 hover:shadow-xl active:scale-[0.99] sm:min-h-[220px] sm:rounded-3xl sm:p-6 md:min-h-[200px] md:flex-row md:items-center md:justify-between md:gap-8 md:px-10 md:py-6",
                       isRTL && "md:flex-row-reverse"
                     )}
                   >

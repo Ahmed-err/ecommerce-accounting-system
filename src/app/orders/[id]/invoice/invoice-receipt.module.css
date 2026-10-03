@@ -62,6 +62,18 @@
   display: block;
 }
 
+.scope :global(.invoice-pro .inv-mark) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scope :global(.invoice-pro .inv-wordmark) {
+  font-weight: 800;
+  font-size: 22px;
+  color: #0E1A2B;
+}
+
 .scope :global(.invoice-pro .inv-store-name) {
   margin: 0;
   font-size: 1.5rem;

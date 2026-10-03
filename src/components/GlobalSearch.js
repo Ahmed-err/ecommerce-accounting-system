@@ -70,7 +70,7 @@ export default function GlobalSearch({ inputId }) {
       <div className="relative z-10">
         <SearchIcon
           className={cn(
-            "pointer-events-none absolute top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-zinc-700 transition-colors group-hover:text-amber-500 dark:text-zinc-400",
+            "pointer-events-none absolute top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-zinc-700 transition-colors group-hover:text-accent-text dark:text-zinc-400",
             isRTL ? "right-3" : "left-3"
           )}
         />
@@ -127,7 +127,7 @@ export default function GlobalSearch({ inputId }) {
         <div className={`absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2`}>
           {loading ? (
             <div className="p-4 flex items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+              <Loader2 className="h-5 w-5 animate-spin text-accent-text" />
             </div>
           ) : results.length > 0 ? (
             <div className="p-2 space-y-1">
@@ -150,7 +150,7 @@ export default function GlobalSearch({ inputId }) {
                     <p className="text-sm font-bold truncate">{product.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{product.category?.name || ""}</p>
                   </div>
-                  <div className="text-sm font-black text-amber-500 whitespace-nowrap">
+                  <div className="text-sm font-black text-accent-text whitespace-nowrap">
                     {product.sellingPrice.toLocaleString()} {t.currency}
                   </div>
                 </Link>
@@ -158,7 +158,7 @@ export default function GlobalSearch({ inputId }) {
               <Link
                 href={`/products?search=${query}`}
                 onClick={() => setIsOpen(false)}
-                className="block border-t border-border p-3 text-center text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400"
+                className="block border-t border-border p-3 text-center text-xs font-bold text-accent-text hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400"
               >
                 {t.viewAll}
               </Link>

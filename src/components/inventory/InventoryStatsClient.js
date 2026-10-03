@@ -71,8 +71,8 @@ export default function InventoryStatsClient({
 
   const colorMap = {
     blue: { bg: "bg-blue-500/10", icon: "text-blue-500" },
-    amber: { bg: "bg-amber-500/10", icon: "text-amber-500" },
-    emerald: { bg: "bg-emerald-500/10", icon: "text-emerald-500" },
+    amber: { bg: "bg-amber-500/10", icon: "text-accent-text" },
+    emerald: { bg: "bg-emerald-500/10", icon: "text-emerald-500 dark:text-emerald-400" },
     red: { bg: "bg-red-500/10", icon: "text-red-500" },
     local: { bg: "bg-green-500/10", icon: "text-green-500" },
     imported: { bg: "bg-blue-500/10", icon: "text-blue-500" },

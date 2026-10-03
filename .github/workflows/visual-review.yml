@@ -1,0 +1,61 @@
+name: Visual Review
+
+# Screenshots of key pages (AR/EN × light/dark × phone/desktop) from a
+# production build on seed data, for reviewing design changes; runs on rebuild/** pushes and on demand. Never touches production.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "rebuild/**"
+
+permissions:
+  contents: read
+
+jobs:
+  screens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: visual
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/visual?schema=public
+      AUTH_SECRET: visual-review-placeholder-secret-min-32-chars
+      AUTH_TRUST_HOST: "true"
+      NEXT_PUBLIC_URL: http://127.0.0.1:3000
+      VERCEL_ENV: preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install --with-deps chromium
+      - name: Migrate, seed, build and start
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+          npm run build
+          nohup npm run start -- -H 127.0.0.1 -p 3000 > server.log 2>&1 &
+          npx --yes wait-on@8 -t 120000 http://127.0.0.1:3000/api/health
+      - run: node scripts/visual/screens.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-review
+          path: |
+            screens
+            server.log
+          if-no-files-found: ignore

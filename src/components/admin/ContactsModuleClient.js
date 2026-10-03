@@ -69,8 +69,8 @@ export default function ContactsModuleClient() {
 
   const statusBadge = (s) => {
     if (s === "NEW") return <Badge className="bg-amber-600">{t.contactStatusNew}</Badge>;
-    if (s === "READ") return <Badge className="bg-blue-600">{t.contactStatusRead}</Badge>;
-    return <Badge className="bg-emerald-600">{t.contactStatusReplied}</Badge>;
+    if (s === "READ") return <Badge className="bg-blue-600 text-white">{t.contactStatusRead}</Badge>;
+    return <Badge className="bg-emerald-600 text-white">{t.contactStatusReplied}</Badge>;
   };
 
   return (

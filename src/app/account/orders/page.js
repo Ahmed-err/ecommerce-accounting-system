@@ -32,9 +32,9 @@ export default async function AccountOrdersPage({ searchParams }) {
   const pages = Math.max(1, Math.ceil(total / 10));
 
   const statusClass = (s) =>
-    s === "PENDING" ? "bg-amber-500/10 text-amber-500" :
+    s === "PENDING" ? "bg-amber-500/10 text-accent-text" :
     s === "SHIPPED" ? "bg-blue-500/10 text-blue-500" :
-    s === "DELIVERED" ? "bg-emerald-500/10 text-emerald-500" :
+    s === "DELIVERED" ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" :
     s === "CANCELLED" ? "bg-red-500/10 text-red-500" :
     "bg-muted text-foreground";
 
@@ -60,7 +60,7 @@ export default async function AccountOrdersPage({ searchParams }) {
         {orders.length === 0 ? (
           <div className="rounded-xl border border-border bg-card/30 p-12 text-center">
             <p className="font-semibold text-foreground">{t.noOrdersFound}</p>
-            <Link href="/products" className="text-amber-500 text-sm">{t.startShopping}</Link>
+            <Link href="/products" className="text-accent-text text-sm">{t.startShopping}</Link>
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border">
@@ -85,7 +85,7 @@ export default async function AccountOrdersPage({ searchParams }) {
                     <td>{o.totalAmount.toLocaleString()} {t.currency}</td>
                     <td>{o.paymentMethod.replaceAll("_", " ")}</td>
                     <td><span className={`px-2 py-1 rounded-full text-xs ${statusClass(o.status)}`}>{o.status}</span></td>
-                    <td><Link href={`/account/orders/${o.id}`} className="text-amber-500">{lang === "ar" ? "عرض" : "View"}</Link></td>
+                    <td><Link href={`/account/orders/${o.id}`} className="text-accent-text">{lang === "ar" ? "عرض" : "View"}</Link></td>
                   </tr>
                 ))}
               </tbody>

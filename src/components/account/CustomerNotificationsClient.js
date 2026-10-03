@@ -92,7 +92,7 @@ export default function CustomerNotificationsClient({
                 <Link
                   href={n.link}
                   onClick={() => !n.read && markOneRead(n.id)}
-                  className="mt-2 inline-block text-xs text-amber-500 hover:text-amber-400"
+                  className="mt-2 inline-block text-xs text-accent-text hover:text-accent-text"
                 >
                   {viewOrderText}
                 </Link>

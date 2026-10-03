@@ -271,7 +271,7 @@ export default function InventoryStockPanel({
           <Button
             type="button"
             variant="ghost"
-            className="mt-2 text-amber-500"
+            className="mt-2 text-accent-text"
             onClick={loadMore}
           >
             {t.inventoryLoadMore}

@@ -45,7 +45,7 @@ function Stars({ value, size = "md", className }) {
           key={s}
           className={cn(
             dim,
-            v >= s - 0.25 ? "fill-amber-400 text-amber-400" : "text-muted-foreground/35"
+            v >= s - 0.25 ? "fill-amber-400 text-accent-text" : "text-muted-foreground/35"
           )}
         />
       ))}
@@ -223,7 +223,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
               </p>
               <Button
                 type="button"
-                className="mt-6 h-11 w-full bg-amber-500 font-semibold text-black shadow-md shadow-amber-500/20 hover:bg-amber-600"
+                className="mt-6 h-11 w-full bg-amber-500 font-semibold text-black shadow-md hover:bg-amber-600"
                 onClick={() => setOpen(true)}
               >
                 {lang === "ar" ? "اكتب مراجعة" : "Write a review"}
@@ -618,7 +618,7 @@ export default function ProductReviewsClient({ productId, embedded = false }) {
                     <Star
                       className={cn(
                         "h-8 w-8 sm:h-9 sm:w-9",
-                        form.rating >= s ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
+                        form.rating >= s ? "fill-amber-400 text-accent-text" : "text-muted-foreground/40"
                       )}
                     />
                   </button>

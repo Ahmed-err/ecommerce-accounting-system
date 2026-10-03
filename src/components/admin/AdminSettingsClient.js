@@ -321,7 +321,7 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         ))}
       </div>
 
-      {status && <p className={`text-sm ${statusType === "error" ? "text-red-500" : "text-emerald-500"}`}>{status}</p>}
+      {status && <p className={`text-sm ${statusType === "error" ? "text-red-500" : "text-emerald-500 dark:text-emerald-400"}`}>{status}</p>}
 
       {activeTab === "homepage" && (
         <div className="space-y-8">

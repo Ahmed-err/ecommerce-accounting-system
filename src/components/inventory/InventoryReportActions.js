@@ -486,7 +486,7 @@ export default function InventoryReportActions({
     return cn(
       "inline-flex rounded-md px-2 py-0.5 text-[10px] font-bold",
       tier === "out" && "bg-red-500/15 text-red-400",
-      tier === "low" && "bg-amber-500/15 text-amber-400",
+      tier === "low" && "bg-amber-500/15 text-accent-text",
       tier === "ok" && "bg-emerald-500/15 text-emerald-400"
     );
   };
@@ -527,12 +527,12 @@ export default function InventoryReportActions({
         >
           <DialogHeader className="shrink-0 border-b border-amber-500/30 bg-amber-500/5 px-6 py-4 text-start">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-500">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-accent-text">
                 <Package className="h-5 w-5" />
               </div>
               <div className="min-w-0">
                 <DialogTitle className="text-lg">{title}</DialogTitle>
-                <p className="mt-1 text-xs font-semibold text-amber-600/90 dark:text-amber-400/90">
+                <p className="mt-1 text-xs font-semibold text-accent-text dark:text-amber-400/90">
                   {brandName}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -579,10 +579,10 @@ export default function InventoryReportActions({
                 <p className="text-lg font-black tabular-nums text-emerald-600 dark:text-emerald-400">{pageStats.ok}</p>
               </div>
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
-                <span className="text-[10px] font-bold uppercase text-amber-600/90 dark:text-amber-400">
+                <span className="text-[10px] font-bold uppercase text-accent-text dark:text-amber-400">
                   {t.inventoryStatusBadgeLow}
                 </span>
-                <p className="text-lg font-black tabular-nums text-amber-600 dark:text-amber-400">{pageStats.low}</p>
+                <p className="text-lg font-black tabular-nums text-accent-text dark:text-amber-400">{pageStats.low}</p>
               </div>
               <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2.5">
                 <span className="text-[10px] font-bold uppercase text-red-600/90 dark:text-red-400">

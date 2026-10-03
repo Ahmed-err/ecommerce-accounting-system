@@ -54,12 +54,12 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-muted/40 backdrop-blur-3xl relative z-10 border-border/60 border-r border-l">
           <div className="max-w-md space-y-12">
               <div className="space-y-4">
-                  <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl shadow-amber-500/20">
+                  <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl">
                       <ShieldCheck className="h-full w-full text-black" />
                   </div>
                   <h2 className="text-6xl font-black text-foreground leading-tight tracking-tighter">
                      {lang === 'ar' ? 'مرحباً بك مجدداً في' : 'Welcome back to'} <br/>
-                     <span className="text-amber-600 dark:text-amber-500">{brandName}</span>
+                     <span className="text-accent-text dark:text-amber-500">{brandName}</span>
                   </h2>
                   <p className="text-xl text-muted-foreground font-medium leading-relaxed">
                      {t.loginToManage}
@@ -68,11 +68,11 @@ export default function LoginPage() {
 
               <div className="grid grid-cols-2 gap-6">
                   <div className="p-6 rounded-[32px] border border-border bg-card/80 shadow-sm">
-                      <div className="text-2xl font-black text-amber-600 dark:text-amber-500 mb-1 leading-none font-mono regular-nums">10K+</div>
+                      <div className="text-2xl font-black text-accent-text dark:text-amber-500 mb-1 leading-none font-mono regular-nums">10K+</div>
                       <div className="text-sm text-muted-foreground font-bold uppercase tracking-widest">{lang === 'ar' ? 'عميل نشط' : 'Active Users'}</div>
                   </div>
                   <div className="p-6 rounded-[32px] border border-border bg-card/80 shadow-sm">
-                      <div className="text-2xl font-black text-amber-600 dark:text-amber-500 mb-1 leading-none font-mono regular-nums">99.9%</div>
+                      <div className="text-2xl font-black text-accent-text dark:text-amber-500 mb-1 leading-none font-mono regular-nums">99.9%</div>
                       <div className="text-sm text-muted-foreground font-bold uppercase tracking-widest">{lang === 'ar' ? 'أداء النظام' : 'Uptime'}</div>
                   </div>
               </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="lg:hidden text-center mb-10">
               <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20 mb-4 group ring-8 ring-amber-500/5">
-                <ShieldCheck className="w-8 h-8 text-amber-500" />
+                <ShieldCheck className="w-8 h-8 text-accent-text" />
               </div>
               <h1 className="text-4xl font-black text-foreground tracking-tight">{t.welcomeBack}</h1>
               <p className="text-muted-foreground mt-2 font-medium">{t.loginToManage}</p>
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                   </div>
                   <input
                     type="text"
@@ -120,13 +120,13 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t.password}</label>
-                  <Link href="/forgot-password" title="Reset Password" className="text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-widest">
+                  <Link href="/forgot-password" title="Reset Password" className="text-xs font-bold text-accent-text hover:text-accent-text transition-colors uppercase tracking-widest">
                     {t.forgotPassword}
                   </Link>
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -139,7 +139,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className={`absolute inset-y-0 ${isRTL ? "left-4" : "right-4"} flex items-center text-muted-foreground hover:text-amber-500`}
+                    className={`absolute inset-y-0 ${isRTL ? "left-4" : "right-4"} flex items-center text-muted-foreground hover:text-accent-text`}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -149,7 +149,7 @@ export default function LoginPage() {
 
               <div className="flex items-center px-1">
                 <label className="flex items-center gap-3 text-muted-foreground cursor-pointer group">
-                  <input type="checkbox" className="w-5 h-5 rounded-lg border-2 border-border bg-muted text-amber-500 focus:ring-amber-500 transition-all" />
+                  <input type="checkbox" className="w-5 h-5 rounded-lg border-2 border-border bg-muted text-accent-text focus:ring-amber-500 transition-all" />
                   <span className="text-sm font-bold group-hover:text-foreground transition-colors">{t.rememberMe}</span>
                 </label>
               </div>
@@ -157,7 +157,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-5 rounded-[24px] shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-5 rounded-[24px] shadow-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
               >
                 {loading ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
@@ -198,7 +198,7 @@ export default function LoginPage() {
             <div className="mt-10 text-center">
               <p className="text-muted-foreground text-sm font-bold">
                   {t.dontHaveAccount}{" "}
-                <Link href="/register" className="text-amber-500 hover:underline transition-all">
+                <Link href="/register" className="text-accent-text hover:underline transition-all">
                   {t.createNewAccountLink}
                 </Link>
               </p>

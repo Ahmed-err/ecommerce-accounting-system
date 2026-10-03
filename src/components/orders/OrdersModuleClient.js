@@ -52,7 +52,7 @@ function mapReturnActionError(res, t) {
 }
 
 const STATUS_CONFIG = {
-  PENDING: { color: "bg-amber-500/10 text-amber-400 border-amber-500/20", icon: Clock, label: "ordStatusPending" },
+  PENDING: { color: "bg-amber-500/10 text-accent-text border-amber-500/20", icon: Clock, label: "ordStatusPending" },
   CONFIRMED: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: Check, label: "ordStatusProcessing" },
   PROCESSING: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: Package, label: "ordStatusProcessing" },
   SHIPPED: { color: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", icon: Truck, label: "ordStatusShipped" },
@@ -61,7 +61,7 @@ const STATUS_CONFIG = {
 };
 
 const RETURN_STATUS_CONFIG = {
-  PENDING: "bg-amber-500/10 text-amber-400",
+  PENDING: "bg-amber-500/10 text-accent-text",
   APPROVED: "bg-emerald-500/10 text-emerald-400",
   REFUNDED: "bg-blue-500/10 text-blue-400",
   REJECTED: "bg-red-500/10 text-red-400",
@@ -184,7 +184,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
             {order.guestPhone && <div className="flex justify-between"><span className="text-muted-foreground">{lang === "ar" ? "الهاتف" : "Phone"}:</span><span className="font-medium text-foreground dir-ltr">{order.guestPhone}</span></div>}
             {order.guestEmail && <div className="flex justify-between"><span className="text-muted-foreground">{t.email}:</span><span className="font-medium text-foreground">{order.guestEmail}</span></div>}
             {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-muted-foreground">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-foreground text-right">{order.guestCity}, {order.guestAddress}</span></div>}
-            <div className="flex justify-between"><span className="text-muted-foreground">{t.ordColPayment}:</span><span className="font-medium text-amber-400">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t.ordColPayment}:</span><span className="font-medium text-accent-text">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
           </div>
 
           {order.paymentProofUrl && (
@@ -194,7 +194,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
                 href={order.paymentProofUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-text hover:text-amber-300"
               >
                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 {t.ordOpenProof}
@@ -249,8 +249,8 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
               ))}
             </div>
             <div className="mt-3 bg-amber-500/10 rounded-xl p-3 flex justify-between items-center border border-amber-500/20">
-              <span className="text-xs font-bold text-amber-400">{t.grandTotal}</span>
-              <span className="font-bold text-amber-400 tabular-nums">{fmt(order.totalAmount, lang)} {t.currency}</span>
+              <span className="text-xs font-bold text-accent-text">{t.grandTotal}</span>
+              <span className="font-bold text-accent-text tabular-nums">{fmt(order.totalAmount, lang)} {t.currency}</span>
             </div>
           </div>
 
@@ -324,7 +324,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
               return (
                 <tr key={order.id} onClick={() => onRowClick(order)} className="hover:bg-muted/40 cursor-pointer transition-colors group">
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                    <span className="font-mono text-xs text-accent-text bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
                       #{order.id.slice(-8).toUpperCase()}
                     </span>
                   </td>
@@ -357,7 +357,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Link href={`/orders/${order.id}/invoice`} target="_blank">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-amber-400">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-accent-text">
                           <Printer className="h-3.5 w-3.5" />
                         </Button>
                       </Link>
@@ -495,7 +495,7 @@ function AllOrdersTab({ data, t, lang, isRTL, onStatusChange, initialQuery = {} 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: t.ordKpiTotal, value: kpis.total || 0, icon: ShoppingCart, color: "bg-blue-500/10 text-blue-400", delay: 0 },
-          { label: t.ordKpiPending, value: kpis.pending || 0, icon: Clock, color: "bg-amber-500/10 text-amber-400", delay: 0.05 },
+          { label: t.ordKpiPending, value: kpis.pending || 0, icon: Clock, color: "bg-amber-500/10 text-accent-text", delay: 0.05 },
           { label: t.ordKpiDelivered, value: kpis.delivered || 0, icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-400", delay: 0.1 },
           { label: t.ordKpiToday, value: kpis.todayCount || 0, icon: Package, color: "bg-purple-500/10 text-purple-400", delay: 0.15, sub: `${fmt(kpis.todayRevenue, lang)} ${t.currency}` },
         ].map((k) => <KpiCard key={k.label} {...k} />)}
@@ -586,7 +586,7 @@ function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
           <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">{t.ordPosSummary}</h3>
           <div className="flex flex-wrap gap-6">
             <div><p className="text-xs text-muted-foreground">{t.ordPosTotal}</p><p className="text-2xl font-bold text-foreground tabular-nums">{summary.total}</p></div>
-            <div><p className="text-xs text-muted-foreground">{t.ordPosRevenue}</p><p className="text-2xl font-bold text-amber-400 tabular-nums">{fmt(summary.revenue, lang)} {t.currency}</p></div>
+            <div><p className="text-xs text-muted-foreground">{t.ordPosRevenue}</p><p className="text-2xl font-bold text-accent-text tabular-nums">{fmt(summary.revenue, lang)} {t.currency}</p></div>
             {Object.entries(summary.byMethod || {}).map(([method, val]) => (
               <div key={method}><p className="text-xs text-muted-foreground">{method.replace(/_/g, " ")}</p><p className="text-lg font-bold text-blue-400 tabular-nums">{fmt(val, lang)}</p></div>
             ))}
@@ -754,7 +754,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
             )}
             {returns.map((r) => (
               <tr key={r.id} className="hover:bg-muted/40">
-                <td className="px-4 py-3 font-mono text-xs text-amber-400">{r.returnNumber}</td>
+                <td className="px-4 py-3 font-mono text-xs text-accent-text">{r.returnNumber}</td>
                 <td className="px-4 py-3 font-mono text-xs text-foreground">#{r.orderId.slice(-8).toUpperCase()}</td>
                 <td className="px-4 py-3 text-muted-foreground tabular-nums">{fmtDate(r.createdAt, lang)}</td>
                 <td className="px-4 py-3 text-foreground truncate max-w-40">{r.reason}</td>
@@ -973,7 +973,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
                   <tr key={i} className="hover:bg-muted/40">
                     <td className="py-3 text-foreground dir-ltr">{c.guestPhone || "—"}</td>
                     <td className="py-3 text-center tabular-nums text-foreground">{c._count?.id || 0}</td>
-                    <td className="py-3 tabular-nums font-bold text-amber-400">{fmt(c._sum?.totalAmount, lang)} {t.currency}</td>
+                    <td className="py-3 tabular-nums font-bold text-accent-text">{fmt(c._sum?.totalAmount, lang)} {t.currency}</td>
                   </tr>
                 ))}
               </tbody>

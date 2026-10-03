@@ -73,12 +73,12 @@ export default function RegisterPage() {
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 xl:px-24 bg-muted/40 backdrop-blur-3xl relative z-10 border-border/60 border-r border-l">
           <div className="max-w-md space-y-12">
               <div className="space-y-4">
-                  <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl shadow-amber-500/20">
+                  <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center p-2.5 shadow-2xl">
                       <UserPlus className="h-full w-full text-black" />
                   </div>
                   <h2 className="text-5xl font-black text-foreground leading-tight tracking-tighter">
                      {lang === 'ar' ? 'ابدأ رحلتك مع' : 'Start your journey with'} <br/>
-                     <span className="text-amber-600 dark:text-amber-500">{brandName}</span>
+                     <span className="text-accent-text dark:text-amber-500">{brandName}</span>
                   </h2>
               </div>
 
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                           return (
                               <div key={idx} className="flex items-start gap-4 group">
                                   <div className="p-3 rounded-2xl border border-border bg-card/80 group-hover:bg-amber-500/10 group-hover:border-amber-500/50 transition-all duration-300">
-                                      <Icon className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+                                      <Icon className="h-6 w-6 text-accent-text dark:text-amber-500" />
                                   </div>
                                   <div>
                                       <h4 className="text-foreground font-bold text-lg mb-1">{b.title}</h4>
@@ -116,7 +116,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-lg">
           <div className="lg:hidden text-center mb-8 sm:mb-10">
               <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20 mb-4 group ring-8 ring-amber-500/5">
-                <UserPlus className="w-8 h-8 text-amber-500" />
+                <UserPlus className="w-8 h-8 text-accent-text" />
               </div>
               <h1 className="text-4xl font-black text-foreground tracking-tight">{t.createNewAccount}</h1>
               <p className="text-muted-foreground mt-2 font-medium">{t.joinPowerStore}</p>
@@ -137,7 +137,7 @@ export default function RegisterPage() {
                     </div>
                     <div className="relative group">
                         <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                         </div>
                         <input
                           type="text"
@@ -155,7 +155,7 @@ export default function RegisterPage() {
                     </div>
                     <div className="relative group">
                         <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                            <User className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                         </div>
                         <input
                           type="text"
@@ -174,7 +174,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                   </div>
                   <input
                     type="email"
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Phone className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Phone className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                   </div>
                   <input
                     type="tel"
@@ -212,7 +212,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative group">
                   <div className={`absolute inset-y-0 ${isRTL ? 'right-5' : 'left-5'} flex items-center pointer-events-none z-10`}>
-                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300" />
+                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -225,7 +225,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className={`absolute inset-y-0 ${isRTL ? "left-4 sm:left-5" : "right-4 sm:right-5"} flex items-center text-muted-foreground hover:text-amber-500`}
+                    className={`absolute inset-y-0 ${isRTL ? "left-4 sm:left-5" : "right-4 sm:right-5"} flex items-center text-muted-foreground hover:text-accent-text`}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -236,7 +236,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-4 sm:py-5 rounded-2xl sm:rounded-[24px] shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-base sm:text-lg"
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-4 sm:py-5 rounded-2xl sm:rounded-[24px] shadow-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-base sm:text-lg"
               >
                 {loading ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
@@ -277,7 +277,7 @@ export default function RegisterPage() {
             <div className="mt-8 sm:mt-10 text-center">
               <p className="text-muted-foreground text-sm font-bold">
                   {t.alreadyHaveAccount}{" "}
-                <Link href="/login" className="text-amber-500 hover:underline transition-all">
+                <Link href="/login" className="text-accent-text hover:underline transition-all">
                   {t.login}
                 </Link>
               </p>

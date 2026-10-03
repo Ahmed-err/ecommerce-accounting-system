@@ -56,7 +56,7 @@ export default function RootError({ error, reset }) {
             <Link href="/">{t.err500Home}</Link>
           </Button>
         </div>
-        <Link href="/contact?subject=TECH" className="mt-8 text-sm font-semibold text-amber-600 hover:underline dark:text-amber-400">
+        <Link href="/contact?subject=TECH" className="mt-8 text-sm font-semibold text-accent-text hover:underline dark:text-amber-400">
           {t.err500Report}
         </Link>
       </div>

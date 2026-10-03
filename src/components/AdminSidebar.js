@@ -1,5 +1,7 @@
 "use client";
 
+import BrandLockup from "@/components/brand/BrandLockup";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -13,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Monitor,
-  Zap,
   MessageSquare,
   Truck,
   Mail,
@@ -69,14 +70,9 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="p-8">
-        <h2 className="flex items-start gap-2 text-foreground drop-shadow-sm">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500">
-            <Zap className="h-4 w-4 text-black" aria-hidden />
-          </div>
+        <h2 className="flex min-w-0 flex-col items-stretch gap-1 text-foreground">
+          <BrandLockup variant="compact" className="w-full" />
           <div className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold leading-snug tracking-tight line-clamp-3">
-              {brandName}
-            </span>
             <div
               className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
             >
@@ -99,7 +95,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
               onClick={onNavigate}
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group relative ${
                 isActive
-                  ? "bg-amber-500/15 text-amber-600 font-bold border border-amber-500/20"
+                  ? "bg-amber-500/15 text-accent-text font-bold border border-amber-500/20"
                   : "hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
               }`}
             >
@@ -112,7 +108,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
                 className={`h-5 w-5 shrink-0 transition-all duration-300 ${
                   isActive
                     ? "scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                    : "opacity-60 group-hover:scale-110 group-hover:text-amber-500 group-hover:opacity-100"
+                    : "opacity-60 group-hover:scale-110 group-hover:text-accent-text group-hover:opacity-100"
                 }`}
               />
               <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap tracking-wide">

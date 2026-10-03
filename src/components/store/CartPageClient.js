@@ -216,7 +216,7 @@ export default function CartPageClient() {
         )}
       >
         <span>{t.delivery}</span>
-        <span className="max-w-[55%] text-end text-xs leading-snug text-amber-600 dark:text-amber-400">
+        <span className="max-w-[55%] text-end text-xs leading-snug text-accent-text dark:text-amber-400">
           {t.shippingAtCheckout}
         </span>
       </div>
@@ -237,12 +237,12 @@ export default function CartPageClient() {
       >
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20 sm:h-24 sm:w-24">
           <ShoppingBag
-            className="h-9 w-9 text-amber-600 sm:h-11 sm:w-11 dark:text-amber-400"
+            className="h-9 w-9 text-accent-text sm:h-11 sm:w-11 dark:text-amber-400"
             strokeWidth={1.25}
           />
         </div>
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3 w-3 text-amber-500" />
+          <Sparkles className="h-3 w-3 text-accent-text" />
           {brandName}
         </div>
         <h2 className="mb-2 text-xl font-bold text-foreground sm:text-2xl">
@@ -282,7 +282,7 @@ export default function CartPageClient() {
         <Link
           href="/products"
           className={cn(
-            "inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-amber-600 transition-colors hover:text-amber-500 dark:text-amber-400",
+            "inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-accent-text transition-colors hover:text-accent-text dark:text-amber-400",
             isRTL && "flex-row-reverse"
           )}
         >
@@ -370,7 +370,7 @@ export default function CartPageClient() {
                       <div>
                         <Link
                           href={`/products/${item.id}`}
-                          className="line-clamp-2 font-semibold leading-snug text-foreground hover:text-amber-600 dark:hover:text-amber-400"
+                          className="line-clamp-2 font-semibold leading-snug text-foreground hover:text-accent-text dark:hover:text-amber-400"
                         >
                           {item.name}
                         </Link>
@@ -427,7 +427,7 @@ export default function CartPageClient() {
                             isRTL && "sm:flex-row-reverse"
                           )}
                         >
-                          <span className="text-sm font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                          <span className="text-sm font-bold tabular-nums text-accent-text dark:text-amber-400">
                             {t.cartLineTotal}: {line.toLocaleString()}{" "}
                             {t.currency}
                           </span>
@@ -440,7 +440,7 @@ export default function CartPageClient() {
                             <button
                               type="button"
                               onClick={() => moveToSavedForLater(item.id)}
-                              className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-amber-600 hover:underline dark:hover:text-amber-400"
+                              className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-accent-text hover:underline dark:hover:text-amber-400"
                             >
                               {t.moveToSaved}
                             </button>
@@ -484,7 +484,7 @@ export default function CartPageClient() {
                       <button
                         type="button"
                         onClick={() => restoreFromSavedForLater(item.id)}
-                        className="text-xs font-semibold text-amber-600 hover:underline dark:text-amber-400"
+                        className="text-xs font-semibold text-accent-text hover:underline dark:text-amber-400"
                       >
                         {t.restoreToCart}
                       </button>
@@ -558,7 +558,7 @@ export default function CartPageClient() {
             )}
           >
             <span className="text-foreground">{t.grandTotal}</span>
-            <span className="tabular-nums text-amber-600 dark:text-amber-400">
+            <span className="tabular-nums text-accent-text dark:text-amber-400">
               {estimatedGrand.toLocaleString()} {t.currency}
             </span>
           </div>
@@ -594,7 +594,7 @@ export default function CartPageClient() {
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               {t.grandTotal}
             </p>
-            <p className="truncate text-lg font-bold tabular-nums text-amber-600 dark:text-amber-400">
+            <p className="truncate text-lg font-bold tabular-nums text-accent-text dark:text-amber-400">
               {estimatedGrand.toLocaleString()} {t.currency}
             </p>
             <p className="text-[10px] text-muted-foreground">
