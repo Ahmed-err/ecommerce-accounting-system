@@ -165,7 +165,7 @@ export default function ProductCard({
           <span
             className={cn(
               "font-medium",
-              isOutOfStock ? "text-red-500" : "text-emerald-500"
+              isOutOfStock ? "text-red-500" : "text-emerald-500 dark:text-emerald-400"
             )}
           >
             {isOutOfStock ? t.outOfStock : `${t.inStock}: ${product.stock}`}

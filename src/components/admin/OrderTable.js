@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
   PENDING: { color: "bg-amber-500/10 text-accent-text", icon: Clock },
   PROCESSING: { color: "bg-blue-500/10 text-blue-500", icon: Package },
   SHIPPED: { color: "bg-indigo-500/10 text-indigo-500", icon: Truck },
-  DELIVERED: { color: "bg-emerald-500/10 text-emerald-500", icon: CheckCircle2 },
+  DELIVERED: { color: "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400", icon: CheckCircle2 },
   CANCELLED: { color: "bg-rose-500/10 text-rose-500", icon: XCircle },
 };
 
@@ -93,7 +93,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
           { label: t.adminTotalOrders, value: stats.total, color: "text-blue-500", bg: "bg-blue-500/10", icon: ShoppingCart },
           { label: t.adminStatusPending, value: stats.pending, color: "text-accent-text", bg: "bg-amber-500/10", icon: Clock },
           { label: t.adminStatusProcessing, value: stats.processing, color: "text-indigo-500", bg: "bg-indigo-500/10", icon: Package },
-          { label: t.adminStatusDelivered, value: stats.delivered, color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2 },
+          { label: t.adminStatusDelivered, value: stats.delivered, color: "text-emerald-500 dark:text-emerald-400", bg: "bg-emerald-500/10", icon: CheckCircle2 },
         ].map((item, i) => (
           <div key={i} className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
             <div>

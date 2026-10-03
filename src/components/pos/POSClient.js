@@ -1007,7 +1007,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{t.change}</span>
+                    <span className="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">{t.change}</span>
                     <span className="text-2xl font-black text-foreground tabular-nums">{changeAmount.toLocaleString()} <span className="text-sm">{t.currency}</span></span>
                   </div>
                   <XCircle 

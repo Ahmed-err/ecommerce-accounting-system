@@ -34,7 +34,7 @@ export default async function AccountOrdersPage({ searchParams }) {
   const statusClass = (s) =>
     s === "PENDING" ? "bg-amber-500/10 text-accent-text" :
     s === "SHIPPED" ? "bg-blue-500/10 text-blue-500" :
-    s === "DELIVERED" ? "bg-emerald-500/10 text-emerald-500" :
+    s === "DELIVERED" ? "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400" :
     s === "CANCELLED" ? "bg-red-500/10 text-red-500" :
     "bg-muted text-foreground";
 

@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
         <div className="bg-card border border-border rounded-[40px] p-12 text-center max-w-md shadow-2xl animate-in zoom-in duration-500">
            <div className="flex justify-center mb-6">
               <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
-                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                <CheckCircle2 className="w-10 h-10 text-emerald-500 dark:text-emerald-400" />
               </div>
            </div>
            <h1 className="text-3xl font-black text-foreground mb-4">
