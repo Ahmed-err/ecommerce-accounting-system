@@ -9,7 +9,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 - **Step:** 1 — audit in progress on `rebuild/p0-2-audit`
 - **Last done:** P0.1 merged (#3), dep audit merged (#4). Hotfix PRs opened from audit findings: #5 (unauthenticated `/api/admin/categories`), #6 (checkout errors thrown instead of returned).
 - **Attention:** prod deploy of `60f7c10` failed with Prisma P1002 (migrate through Neon pooler). Fix in PR #7 (migrations use `DIRECT_URL`); merging it redeploys prod with P0.1. User to confirm Vercel `DIRECT_URL` is the unpooled string.
-- **Next:** user merges #5, #6, #7; continue audit by area (`docs/rebuild/audit/findings.md` → "Coverage"); hotfixes for A-20/A-21 await user decision
+- **Next:** user merges #5–#9 (#7 first: it unblocks prod deploys); continue audit by area (`docs/rebuild/audit/findings.md` → "Coverage")
 
 ## Open decisions
 
@@ -23,7 +23,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | ID | Part | Status | Branch / PR | Notes |
 |---|---|---|---|---|
 | P0.1 | Local dev environment | done | #3 | |
-| P0.2 | Whole-app audit | audit | `rebuild/p0-2-audit` | hotfixes #5, #6; deploy fix #7 |
+| P0.2 | Whole-app audit | audit | `rebuild/p0-2-audit` | hotfixes #5, #6, #8, #9; deploy fix #7 |
 | P0.3 | Brand identity + design system | todo | | |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
