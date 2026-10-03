@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import BoltMark, { BOLT_PATH, BOLT_PATH_SMALL } from "@/components/brand/BoltMark";
 
 describe("BoltMark", () => {
@@ -26,5 +28,10 @@ describe("BoltMark", () => {
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     rerender(<BoltMark title="همّت" />);
     expect(screen.getByRole("img", { name: "همّت" })).toBeInTheDocument();
+  });
+
+  it("tab favicon (src/app/icon.svg) uses the heavier small-size bolt", () => {
+    const svg = fs.readFileSync(path.resolve(__dirname, "../../../src/app/icon.svg"), "utf8");
+    expect(svg).toContain(BOLT_PATH_SMALL);
   });
 });
