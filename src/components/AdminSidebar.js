@@ -70,8 +70,8 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="p-8">
-        <h2 className="flex flex-col items-start gap-1 text-foreground">
-          <BrandLockup variant="compact" />
+        <h2 className="flex min-w-0 flex-col items-stretch gap-1 text-foreground">
+          <BrandLockup variant="compact" className="w-full" />
           <div className="min-w-0 flex-1">
             <div
               className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
