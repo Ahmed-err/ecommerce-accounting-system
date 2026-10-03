@@ -331,6 +331,8 @@ try {
 
 ## API Reference
 
+> **Removed (2026-10-03):** the `/api/admin/categories` endpoints below had no authentication and were not used by the app; they were deleted. Admin category management goes through the server actions in `src/app/actions/inventory.js`. The section is kept for history only.
+
 ### Admin: List Categories
 ```
 GET /api/admin/categories
