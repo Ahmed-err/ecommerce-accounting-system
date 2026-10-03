@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "eslint .",
     "ci:check": "npm run lint && npm run build",
-    "audit:deps": "npm audit --audit-level=high",
+    "audit:deps": "node scripts/audit-deps.mjs",
     "smoke": "node scripts/smoke-check.mjs",
     "perf:baseline": "node scripts/perf-baseline.mjs",
     "postinstall": "prisma generate",
