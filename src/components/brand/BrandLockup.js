@@ -26,7 +26,10 @@ export default function BrandLockup({ variant = "compact", size, tone = "navy", 
         <span className="flex items-baseline gap-2">
           <span className={cn("font-extrabold text-foreground", full ? "text-3xl" : "text-xl")}>{wordmark}</span>
           {l === "ar" && (
-            <span dir="ltr" className="text-[11px] font-bold tracking-[0.22em] text-accent-text">
+            <span
+              dir="ltr"
+              className={cn("text-[11px] font-bold tracking-[0.22em] text-accent-text", !full && "hidden sm:inline")}
+            >
               HIMMAT
             </span>
           )}

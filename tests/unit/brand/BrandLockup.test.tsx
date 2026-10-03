@@ -38,4 +38,13 @@ describe("BrandLockup", () => {
     render(<BrandLockup variant="mark" />);
     expect(screen.getByRole("img", { name: "همّت" })).toBeInTheDocument();
   });
+  it("hides the Latin HIMMAT label on phones in compact so the navbar row can shrink", () => {
+    render(<BrandLockup variant="compact" />);
+    expect(screen.getByText("HIMMAT")).toHaveClass("hidden", "sm:inline");
+  });
+
+  it("always shows the Latin HIMMAT label in full", () => {
+    render(<BrandLockup variant="full" />);
+    expect(screen.getByText("HIMMAT")).not.toHaveClass("hidden");
+  });
 });
