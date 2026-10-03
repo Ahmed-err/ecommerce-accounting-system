@@ -380,6 +380,8 @@ export async function getFeaturedProducts(limit = 8) {
 }
 
 export async function placeOrder(userId, cartItems, guestInfo = null) {
+  // Declared outside try so the catch block can include it in the failure alert.
+  let effectiveUserId = null;
   try {
     const clientIp = await getClientIP();
     const rateAllowed = await checkRateLimit(`checkout:${clientIp}`, 8, 15 * 60 * 1000, { failClosed: false });
@@ -393,7 +395,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
 
     const session = await auth();
     const role = session?.user?.role || "GUEST";
-    let effectiveUserId =
+    effectiveUserId =
       typeof session?.user?.id === "string" && session.user.id.trim() ? session.user.id.trim() : null;
 
     if (effectiveUserId) {
