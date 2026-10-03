@@ -1,0 +1,8 @@
+[
+  {
+    "id": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces",
+    "reason": "No fixed version published (latest 3.0.3 is affected). Reached only through dev/build tooling (fast-glob via eslint-config-next, shadcn CLI, ts-morph); stack-exhaustion DoS needs attacker-controlled glob patterns, which this app never passes.",
+    "expires": "2027-01-03"
+  }
+]
