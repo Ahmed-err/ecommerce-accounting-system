@@ -6,7 +6,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P0.3 Brand identity + design system
-- **Step:** 6 — built, reviewed, fixes applied; PR open for user review/merge
+- **Step:** 6 — PR #14 open (CI pending), awaiting user merge
 - **Last done:** P0.3 built (13 plan tasks) + final-review fixes; notes in `docs/rebuild/parts/P0.3.md` (Lighthouse before/after, deferred items).
 - **Brand sheet:** https://claude.ai/artifact/4RHEHcqGxih3z9BDEPAUuY (logo, colour tokens, type, components — today vs refined)
 - **Decisions (user, 2026-10-03):** refine the current look, do not redesign; must not look AI-made. Name: **Himmat / همّت** leads; "عصام الدين نصر للأدوات الكهربائية" and "المدير العام: رياض همت" as small labels. Audience: trade pros and households equally.
@@ -26,7 +26,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 |---|---|---|---|---|
 | P0.1 | Local dev environment | done | #3 | |
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
-| P0.3 | Brand identity + design system | review | `rebuild/p0-3-brand` | refine, don't redesign; a11y target deferred to P0.4/P2 |
+| P0.3 | Brand identity + design system | review | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | todo | | |
 | P1.1 | Category taxonomy | todo | | |
 | P1.2 | Product content | todo | | |
