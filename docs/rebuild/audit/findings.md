@@ -6,6 +6,19 @@ Method: static review of the source on `main` at `60f7c10` (the dev machine has 
 
 Severity: **Critical** (exploitable now / data loss) · **High** (broken flow for real users, money or stock wrong) · **Medium** (wrong in edge cases, security hardening) · **Low** (polish, dead code).
 
+## Summary
+
+45 findings: 1 Critical, 11 High, 21 Medium, 12 Low. Performance numbers: [`perf-baseline.md`](perf-baseline.md).
+
+**Fixed straight away (hotfix PRs):** A-01 unauthenticated admin categories API (#5) · A-02 checkout errors thrown instead of shown (#6) · A-31 production migrations through the DB pooler (#7) · A-21 deactivated users could log in / stale roles (#8) · A-20 deleting a product erased order history (#9) · A-32 stored XSS via JSON-LD (#10).
+
+**Biggest themes for the rebuild:**
+1. *Money and stock integrity* — revenue booked at order time, refunds/returns/account-closure paths that skip stock or ledger, purchases and payroll missing from accounting (A-05, A-23–A-26, A-29, A-35). Owned by P3.3/P3.5, with checkout parts in P2.4.
+2. *Permissions are role lists in code*; the admin permission matrix is decorative (A-12, A-13).
+3. *Store speed*: LCP 3.7–5.0 s on mobile from a heavy shared client bundle, not the server (A-44); admin dashboard query fan-out (A-43).
+4. *RTL and i18n debt*: 693 physical direction classes, 594 inline translations (A-39, A-40) — handled as each part is rebuilt on the P0.3 design system.
+5. *Tests*: 1.3% unit coverage, server actions not measured (A-38) — every part adds tests for what it touches.
+
 ## Findings
 
 | ID | Sev | Area | Finding | Where | Part |
@@ -53,6 +66,8 @@ Severity: **Critical** (exploitable now / data loss) · **High** (broken flow fo
 | A-41 | Low | CI | CI and tests run Node 20 (end of life on Vercel since 2026-10-01; Vercel default is 24); `engines` is `>=20`. | `.github/workflows/*.yml`, `package.json` | P0.4 |
 | A-42 | Medium | Perf | Rate limiter runs 3 DB queries per check (delete expired, count, insert) on every guarded action; count-then-insert races under bursts; expired rows are only cleaned per key, so the table grows. | `src/lib/rate-limit.js` | P4.1 |
 | A-43 | High | Perf | Admin dashboard fires ~15 queries at once (pg `Pool` default max 10 → queueing/timeouts), then up to 12 sequential per-month `findMany` loading every order of each month for the chart, and loads every active product to count low stock in JS. Matches the P0.1 smoke (`/admin` 2.1 min, pool timeouts). Use grouped SQL (`date_trunc`), a raw `stock <= "minStock"` count, and bounded concurrency. | `src/lib/dashboard.js` | P3.1 |
+| A-44 | High | Perf | Mobile LCP 3.7–5.0 s on all key store pages (target < 2.5 s) with TTFB < 30 ms: 450–614 KB transferred even on `/login` (heavy shared client bundle) and 160–180 KB HTML on `/` and `/products`. See `perf-baseline.md`. | store pages, root layout | P0.4 (shared bundle), P2.1–P2.3 |
+| A-45 | Medium | A11y | Lighthouse accessibility 79 (`/`), 82 (`/products`), 88 (product page); fix per page to ≥ 95. | store pages | P0.3/P0.4, P2.x |
 
 ## Checked, no finding
 
@@ -78,6 +93,6 @@ Severity: **Critical** (exploitable now / data loss) · **High** (broken flow fo
 | Suppliers, employees actions | done |
 | Auth flows (login, register, reset) | done |
 | Security headers, rate limiting, env/secrets | done |
-| Performance (queries, bundle, images) and Lighthouse baseline | todo |
+| Performance (queries, bundle, images) and Lighthouse baseline | done — `perf-baseline.md` |
 | UI/UX, i18n/RTL, accessibility (static) | done (counts; visual review per part) |
 | Lint, build, test coverage health | done |
