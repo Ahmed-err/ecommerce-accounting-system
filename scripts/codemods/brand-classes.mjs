@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // P0.3 codemod: amber text on light surfaces -> text-accent-text; remove amber glows.
-// Usage: node scripts/codemods/brand-classes.mjs [--write] src/components src/app
+// Usage: node scripts/codemods/brand-classes.mjs [--write] [--dark-pairs] src/components src/app
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -8,13 +8,16 @@ import { pathToFileURL } from "node:url";
 const TEXT_AMBER = /^((?:(?!dark:)[\w-]+:)*)text-amber-(400|500|600)$/;
 const TEXT_AMBER_OPACITY = /^(?:(?!dark:)[\w-]+:)*text-amber-(400|500|600)\/\d+$/;
 const GLOW = /^(?:[\w-]+:)*shadow-amber-\d{2,3}(?:\/\d+)?$/;
-const DARK_CONTEXT =
-  /(?:^|\s)(?:[\w-]+:)*(?:dark:text-\S+|bg-black(?:\/\d+)?|bg-(?:slate|gray|zinc|neutral|stone)-(?:800|900|950)|bg-amber-(?:400|500|600)(?=\s|$)|bg-foreground|bg-brand|bg-primary)(?=\s|$)/;
+const DARK_PAIR = /(?:^|\s)(?:[\w-]+:)*dark:text-\S+(?=\s|$)/;
+const DARK_BG =
+  /(?:^|\s)(?:[\w-]+:)*(?:bg-black(?:\/\d+)?|bg-(?:slate|gray|zinc|neutral|stone)-(?:800|900|950)|bg-amber-(?:400|500|600)(?=\s|$)|bg-foreground|bg-brand|bg-primary)(?=\s|$)/;
 
-export function transformClassString(str) {
+// convertDarkPairs: also convert the light half of `text-amber-N dark:text-…` pairs (the
+// dark: class still wins in dark mode); amber text on dark backgrounds is always left alone.
+export function transformClassString(str, { convertDarkPairs = false } = {}) {
   const changes = [];
   const skipped = [];
-  const darkContext = DARK_CONTEXT.test(str);
+  const darkContext = DARK_BG.test(str) || (!convertDarkPairs && DARK_PAIR.test(str));
   const out = [];
   for (const part of str.split(/(\s+)/)) {
     if (!part || /^\s+$/.test(part) || part.includes("${")) {
@@ -55,13 +58,13 @@ export function transformClassString(str) {
 const STRING = /"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g;
 const TARGET = /(?:text|shadow)-amber-/;
 
-export function transformSource(src) {
+export function transformSource(src, options = {}) {
   const changes = [];
   const skipped = [];
   const code = src.replace(STRING, (whole, dq, sq, bt) => {
     const body = dq ?? sq ?? bt;
     if (!TARGET.test(body)) return whole;
-    const r = transformClassString(body);
+    const r = transformClassString(body, options);
     changes.push(...r.changes);
     skipped.push(...r.skipped);
     const q = whole[0];
@@ -80,13 +83,14 @@ function walk(dir) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const write = process.argv.includes("--write");
+  const options = { convertDarkPairs: process.argv.includes("--dark-pairs") };
   const dirs = process.argv.slice(2).filter((a) => !a.startsWith("--"));
   const report = ["# P0.3 brand-classes codemod report", ""];
   let total = 0;
   const skippedAll = [];
   for (const file of dirs.flatMap(walk)) {
     const src = fs.readFileSync(file, "utf8");
-    const { code, changes, skipped } = transformSource(src);
+    const { code, changes, skipped } = transformSource(src, options);
     if (skipped.length) skippedAll.push(`- \`${file}\`: ${skipped.join(", ")}`);
     if (!changes.length) continue;
     total += changes.length;

@@ -39,6 +39,20 @@ describe("transformClassString", () => {
   });
 });
 
+describe("transformClassString with convertDarkPairs", () => {
+  it("converts the light half of a light/dark pair on a light page", () => {
+    expect(transformClassString("text-amber-600 dark:text-amber-400", { convertDarkPairs: true }).value).toBe(
+      "text-accent-text dark:text-amber-400"
+    );
+  });
+
+  it("still leaves amber text on dark backgrounds", () => {
+    expect(transformClassString("bg-slate-900 text-amber-400 dark:text-amber-300", { convertDarkPairs: true }).value).toBe(
+      "bg-slate-900 text-amber-400 dark:text-amber-300"
+    );
+  });
+});
+
 describe("transformSource", () => {
   it("rewrites class strings in all quote styles and leaves other code alone", () => {
     const src = [
