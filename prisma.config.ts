@@ -20,7 +20,9 @@ export default defineConfig({
     // ☝️ This tells `npx prisma db seed` which script to run
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
-    // ☝️ Reads the connection string from our .env file
+    // Only the Prisma CLI (migrate, db seed) uses this URL; the app connects through
+    // src/lib/prisma.js. Migrations hold a Postgres advisory lock, which is unreliable
+    // through Neon's pooler (PgBouncer), so prefer the direct, unpooled DIRECT_URL.
+    url: process.env["DIRECT_URL"] || process.env["DATABASE_URL"],
   },
 });
