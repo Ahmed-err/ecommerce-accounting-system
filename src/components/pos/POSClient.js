@@ -48,7 +48,7 @@ function ProductCard({ product, onAdd, t }) {
         "group relative flex flex-col bg-card/80 backdrop-blur-sm border border-border rounded-2xl overflow-hidden text-left transition-all duration-200 h-full",
         outOfStock
           ? "border-red-900/20 opacity-60 grayscale cursor-not-allowed"
-          : "hover:border-amber-500/40 hover:shadow-2xl hover:shadow-amber-500/10 cursor-pointer"
+          : "hover:border-amber-500/40 hover:shadow-2xl cursor-pointer"
       )}
     >
       <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden shrink-0">
@@ -69,7 +69,7 @@ function ProductCard({ product, onAdd, t }) {
         {/* Badges */}
         <div className="absolute top-2 start-2 flex flex-col gap-1 z-10">
           {outOfStock ? (
-            <Badge variant="destructive" className="bg-red-600/90 text-white border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
+            <Badge className="bg-red-600/90 text-white border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
               {t.outOfStock}
             </Badge>
           ) : isLowStock ? (
@@ -100,14 +100,14 @@ function ProductCard({ product, onAdd, t }) {
         <div className="mt-auto flex items-end justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase font-black text-muted-foreground tracking-wider mb-0.5">{t.price}</span>
-            <span className="text-sm font-black text-amber-500 flex items-baseline gap-0.5">
-              {product.sellingPrice.toLocaleString()} <span className="text-[10px] font-bold text-amber-500/60 uppercase">{t.currency}</span>
+            <span className="text-sm font-black text-accent-text flex items-baseline gap-0.5">
+              {product.sellingPrice.toLocaleString()} <span className="text-[10px] font-bold text-accent-text uppercase">{t.currency}</span>
             </span>
           </div>
           <div className="text-right">
             <span className={cn(
               "text-[10px] font-black tracking-tight",
-              isLowStock ? "text-amber-500" : "text-muted-foreground"
+              isLowStock ? "text-accent-text" : "text-muted-foreground"
             )}>
               {product.stock} {t.left}
             </span>
@@ -136,11 +136,11 @@ function CartItem({ item, onUpdateQty, onRemove, t, isArabic }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className="text-[13px] font-bold text-foreground truncate group-hover:text-amber-500 transition-colors uppercase tracking-tight">{item.name}</h4>
+        <h4 className="text-[13px] font-bold text-foreground truncate group-hover:text-accent-text transition-colors uppercase tracking-tight">{item.name}</h4>
         <div className="flex items-center gap-1.5 text-xs">
           <span className="font-bold text-muted-foreground tabular-nums">{item.sellingPrice.toLocaleString()} {t.currency} × {item.quantity}</span>
           <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-          <span className="font-black text-amber-500 tabular-nums">{(item.sellingPrice * item.quantity).toLocaleString()} {t.currency}</span>
+          <span className="font-black text-accent-text tabular-nums">{(item.sellingPrice * item.quantity).toLocaleString()} {t.currency}</span>
         </div>
       </div>
 
@@ -641,18 +641,18 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           </Link>
           <div className="w-px h-6 bg-border shrink-0" />
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg">
               <Zap className="w-5 h-5 text-black" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-black text-lg tracking-tighter">
                 {isArabic ? (
                   <>
-                    عصام الدين <span className="text-amber-500">نصر</span>
+                    عصام الدين <span className="text-accent-text">نصر</span>
                   </>
                 ) : (
                   <>
-                    ESSAM EL-DIN <span className="text-amber-500">NASR</span>
+                    ESSAM EL-DIN <span className="text-accent-text">NASR</span>
                   </>
                 )}
               </span>
@@ -708,7 +708,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               title={t.reprintLast}
             >
               {printLoading ? (
-                <RotateCcw className="w-4 h-4 animate-spin text-amber-500" />
+                <RotateCcw className="w-4 h-4 animate-spin text-accent-text" />
               ) : (
                 <Printer className="w-4 h-4" />
               )}
@@ -719,7 +719,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
              {t.lastSync}: {mounted && lastSync ? lastSync.toLocaleTimeString([]) : "--:--:--"}
           </div>
           <Button variant="ghost" size="icon" onClick={syncStock} disabled={refreshing} className="rounded-xl border border-border hover:bg-muted text-muted-foreground">
-             <RotateCcw className={cn("w-4 h-4", refreshing && "animate-spin text-amber-500")} />
+             <RotateCcw className={cn("w-4 h-4", refreshing && "animate-spin text-accent-text")} />
           </Button>
           <Button variant="ghost" size="icon" className="rounded-xl border border-border hover:bg-muted text-muted-foreground lg:hidden">
              <LayoutGrid className="w-4 h-4" />
@@ -737,7 +737,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           <div className="p-4 sm:p-6 pb-0 space-y-6">
             <div className="relative group max-w-2xl">
               <div className="absolute inset-y-0 start-4 flex items-center pointer-events-none">
-                <Search className={cn("w-5 h-5 transition-colors", searchTerm ? "text-amber-500" : "text-muted-foreground")} />
+                <Search className={cn("w-5 h-5 transition-colors", searchTerm ? "text-accent-text" : "text-muted-foreground")} />
               </div>
               <input
                 ref={searchInputRef}
@@ -815,7 +815,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           <div className="h-14 shrink-0 px-6 flex items-center justify-between border-b border-border bg-muted/50">
             <div className="flex items-center gap-2.5">
               <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-amber-500" />
+                <ShoppingCart className="w-5 h-5 text-accent-text" />
                 {cart.length > 0 && (
                   <motion.span 
                     initial={{ scale: 0 }} 
@@ -898,7 +898,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
 
               <div className="flex justify-between font-black text-2xl pt-4 border-t border-border text-foreground tracking-tighter">
                 <span className="uppercase text-lg pt-1">{t.total}</span>
-                <span className="text-amber-500 tabular-nums">{total.toLocaleString()} {t.currency}</span>
+                <span className="text-accent-text tabular-nums">{total.toLocaleString()} {t.currency}</span>
               </div>
             </div>
 
@@ -906,7 +906,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               size="lg"
               disabled={cart.length === 0}
               onClick={() => setIsCheckoutOpen(true)}
-              className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-black font-black text-base rounded-2xl shadow-2xl shadow-amber-500/20 active:scale-[0.98] transition-all gap-3 uppercase flex items-center justify-center"
+              className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-black font-black text-base rounded-2xl shadow-2xl active:scale-[0.98] transition-all gap-3 uppercase flex items-center justify-center"
             >
               <Printer className="w-6 h-6" />
               {t.payAndPrint.split(' ')[0]}
@@ -919,7 +919,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="max-w-md bg-card border-border text-card-foreground p-0 flex flex-col h-auto !gap-0">
           <DialogHeader className="p-4 bg-muted/50 border-b border-border shrink-0">
-            <DialogTitle className="text-xl font-black uppercase tracking-widest text-amber-500 flex items-center gap-3">
+            <DialogTitle className="text-xl font-black uppercase tracking-widest text-accent-text flex items-center gap-3">
               <Wallet className="w-6 h-6" />
               {t.checkoutTitle}
             </DialogTitle>
@@ -936,7 +936,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
             {/* Customer Details */}
             <div className="space-y-3 bg-muted/40 p-3 rounded-xl border border-border">
               <div className="flex items-center gap-3 mb-2">
-                 <User className="w-4 h-4 text-amber-500" />
+                 <User className="w-4 h-4 text-accent-text" />
                  <h4 className="text-xs font-black uppercase text-muted-foreground">{t.customer}</h4>
               </div>
               <div className="grid grid-cols-1 gap-3">
@@ -958,14 +958,14 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
             {/* Payment Panel */}
             <div className="space-y-3">
               <div className="flex items-center gap-3 mb-2">
-                 <DollarSign className="w-4 h-4 text-amber-500" />
+                 <DollarSign className="w-4 h-4 text-accent-text" />
                  <h4 className="text-xs font-black uppercase text-muted-foreground">{t.paymentMethod}</h4>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'CASH', label: t.cash, icon: Banknote, active: "bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-xl shadow-emerald-500/5" },
                   { id: 'CARD', label: t.card, icon: CreditCard, active: "bg-blue-500/10 border-blue-500 text-blue-400 shadow-xl shadow-blue-500/5" },
-                  { id: 'CREDIT', label: t.credit, icon: RotateCcw, active: "bg-amber-500/10 border-amber-500 text-amber-400 shadow-xl shadow-amber-500/5" }
+                  { id: 'CREDIT', label: t.credit, icon: RotateCcw, active: "bg-amber-500/10 border-amber-500 text-accent-text shadow-xl" }
                 ].map(method => (
                   <button
                     key={method.id}
@@ -994,7 +994,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase text-muted-foreground">{t.amountTendered}</label>
                   <div className="relative">
-                    <DollarSign className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+                    <DollarSign className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-text" />
                     <Input 
                       type="number" 
                       autoFocus
@@ -1007,7 +1007,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{t.change}</span>
+                    <span className="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">{t.change}</span>
                     <span className="text-2xl font-black text-foreground tabular-nums">{changeAmount.toLocaleString()} <span className="text-sm">{t.currency}</span></span>
                   </div>
                   <XCircle 
@@ -1021,7 +1021,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           <div className="p-4 bg-muted/50 border-t border-border space-y-3 shrink-0">
                <div className="flex justify-between items-baseline p-4 rounded-xl bg-muted/40 border border-border">
                   <span className="text-sm font-bold text-muted-foreground uppercase">{t.total}</span>
-                  <span className="text-2xl font-black text-amber-500 tabular-nums tracking-tighter">{total.toLocaleString()} <span className="text-sm font-bold uppercase">{t.currency}</span></span>
+                  <span className="text-2xl font-black text-accent-text tabular-nums tracking-tighter">{total.toLocaleString()} <span className="text-sm font-bold uppercase">{t.currency}</span></span>
                </div>
                
                <Button 

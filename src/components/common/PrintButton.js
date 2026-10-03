@@ -10,7 +10,7 @@ export default function PrintButton({ targetId, label }) {
   return (
     <button
       onClick={() => (targetId ? printElementById(targetId) : window.print())}
-      className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-lg shadow-lg shadow-amber-500/20 transition-all"
+      className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-lg shadow-lg transition-all"
       type="button"
     >
       <Printer className="w-4 h-4" />

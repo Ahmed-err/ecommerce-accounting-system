@@ -243,7 +243,7 @@ export default function ProductGrid({
                 "w-full rounded-lg px-3 py-2 text-sm transition-all",
                 isRTL ? "text-right" : "text-left",
                 activeCategory === "all"
-                  ? "bg-amber-500/15 font-medium text-amber-500"
+                  ? "bg-amber-500/15 font-medium text-accent-text"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
@@ -262,7 +262,7 @@ export default function ProductGrid({
                   "w-full rounded-lg px-3 py-2 text-sm transition-all",
                   isRTL ? "text-right" : "text-left",
                   activeCategory === cat.id
-                    ? "bg-amber-500/15 font-medium text-amber-500"
+                    ? "bg-amber-500/15 font-medium text-accent-text"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -354,11 +354,11 @@ export default function ProductGrid({
         )}
         aria-label="Breadcrumb"
       >
-        <Link href="/" className="hover:text-amber-500">
+        <Link href="/" className="hover:text-accent-text">
           {t.catalogBreadcrumbHome}
         </Link>
         <span className="text-muted-foreground/50">/</span>
-        <Link href="/products" className="hover:text-amber-500">
+        <Link href="/products" className="hover:text-accent-text">
           {t.catalog}
         </Link>
         {activeCategory !== "all" && (
@@ -424,7 +424,7 @@ export default function ProductGrid({
           {compareHref && (
             <Link
               href={compareHref}
-              className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-500 hover:bg-amber-500/20"
+              className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-accent-text hover:bg-amber-500/20"
             >
               {t.catalogCompare} ({compareIds.length})
             </Link>

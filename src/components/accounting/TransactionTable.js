@@ -155,7 +155,7 @@ export default function TransactionTable({ initialTransactions, total, searchPar
           <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap">
             {/* Search */}
             <div className={`relative group h-10 w-full sm:col-span-2 xl:w-72`}>
-              <Search className={`pointer-events-none absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-amber-600`} />
+              <Search className={`pointer-events-none absolute ${isRTL ? "right-3" : "left-3"} inset-y-0 my-auto h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-accent-text`} />
               <Input
                 placeholder={t.accountingSearchPlaceholder}
                 className={`h-full rounded-xl border-border bg-background ${isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10 text-left"} text-foreground transition-all focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/40`}

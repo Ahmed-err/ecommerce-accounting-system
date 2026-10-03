@@ -136,7 +136,7 @@ export default function ProductCard({
           isRTL ? "text-right" : "text-left"
         )}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-amber-500">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-text">
           {translateCategory(product.category?.name, t, product.category?.nameAr)}
         </p>
 
@@ -165,7 +165,7 @@ export default function ProductCard({
           <span
             className={cn(
               "font-medium",
-              isOutOfStock ? "text-red-500" : "text-emerald-500"
+              isOutOfStock ? "text-red-500" : "text-emerald-500 dark:text-emerald-400"
             )}
           >
             {isOutOfStock ? t.outOfStock : `${t.inStock}: ${product.stock}`}
@@ -210,7 +210,7 @@ export default function ProductCard({
     <>
       <motion.div
         className={cn(
-          "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card shadow-premium transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
           homeShowcase
@@ -361,7 +361,7 @@ export default function ProductCard({
           >
             <span
               className={cn(
-                "font-medium uppercase tracking-wider text-amber-500",
+                "font-medium uppercase tracking-wider text-accent-text",
                 homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
               )}
             >
@@ -371,7 +371,7 @@ export default function ProductCard({
             <Link href={`/products/${product.id}`} className="min-h-0">
               <h3
                 className={cn(
-                  "mt-1 font-bold text-foreground transition-colors group-hover:text-amber-500",
+                  "mt-1 font-bold text-foreground transition-colors group-hover:text-accent-text",
                   compactRail
                     ? "text-sm line-clamp-2 leading-snug"
                     : homeShowcase
@@ -465,7 +465,7 @@ export default function ProductCard({
                   }}
                   disabled={isOutOfStock}
                   className={cn(
-                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
+                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-accent-text transition-all duration-200 hover:bg-amber-500 hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-30",
                     "p-2.5"
                   )}
                   title={t.addToCart}

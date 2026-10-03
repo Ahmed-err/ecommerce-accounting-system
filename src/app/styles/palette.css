@@ -1,0 +1,30 @@
+/* Remaps Tailwind's own scales to the Himmat brand so the ~1,350 existing
+   amber/emerald/slate classes take brand values without touching 74 files (spec §2). */
+@theme {
+  --color-amber-50: #FFF8EB;
+  --color-amber-100: #FDF1D8;
+  --color-amber-200: #FBE0A8;
+  --color-amber-300: #F8CB6B;
+  --color-amber-400: #F5B532;
+  --color-amber-500: #F2A20C;
+  --color-amber-600: #D9870A;
+  --color-amber-700: #9A5B00;
+  --color-amber-800: #6E4100;
+  --color-amber-900: #4F2F00;
+  --color-amber-950: #2E1B00;
+
+  --color-emerald-50: #EDF7F1;
+  --color-emerald-100: #D3EEDD;
+  --color-emerald-200: #A8DDBD;
+  --color-emerald-300: #6FC497;
+  --color-emerald-400: #3DA872;
+  --color-emerald-500: #1B8352;
+  --color-emerald-600: #1F7A4D;
+  --color-emerald-700: #19623E;
+  --color-emerald-800: #144D31;
+  --color-emerald-900: #0F3A25;
+  --color-emerald-950: #082215;
+
+  --color-slate-900: #0E1A2B;
+  --color-slate-950: #0B1422;
+}

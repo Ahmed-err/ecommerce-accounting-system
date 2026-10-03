@@ -120,7 +120,7 @@ export default function DashboardClient({ data, filters }) {
                 <Card className="bg-card border-border rounded-2xl hover:border-amber-500/30 transition-colors">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">{kpiLabels[k.id]}</CardTitle>
-                    <Icon className="h-4 w-4 text-amber-500" />
+                    <Icon className="h-4 w-4 text-accent-text" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-foreground regular-nums">
@@ -187,7 +187,7 @@ export default function DashboardClient({ data, filters }) {
                 </div>
               </Link>
             ))}
-            <Link href="/admin/orders" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض كل الطلبات" : "View all orders"}</Link>
+            <Link href="/admin/orders" className="inline-flex text-xs text-accent-text hover:text-accent-text dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض كل الطلبات" : "View all orders"}</Link>
           </CardContent>
         </Card>
 
@@ -199,7 +199,7 @@ export default function DashboardClient({ data, filters }) {
             {data.topProducts.map((p) => (
               <div key={p.productId} className="flex items-center justify-between rounded-lg border border-border p-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 text-center text-xs font-bold text-amber-500">{p.rank}</span>
+                  <span className="w-6 text-center text-xs font-bold text-accent-text">{p.rank}</span>
                   <span className="text-sm text-foreground">{p.name}</span>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
@@ -208,7 +208,7 @@ export default function DashboardClient({ data, filters }) {
                 </div>
               </div>
             ))}
-            <Link href="/admin/inventory" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض المخزون" : "View inventory"}</Link>
+            <Link href="/admin/inventory" className="inline-flex text-xs text-accent-text hover:text-accent-text dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "عرض المخزون" : "View inventory"}</Link>
           </CardContent>
         </Card>
       </div>
@@ -264,11 +264,11 @@ export default function DashboardClient({ data, filters }) {
               return (
                 <div key={a.id} className="flex items-start justify-between gap-3 rounded border border-border p-2">
                   <div className="flex items-start gap-2 min-w-0 flex-1">
-                    <Clock3 className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" />
+                    <Clock3 className="h-4 w-4 mt-0.5 text-accent-text shrink-0" />
                     <div className="min-w-0">
                       {fmt.href ? (
                         <Link href={fmt.href} className="group block">
-                          <p className="text-sm text-foreground group-hover:text-amber-400 transition-colors">{fmt.title}</p>
+                          <p className="text-sm text-foreground group-hover:text-accent-text transition-colors">{fmt.title}</p>
                           {fmt.subtitle ? (
                             <p className="text-xs text-muted-foreground mt-0.5 break-words">{fmt.subtitle}</p>
                           ) : null}
@@ -304,7 +304,7 @@ export default function DashboardClient({ data, filters }) {
               <p className="text-xs text-muted-foreground">{lang === "ar" ? "صافي الربح" : "Net Profit"}</p>
               <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>{data.finance.net.toLocaleString()} {t.currency}</p>
             </div>
-            <Link href="/admin/accounting" className="inline-flex text-xs text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>
+            <Link href="/admin/accounting" className="inline-flex text-xs text-accent-text hover:text-accent-text dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>
           </CardContent>
         </Card>
       </div>

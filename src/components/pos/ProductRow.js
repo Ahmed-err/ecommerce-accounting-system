@@ -30,7 +30,7 @@ export default function ProductRow({ product, onAddToCart }) {
         <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-tight">{product.name}</h3>
         <div className="flex justify-between items-end">
           <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
-          <span className="font-bold text-amber-500">{product.sellingPrice.toFixed(2)} {currency}</span>
+          <span className="font-bold text-accent-text">{product.sellingPrice.toFixed(2)} {currency}</span>
         </div>
       </div>
     </div>

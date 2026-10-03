@@ -68,7 +68,7 @@ export default function SettingsClient({ user }) {
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <div className="relative group/avatar">
             <div className="h-40 w-40 rounded-[32px] bg-muted border-2 border-border flex items-center justify-center p-8 group-hover/avatar:border-amber-500/50 transition-all duration-300">
-              <User className="h-full w-full text-amber-500" />
+              <User className="h-full w-full text-accent-text" />
             </div>
             <div className="absolute -bottom-2 -right-2 bg-amber-500 text-black text-[10px] font-black uppercase tracking-tighter px-3 py-1 rounded-full border-4 border-card">
               {user.role}
@@ -110,7 +110,7 @@ export default function SettingsClient({ user }) {
         <div className="bg-card border border-border rounded-[40px] p-8 md:p-12 space-y-10 group/card hover:bg-muted/10 transition-all duration-500">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <User className="h-6 w-6 text-amber-500" />
+              <User className="h-6 w-6 text-accent-text" />
               <h2 className="text-2xl font-black text-foreground">{t.settingsProfileInfo}</h2>
             </div>
             <p className="text-muted-foreground text-sm ml-9">
@@ -151,7 +151,7 @@ export default function SettingsClient({ user }) {
         <div className="bg-card border border-border rounded-[40px] p-8 md:p-12 space-y-10 group/sec hover:bg-muted/10 transition-all duration-500">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <Lock className="h-6 w-6 text-amber-500" />
+              <Lock className="h-6 w-6 text-accent-text" />
               <h2 className="text-2xl font-black text-foreground">{t.settingsSecurity}</h2>
             </div>
             <p className="text-muted-foreground text-sm ml-9">
@@ -174,7 +174,7 @@ export default function SettingsClient({ user }) {
                 <button
                   type="button"
                   onClick={() => setShowPasswords((p) => ({ ...p, currentPassword: !p.currentPassword }))}
-                  className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-amber-500`}
+                  className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-accent-text`}
                   aria-label={showPasswords.currentPassword ? "Hide password" : "Show password"}
                 >
                   {showPasswords.currentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -197,7 +197,7 @@ export default function SettingsClient({ user }) {
                   <button
                     type="button"
                     onClick={() => setShowPasswords((p) => ({ ...p, newPassword: !p.newPassword }))}
-                    className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-amber-500`}
+                    className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-accent-text`}
                     aria-label={showPasswords.newPassword ? "Hide password" : "Show password"}
                   >
                     {showPasswords.newPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -218,7 +218,7 @@ export default function SettingsClient({ user }) {
                   <button
                     type="button"
                     onClick={() => setShowPasswords((p) => ({ ...p, confirmNewPassword: !p.confirmNewPassword }))}
-                    className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-amber-500`}
+                    className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? "left-4" : "right-4"} text-muted-foreground hover:text-accent-text`}
                     aria-label={showPasswords.confirmNewPassword ? "Hide password" : "Show password"}
                   >
                     {showPasswords.confirmNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -232,7 +232,7 @@ export default function SettingsClient({ user }) {
         <div className={`flex ${isRTL ? "justify-start" : "justify-end"} pt-8`}>
           <Button
             disabled={loading}
-            className="px-12 py-8 bg-amber-500 hover:bg-amber-600 text-black font-black text-xl rounded-full flex items-center justify-center gap-3 group transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-amber-500/20"
+            className="px-12 py-8 bg-amber-500 hover:bg-amber-600 text-black font-black text-xl rounded-full flex items-center justify-center gap-3 group transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
           >
             {loading ? (
               t.saving

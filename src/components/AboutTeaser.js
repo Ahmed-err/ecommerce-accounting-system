@@ -35,7 +35,7 @@ export default function AboutTeaser() {
             </p>
 
             <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/20 dark:border-white/10 rounded-2xl p-5 space-y-2 sm:p-6">
-              <p className="text-amber-600 dark:text-amber-500 font-bold text-sm sm:text-base">
+              <p className="text-accent-text dark:text-amber-500 font-bold text-sm sm:text-base">
                 {t.sudanTouch}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm">{t.sudanTouchDesc}</p>
@@ -50,7 +50,7 @@ export default function AboutTeaser() {
                 {t.services.slice(0, 3).map((s, idx) => (
                   <li
                     key={idx}
-                    className="text-muted-foreground marker:text-amber-500"
+                    className="text-muted-foreground marker:text-accent-text"
                   >
                     {s}
                   </li>

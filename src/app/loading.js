@@ -15,7 +15,7 @@ export default async function Loading() {
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       <div className="animate-pulse text-center">
-        <p className="text-2xl font-black tracking-tight text-amber-500">{b.brandName}</p>
+        <p className="text-2xl font-black tracking-tight text-accent-text">{b.brandName}</p>
         <p className="mt-2 text-sm text-muted-foreground">{t.loadingStore}</p>
       </div>
       <div className="w-full max-w-md space-y-3">

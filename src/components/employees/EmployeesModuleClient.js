@@ -82,7 +82,7 @@ function diffHours(cin, cout) {
 function Badge({ color, children }) {
   const map = {
     green: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    amber: "bg-amber-500/10 text-accent-text border-amber-500/20",
     red: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     gray: "bg-muted text-muted-foreground border-border",
@@ -172,7 +172,7 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
   const kpiCards = [
     { label: t.empKpiTotal, value: kpis.total || 0, icon: Users, color: "bg-blue-500/10 text-blue-400" },
     { label: t.empKpiActive, value: kpis.active || 0, icon: CheckCircle, color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
-    { label: t.empKpiOnLeave, value: kpis.onLeaveToday || 0, icon: Clock, color: "bg-amber-500/10 text-amber-400" },
+    { label: t.empKpiOnLeave, value: kpis.onLeaveToday || 0, icon: Clock, color: "bg-amber-500/10 text-accent-text" },
     { label: t.empKpiMissingSheet, value: kpis.missingAttendanceToday ?? 0, icon: XCircle, color: "bg-red-500/10 text-red-700 dark:text-red-400" },
   ];
 
@@ -228,7 +228,7 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
             <div className="space-y-2">
               {(kpis.upcomingLeaves || []).map((l) => (
                 <div key={l.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/40">
-                  <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center text-accent-text font-bold text-xs shrink-0">
                     {l.user?.firstName?.[0]}{l.user?.lastName?.[0]}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -397,7 +397,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
       <div className="bg-card/80 border border-amber-500/20 rounded-xl p-5 space-y-4">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-            <ClipboardList className="h-5 w-5 text-amber-400" />
+            <ClipboardList className="h-5 w-5 text-accent-text" />
           </div>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">{t.empQuickAttendanceTitle}</h3>
@@ -438,7 +438,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
           <label className={`flex items-center gap-2 text-xs text-foreground cursor-pointer ${isRTL ? "flex-row-reverse" : ""} pb-1`}>
             <input
               type="checkbox"
-              className="rounded border-border bg-background text-amber-500 focus:ring-amber-500/30"
+              className="rounded border-border bg-background text-accent-text focus:ring-amber-500/30"
               checked={quickOnlyMissing}
               onChange={(e) => setQuickOnlyMissing(e.target.checked)}
               disabled={quickLoading}
@@ -697,7 +697,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
             { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
             { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
             { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
-            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
+            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-accent-text" },
           ].map((item) => (
             <div key={item.label} className="bg-card border border-border rounded-xl p-4">
               <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -731,7 +731,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
                   <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">+{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">-{fmt(r.deductions, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums font-bold text-amber-400">{fmt(r.netSalary, lang)} {t.currency}</td>
+                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary, lang)} {t.currency}</td>
                   <td className="px-4 py-3">{statusBadge(r.status)}</td>
                   <td className="px-4 py-3">
                     {r.status !== "PAID" && (
@@ -789,8 +789,8 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
             </div>
           </div>
           <div className="bg-amber-500/10 rounded-lg p-3 flex justify-between items-center">
-            <span className="text-xs text-amber-400">{t.empColNet}</span>
-            <span className="font-bold text-amber-400 tabular-nums">{fmt(net, lang)} {t.currency}</span>
+            <span className="text-xs text-accent-text">{t.empColNet}</span>
+            <span className="font-bold text-accent-text tabular-nums">{fmt(net, lang)} {t.currency}</span>
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
@@ -1028,7 +1028,7 @@ function RolesTab({ t, lang, isRTL }) {
         {ROLES.map((role) => (
           <div key={role.key} className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-amber-400"}`}>
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-accent-text"}`}>
                 <Shield className="h-3 w-3" /> {role.name}
               </div>
               {role.key === "ADMIN" ? (
@@ -1165,7 +1165,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
                 <th className="px-4 py-3">{t.empColEmployee}</th>
                 <th className="px-4 py-3 text-emerald-400">{t.empStatusPresent}</th>
                 <th className="px-4 py-3 text-red-400">{t.empStatusAbsent}</th>
-                <th className="px-4 py-3 text-amber-400">{t.empStatusLate}</th>
+                <th className="px-4 py-3 text-accent-text">{t.empStatusLate}</th>
                 <th className="px-4 py-3">{t.empStatusHalfDay}</th>
                 <th className="px-4 py-3">{lang === "ar" ? "معدل الحضور %" : "Attendance Rate %"}</th>
               </tr>
@@ -1179,7 +1179,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
                     <td className="px-4 py-3 font-medium text-foreground">{e.name}</td>
                     <td className="px-4 py-3 text-emerald-400 tabular-nums">{e.present}</td>
                     <td className="px-4 py-3 text-red-400 tabular-nums">{e.absent}</td>
-                    <td className="px-4 py-3 text-amber-400 tabular-nums">{e.late}</td>
+                    <td className="px-4 py-3 text-accent-text tabular-nums">{e.late}</td>
                     <td className="px-4 py-3 text-muted-foreground tabular-nums">{e.halfDay}</td>
                     <td className="px-4 py-3 tabular-nums">
                       <div className="flex items-center gap-2">
@@ -1206,7 +1206,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
             { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
             { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
             { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
-            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-amber-400" },
+            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-accent-text" },
           ].map((item) => (
             <div key={item.label} className="bg-muted/40 rounded-xl p-4">
               <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -1234,7 +1234,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
                   <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-emerald-400">{fmt(r.bonuses, lang)}</td>
                   <td className="px-4 py-3 tabular-nums text-red-400">{fmt(r.deductions, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums font-bold text-amber-400">{fmt(r.netSalary, lang)} {t.currency}</td>
+                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary, lang)} {t.currency}</td>
                   <td className="px-4 py-3"><Badge color={r.status === "PAID" ? "green" : r.status === "PENDING" ? "amber" : "blue"}>{r.status === "PAID" ? t.empSalaryPaid : r.status === "PENDING" ? t.empSalaryPending : t.empSalaryProcessing}</Badge></td>
                 </tr>
               ))}

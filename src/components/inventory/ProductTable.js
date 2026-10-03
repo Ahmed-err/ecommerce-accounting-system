@@ -75,7 +75,7 @@ function SortHeader({ label, colKey, currentSort, onToggle, isRTL }) {
       type="button"
       onClick={() => onToggle(colKey)}
       className={cn(
-        "inline-flex items-center gap-1 font-bold hover:text-amber-400",
+        "inline-flex items-center gap-1 font-bold hover:text-accent-text",
         isRTL && "flex-row-reverse"
       )}
     >
@@ -498,7 +498,7 @@ export default function ProductTable({
             <div className="relative h-10 w-full min-w-[200px] group sm:col-span-2 lg:max-w-xs">
               <Search
                 className={cn(
-                  "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-muted-foreground group-focus-within:text-amber-600",
+                  "pointer-events-none absolute inset-y-0 my-auto h-4 w-4 text-muted-foreground group-focus-within:text-accent-text",
                   isRTL ? "right-3" : "left-3"
                 )}
               />
@@ -872,7 +872,7 @@ export default function ProductTable({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-bold text-foreground group-hover:text-amber-400">
+                        <div className="truncate font-bold text-foreground group-hover:text-accent-text">
                           {displayName(p, lang)}
                         </div>
                         <div className="mt-1.5 flex flex-wrap items-center gap-2">

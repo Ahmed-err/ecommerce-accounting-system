@@ -29,6 +29,7 @@ export function Providers({ children, lang, branding }) {
         attribute="class"
         defaultTheme="light"
         enableSystem={false}
+        storageKey="himmat-theme"
         disableTransitionOnChange={false}
         enableColorScheme
       >

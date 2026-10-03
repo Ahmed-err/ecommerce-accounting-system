@@ -338,7 +338,7 @@ export default function NotificationBell({ customerOnly = false }) {
           <Link
             href={customerOnly ? "/account/notifications" : "/admin/notifications"}
             onClick={() => setOpen(false)}
-            className="mt-2 block text-center text-xs text-amber-600 hover:text-amber-500"
+            className="mt-2 block text-center text-xs text-accent-text hover:text-accent-text"
           >
             {lang === "ar" ? "عرض الكل" : "View all"}
           </Link>

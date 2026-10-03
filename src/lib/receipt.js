@@ -4,6 +4,9 @@
 
 import { PAYMENT_METHODS } from "@/lib/constants";
 
+// Himmat bolt for invoices without an uploaded logo; keep in sync with src/components/brand/BoltMark.js.
+const INVOICE_BOLT_PATH = "M282 52 L142 286 H244 L204 460 L374 214 H276 L326 52 Z";
+
 export function resolvePaymentMethodLabel(methodId, lang) {
   const id = String(methodId || "").trim();
   const hit = PAYMENT_METHODS.find((x) => x.id === id);
@@ -436,7 +439,7 @@ export function buildReceiptInnerHtml(data, { paper = "thermal", paperWidth = "8
 
     const logoBlock = data.storeLogo
       ? `<div class="inv-logo"><img src="${escapeHtml(data.storeLogo)}" alt="" crossorigin="anonymous" /></div>`
-      : "";
+      : `<div class="inv-mark"><svg width="44" height="44" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="104" fill="#0E1A2B"/><path d="${INVOICE_BOLT_PATH}" fill="#F2A20C"/></svg><span class="inv-wordmark">${data.lang === "ar" ? "همّت" : "Himmat"}</span></div>`;
 
     const taxRow =
       data.tax > 0

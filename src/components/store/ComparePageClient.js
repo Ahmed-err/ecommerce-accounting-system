@@ -71,7 +71,7 @@ export default function ComparePageClient({ products }) {
                 </div>
                 <Link
                   href={`/products/${p.id}`}
-                  className="line-clamp-2 font-semibold text-foreground hover:text-amber-500"
+                  className="line-clamp-2 font-semibold text-foreground hover:text-accent-text"
                 >
                   {p.name}
                 </Link>
@@ -110,7 +110,7 @@ export default function ComparePageClient({ products }) {
       <div className={cn("mt-6", isRTL && "text-right")}>
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 text-sm font-medium text-amber-500 hover:text-amber-400"
+          className="inline-flex items-center gap-2 text-sm font-medium text-accent-text hover:text-accent-text"
         >
           {isRTL ? (
             <ArrowRight className="h-4 w-4 rotate-180" />

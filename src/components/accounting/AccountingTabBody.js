@@ -208,7 +208,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   </p>
                 </div>
                 <div className={cn("rounded-xl p-2.5", card.color === "emerald" && "bg-emerald-500/10", card.color === "red" && "bg-red-500/10", card.color === "amber" && "bg-amber-500/10", card.color === "sky" && "bg-sky-500/10")}>
-                  <card.icon className={cn("h-5 w-5", card.color === "emerald" && "text-emerald-400", card.color === "red" && "text-red-400", card.color === "amber" && "text-amber-400", card.color === "sky" && "text-sky-400")} />
+                  <card.icon className={cn("h-5 w-5", card.color === "emerald" && "text-emerald-400", card.color === "red" && "text-red-400", card.color === "amber" && "text-accent-text", card.color === "sky" && "text-sky-400")} />
                 </div>
               </div>
               <div className={`mt-3 ${isRTL ? "text-right" : "text-left"}`}>
@@ -349,7 +349,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           isRTL={isRTL}
           actions={(r) =>
             r.editable ? (
-              <Button variant="ghost" size="sm" className="text-amber-500" onClick={() => { setEditTx({ ...r, type: "OUTGOING" }); setFormOpen(true); }}>
+              <Button variant="ghost" size="sm" className="text-accent-text" onClick={() => { setEditTx({ ...r, type: "OUTGOING" }); setFormOpen(true); }}>
                 {t.accEditExpense}
               </Button>
             ) : null
@@ -490,7 +490,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
     const statusBadge = (s) => {
       const map = {
         PAID: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-        PENDING: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+        PENDING: "bg-amber-500/15 text-accent-text border-amber-500/30",
         OVERDUE: "bg-red-500/15 text-red-400 border-red-500/30",
         CANCELLED: "bg-gray-500/15 text-muted-foreground border-gray-500/30",
       };
@@ -706,7 +706,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                     <td className="px-4 py-2 accounting-no-print space-x-1">
                       {r.editable && (
                         <>
-                          <Button variant="ghost" size="sm" className="text-amber-500" onClick={() => { setEditTx({ ...r, type: "OUTGOING" }); setFormOpen(true); }}>
+                          <Button variant="ghost" size="sm" className="text-accent-text" onClick={() => { setEditTx({ ...r, type: "OUTGOING" }); setFormOpen(true); }}>
                             {t.accEditExpense}
                           </Button>
                           {permissions.canDelete && (

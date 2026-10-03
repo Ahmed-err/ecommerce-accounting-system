@@ -57,7 +57,7 @@ export default function LegalDocClient({ contentAr, contentEn, updatedAt, docTit
   return (
     <div className={cn(displayLang === "ar" && "text-right")} dir={displayLang === "ar" ? "rtl" : "ltr"}>
       <nav className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 px-4 pb-6 pt-8 text-sm text-muted-foreground sm:px-6">
-        <Link href="/" className="hover:text-amber-600 dark:hover:text-amber-400">
+        <Link href="/" className="hover:text-accent-text dark:hover:text-amber-400">
           {t.catalogBreadcrumbHome}
         </Link>
         <span className="opacity-40">/</span>

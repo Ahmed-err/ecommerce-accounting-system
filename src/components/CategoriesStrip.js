@@ -62,7 +62,7 @@ export default function CategoriesStrip({ categories }) {
           <Link
             href="/products"
             className={cn(
-              "inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-500 transition-colors hover:text-amber-400 sm:text-sm",
+              "inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-accent-text transition-colors hover:text-accent-text sm:text-sm",
               isRTL && "flex-row-reverse",
               "text-start"
             )}
@@ -93,7 +93,7 @@ export default function CategoriesStrip({ categories }) {
               >
                 <div className="relative h-16 w-16 rounded-xl flex items-center justify-center bg-amber-500/5 overflow-hidden group-hover:scale-110 group-hover:bg-amber-500/10 transition-all duration-500 sm:h-20 sm:w-20 sm:rounded-2xl lg:h-24 lg:w-24">
                   {shouldUseFallback ? (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-amber-600">
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-accent-text">
                       <span className="text-xs font-semibold uppercase tracking-[0.2em]">
                         {categoryLabel.slice(0, 2)}
                       </span>
@@ -111,7 +111,7 @@ export default function CategoriesStrip({ categories }) {
                   )}
                 </div>
 
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-amber-500 transition-colors truncate w-full text-center sm:text-[10px] sm:tracking-[0.22em] lg:text-[11px] lg:tracking-[0.25em]">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-accent-text transition-colors truncate w-full text-center sm:text-[10px] sm:tracking-[0.22em] lg:text-[11px] lg:tracking-[0.25em]">
                   {categoryLabel}
                 </p>
               </Link>

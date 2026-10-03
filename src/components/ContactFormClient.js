@@ -72,7 +72,7 @@ export default function ContactFormClient({ defaultSubject }) {
         className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm md:p-12"
       >
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
-          <CheckCircle className="mx-auto h-16 w-16 text-emerald-500" />
+          <CheckCircle className="mx-auto h-16 w-16 text-emerald-500 dark:text-emerald-400" />
         </motion.div>
         <h2 className="mt-4 text-2xl font-bold text-foreground">{t.contactFormSuccess}</h2>
         <Button onClick={() => setSuccess(false)} variant="outline" className="mt-6 border-border">

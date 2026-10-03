@@ -40,16 +40,16 @@ export default function HeroSlider({ banners }) {
       <section className="relative flex min-h-[360px] items-center justify-center overflow-hidden bg-background sm:min-h-[460px] md:min-h-[540px]">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-background to-orange-600/10" />
         <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
-          <Zap className="mx-auto mb-5 h-12 w-12 animate-pulse text-amber-500 sm:h-16 sm:w-16" />
+          <Zap className="mx-auto mb-5 h-12 w-12 animate-pulse text-accent-text sm:h-16 sm:w-16" />
           <h1 className="mb-5 text-3xl font-black uppercase tracking-tighter text-foreground italic sm:text-4xl md:text-6xl">
             {t.heroTitle1}{" "}
-            <span className="text-amber-600 dark:text-amber-500">{t.heroTitle2}</span>
+            <span className="text-accent-text dark:text-amber-500">{t.heroTitle2}</span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {t.heroDesc}
           </p>
           <Link href="/products">
-            <Button className="h-12 rounded-2xl bg-amber-500 px-8 text-base font-black text-black shadow-xl shadow-amber-500/20 hover:bg-amber-600 sm:h-14 sm:px-10 sm:text-lg">
+            <Button className="h-12 rounded-2xl bg-amber-500 px-8 text-base font-black text-black shadow-xl hover:bg-amber-600 sm:h-14 sm:px-10 sm:text-lg">
               {t.browseProducts}
             </Button>
           </Link>
@@ -153,7 +153,7 @@ export default function HeroSlider({ banners }) {
               {/* CTAs */}
               <div className="flex flex-wrap gap-2 pt-1 sm:gap-3">
                 <Link href={slide.ctaLink}>
-                  <Button className="h-10 rounded-xl bg-amber-500 px-5 text-sm font-black text-black shadow-lg shadow-amber-500/25 transition-all hover:bg-amber-400 active:scale-[0.97] sm:h-12 sm:px-8 sm:text-base md:h-14 md:px-10 md:text-lg">
+                  <Button className="h-10 rounded-xl bg-amber-500 px-5 text-sm font-black text-black shadow-lg transition-all hover:bg-amber-400 active:scale-[0.97] sm:h-12 sm:px-8 sm:text-base md:h-14 md:px-10 md:text-lg">
                     {cta}
                   </Button>
                 </Link>

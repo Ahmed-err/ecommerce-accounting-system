@@ -21,6 +21,7 @@ import { useCart } from "@/components/store/CartProvider";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import BrandLockup from "@/components/brand/BrandLockup";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { ThemeToggle } from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
@@ -40,7 +41,7 @@ import { getCatalogCategories } from "@/app/actions/catalog";
  * can change the useId call order between SSR and the first client render, which
  * mismatches the mobile trigger id. Mount the sheet only after hydration.
  */
-function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline, isAdmin, isStaff }) {
+function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, isAdmin, isStaff }) {
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState(false);
 
@@ -83,17 +84,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                     <div className="flex h-full flex-col bg-background">
                         <SheetHeader className="border-b border-foreground/5 p-6">
                             <SheetTitle className="flex items-center gap-3">
-                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-md shadow-amber-500/30">
-                                    <Zap className="h-4 w-4 text-white" />
-                                </div>
-                                <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
-                                    <span className={cn("text-sm font-black text-foreground", isRTL ? "text-right" : "tracking-tight")}>
-                                        {brandName}
-                                    </span>
-                                    <span className="mt-0.5 text-[9px] font-bold text-amber-500 tracking-wide">
-                                        {brandTagline}
-                                    </span>
-                                </div>
+                                <BrandLockup variant="compact" />
                             </SheetTitle>
                         </SheetHeader>
 
@@ -126,7 +117,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                                     <Link
                                         href="/pos"
                                         onClick={() => setOpen(false)}
-                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-amber-500 transition-all hover:bg-amber-500/10"
+                                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-lg font-bold text-accent-text transition-all hover:bg-amber-500/10"
                                     >
                                         <Zap className="h-5 w-5 shrink-0" />
                                         {t.adminPos}
@@ -236,7 +227,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 export default function Navbar() {
     const { data: session } = useSession();
     const { cartCount, loaded } = useCart();
-    const { lang: langRaw, setLang, isRTL, brandName, brandTagline } = useLanguage();
+    const { lang: langRaw, setLang, isRTL } = useLanguage();
     const lang = normalizeAppLang(langRaw);
     const t = translations[lang] || translations.ar;
     const [scrolled, setScrolled] = useState(false);
@@ -311,30 +302,7 @@ export default function Navbar() {
                 >
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[min(9rem,40vw)] sm:max-w-[180px] md:max-w-[200px] lg:max-w-[200px] xl:max-w-[220px] 2xl:max-w-[240px] sm:gap-2.5">
-                        <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
-                            <Zap className="h-4 w-4 text-white drop-shadow sm:h-5 sm:w-5" />
-                        </div>
-
-                        <div className={cn("flex flex-col leading-none min-w-0 flex-1", isRTL && "items-end")}>
-                            <span className={cn(
-                                "text-xs font-black tracking-tight text-foreground whitespace-normal break-words leading-[1.15] sm:text-sm",
-                                isRTL ? "text-right" : ""
-                            )} style={{ 
-                                display: '-webkit-box',
-                                WebkitLineClamp: '2',
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                wordBreak: 'break-word'
-                            }}>
-                                {brandName}
-                            </span>
-                            <span className={cn(
-                                "mt-0.5 text-[8px] font-bold text-amber-500 tracking-wide truncate w-full sm:text-[9px]",
-                                isRTL && "text-right"
-                            )}>
-                                {brandTagline}
-                            </span>
-                        </div>
+                        <BrandLockup variant="compact" className="min-w-0" />
                     </Link>
 
                     {/* === Desktop: nav + search (flexible width so the bar stays on-screen) === */}
@@ -372,13 +340,13 @@ export default function Navbar() {
                                             <Link
                                                 key={cat.id || cat.name}
                                                 href={cat.href}
-                                                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-amber-500 transition-all group/item"
+                                                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-500/10 hover:text-accent-text transition-all group/item"
                                             >
-                                                <span className="text-sm font-bold text-foreground group-hover/item:text-amber-500">{cat.name}</span>
+                                                <span className="text-sm font-bold text-foreground group-hover/item:text-accent-text">{cat.name}</span>
                                             </Link>
                                         ))}
                                         <div className="border-t border-foreground/5 mt-1 pt-1">
-                                            <Link href="/products" className="flex items-center justify-center p-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-amber-500 transition-colors">
+                                            <Link href="/products" className="flex items-center justify-center p-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-accent-text transition-colors">
                                                 {t.viewAll}
                                             </Link>
                                         </div>
@@ -472,7 +440,7 @@ export default function Navbar() {
                                     
                                     <div className="space-y-1">
                                         {isStaff && (
-                                            <Link href="/pos" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all">
+                                            <Link href="/pos" className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-accent-text hover:bg-amber-500/10 rounded-xl transition-all">
                                                 <Zap className="h-4 w-4" />
                                                 {t.adminPos}
                                             </Link>
@@ -513,7 +481,7 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <Link href="/login" className="shrink-0">
-                                <Button className="h-9 w-9 justify-center rounded-full bg-amber-500 text-black shadow-lg shadow-amber-500/20 transition-all active:scale-95 hover:bg-amber-600 sm:h-10 sm:w-10 lg:h-10 lg:w-auto lg:px-5 lg:text-sm">
+                                <Button className="h-9 w-9 justify-center rounded-full bg-amber-500 text-black shadow-lg transition-all active:scale-95 hover:bg-amber-600 sm:h-10 sm:w-10 lg:h-10 lg:w-auto lg:px-5 lg:text-sm">
                                     <User className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", !isRTL && "lg:mr-2", isRTL && "lg:ml-2")} />
                                     <span className="hidden lg:inline">{t.login}</span>
                                 </Button>
@@ -527,8 +495,6 @@ export default function Navbar() {
                             t={t}
                             session={session}
                             navLinks={navLinks}
-                            brandName={brandName}
-                            brandTagline={brandTagline}
                             isAdmin={isAdmin}
                             isStaff={isStaff}
                         />

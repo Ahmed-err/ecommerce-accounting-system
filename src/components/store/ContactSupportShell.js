@@ -61,7 +61,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
   return (
     <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
       <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-amber-500">
+        <Link href="/" className="hover:text-accent-text">
           {t.catalogBreadcrumbHome}
         </Link>
         <span className="opacity-40">/</span>
@@ -108,7 +108,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
             transition={{ delay: i * 0.08 }}
             className="rounded-3xl border border-border bg-card p-6 shadow-sm"
           >
-            <div className="mb-4 inline-flex rounded-xl bg-amber-500/15 p-3 text-amber-500">
+            <div className="mb-4 inline-flex rounded-xl bg-amber-500/15 p-3 text-accent-text">
               <c.icon className="h-6 w-6" />
             </div>
             <h3 className="font-bold text-foreground">{c.label}</h3>
@@ -138,7 +138,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
         <ContactFormClient defaultSubject={defaultSubject} />
         <div className="space-y-6 rounded-3xl border border-border bg-card p-8">
           <div className="flex items-start gap-4">
-            <MapPin className="mt-1 h-5 w-5 shrink-0 text-amber-500" />
+            <MapPin className="mt-1 h-5 w-5 shrink-0 text-accent-text" />
             <div>
               <h3 className="font-bold text-foreground">{t.visitUs}</h3>
               <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{address || t.addressLine1}</p>
@@ -147,7 +147,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
                   href={store.googleMapsLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-amber-500 hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-accent-text hover:underline"
                 >
                   <ExternalLink className="h-3.5 w-3.5" /> Google Maps
                 </a>
@@ -155,7 +155,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
             </div>
           </div>
           <div className="flex items-start gap-4">
-            <Clock className="mt-1 h-5 w-5 shrink-0 text-amber-500" />
+            <Clock className="mt-1 h-5 w-5 shrink-0 text-accent-text" />
             <div>
               <h3 className="font-bold text-foreground">{t.workingHours}</h3>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
@@ -176,17 +176,17 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
           </div>
           <div className="flex flex-wrap gap-3 border-t border-border pt-4">
             {store.facebookUrl ? (
-              <a href={store.facebookUrl} target="_blank" rel="noreferrer" className="text-sm text-amber-500 hover:underline">
+              <a href={store.facebookUrl} target="_blank" rel="noreferrer" className="text-sm text-accent-text hover:underline">
                 Facebook
               </a>
             ) : null}
             {store.instagramUrl ? (
-              <a href={store.instagramUrl} target="_blank" rel="noreferrer" className="text-sm text-amber-500 hover:underline">
+              <a href={store.instagramUrl} target="_blank" rel="noreferrer" className="text-sm text-accent-text hover:underline">
                 Instagram
               </a>
             ) : null}
             {store.tiktokUrl ? (
-              <a href={store.tiktokUrl} target="_blank" rel="noreferrer" className="text-sm text-amber-500 hover:underline">
+              <a href={store.tiktokUrl} target="_blank" rel="noreferrer" className="text-sm text-accent-text hover:underline">
                 TikTok
               </a>
             ) : null}

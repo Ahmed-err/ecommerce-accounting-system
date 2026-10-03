@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 function BoltIllustration({ className }) {
   return (
-    <svg viewBox="0 0 200 200" className={cn("h-48 w-48 text-amber-500", className)} aria-hidden>
+    <svg viewBox="0 0 200 200" className={cn("h-48 w-48 text-accent-text", className)} aria-hidden>
       <defs>
         <linearGradient id="g404" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#fbbf24" />

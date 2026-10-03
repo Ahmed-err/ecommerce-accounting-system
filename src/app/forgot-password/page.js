@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-10">
-          <Link href="/login" className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400 transition-colors mb-6 font-bold group">
+          <Link href="/login" className="inline-flex items-center gap-2 text-accent-text hover:text-accent-text transition-colors mb-6 font-bold group">
             <ArrowLeft className={`w-4 h-4 transition-transform group-hover:-translate-x-1 ${isRTL ? 'rotate-180 group-hover:translate-x-1' : ''}`} />
             <span>{t.backToLogin || (lang === 'ar' ? 'العودة لتسجيل الدخول' : 'Back to Login')}</span>
           </Link>
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
             <div className="space-y-3">
               <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">{t.email}</label>
               <div className="relative group">
-                <Mail className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-amber-500 transition-all duration-300`} />
+                <Mail className={`absolute ${isRTL ? 'right-5' : 'left-5'} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent-text transition-all duration-300`} />
                 <input
                   type="email"
                   value={email}
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || !!message}
-              className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-5 rounded-[24px] shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
+              className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black font-black py-5 rounded-[24px] shadow-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
             >
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />

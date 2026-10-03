@@ -96,9 +96,9 @@ export default function Hero() {
                             animate={{ rotate: 360 }}
                             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                         >
-                            <Zap className="h-4 w-4 text-amber-500" />
+                            <Zap className="h-4 w-4 text-accent-text" />
                         </motion.div>
-                        <span className="text-amber-500 text-sm font-medium">
+                        <span className="text-accent-text text-sm font-medium">
                             {t.premiumSupplies}
                         </span>
                     </motion.div>
@@ -144,7 +144,7 @@ export default function Hero() {
                         >
                             <Link
                                 href="/products"
-                                className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/25"
+                                className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl"
                             >
                                 {t.browseProducts}
                                 {isRTL ? (
@@ -199,7 +199,7 @@ export default function Hero() {
                                 }}
                                 transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
                             >
-                                <item.icon className="h-6 w-6 text-amber-500" />
+                                <item.icon className="h-6 w-6 text-accent-text" />
                             </motion.div>
                             <div className={isRTL ? 'text-right' : 'text-left'}>
                                 <h3 className="text-foreground font-semibold">{item.title}</h3>

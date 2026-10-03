@@ -95,7 +95,7 @@ export default function PrinterStatus({ printerSettings, lang, cashierName, mess
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md border-border bg-card text-card-foreground">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black uppercase tracking-tight text-amber-500">
+            <DialogTitle className="text-lg font-black uppercase tracking-tight text-accent-text">
               {messages?.printerSetup || "Printer setup"}
             </DialogTitle>
           </DialogHeader>

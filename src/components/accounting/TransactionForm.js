@@ -277,8 +277,8 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
               disabled={loading}
               className={`font-semibold text-white ${
                 isIncoming
-                  ? "bg-emerald-600 hover:bg-emerald-700"
-                  : "bg-red-600 hover:bg-red-700"
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                  : "bg-red-600 hover:bg-red-700 text-white"
               }`}
             >
               {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.saving}</> : t.accountingSaveTransaction}

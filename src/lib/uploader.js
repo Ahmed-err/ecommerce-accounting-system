@@ -105,7 +105,7 @@ export function UploadButton({
       {!uploading && lastFile ? (
         <button
           type="button"
-          className="text-xs text-amber-400 hover:text-amber-300"
+          className="text-xs text-accent-text hover:text-amber-300"
           onClick={() => upload(lastFile)}
         >
           Retry upload

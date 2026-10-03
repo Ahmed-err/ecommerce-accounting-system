@@ -46,7 +46,7 @@ export function FeaturedProductsClient({ products, lang: initialLang }) {
           >
             <Link
               href="/products"
-              className="mt-4 sm:mt-0 group flex items-center gap-2 text-amber-500 hover:text-amber-400 font-medium transition-colors"
+              className="mt-4 sm:mt-0 group flex items-center gap-2 text-accent-text hover:text-accent-text font-medium transition-colors"
             >
               {t.viewAllProducts}
               <ArrowRight className={`h-4 w-4 group-hover:translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
