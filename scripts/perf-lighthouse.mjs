@@ -45,7 +45,13 @@ async function lighthouse(url, outDir, i) {
   const lhr = JSON.parse(readFileSync(out, "utf8"));
   const audit = (id) => lhr.audits[id]?.numericValue ?? NaN;
   const score = (id) => Math.round((lhr.categories[id]?.score ?? 0) * 100);
+  // Failing accessibility checks, so each rebuild part knows what to fix.
+  const a11yFailures = (lhr.categories.accessibility?.auditRefs || [])
+    .map((ref) => lhr.audits[ref.id])
+    .filter((a) => a && a.score !== null && a.score < 1)
+    .map((a) => ({ id: a.id, title: a.title, items: a.details?.items?.length ?? 0 }));
   return {
+    a11yFailures,
     performance: score("performance"),
     accessibility: score("accessibility"),
     bestPractices: score("best-practices"),
@@ -83,6 +89,7 @@ async function main() {
       cls: Number(pick("cls").toFixed(3)),
       speedIndexMs: Math.round(pick("speedIndexMs")),
       transferKb: Math.round(pick("transferKb")),
+      a11yFailures: samples[0].a11yFailures,
     });
   }
 
