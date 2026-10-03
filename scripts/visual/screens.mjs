@@ -9,6 +9,17 @@ const out = process.env.OUT || "screens";
 fs.mkdirSync(out, { recursive: true });
 
 const pages = { home: "/", products: "/products", cart: "/cart", login: "/login", styleguide: "/styleguide" };
+// Staff pages, captured after signing in as the seeded admin (seed data only, never production).
+const staffPages = { admin: "/admin", "admin-orders": "/admin/orders", "admin-reviews": "/admin/reviews", pos: "/pos" };
+const ADMIN = { email: "admin@powerstore.com", password: "admin123" };
+
+async function signIn(page) {
+  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  await page.fill('form input[type="text"]', ADMIN.email);
+  await page.fill('form input[type="password"]', ADMIN.password);
+  await Promise.all([page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 30000 }), page.click('form button[type="submit"]')]);
+}
+
 const devices = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
 
 const html = await (await fetch(`${base}/products`)).text();
@@ -24,6 +35,11 @@ for (const lang of ["ar", "en"]) {
       await ctx.addInitScript((t) => localStorage.setItem("himmat-theme", t), theme);
       const page = await ctx.newPage();
       for (const [name, path] of Object.entries(pages)) {
+        await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
+        await page.screenshot({ path: `${out}/${name}-${lang}-${theme}-${device}.png`, fullPage: device === "desktop" });
+      }
+      await signIn(page);
+      for (const [name, path] of Object.entries(staffPages)) {
         await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
         await page.screenshot({ path: `${out}/${name}-${lang}-${theme}-${device}.png`, fullPage: device === "desktop" });
       }
