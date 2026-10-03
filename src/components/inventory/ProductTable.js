@@ -242,11 +242,13 @@ export default function ProductTable({
     const deleteWarning =
       t.inventoryPermanentDeleteWarningSingle ||
       (lang === "ar"
-        ? "هذا الحذف نهائي وسيزيل المنتج من قاعدة البيانات مع السجلات المرتبطة به (عناصر الطلبات/المشتريات/المرتجعات)."
-        : "This delete is permanent and will remove the product from the database with related records (order/purchase/return line items).");
+        ? "الحذف نهائي. المنتجات التي لها طلبات أو مشتريات أو مرتجعات لا يمكن حذفها؛ قم بإخفائها بدلاً من ذلك."
+        : "This delete is permanent. Products with orders, purchases or returns cannot be deleted; hide them instead.");
     if (window.confirm(`${t.inventoryDeleteConfirm}\n\n${deleteWarning}`)) {
       const res = await deleteProduct(id);
-      if (!res.success) {
+      if (!res.success && res.error === "product_has_history") {
+        toast.error(t.inventoryDeleteBlockedHistory);
+      } else if (!res.success) {
         toast.error(formatServerActionError(res.error) || t.genericError);
       }
       else toast.success(lang === "ar" ? "تم الحذف" : "Deleted");
@@ -334,13 +336,17 @@ export default function ProductTable({
     if (productCount > 0) {
       const forceConfirm =
         lang === "ar"
-          ? `هذا القسم يحتوي على ${productCount} منتج. حذف القسم بالقوة سيحذف كل هذه المنتجات نهائيا. متابعة؟`
-          : `This category has ${productCount} products. Force delete will permanently delete all of them. Continue?`;
+          ? `هذا القسم يحتوي على ${productCount} منتج. حذف القسم بالقوة سيحذف كل هذه المنتجات نهائيا (يُرفض إذا كان لأي منها طلبات أو مشتريات أو مرتجعات). متابعة؟`
+          : `This category has ${productCount} products. Force delete will permanently delete all of them (refused if any has orders, purchases or returns). Continue?`;
       if (!window.confirm(forceConfirm)) return;
       options = { force: true };
     }
 
     const res = await deleteCategory(category.id, options);
+    if (!res.success && res.error === "products_have_history") {
+      toast.error(t.inventoryCategoryDeleteBlockedHistory.replace("{count}", res.count));
+      return;
+    }
     if (!res.success) {
       toast.error(formatServerActionError(res.error) || t.genericError);
       return;
@@ -439,12 +445,18 @@ export default function ProductTable({
     const bulkDeleteWarning =
       t.inventoryPermanentDeleteWarningBulk ||
       (lang === "ar"
-        ? "الحذف الجماعي نهائي وسيزيل المنتجات المحددة من قاعدة البيانات مع السجلات المرتبطة بها (عناصر الطلبات/المشتريات/المرتجعات)."
-        : "Bulk delete is permanent and will remove selected products from the database with related records (order/purchase/return line items).");
+        ? "الحذف الجماعي نهائي. سيتم تخطي المنتجات التي لها طلبات أو مشتريات أو مرتجعات."
+        : "Bulk delete is permanent. Products with orders, purchases or returns are skipped.");
     if (!window.confirm(`${t.inventoryDeleteConfirmBulk}\n\n${bulkDeleteWarning}`)) return;
     const res = await bulkDeleteProducts(Array.from(selected));
     if (res.success) {
-      toast.success(`${res.count}`);
+      if (res.skipped) {
+        toast.warning(
+          t.inventoryBulkDeleteSkipped.replace("{count}", res.count).replace("{skipped}", res.skipped)
+        );
+      } else {
+        toast.success(`${res.count}`);
+      }
       setSelected(new Set());
       router.refresh();
     } else {
