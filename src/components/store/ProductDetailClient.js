@@ -867,7 +867,7 @@ export default function ProductDetailClient({
               onClick={handleAddToCart}
               className={cn(
                 "min-h-12 flex-1 gap-2 font-bold transition-all",
-                added ? "bg-emerald-600 hover:bg-emerald-600" : "bg-amber-500 text-black hover:bg-amber-400"
+                added ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-amber-500 text-black hover:bg-amber-400"
               )}
             >
               {added ? (
@@ -919,7 +919,7 @@ function QtyAndActions({ quantity, setQuantity, product, inStock, added, onAdd, 
             onClick={onAdd}
             className={cn(
               "min-h-12 flex-1 gap-2 text-base font-bold transition-all",
-              added ? "bg-emerald-600 hover:bg-emerald-600" : "bg-amber-500 text-black hover:bg-amber-400"
+              added ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "bg-amber-500 text-black hover:bg-amber-400"
             )}
           >
             {added ? (

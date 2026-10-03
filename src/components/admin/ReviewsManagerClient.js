@@ -37,8 +37,8 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
 
       <div className="flex flex-wrap gap-2">
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={lang === "ar" ? "بحث بالمراجع أو المنتج" : "Search by reviewer or product"} className="max-w-sm bg-background border-border text-foreground" />
-        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "APPROVED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "APPROVED" } : r))); }}>{lang === "ar" ? "قبول المحدد" : "Approve selected"}</Button>
-        <Button size="sm" className="bg-red-600 hover:bg-red-700" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "REJECTED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "REJECTED" } : r))); }}>{lang === "ar" ? "رفض المحدد" : "Reject selected"}</Button>
+        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "APPROVED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "APPROVED" } : r))); }}>{lang === "ar" ? "قبول المحدد" : "Approve selected"}</Button>
+        <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "REJECTED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "REJECTED" } : r))); }}>{lang === "ar" ? "رفض المحدد" : "Reject selected"}</Button>
         <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={async () => { await adminDeleteReviewsAction(ids); setRows((prev) => prev.filter((r) => !selected.has(r.id))); setSelected(new Set()); }}>{lang === "ar" ? "حذف المحدد" : "Delete selected"}</Button>
       </div>
 
@@ -75,8 +75,8 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
                 <td className="px-3 py-2">{r.verified ? <Badge className="bg-emerald-500/15 text-emerald-300">Yes</Badge> : "—"}</td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "APPROVED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "APPROVED" } : x)); }}>{lang === "ar" ? "قبول" : "Approve"}</Button>
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "REJECTED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "REJECTED" } : x)); }}>{lang === "ar" ? "رفض" : "Reject"}</Button>
+                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "APPROVED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "APPROVED" } : x)); }}>{lang === "ar" ? "قبول" : "Approve"}</Button>
+                    <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "REJECTED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "REJECTED" } : x)); }}>{lang === "ar" ? "رفض" : "Reject"}</Button>
                     <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={() => { setReplyId(r.id); setReply(r.adminReply || ""); setReplyOpen(true); }}>{lang === "ar" ? "رد" : "Reply"}</Button>
                   </div>
                 </td>

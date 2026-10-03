@@ -451,7 +451,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
                 <td className="p-3">{s.totalPurchases.toLocaleString()}</td>
                 <td className="p-3">{s.outstanding.toLocaleString()}</td>
                 <td className="p-3">
-                  <Badge className={s.isActive ? "bg-emerald-600" : "bg-muted text-muted-foreground"}>
+                  <Badge className={s.isActive ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
                     {s.isActive ? t.active : t.inactive}
                   </Badge>
                 </td>
@@ -761,10 +761,10 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                 <td className="p-2">
                   <Badge
                     className={cn(
-                      r.payment.key === "PAID" && "bg-emerald-600",
+                      r.payment.key === "PAID" && "bg-emerald-600 text-white",
                       r.payment.key === "PARTIAL" && "bg-amber-600",
                       r.payment.key === "UNPAID" && "bg-muted text-muted-foreground",
-                      r.payment.key === "OVERDUE" && "bg-red-600"
+                      r.payment.key === "OVERDUE" && "bg-red-600 text-white"
                     )}
                   >
                     {r.payment.key}
