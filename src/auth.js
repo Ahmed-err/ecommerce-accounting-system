@@ -5,6 +5,7 @@ import { authConfig } from "./auth.config";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { canSignIn, refreshAuthToken } from "@/lib/auth-session-guard";
 
 const googleId = process.env.GOOGLE_CLIENT_ID;
 const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -28,6 +29,23 @@ export const {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   ...authConfig,
+  callbacks: {
+    ...authConfig.callbacks,
+    // Covers Google sign-in; credentials are checked in authorize().
+    async signIn({ user }) {
+      return canSignIn(user);
+    },
+    async jwt(params) {
+      const token = await authConfig.callbacks.jwt(params);
+      if (params.user) return { ...token, checkedAt: Date.now() };
+      return refreshAuthToken(token, (id) =>
+        prisma.user.findUnique({
+          where: { id },
+          select: { role: true, isActive: true, accountDeletedAt: true },
+        })
+      );
+    },
+  },
   providers: [
     ...(googleId && googleSecret
       ? [
@@ -61,7 +79,7 @@ export const {
 
         if (!user || !user.password) return null;
 
-        if (user.accountDeletedAt) return null;
+        if (!canSignIn(user)) return null;
 
         // Always require hashed passwords - plain text fallback removed for security
         if (!user.password.startsWith("$2y$") && !user.password.startsWith("$2b$") && !user.password.startsWith("$2a$")) {
