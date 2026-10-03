@@ -356,7 +356,7 @@ export default function AccountSettingsClient({
                   </div>
                   <div>
                     <label className="cursor-pointer">
-                      <span className="text-sm font-medium text-amber-600">{t.accountAvatarUpload}</span>
+                      <span className="text-sm font-medium text-accent-text">{t.accountAvatarUpload}</span>
                       <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
                     </label>
                   </div>

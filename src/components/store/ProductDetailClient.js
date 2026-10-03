@@ -294,11 +294,11 @@ export default function ProductDetailClient({
         className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:text-sm"
         aria-label="Breadcrumb"
       >
-        <Link href="/" className="hover:text-amber-500">
+        <Link href="/" className="hover:text-accent-text">
           {t.catalogBreadcrumbHome}
         </Link>
         <span className="opacity-40">/</span>
-        <Link href={categoryHref} className="hover:text-amber-500">
+        <Link href={categoryHref} className="hover:text-accent-text">
           {translateCategory(product.category?.name, t)}
         </Link>
         <span className="opacity-40">/</span>
@@ -307,7 +307,7 @@ export default function ProductDetailClient({
 
       <Link
         href="/products"
-        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-amber-500"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-accent-text"
       >
         <ChevronRight className={cn("h-4 w-4", !isRTL && "rotate-180")} />
         {t.backToProducts}
@@ -341,7 +341,7 @@ export default function ProductDetailClient({
                   className={cn(
                     "relative aspect-square w-[4.25rem] shrink-0 snap-center overflow-hidden rounded-xl border-2 transition-all sm:w-[4.5rem] lg:w-full lg:snap-none",
                     activeImageIndex === idx
-                      ? "border-amber-500 shadow-md shadow-amber-500/25 ring-2 ring-amber-500/20"
+                      ? "border-amber-500 shadow-md ring-2 ring-amber-500/20"
                       : "border-border/60 opacity-80 hover:border-border hover:opacity-100"
                   )}
                 >
@@ -493,7 +493,7 @@ export default function ProductDetailClient({
         </div>
 
         <div className="flex min-w-0 max-w-full flex-col lg:sticky lg:top-24 lg:self-start">
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-500">
+          <p className="text-xs font-semibold uppercase tracking-widest text-accent-text">
             {translateCategory(product.category?.name, t)}
           </p>
           <h1 className="mt-2 text-2xl font-black text-foreground sm:text-3xl lg:text-4xl">{displayN}</h1>
@@ -526,7 +526,7 @@ export default function ProductDetailClient({
                   key={s}
                   className={cn(
                     "h-4 w-4",
-                    avg >= s - 0.25 ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
+                    avg >= s - 0.25 ? "fill-amber-400 text-accent-text" : "text-muted-foreground/40"
                   )}
                 />
               ))}
@@ -609,7 +609,7 @@ export default function ProductDetailClient({
           </div>
 
           <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-            <Truck className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+            <Truck className="mt-0.5 h-5 w-5 shrink-0 text-accent-text" />
             <div>
               <p className="font-semibold text-foreground">{t.pdpEstimatedDelivery}</p>
               <p className="mt-1">{deliveryLine}</p>
@@ -627,7 +627,7 @@ export default function ProductDetailClient({
                 key={label}
                 className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-card/50 px-2 py-3 text-center text-[10px] font-semibold text-muted-foreground sm:text-xs"
               >
-                <Icon className="h-4 w-4 text-amber-500" />
+                <Icon className="h-4 w-4 text-accent-text" />
                 {label}
               </div>
             ))}

@@ -39,7 +39,7 @@ export default function Footer() {
                     <div className="space-y-6 flex flex-col items-center sm:items-start">
                         <Link href="/" className="flex items-center gap-2.5 group">
                             <div className="relative shrink-0">
-                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform duration-300">
+                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300">
                                     <Zap className="h-5 w-5 text-white" />
                                 </div>
                             </div>
@@ -73,7 +73,7 @@ export default function Footer() {
                         <ul className="space-y-4">
                             {quickLinks.map((link) => (
                                 <li key={link.name}>
-                                    <Link href={link.href} className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                    <Link href={link.href} className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                         {link.name}
                                     </Link>
                                 </li>
@@ -86,27 +86,27 @@ export default function Footer() {
                         <h3 className="text-foreground font-black uppercase tracking-widest text-sm mb-8">{isRTL ? "الدعم" : "Support"}</h3>
                         <ul className="space-y-4">
                              <li>
-                                <Link href="/contact" className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/contact" className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                     {t.contact}
                                 </Link>
                              </li>
                              <li>
-                                <Link href="/contact" className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/contact" className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                     {isRTL ? "الأسئلة الشائعة" : "FAQ"}
                                 </Link>
                              </li>
                              <li>
-                                <Link href="/contact" className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/contact" className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                     {isRTL ? "سياسة الشحن" : "Shipping Policy"}
                                 </Link>
                              </li>
                              <li>
-                                <Link href="/terms" className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/terms" className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                     {t.termsOfService}
                                 </Link>
                              </li>
                              <li>
-                                <Link href="/privacy" className="text-muted-foreground hover:text-amber-500 text-sm font-bold transition-colors uppercase tracking-tight">
+                                <Link href="/privacy" className="text-muted-foreground hover:text-accent-text text-sm font-bold transition-colors uppercase tracking-tight">
                                     {t.privacyPolicy}
                                 </Link>
                              </li>
@@ -118,13 +118,13 @@ export default function Footer() {
                         <h3 className="text-foreground font-black uppercase tracking-widest text-sm mb-8">{isRTL ? "تواصل معنا" : "Contact Us"}</h3>
                         <div className="space-y-6 text-foreground">
                             <div className="flex items-start gap-4 group">
-                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-amber-500 border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-accent-text border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                     <Phone className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
                                     <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "الهاتف" : "Phone"}</span>
                                     {contactPhone ? (
-                                        <a href={`tel:${digitsForTel(contactPhone)}`} className="text-sm font-bold tracking-tight regular-nums text-foreground hover:text-amber-500 transition-colors break-all">
+                                        <a href={`tel:${digitsForTel(contactPhone)}`} className="text-sm font-bold tracking-tight regular-nums text-foreground hover:text-accent-text transition-colors break-all">
                                             {contactPhone}
                                         </a>
                                     ) : (
@@ -133,13 +133,13 @@ export default function Footer() {
                                 </div>
                             </div>
                             <div className="flex items-start gap-4 group">
-                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-amber-500 border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-accent-text border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                     <Mail className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
                                     <span className="text-[10px] font-black uppercase text-muted-foreground mb-1">{isRTL ? "البريد الإلكتروني" : "Email"}</span>
                                     {contactEmail ? (
-                                        <a href={`mailto:${contactEmail}`} className="text-sm font-bold tracking-tight truncate text-foreground hover:text-amber-500 transition-colors">
+                                        <a href={`mailto:${contactEmail}`} className="text-sm font-bold tracking-tight truncate text-foreground hover:text-accent-text transition-colors">
                                             {contactEmail}
                                         </a>
                                     ) : (
@@ -148,7 +148,7 @@ export default function Footer() {
                                 </div>
                             </div>
                             <div className="flex items-start gap-4 group">
-                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-amber-500 border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center text-accent-text border border-border shrink-0 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                     <MapPin className="h-4 w-4" />
                                 </div>
                                 <div className="flex flex-col min-w-0">

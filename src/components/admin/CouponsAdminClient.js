@@ -275,7 +275,7 @@ export default function CouponsAdminClient({
             ) : (
               rows.map((row) => (
                 <tr key={row.id} className="hover:bg-muted/40">
-                  <td className="px-4 py-3 font-mono text-amber-600 dark:text-amber-400">{row.code}</td>
+                  <td className="px-4 py-3 font-mono text-accent-text dark:text-amber-400">{row.code}</td>
                   <td className="px-4 py-3 text-foreground">{row.percentOff}%</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {row.expiresAt ? new Date(row.expiresAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : (lang === "ar" ? "بدون تاريخ" : "No expiry")}

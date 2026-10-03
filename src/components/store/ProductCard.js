@@ -136,7 +136,7 @@ export default function ProductCard({
           isRTL ? "text-right" : "text-left"
         )}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-amber-500">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-text">
           {translateCategory(product.category?.name, t, product.category?.nameAr)}
         </p>
 
@@ -361,7 +361,7 @@ export default function ProductCard({
           >
             <span
               className={cn(
-                "font-medium uppercase tracking-wider text-amber-500",
+                "font-medium uppercase tracking-wider text-accent-text",
                 homeShowcase ? "text-[10px] sm:text-[11px]" : "text-xs"
               )}
             >
@@ -371,7 +371,7 @@ export default function ProductCard({
             <Link href={`/products/${product.id}`} className="min-h-0">
               <h3
                 className={cn(
-                  "mt-1 font-bold text-foreground transition-colors group-hover:text-amber-500",
+                  "mt-1 font-bold text-foreground transition-colors group-hover:text-accent-text",
                   compactRail
                     ? "text-sm line-clamp-2 leading-snug"
                     : homeShowcase
@@ -465,7 +465,7 @@ export default function ProductCard({
                   }}
                   disabled={isOutOfStock}
                   className={cn(
-                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-amber-500 transition-all duration-200 hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-30",
+                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-accent-text transition-all duration-200 hover:bg-amber-500 hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-30",
                     "p-2.5"
                   )}
                   title={t.addToCart}

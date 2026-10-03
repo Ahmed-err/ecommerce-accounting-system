@@ -31,7 +31,7 @@ export default function ReviewsManagerClient({ initialRows, stats }) {
     <div className={`space-y-4 ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "إجمالي المراجعات" : "Total reviews"}</p><p className="text-2xl font-bold text-foreground">{stats.total}</p></div>
-        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "بانتظار الموافقة" : "Pending"}</p><p className="text-2xl font-bold text-amber-400">{stats.pending}</p></div>
+        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "بانتظار الموافقة" : "Pending"}</p><p className="text-2xl font-bold text-accent-text">{stats.pending}</p></div>
         <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "متوسط التقييم" : "Average rating"}</p><p className="text-2xl font-bold text-emerald-400">{stats.averageRating.toFixed(1)}</p></div>
       </div>
 

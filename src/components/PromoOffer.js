@@ -62,7 +62,7 @@ export default function PromoOffer({ offer }) {
             <h2 className="text-3xl font-black text-foreground leading-[1.08] tracking-tighter uppercase italic sm:text-4xl md:text-5xl lg:text-6xl">
               {offerTitle}
               <br />
-              <span className="text-amber-500">{offerSub}</span>
+              <span className="text-accent-text">{offerSub}</span>
             </h2>
 
             {/* Countdown */}
@@ -78,7 +78,7 @@ export default function PromoOffer({ offer }) {
                     key={label}
                     className="bg-foreground/5 backdrop-blur border border-foreground/10 p-3 rounded-xl text-center min-w-[64px] sm:p-5 sm:rounded-2xl sm:min-w-[88px] md:min-w-[100px]"
                   >
-                    <div className="text-xl font-black text-amber-500 tabular-nums leading-none mb-0.5 sm:text-3xl md:text-4xl">
+                    <div className="text-xl font-black text-accent-text tabular-nums leading-none mb-0.5 sm:text-3xl md:text-4xl">
                       {String(value).padStart(2, "0")}
                     </div>
                     <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground sm:text-[10px]">
@@ -92,7 +92,7 @@ export default function PromoOffer({ offer }) {
             {/* CTA */}
             <div className={cn("flex flex-wrap gap-3", isRTL && "justify-end")}>
               <Link href={offer.ctaLink}>
-                <Button className="h-12 px-8 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-black text-base shadow-lg shadow-amber-500/25 transition-all hover:scale-105 active:scale-95 group uppercase italic sm:h-14 sm:px-12 sm:text-lg">
+                <Button className="h-12 px-8 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-black text-base shadow-lg transition-all hover:scale-105 active:scale-95 group uppercase italic sm:h-14 sm:px-12 sm:text-lg">
                   {offerCta}
                   <ArrowRight
                     className={cn(
@@ -106,7 +106,7 @@ export default function PromoOffer({ offer }) {
           </div>
 
           {/* ── Image side ────────────────────────────────────────────── */}
-          <div className="relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl shadow-amber-500/10 group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
+          <div className="relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
             <Image
               src={offer.image}
               alt={offerTitle}

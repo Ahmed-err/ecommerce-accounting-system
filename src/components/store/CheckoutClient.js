@@ -406,7 +406,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         className="flex min-h-[45vh] flex-col items-center justify-center gap-3 text-muted-foreground"
         aria-busy="true"
       >
-        <Loader2 className="h-10 w-10 animate-spin text-amber-500" />
+        <Loader2 className="h-10 w-10 animate-spin text-accent-text" />
         <p className="text-sm">{t.loading}</p>
       </div>
     );
@@ -466,7 +466,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         <Link
           href="/products"
           className={cn(
-            "mb-2 inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-amber-600 dark:hover:text-amber-400",
+            "mb-2 inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-accent-text dark:hover:text-amber-400",
             isRTL && "flex-row-reverse"
           )}
         >
@@ -526,7 +526,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 <span
                   className={cn(
                     "mt-2 text-center text-[10px] font-medium sm:text-xs",
-                    currentStep >= step ? "font-semibold text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    currentStep >= step ? "font-semibold text-accent-text dark:text-amber-400" : "text-muted-foreground"
                   )}
                 >
                   {step === 1 ? t.stepShippingShort : step === 2 ? t.stepPaymentShort : t.stepReviewShort}
@@ -588,13 +588,13 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               transition={{ duration: 0.3 }}
             >
               <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                <User className="h-5 w-5 shrink-0 text-amber-500" />
+                <User className="h-5 w-5 shrink-0 text-accent-text" />
                 {session?.user ? t.customerInfoTitle : t.guestInfoTitle}
               </h2>
 
               {savedAddresses.length > 0 && (
                 <div className={cn(insetClass, "space-y-2")}>
-                  <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                  <p className="text-sm font-semibold text-accent-text dark:text-amber-400">
                     {t.savedAddressesTitle}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -617,7 +617,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="h-4 w-4 shrink-0 text-amber-500" />
+                    <User className="h-4 w-4 shrink-0 text-accent-text" />
                     {t.fullName} *
                   </label>
                   <div className="relative">
@@ -653,7 +653,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-bold text-amber-500">📱</span>
+                    <span className="font-bold text-accent-text">📱</span>
                     {t.phoneRequiredLabel} *
                   </label>
                   <div className="relative">
@@ -718,7 +718,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 shrink-0 text-amber-500" />
+                    <MapPin className="h-4 w-4 shrink-0 text-accent-text" />
                     {t.shippingCityLabel} *
                   </label>
                   <div className="relative">
@@ -763,7 +763,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 shrink-0 text-amber-500" />
+                    <MapPin className="h-4 w-4 shrink-0 text-accent-text" />
                     {t.shippingAddressLabel} *
                   </label>
                   <div className="relative">
@@ -904,7 +904,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               transition={{ duration: 0.3 }}
             >
               <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                <CreditCard className="h-5 w-5 shrink-0 text-amber-500" />
+                <CreditCard className="h-5 w-5 shrink-0 text-accent-text" />
                 {t.paymentMethodTitle}
               </h2>
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
@@ -914,7 +914,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                     className={cn(
                       "relative min-h-[88px] cursor-pointer rounded-2xl border p-4 transition-all touch-manipulation",
                       guestInfo.paymentMethod === method.id
-                        ? "border-amber-500 bg-amber-500/10 shadow-md shadow-amber-500/10"
+                        ? "border-amber-500 bg-amber-500/10 shadow-md"
                         : "border-border bg-muted/20 hover:bg-muted/40"
                     )}
                   >
@@ -936,7 +936,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                         className={cn(
                           "font-bold transition-colors",
                           guestInfo.paymentMethod === method.id
-                            ? "text-amber-600 dark:text-amber-400"
+                            ? "text-accent-text dark:text-amber-400"
                             : "text-foreground"
                         )}
                       >
@@ -1095,13 +1095,13 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
             >
               <div className={cn(panelClass, "mb-6 space-y-4 p-4 sm:p-6")}>
                 <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                  <Package className="h-5 w-5 shrink-0 text-amber-500" />
+                  <Package className="h-5 w-5 shrink-0 text-accent-text" />
                   {t.reviewProducts}
                 </h2>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className={cn(insetClass, "space-y-2")}>
-                    <h3 className="flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
                       <User className="h-4 w-4 shrink-0" />
                       {t.customerInfoTitle}
                     </h3>
@@ -1129,7 +1129,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                     </div>
                   </div>
                   <div className={cn(insetClass, "space-y-2")}>
-                    <h3 className="flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
                       <MapPin className="h-4 w-4 shrink-0" />
                       {t.deliveryInfoTitle}
                     </h3>
@@ -1173,7 +1173,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
               
               <div className={cn(insetClass, "space-y-1")}>
-                <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
                   <CreditCard className="h-4 w-4 shrink-0" />
                   {t.paymentMethodShort}
                 </h3>
@@ -1210,7 +1210,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         <div className="space-y-3 sm:space-y-4">
           {currentStep !== 3 && (
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2 px-2">
-              <Package className="h-5 w-5 text-amber-500" />
+              <Package className="h-5 w-5 text-accent-text" />
               {lang === "ar" ? "منتجات في السلة" : "Cart Items"}
             </h2>
           )}
@@ -1256,11 +1256,11 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   )}
                 >
                   <Link href={`/products/${item.id}`}>
-                    <h3 className="line-clamp-2 font-semibold text-foreground transition-colors hover:text-amber-600 dark:hover:text-amber-400">
+                    <h3 className="line-clamp-2 font-semibold text-foreground transition-colors hover:text-accent-text dark:hover:text-amber-400">
                       {item.name}
                     </h3>
                   </Link>
-                  <p className="mt-1 font-bold text-amber-600 dark:text-amber-400">
+                  <p className="mt-1 font-bold text-accent-text dark:text-amber-400">
                     {item.price.toLocaleString()} {t.currency}
                   </p>
                   {stockIssuesById[item.id] && (
@@ -1364,7 +1364,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
           transition={{ duration: 0.3 }}
         >
           <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-            <Package className="h-5 w-5 shrink-0 text-amber-500" />
+            <Package className="h-5 w-5 shrink-0 text-accent-text" />
             {t.orderSummary}
           </h2>
 
@@ -1376,7 +1376,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   isRTL && "flex-row-reverse"
                 )}
               >
-                <span className="text-lg font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                <span className="text-lg font-bold tabular-nums text-accent-text dark:text-amber-400">
                   {finalTotal.toLocaleString()} {t.currency}
                 </span>
                 <span className="font-bold text-foreground">{t.grandTotal}</span>
@@ -1445,7 +1445,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
             {/* Order Summary Details */}
             {currentStep === 3 && (
               <div className={cn(insetClass, "space-y-2")}>
-                <h3 className="mb-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                <h3 className="mb-2 text-sm font-semibold text-accent-text dark:text-amber-400">
                   {t.orderDetailsQuick}
                 </h3>
                 <div className="space-y-1.5 text-xs text-muted-foreground">
@@ -1596,7 +1596,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 {t.haveAccount}{" "}
                 <Link
                   href="/login"
-                  className="font-semibold text-amber-600 hover:underline dark:text-amber-400"
+                  className="font-semibold text-accent-text hover:underline dark:text-amber-400"
                 >
                   {t.loginInstead}
                 </Link>
@@ -1624,7 +1624,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                 {t.grandTotal}
               </p>
-              <p className="truncate text-lg font-bold tabular-nums text-amber-600 dark:text-amber-400">
+              <p className="truncate text-lg font-bold tabular-nums text-accent-text dark:text-amber-400">
                 {finalTotal.toLocaleString()} {t.currency}
               </p>
             </div>

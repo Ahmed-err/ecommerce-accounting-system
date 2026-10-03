@@ -14,7 +14,7 @@ import { translations } from "@/lib/translations";
 import { updateOrderStatus } from "@/app/actions/catalog";
 
 const STATUS_CONFIG = {
-  PENDING: { color: "bg-amber-500/10 text-amber-500", icon: Clock },
+  PENDING: { color: "bg-amber-500/10 text-accent-text", icon: Clock },
   PROCESSING: { color: "bg-blue-500/10 text-blue-500", icon: Package },
   SHIPPED: { color: "bg-indigo-500/10 text-indigo-500", icon: Truck },
   DELIVERED: { color: "bg-emerald-500/10 text-emerald-500", icon: CheckCircle2 },
@@ -91,7 +91,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: t.adminTotalOrders, value: stats.total, color: "text-blue-500", bg: "bg-blue-500/10", icon: ShoppingCart },
-          { label: t.adminStatusPending, value: stats.pending, color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock },
+          { label: t.adminStatusPending, value: stats.pending, color: "text-accent-text", bg: "bg-amber-500/10", icon: Clock },
           { label: t.adminStatusProcessing, value: stats.processing, color: "text-indigo-500", bg: "bg-indigo-500/10", icon: Package },
           { label: t.adminStatusDelivered, value: stats.delivered, color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2 },
         ].map((item, i) => (
@@ -110,7 +110,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card border border-border rounded-2xl p-4">
         <div className="relative w-full md:w-96 group">
-          <Search className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} my-auto h-4 w-4 text-muted-foreground group-focus-within:text-amber-500 transition-colors`} />
+          <Search className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} my-auto h-4 w-4 text-muted-foreground group-focus-within:text-accent-text transition-colors`} />
           <input 
             type="text"
             className={`w-full bg-background border border-border rounded-xl ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm text-foreground outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all`}
@@ -172,10 +172,10 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                     <React.Fragment key={order.id}>
                       <tr className={`${isExpanded ? 'bg-muted/60' : 'hover:bg-muted/40'} transition-colors group cursor-pointer`} onClick={() => toggleExpand(order.id)}>
                         <td className="px-6 py-4">
-                          {isExpanded ? <ChevronUp className="h-4 w-4 text-amber-500" /> : <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />}
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-accent-text" /> : <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="font-mono text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                          <span className="font-mono text-xs text-accent-text bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
                             #{order.id.slice(-8).toUpperCase()}
                           </span>
                         </td>
@@ -184,7 +184,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                             <span className="font-medium text-foreground">{order.guestName || (order.user ? `${order.user.firstName} ${order.user.lastName}` : "Guest")}</span>
                             <span className="text-xs text-muted-foreground">{order.guestEmail || order.user?.email}</span>
                             {(order.guestPhone || order.guestCity) && (
-                              <span className="text-[10px] text-amber-500/70">
+                              <span className="text-[10px] text-accent-text">
                                 {order.guestPhone} {order.guestCity && `• ${order.guestCity}`}
                               </span>
                             )}
@@ -216,7 +216,7 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                               <option value="CANCELLED">{t.adminStatusCancelled}</option>
                             </select>
                             <Link href={`/orders/${order.id}/invoice`} target="_blank">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-accent-text hover:text-accent-text hover:bg-amber-500/10">
                                 <Printer className="h-4 w-4" />
                               </Button>
                             </Link>
@@ -249,10 +249,10 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-muted-foreground">{lang === 'ar' ? 'طريقة الدفع' : 'Payment Method'}:</span>
-                                    <span className="font-semibold text-amber-500">{order.paymentMethod}</span>
+                                    <span className="font-semibold text-accent-text">{order.paymentMethod}</span>
                                   </div>
                                   <div className="pt-2 border-t border-border flex gap-2">
-                                    <MapPin className="h-4 w-4 text-amber-500" />
+                                    <MapPin className="h-4 w-4 text-accent-text" />
                                     <div>
                                       <p className="font-bold text-xs">{order.guestCity}</p>
                                       <p className="text-xs text-muted-foreground mt-1">{order.guestAddress}</p>
@@ -297,8 +297,8 @@ export default function OrderTable({ initialOrders, total, searchParams }) {
                                     </div>
                                   ))}
                                   <div className="bg-amber-500/10 p-3 flex justify-between items-center mt-2 border-t border-amber-500/20">
-                                    <span className="text-xs font-bold text-amber-500">{t.grandTotal}</span>
-                                    <span className="font-bold text-amber-500">{order.totalAmount.toLocaleString()} {t.currency}</span>
+                                    <span className="text-xs font-bold text-accent-text">{t.grandTotal}</span>
+                                    <span className="font-bold text-accent-text">{order.totalAmount.toLocaleString()} {t.currency}</span>
                                   </div>
                                 </div>
                               </div>

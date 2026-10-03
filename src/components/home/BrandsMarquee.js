@@ -15,7 +15,7 @@ function BrandChip({ name }) {
         "dark:border-white/10 dark:bg-card/40 dark:hover:border-amber-500/35"
       )}
     >
-      <span className="whitespace-nowrap text-base font-black italic tracking-tight text-muted-foreground transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 sm:text-lg lg:text-xl">
+      <span className="whitespace-nowrap text-base font-black italic tracking-tight text-muted-foreground transition-colors duration-300 group-hover:text-accent-text dark:group-hover:text-amber-400 sm:text-lg lg:text-xl">
         {name}
       </span>
     </div>
@@ -52,7 +52,7 @@ export default function BrandsMarquee() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <header className="mx-auto mb-8 max-w-2xl text-center sm:mb-10 lg:mb-12">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400 sm:text-[11px] sm:tracking-[0.24em]">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-accent-text dark:text-amber-400 sm:text-[11px] sm:tracking-[0.24em]">
             <Award className="h-3.5 w-3.5 shrink-0 opacity-90 sm:h-4 sm:w-4" aria-hidden />
             <span>{t.brandsMarqueeEyebrow}</span>
           </div>

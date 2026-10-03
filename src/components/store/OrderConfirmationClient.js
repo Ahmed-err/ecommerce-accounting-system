@@ -103,7 +103,7 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
           {order && Array.isArray(order.items) && order.items.length > 0 ? (
             <div className="mt-8 border-t border-border pt-6 text-start">
               <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Package className="h-4 w-4 text-amber-500" />
+                <Package className="h-4 w-4 text-accent-text" />
                 {t.orderConfirmationYourItems}
               </h2>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -128,7 +128,7 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
                     );
                   })}
               </ul>
-              <p className="mt-4 text-lg font-bold text-amber-600 dark:text-amber-400">
+              <p className="mt-4 text-lg font-bold text-accent-text dark:text-amber-400">
                 {t.grandTotal}:{" "}
                 {Number.isFinite(Number(order.totalAmount))
                   ? Number(order.totalAmount).toLocaleString()

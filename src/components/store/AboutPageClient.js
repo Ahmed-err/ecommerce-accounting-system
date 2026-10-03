@@ -47,7 +47,7 @@ function StatCounter({ value, label, isRTL }) {
 
   return (
     <div ref={ref} className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
-      <p className="text-3xl font-black text-amber-600 dark:text-amber-400 tabular-nums">{n.toLocaleString(isRTL ? "ar-SD" : "en-US")}</p>
+      <p className="text-3xl font-black text-accent-text dark:text-amber-400 tabular-nums">{n.toLocaleString(isRTL ? "ar-SD" : "en-US")}</p>
       <p className="mt-2 text-sm font-semibold text-muted-foreground">{label}</p>
     </div>
   );
@@ -93,7 +93,7 @@ export default function AboutPageClient({ store, stats, features, team }) {
   return (
     <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
       <nav className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-4 pt-6 text-sm text-muted-foreground sm:px-6 lg:px-8">
-        <Link href="/" className="hover:text-amber-600 dark:hover:text-amber-400">
+        <Link href="/" className="hover:text-accent-text dark:hover:text-amber-400">
           {t.catalogBreadcrumbHome}
         </Link>
         <span className="opacity-40">/</span>
@@ -172,7 +172,7 @@ export default function AboutPageClient({ store, stats, features, team }) {
                   variants={FADE_UP}
                   className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 >
-                  <div className="mb-4 inline-flex rounded-xl bg-amber-500/15 p-3 text-amber-600 dark:text-amber-400">
+                  <div className="mb-4 inline-flex rounded-xl bg-amber-500/15 p-3 text-accent-text dark:text-amber-400">
                     <IconComp className="h-6 w-6" aria-hidden />
                   </div>
                   <h3 className="font-bold text-foreground">{title}</h3>
