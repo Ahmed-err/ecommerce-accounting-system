@@ -14,10 +14,24 @@ const staffPages = { admin: "/admin", "admin-orders": "/admin/orders", "admin-re
 const ADMIN = { email: "admin@powerstore.com", password: "admin123" };
 
 async function signIn(page) {
-  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/login`, { waitUntil: "load" });
   await page.fill('form input[type="text"]', ADMIN.email);
   await page.fill('form input[type="password"]', ADMIN.password);
   await Promise.all([page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 30000 }), page.click('form button[type="submit"]')]);
+}
+
+// Staff pages keep a live notifications stream open, so "networkidle" never comes:
+// wait for load plus a short settle instead. A page that fails is logged and the run
+// exits non-zero at the end, without losing the other screenshots.
+const failures = [];
+async function shoot(page, name, path, file, fullPage, live = false) {
+  try {
+    await page.goto(`${base}${path}`, { waitUntil: live ? "load" : "networkidle", timeout: 45000 });
+    if (live) await page.waitForTimeout(2500);
+    await page.screenshot({ path: file, fullPage });
+  } catch (error) {
+    failures.push(`${name}: ${error.message.split("\n")[0]}`);
+  }
 }
 
 const devices = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
@@ -34,14 +48,13 @@ for (const lang of ["ar", "en"]) {
       await ctx.addCookies([{ name: "lang", value: lang, url: base }]);
       await ctx.addInitScript((t) => localStorage.setItem("himmat-theme", t), theme);
       const page = await ctx.newPage();
+      const tag = `${lang}-${theme}-${device}`;
       for (const [name, path] of Object.entries(pages)) {
-        await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
-        await page.screenshot({ path: `${out}/${name}-${lang}-${theme}-${device}.png`, fullPage: device === "desktop" });
+        await shoot(page, `${name}-${tag}`, path, `${out}/${name}-${tag}.png`, device === "desktop");
       }
       await signIn(page);
       for (const [name, path] of Object.entries(staffPages)) {
-        await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
-        await page.screenshot({ path: `${out}/${name}-${lang}-${theme}-${device}.png`, fullPage: device === "desktop" });
+        await shoot(page, `${name}-${tag}`, path, `${out}/${name}-${tag}.png`, device === "desktop", true);
       }
       await ctx.close();
     }
@@ -49,3 +62,7 @@ for (const lang of ["ar", "en"]) {
 }
 await browser.close();
 console.log("screenshots in", out);
+if (failures.length) {
+  console.error(`${failures.length} page(s) failed:\n${failures.join("\n")}`);
+  process.exit(1);
+}
