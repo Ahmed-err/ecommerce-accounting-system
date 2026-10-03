@@ -37,18 +37,19 @@ export async function generateMetadata() {
   const t = translations[lang] || translations.ar;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
-  const title = `${b.brandName} — ${b.brandTagline}`;
+  const wordmark = t.brandWordmark;
+  const title = `${wordmark} — ${b.brandName}`;
   const description = t.brandDesc;
 
   return {
     metadataBase: new URL(`${getAbsoluteSiteUrl()}/`),
-    title: { default: title, template: `%s | ${b.brandName}` },
+    title: { default: title, template: `%s — ${wordmark}` },
     description,
     robots: { index: true, follow: true },
     openGraph: {
       type: "website",
       locale: lang === "ar" ? "ar_SD" : "en_US",
-      siteName: b.brandName,
+      siteName: `${wordmark} — ${b.brandName}`,
       title,
       description,
     },

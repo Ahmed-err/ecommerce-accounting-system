@@ -1,5 +1,7 @@
 "use client";
 
+import BrandLockup from "@/components/brand/BrandLockup";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -13,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Monitor,
-  Zap,
   MessageSquare,
   Truck,
   Mail,
@@ -69,14 +70,9 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="p-8">
-        <h2 className="flex items-start gap-2 text-foreground drop-shadow-sm">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500">
-            <Zap className="h-4 w-4 text-black" aria-hidden />
-          </div>
+        <h2 className="flex flex-col items-start gap-1 text-foreground">
+          <BrandLockup variant="compact" />
           <div className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold leading-snug tracking-tight line-clamp-3">
-              {brandName}
-            </span>
             <div
               className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
             >

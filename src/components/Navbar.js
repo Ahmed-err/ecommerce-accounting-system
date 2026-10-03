@@ -21,6 +21,7 @@ import { useCart } from "@/components/store/CartProvider";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import BrandLockup from "@/components/brand/BrandLockup";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { ThemeToggle } from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
@@ -40,7 +41,7 @@ import { getCatalogCategories } from "@/app/actions/catalog";
  * can change the useId call order between SSR and the first client render, which
  * mismatches the mobile trigger id. Mount the sheet only after hydration.
  */
-function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandName, brandTagline, isAdmin, isStaff }) {
+function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, isAdmin, isStaff }) {
     const [mounted, setMounted] = useState(false);
     const [open, setOpen] = useState(false);
 
@@ -83,17 +84,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
                     <div className="flex h-full flex-col bg-background">
                         <SheetHeader className="border-b border-foreground/5 p-6">
                             <SheetTitle className="flex items-center gap-3">
-                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-md">
-                                    <Zap className="h-4 w-4 text-white" />
-                                </div>
-                                <div className={cn("flex flex-col leading-none", isRTL && "items-end")}>
-                                    <span className={cn("text-sm font-black text-foreground", isRTL ? "text-right" : "tracking-tight")}>
-                                        {brandName}
-                                    </span>
-                                    <span className="mt-0.5 text-[9px] font-bold text-accent-text tracking-wide">
-                                        {brandTagline}
-                                    </span>
-                                </div>
+                                <BrandLockup variant="compact" />
                             </SheetTitle>
                         </SheetHeader>
 
@@ -236,7 +227,7 @@ function NavbarMobileSheet({ isRTL, lang, setLang, t, session, navLinks, brandNa
 export default function Navbar() {
     const { data: session } = useSession();
     const { cartCount, loaded } = useCart();
-    const { lang: langRaw, setLang, isRTL, brandName, brandTagline } = useLanguage();
+    const { lang: langRaw, setLang, isRTL } = useLanguage();
     const lang = normalizeAppLang(langRaw);
     const t = translations[lang] || translations.ar;
     const [scrolled, setScrolled] = useState(false);
@@ -311,30 +302,7 @@ export default function Navbar() {
                 >
                     {/* === Logo === */}
                     <Link href="/" className="flex items-center gap-2 group shrink-0 min-w-0 max-w-[min(9rem,40vw)] sm:max-w-[180px] md:max-w-[200px] lg:max-w-[200px] xl:max-w-[220px] 2xl:max-w-[240px] sm:gap-2.5">
-                        <div className="shrink-0 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2 rounded-xl shadow-lg group-hover:scale-105 transition-all duration-300 sm:p-2.5 sm:rounded-2xl">
-                            <Zap className="h-4 w-4 text-white drop-shadow sm:h-5 sm:w-5" />
-                        </div>
-
-                        <div className={cn("flex flex-col leading-none min-w-0 flex-1", isRTL && "items-end")}>
-                            <span className={cn(
-                                "text-xs font-black tracking-tight text-foreground whitespace-normal break-words leading-[1.15] sm:text-sm",
-                                isRTL ? "text-right" : ""
-                            )} style={{ 
-                                display: '-webkit-box',
-                                WebkitLineClamp: '2',
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                wordBreak: 'break-word'
-                            }}>
-                                {brandName}
-                            </span>
-                            <span className={cn(
-                                "mt-0.5 text-[8px] font-bold text-accent-text tracking-wide truncate w-full sm:text-[9px]",
-                                isRTL && "text-right"
-                            )}>
-                                {brandTagline}
-                            </span>
-                        </div>
+                        <BrandLockup variant="compact" className="min-w-0" />
                     </Link>
 
                     {/* === Desktop: nav + search (flexible width so the bar stays on-screen) === */}
@@ -527,8 +495,6 @@ export default function Navbar() {
                             t={t}
                             session={session}
                             navLinks={navLinks}
-                            brandName={brandName}
-                            brandTagline={brandTagline}
                             isAdmin={isAdmin}
                             isStaff={isStaff}
                         />

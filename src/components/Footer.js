@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
+import BrandLockup from "@/components/brand/BrandLockup";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
 function digitsForTel(s) {
@@ -38,17 +39,7 @@ export default function Footer() {
                     {/* Brand Section */}
                     <div className="space-y-6 flex flex-col items-center sm:items-start">
                         <Link href="/" className="flex items-center gap-2.5 group">
-                            <div className="relative shrink-0">
-                                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 p-2.5 rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300">
-                                    <Zap className="h-5 w-5 text-white" />
-                                </div>
-                            </div>
-                            <span className={cn(
-                                "text-base font-black text-foreground leading-snug max-w-[16rem]",
-                                isRTL ? "text-right" : "uppercase tracking-tight"
-                            )}>
-                                {brandName}
-                            </span>
+                            <BrandLockup variant="full" />
                         </Link>
                         <p className={cn("text-muted-foreground text-sm leading-relaxed font-medium", isRTL && "text-right")}>
                             {t.brandDesc}
