@@ -15,7 +15,7 @@ function runBuild(env: Record<string, string>) {
     path.join(bin, "npx"),
     `#!/bin/sh
 url="\${DIRECT_URL:-$DATABASE_URL}"
-echo "migrate $url" >> "${log}"
+echo "migrate $url\${PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK:+ nolock}" >> "${log}"
 case " $FAIL_URLS " in *" $url "*) exit 1;; esac
 exit 0
 `,
@@ -46,7 +46,7 @@ describe("scripts/vercel-build.sh", () => {
     const out = runBuild({ DATABASE_URL: "pooled", DIRECT_URL: "direct", FAIL_URLS: "direct" });
     expect(out).toEqual({
       status: 0,
-      calls: ["migrate direct", "migrate direct", "migrate direct", "migrate pooled", "build"],
+      calls: ["migrate direct", "migrate direct", "migrate direct", "migrate pooled nolock", "build"],
     });
   });
 
@@ -58,7 +58,7 @@ describe("scripts/vercel-build.sh", () => {
 
   it("uses DATABASE_URL when no DIRECT_URL is set", () => {
     const out = runBuild({ DATABASE_URL: "pooled" });
-    expect(out).toEqual({ status: 0, calls: ["migrate pooled", "build"] });
+    expect(out).toEqual({ status: 0, calls: ["migrate pooled nolock", "build"] });
   });
 
   it("skips migrations outside production", () => {

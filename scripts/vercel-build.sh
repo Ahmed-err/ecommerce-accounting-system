@@ -29,7 +29,9 @@ migrate_with_fallback() {
     if migrate_with_retries; then return 0; fi
     echo "vercel-build.sh: DIRECT_URL failed; check it is Neon's unpooled string. Falling back to DATABASE_URL…"
   fi
-  (DIRECT_URL="" && export DIRECT_URL && migrate_with_retries)
+  # Session advisory locks do not work through PgBouncer (a lock taken on a pooled
+  # backend can stay held and block every later migrate), so skip it on the pooler.
+  (DIRECT_URL="" && PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 && export DIRECT_URL PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK && migrate_with_retries)
 }
 
 if [ "$VERCEL_ENV" = "production" ]; then
