@@ -660,7 +660,12 @@ export const translations = {
     inventoryLowStock: "مخزون منخفض",
     inventoryDeleteConfirm: "هل أنت متأكد من رغبتك في حذف هذا المنتج؟",
     inventoryPermanentDeleteWarningSingle:
-      "هذا الحذف نهائي وسيزيل المنتج من قاعدة البيانات مع السجلات المرتبطة به (عناصر الطلبات/المشتريات/المرتجعات).",
+      "الحذف نهائي. المنتجات التي لها طلبات أو مشتريات أو مرتجعات لا يمكن حذفها حفاظاً على السجلات؛ قم بإخفائها بدلاً من ذلك.",
+    inventoryDeleteBlockedHistory:
+      "لا يمكن حذف هذا المنتج لأن له طلبات أو مشتريات أو مرتجعات مسجلة. قم بإخفائه من المتجر بدلاً من ذلك.",
+    inventoryBulkDeleteSkipped: "تم حذف {count} منتج. تم تخطي {skipped} منتج لأن لها سجل طلبات أو مشتريات أو مرتجعات؛ قم بإخفائها بدلاً من ذلك.",
+    inventoryCategoryDeleteBlockedHistory:
+      "لا يمكن حذف القسم: {count} من منتجاته لها طلبات أو مشتريات أو مرتجعات. انقل هذه المنتجات إلى قسم آخر أو أخفها أولاً.",
     inventoryNoProducts: "لم يتم العثور على منتجات.",
     inventoryStatusAll: "كل الحالات",
     inventoryStatusLow: "مخزون منخفض",
@@ -1088,7 +1093,7 @@ export const translations = {
     inventoryChartsInOutTitle: "الحركة الشهرية (وارد / صادر)",
     inventoryDeleteConfirmBulk: "حذف المنتجات المحددة؟",
     inventoryPermanentDeleteWarningBulk:
-      "الحذف الجماعي نهائي وسيزيل المنتجات المحددة من قاعدة البيانات مع السجلات المرتبطة بها (عناصر الطلبات/المشتريات/المرتجعات).",
+      "الحذف الجماعي نهائي. سيتم تخطي المنتجات التي لها طلبات أو مشتريات أو مرتجعات حفاظاً على السجلات.",
     inventoryCashierNoPricing: "صلاحياتك لا تشمل عرض الأسعار.",
     inventoryAddFirstProduct: "أضف أول منتج",
     inventoryNameEn: "الاسم (إنجليزي)",
@@ -2007,7 +2012,12 @@ export const translations = {
     inventoryLowStock: "Low Stock",
     inventoryDeleteConfirm: "Are you sure you want to delete this product?",
     inventoryPermanentDeleteWarningSingle:
-      "This delete is permanent and will remove the product from the database with related records (order/purchase/return line items).",
+      "This delete is permanent. Products with orders, purchases or returns cannot be deleted, to keep those records; hide them instead.",
+    inventoryDeleteBlockedHistory:
+      "This product has orders, purchases or returns on record, so it cannot be deleted. Hide it from the store instead.",
+    inventoryBulkDeleteSkipped: "Deleted {count} products. Skipped {skipped} with order, purchase or return history; hide those instead.",
+    inventoryCategoryDeleteBlockedHistory:
+      "Cannot delete this category: {count} of its products have orders, purchases or returns. Move those products to another category or hide them first.",
     inventoryNoProducts: "No products found.",
     inventoryStatusAll: "All Statuses",
     inventoryStatusLow: "Low Stock",
@@ -2435,7 +2445,7 @@ export const translations = {
     inventoryChartsInOutTitle: "Monthly movement (IN vs OUT)",
     inventoryDeleteConfirmBulk: "Delete selected products?",
     inventoryPermanentDeleteWarningBulk:
-      "Bulk delete is permanent and will remove selected products from the database with related records (order/purchase/return line items).",
+      "Bulk delete is permanent. Products with orders, purchases or returns are skipped, to keep those records.",
     inventoryCashierNoPricing: "Your role cannot view pricing.",
     inventoryAddFirstProduct: "Add first product",
     inventoryNameEn: "Name (English)",

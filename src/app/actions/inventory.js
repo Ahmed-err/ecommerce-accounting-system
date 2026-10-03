@@ -79,12 +79,27 @@ function redactProductsIfCashier(role, products) {
   return products;
 }
 
-async function deleteProductsInTx(tx, productIds) {
-  if (!Array.isArray(productIds) || productIds.length === 0) return;
-  await tx.orderItem.deleteMany({ where: { productId: { in: productIds } } });
-  await tx.purchaseItem.deleteMany({ where: { productId: { in: productIds } } });
-  await tx.orderReturnItem.deleteMany({ where: { productId: { in: productIds } } });
-  await tx.product.deleteMany({ where: { id: { in: productIds } } });
+// Order, purchase and return lines are financial history: a product that has any is
+// hidden (isActive: false), never deleted. Their foreign keys have no cascade, so the
+// database also refuses if one slips through.
+async function productIdsWithHistory(tx, productIds) {
+  const where = { productId: { in: productIds } };
+  const select = { productId: true };
+  const rows = await Promise.all([
+    tx.orderItem.findMany({ where, select, distinct: ["productId"] }),
+    tx.purchaseItem.findMany({ where, select, distinct: ["productId"] }),
+    tx.orderReturnItem.findMany({ where, select, distinct: ["productId"] }),
+  ]);
+  return new Set(rows.flat().map((r) => r.productId));
+}
+
+async function deleteProductsWithoutHistoryInTx(tx, productIds) {
+  if (!Array.isArray(productIds) || productIds.length === 0) return { deleted: [], skipped: [] };
+  const withHistory = await productIdsWithHistory(tx, productIds);
+  const deleted = productIds.filter((id) => !withHistory.has(id));
+  const skipped = productIds.filter((id) => withHistory.has(id));
+  if (deleted.length) await tx.product.deleteMany({ where: { id: { in: deleted } } });
+  return { deleted, skipped };
 }
 
 export async function getCategories() {
@@ -282,9 +297,8 @@ export async function updateProduct(id, data) {
 export async function deleteProduct(id) {
   try {
     await ensureManager();
-    await db.$transaction(async (tx) => {
-      await deleteProductsInTx(tx, [id]);
-    });
+    const { skipped } = await db.$transaction((tx) => deleteProductsWithoutHistoryInTx(tx, [id]));
+    if (skipped.length) return { success: false, error: "product_has_history" };
     await logAction("DELETE_PRODUCT", { productId: id });
     revalidatePath("/admin/inventory");
     return { success: true };
@@ -301,12 +315,10 @@ export async function bulkDeleteProducts(ids) {
     if (!parsed.success) return { success: false, error: "invalid_ids" };
     const valid = await getProductIdsForBulk(parsed.data.ids);
     const idList = valid.map((x) => x.id);
-    await db.$transaction(async (tx) => {
-      await deleteProductsInTx(tx, idList);
-    });
-    await logAction("BULK_DELETE_PRODUCTS", { count: idList.length });
+    const { deleted, skipped } = await db.$transaction((tx) => deleteProductsWithoutHistoryInTx(tx, idList));
+    await logAction("BULK_DELETE_PRODUCTS", { count: deleted.length, skipped: skipped.length });
     revalidatePath("/admin/inventory");
-    return { success: true, count: idList.length };
+    return { success: true, count: deleted.length, skipped: skipped.length };
   } catch (error) {
     console.error("bulkDeleteProducts:", error);
     return { success: false, error: toActionErrorString(error) };
@@ -383,19 +395,21 @@ export async function deleteCategory(id, input = {}) {
       return { success: false, error: "has_products", count: category._count.products };
     }
 
-    await db.$transaction(async (tx) => {
+    const blocked = await db.$transaction(async (tx) => {
       if (force) {
         const products = await tx.product.findMany({
           where: { categoryId: id },
           select: { id: true },
         });
-        await deleteProductsInTx(
-          tx,
-          products.map((p) => p.id)
-        );
+        const productIds = products.map((p) => p.id);
+        const withHistory = await productIdsWithHistory(tx, productIds);
+        if (withHistory.size) return withHistory.size;
+        if (productIds.length) await tx.product.deleteMany({ where: { id: { in: productIds } } });
       }
       await tx.category.delete({ where: { id } });
+      return 0;
     });
+    if (blocked) return { success: false, error: "products_have_history", count: blocked };
     await logAction("DELETE_CATEGORY", {
       categoryId: id,
       name: category.name,
