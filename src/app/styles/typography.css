@@ -1,0 +1,16 @@
+/* Type scale (P0.3 spec §6). Pages adopt these as they are rebuilt. */
+@utility type-display { font-size: 2.5rem; line-height: 3rem; font-weight: 800; }
+@utility type-h1 { font-size: 1.875rem; line-height: 2.5rem; font-weight: 700; }
+@utility type-h2 { font-size: 1.375rem; line-height: 2rem; font-weight: 700; }
+@utility type-h3 { font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; }
+@utility type-body { font-size: 1rem; line-height: 1.75rem; font-weight: 400; }
+@utility type-small { font-size: 0.875rem; line-height: 1.5rem; font-weight: 500; }
+@utility type-caption { font-size: 0.75rem; line-height: 1.25rem; font-weight: 600; }
+
+@layer base {
+  body { line-height: 1.75; }
+  :lang(en) body, body:lang(en) { line-height: 1.6; }
+  table, [data-numeric], input[type="number"], input[inputmode="numeric"], input[type="tel"] {
+    font-variant-numeric: tabular-nums;
+  }
+}
