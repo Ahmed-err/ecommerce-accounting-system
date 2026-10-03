@@ -4,7 +4,7 @@
   "description": "Electrical supplies store - متجر أدوات كهربائية",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
+  "background_color": "#F7F6F3",
   "theme_color": "#f59e0b",
   "orientation": "portrait-primary",
   "icons": [

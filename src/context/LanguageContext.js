@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
@@ -9,27 +9,13 @@ const LanguageContext = createContext();
 export function LanguageProvider({ children, initialLang = "ar", branding }) {
   const [lang, setLang] = useState(() => normalizeAppLang(initialLang));
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("lang");
-      if (!saved) return;
-      const next = normalizeAppLang(saved);
-      setLang((prev) => (next !== prev ? next : prev));
-      if (next !== saved) {
-        localStorage.setItem("lang", next);
-        document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  // The lang cookie (read by the server in layout.js) is the single source of truth.
 
   const router = useRouter();
 
   const switchLanguage = (newLang) => {
     const next = normalizeAppLang(newLang);
     setLang(next);
-    localStorage.setItem("lang", next);
     document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
 
     document.documentElement.lang = next;
