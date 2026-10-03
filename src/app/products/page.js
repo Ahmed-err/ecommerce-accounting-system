@@ -9,6 +9,7 @@ import ProductGrid from "@/components/store/ProductGrid";
 import { cookies, headers } from "next/headers";
 import { translations, translateCategory } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 export async function generateMetadata({ searchParams }) {
   const params = await searchParams;
@@ -104,7 +105,7 @@ export default async function ProductsPage({ searchParams }) {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJson) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(itemListJson) }}
       />
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { getAboutPageData } from "@/lib/store/about";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 export const revalidate = 3600;
 
@@ -56,7 +57,7 @@ export default async function AboutPage() {
       <Navbar />
       <AboutPageClient store={store} stats={data.stats} features={data.features} team={data.team} />
       <Footer />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
     </main>
   );
 }
