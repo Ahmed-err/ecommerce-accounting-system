@@ -11,6 +11,7 @@ import ProductShowcase from "@/components/home/ProductShowcase";
 import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { cookies } from "next/headers";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
 const NewsletterSection = dynamic(() => import("@/components/home/NewsletterSection"));
@@ -48,8 +49,8 @@ export default async function HomePage() {
       dir={isRTL ? "rtl" : "ltr"}
       className={`min-h-screen bg-background text-foreground flex flex-col ${isRTL ? "font-arabic text-right" : "font-sans text-left"}`}
     >
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteJsonLd) }} />
       <a
         href="#home-main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 z-[9999] bg-amber-500 text-black px-4 py-2 rounded-lg font-bold shadow-lg ring-2 ring-amber-600/30"
