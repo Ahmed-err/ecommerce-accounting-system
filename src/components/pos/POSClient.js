@@ -69,7 +69,7 @@ function ProductCard({ product, onAdd, t }) {
         {/* Badges */}
         <div className="absolute top-2 start-2 flex flex-col gap-1 z-10">
           {outOfStock ? (
-            <Badge variant="destructive" className="bg-red-600/90 text-white border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
+            <Badge className="bg-red-600/90 text-white border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
               {t.outOfStock}
             </Badge>
           ) : isLowStock ? (
