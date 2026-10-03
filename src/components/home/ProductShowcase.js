@@ -132,7 +132,7 @@ export default function ProductShowcase({ featured }) {
                       value={tab.value}
                       className={cn(
                         "flex items-center justify-start gap-2 rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition-all",
-                        "data-active:bg-background data-active:text-amber-500 data-active:shadow-premium",
+                        "data-active:bg-background data-active:text-amber-500",
                         isRTL && "flex-row-reverse justify-end"
                       )}
                     >

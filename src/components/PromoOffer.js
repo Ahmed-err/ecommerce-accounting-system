@@ -76,7 +76,7 @@ export default function PromoOffer({ offer }) {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="bg-foreground/5 backdrop-blur border border-foreground/10 p-3 rounded-xl text-center min-w-[64px] shadow-premium sm:p-5 sm:rounded-2xl sm:min-w-[88px] md:min-w-[100px]"
+                    className="bg-foreground/5 backdrop-blur border border-foreground/10 p-3 rounded-xl text-center min-w-[64px] sm:p-5 sm:rounded-2xl sm:min-w-[88px] md:min-w-[100px]"
                   >
                     <div className="text-xl font-black text-amber-500 tabular-nums leading-none mb-0.5 sm:text-3xl md:text-4xl">
                       {String(value).padStart(2, "0")}

@@ -1,0 +1,116 @@
+/* Himmat brand tokens — values from the approved brand sheet (P0.3 spec §1).
+   Components use the semantic names; raw palette names are for this file and palette.css. */
+:root {
+  --navy-950: #0B1422;
+  --navy-900: #0E1A2B;
+  --navy-800: #17263B;
+  --navy-700: #22344D;
+  --navy-600: #3A4D68;
+  --amber-100: #FDF1D8;
+  --amber-500: #F2A20C;
+  --amber-600: #D9870A;
+  --amber-700: #9A5B00;
+  --amber-800: #6E4100;
+  --paper: #F7F6F3;
+  --surface: #FFFFFF;
+  --tint: #EFEDE8;
+  --line: #E4E1DA;
+  --line-strong: #D5D1C8;
+  --muted-ink: #5E636B;
+  --ink-2: #3B4049;
+  --ink: #121821;
+  --success-500: #1F7A4D;
+  --danger-500: #C2362B;
+  --info-500: #2F5F98;
+}
+
+:root {
+  color-scheme: light;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--amber-500);
+  --primary-foreground: var(--navy-900);
+  --secondary: var(--tint);
+  --secondary-foreground: var(--ink-2);
+  --muted: var(--tint);
+  --muted-foreground: var(--muted-ink);
+  --accent: var(--tint);
+  --accent-foreground: var(--ink-2);
+  --destructive: var(--danger-500);
+  --destructive-foreground: #FFFFFF;
+  --success: var(--success-500);
+  --success-foreground: #FFFFFF;
+  --info: var(--info-500);
+  --info-foreground: #FFFFFF;
+  --warning: var(--amber-100);
+  --warning-foreground: var(--amber-800);
+  --brand: var(--navy-900);
+  --brand-foreground: var(--paper);
+  --accent-text: var(--amber-700);
+  --border: var(--line);
+  --input: var(--line-strong);
+  --ring: var(--amber-600);
+  --chart-1: var(--navy-700);
+  --chart-2: var(--amber-500);
+  --chart-3: var(--success-500);
+  --chart-4: var(--info-500);
+  --chart-5: var(--muted-ink);
+  --radius: 0.5rem;
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--amber-500);
+  --sidebar-primary-foreground: var(--navy-900);
+  --sidebar-accent: var(--tint);
+  --sidebar-accent-foreground: var(--ink-2);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--amber-600);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0B1422;
+  --foreground: #EEF1F5;
+  --card: #121E30;
+  --card-foreground: #EEF1F5;
+  --popover: #121E30;
+  --popover-foreground: #EEF1F5;
+  --primary: var(--amber-500);
+  --primary-foreground: var(--navy-900);
+  --secondary: #1A2840;
+  --secondary-foreground: #DCE2EA;
+  --muted: #1A2840;
+  --muted-foreground: #9AA6B6;
+  --accent: #1A2840;
+  --accent-foreground: #DCE2EA;
+  --destructive: #F07167;
+  --destructive-foreground: #0B1422;
+  --success: #4CC38A;
+  --success-foreground: #0B1422;
+  --info: #7FA8DD;
+  --info-foreground: #0B1422;
+  --warning: #3A2A0A;
+  --warning-foreground: #F5C451;
+  --brand: var(--navy-800);
+  --brand-foreground: #EEF1F5;
+  --accent-text: var(--amber-500);
+  --border: #23324A;
+  --input: #2C3D57;
+  --ring: var(--amber-500);
+  --chart-1: #7FA8DD;
+  --chart-2: var(--amber-500);
+  --chart-3: #4CC38A;
+  --chart-4: #B5C4D8;
+  --chart-5: #9AA6B6;
+  --sidebar: #0E1A2B;
+  --sidebar-foreground: #EEF1F5;
+  --sidebar-primary: var(--amber-500);
+  --sidebar-primary-foreground: var(--navy-900);
+  --sidebar-accent: #1A2840;
+  --sidebar-accent-foreground: #DCE2EA;
+  --sidebar-border: #23324A;
+  --sidebar-ring: var(--amber-500);
+}
