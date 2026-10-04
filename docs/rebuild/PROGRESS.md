@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P1.1 Category taxonomy
-- **Step:** 2 — design; audit done from the live store (`docs/rebuild/parts/P1.1.md`), proposed tree awaiting user approval + 3 questions
+- **Step:** 2 — design; user answered the open questions; waiting for approval of the tree in `docs/rebuild/parts/P1.1.md`. Hotfix PR #17 (cost price in public catalog) open, CI green, awaiting user merge
 - **Last done:** P0.4 merged (#16, `12ef4e2`) and deployed; live check on www.himmat.store OK (pages 200, unknown URL 404 with header, /styleguide 404, EN/AR, health OK).
-- **Next:** user approves/edits the tree → hotfix PR for X-01 (cost in public catalog) → user fixes X-02 (`NEXT_PUBLIC_SITE_URL`) → build tree UI + reviewed move CSV + apply script
+- **Next:** user approves tree → build admin parent picker + store tree UI + reviewed move CSV + apply script. User: merge #17; set Vercel `NEXT_PUBLIC_SITE_URL=https://www.himmat.store` and redeploy
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
