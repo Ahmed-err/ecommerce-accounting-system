@@ -1,8 +1,7 @@
 "use client";
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 const CHART_TOOLTIP = {
   contentStyle: {
@@ -17,7 +16,7 @@ const CHART_TOOLTIP = {
 
 export default function DashboardCharts({ chartData }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const data = chartData && chartData.length > 0 ? chartData : [
     { name: "—", revenue: 0 },

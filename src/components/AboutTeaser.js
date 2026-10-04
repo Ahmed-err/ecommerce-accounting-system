@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { translations } from "@/lib/translations";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function AboutTeaser() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
 
   return (
     <section className="py-10 bg-muted dark:bg-neutral-950/60 border-y border-border sm:py-14 lg:py-16">

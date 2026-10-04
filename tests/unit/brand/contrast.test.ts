@@ -21,6 +21,8 @@ const PAIRS: [string, string][] = [
   ["success", "card"],
   ["destructive", "card"],
   ["info", "card"],
+  ["ink-2", "card"],
+  ["ink-2", "background"],
 ];
 
 describe.each(["light", "dark"] as const)("%s tokens", (theme) => {

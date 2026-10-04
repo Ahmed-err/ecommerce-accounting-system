@@ -3,8 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProductCard from "@/components/store/ProductCard";
 import { ArrowRight, Sparkles, TrendingUp, Star } from "lucide-react";
@@ -12,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export default function ProductShowcase({ featured }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
 
   const catalogActiveCount = featured?.catalogActiveCount ?? 0;
 

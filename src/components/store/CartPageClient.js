@@ -15,8 +15,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/components/store/CartProvider";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useMemo, useState, useEffect, useCallback } from "react";
@@ -67,7 +66,7 @@ function CartSkeleton() {
 
 export default function CartPageClient() {
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const {
     cart,
     savedForLater,

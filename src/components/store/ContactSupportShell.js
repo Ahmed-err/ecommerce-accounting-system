@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 import { Phone, Mail, MessageCircle, MapPin, Clock, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import ContactFormClient from "@/components/ContactFormClient";
 
@@ -15,7 +14,7 @@ const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", 
 
 export default function ContactSupportShell({ store, faqs = [], defaultSubject }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [faqQ, setFaqQ] = useState("");
 
   const address = lang === "ar" ? store.addressAr || store.addressEn : store.addressEn || store.addressAr;

@@ -1,7 +1,6 @@
 "use client";
 
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Award } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
@@ -24,7 +23,7 @@ function BrandChip({ name }) {
 
 export default function BrandsMarquee() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const reduceMotion = useReducedMotion();
 
   const brands = [

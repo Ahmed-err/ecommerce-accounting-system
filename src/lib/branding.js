@@ -2,18 +2,26 @@ import { unstable_cache } from "next/cache";
 import { translations } from "@/lib/translations";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 
-async function fetchStoreBranding() {
+const clean = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+export async function fetchStoreBranding() {
   try {
     const store = await getOrCreateStoreSettings();
     return {
-      nameAr: store.nameAr || translations.ar.brandName,
-      nameEn: store.nameEn || translations.en.brandName,
-      taglineAr: store.sloganAr || translations.ar.brandTagline,
-      taglineEn: store.sloganEn || translations.en.brandTagline,
+      nameAr: clean(store.nameAr) || translations.ar.brandName,
+      nameEn: clean(store.nameEn) || translations.en.brandName,
+      taglineAr: clean(store.sloganAr) || translations.ar.brandTagline,
+      taglineEn: clean(store.sloganEn) || translations.en.brandTagline,
       contactPhone: store.contactPhone?.trim() || null,
       contactEmail: store.contactEmail?.trim() || null,
       addressAr: store.addressAr?.trim() || null,
       addressEn: store.addressEn?.trim() || null,
+      social: {
+        facebook: clean(store.facebookUrl),
+        instagram: clean(store.instagramUrl),
+        whatsapp: clean(store.whatsappUrl),
+        tiktok: clean(store.tiktokUrl),
+      },
     };
   } catch (error) {
     console.error("Failed to load store branding, using translation defaults:", error);
@@ -28,6 +36,7 @@ async function fetchStoreBranding() {
     contactEmail: null,
     addressAr: null,
     addressEn: null,
+    social: { facebook: null, instagram: null, whatsapp: null, tiktok: null },
   };
 }
 

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import { act } from "react";
+import { LanguageProvider, useLanguage, useT } from "@/context/LanguageContext";
 
 // tests/setup.ts mocks LanguageContext globally; this test needs the real provider.
 vi.unmock("@/context/LanguageContext");
@@ -22,5 +23,23 @@ describe("LanguageProvider", () => {
     localStorage.setItem("lang", "en");
     render(<LanguageProvider initialLang="ar"><Probe /></LanguageProvider>);
     expect(screen.getByTestId("lang")).toHaveTextContent("ar");
+  });
+});
+
+function TProbe() {
+  const t = useT();
+  return <span data-testid="t">{t.home}</span>;
+}
+
+describe("useT", () => {
+  it("returns the dictionary the server passed in", () => {
+    render(<LanguageProvider initialLang="ar" dictionary={{ home: "الرئيسية" }}><TProbe /></LanguageProvider>);
+    expect(screen.getByTestId("t")).toHaveTextContent("الرئيسية");
+  });
+
+  it("follows a new dictionary prop after a language switch refresh", () => {
+    const { rerender } = render(<LanguageProvider initialLang="ar" dictionary={{ home: "الرئيسية" }}><TProbe /></LanguageProvider>);
+    act(() => rerender(<LanguageProvider initialLang="en" dictionary={{ home: "Home" }}><TProbe /></LanguageProvider>));
+    expect(screen.getByTestId("t")).toHaveTextContent("Home");
   });
 });

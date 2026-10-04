@@ -28,8 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "./CartProvider";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations, translateCategory } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { translateCategory } from "@/lib/i18n/translate-category";
 import ProductReviewsClient from "./ProductReviewsClient";
 import ProductCard from "./ProductCard";
 import { cn } from "@/lib/utils";
@@ -99,7 +99,7 @@ export default function ProductDetailClient({
   wishlistInitial = false,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UploadButton } from "@/lib/uploader";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { getProductReviewsAction, submitReviewAction, toggleHelpfulAction } from "@/app/actions/reviews";
 import { cn } from "@/lib/utils";
 
@@ -79,7 +78,7 @@ function ReviewsSkeleton() {
 
 export default function ProductReviewsClient({ productId, embedded = false }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [sort, setSort] = useState("recent");
   const [ratingFilter, setRatingFilter] = useState("all");

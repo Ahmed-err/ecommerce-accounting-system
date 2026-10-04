@@ -6,12 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { adminDeleteReviewsAction, adminReplyReviewAction, adminSetReviewStatusAction } from "@/app/actions/reviews";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function ReviewsManagerClient({ initialRows, stats }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [rows, setRows] = useState(initialRows || []);
   const [selected, setSelected] = useState(new Set());
   const [replyOpen, setReplyOpen] = useState(false);

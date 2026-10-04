@@ -17,11 +17,20 @@ const jsxInJs: Plugin = {
 export default defineConfig({
   plugins: [jsxInJs, react()],
   test: {
-    environment: "jsdom",
     globals: true,
-    include: ["tests/**/*.{test,spec}.{ts,tsx}"],
     setupFiles: ["./tests/setup.ts"],
-    exclude: ["tests/e2e/**"],
+    // Component tests (.tsx) need a DOM; everything else runs in plain Node, which starts
+    // much faster than jsdom.
+    projects: [
+      {
+        extends: true,
+        test: { name: "dom", environment: "jsdom", include: ["tests/**/*.{test,spec}.tsx"], exclude: ["tests/e2e/**"] },
+      },
+      {
+        extends: true,
+        test: { name: "node", environment: "node", include: ["tests/**/*.{test,spec}.ts"], exclude: ["tests/e2e/**"] },
+      },
+    ],
     coverage: {
       provider: "v8",
       include: ["src/lib/**", "src/app/api/**", "src/components/**"],

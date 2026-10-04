@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.4 App shell (not started)
-- **Step:** 0 — waiting for user go-ahead
+- **Current part:** P0.4 App shell
+- **Step:** 6 — built, final review done (1 Important + 3 Minor fixed with a test); PR #16 ready for user merge
 - **Last done:** P0.3 merged (#14, `8262cca`) and deployed; live site verified (title "همّت — …", navy theme colour, Sarmadax credit, health OK).
-- **Next:** P0.4 audit → design (navbar, footer, layouts, loading/error/not-found states; shared a11y fixes button-name/link-name; keep Sarmadax credit; `/styleguide` must return a real 404 on production — today it renders the not-found UI with HTTP 200 and title "Style guide" because root `loading.js` streams first)
+- **Next:** user merges PR #16 (deploys production) → verify live shell → start P1.1 audit
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -26,7 +26,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.1 | Local dev environment | done | #3 | |
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
-| P0.4 | App shell | todo | | |
+| P0.4 | App shell | review | #16 | shell + lighter pages |
 | P1.1 | Category taxonomy | todo | | |
 | P1.2 | Product content | todo | | |
 | P1.3 | Product media | todo | | |
@@ -57,3 +57,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-03 — All P0.2 PRs merged and deployed; build migrations made robust (#12 fallback, #13 no advisory lock via pooler). P0.3 started: brand sheet (before/after) shared.
 - 2026-10-04 — P0.3 built and reviewed (fresh reviewer: 4 Important + 3 re-graded fixed with tests); PR opened.
 - 2026-10-04 — P0.3 merged (#14) and deployed to production.
+- 2026-10-04 — P0.4 built (10 tasks), final review fixed, PR #16 ready for merge.
