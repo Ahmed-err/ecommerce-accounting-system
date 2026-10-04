@@ -23,7 +23,7 @@ export function ThemeToggle({ className }) {
   }, []);
 
   if (!mounted) {
-    return <Button variant="ghost" size="icon" className={cn("size-10 rounded-lg", className)} aria-hidden />;
+    return <Button variant="ghost" size="icon" className={cn("size-10 rounded-lg", className)} aria-hidden tabIndex={-1} />;
   }
 
   const isDark = resolvedTheme === "dark";

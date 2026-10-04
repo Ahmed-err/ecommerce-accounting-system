@@ -91,7 +91,7 @@ export default function MobileMenu() {
               {session ? (
                 <div className="space-y-1 border-t border-border pt-4">
                   <p className={sectionTitle}>{t.myAccount}</p>
-                  <Link href="/my-orders" onClick={close} className={rowCls}>
+                  <Link href="/account/orders" onClick={close} className={rowCls}>
                     <Package className="size-5" aria-hidden="true" />
                     {t.myOrders}
                   </Link>

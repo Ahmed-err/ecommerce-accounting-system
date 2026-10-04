@@ -56,7 +56,12 @@ function AccountMenu({ session, t }) {
         <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
       </Button>
       {open ? (
-        <div id={panelId} className="absolute end-0 top-full z-[60] mt-2 w-60 rounded-[10px] border border-border bg-popover p-2">
+        // The header persists across pages, so choosing any item must close the panel.
+        <div
+          id={panelId}
+          className="absolute end-0 top-full z-[60] mt-2 w-60 rounded-[10px] border border-border bg-popover p-2"
+          onClick={(e) => e.target.closest("a, button") && setOpen(false)}
+        >
           <div className="mb-1 border-b border-border px-3 pb-2 pt-1">
             <p className="text-xs text-muted-foreground">{t.welcome}</p>
             <p className="truncate text-sm font-semibold">{session.user?.email}</p>
@@ -79,7 +84,7 @@ function AccountMenu({ session, t }) {
               {t.admin}
             </Link>
           )}
-          <Link href="/my-orders" className={itemCls}>
+          <Link href="/account/orders" className={itemCls}>
             <Package className="size-4" aria-hidden="true" />
             {t.myOrders}
           </Link>

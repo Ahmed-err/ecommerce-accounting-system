@@ -27,7 +27,9 @@ export default function HeaderNav() {
   const wrapRef = useRef(null);
 
   useEffect(() => {
-    getCatalogCategories().then((cats) => setCategories(cats || []));
+    getCatalogCategories()
+      .then((cats) => setCategories(cats || []))
+      .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {

@@ -66,4 +66,17 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("link", { name: en.admin })).toBeNull();
     session.data = null;
   });
+
+  it("account panel closes after choosing an item and links straight to account orders", () => {
+    session.data = { user: { role: "CUSTOMER", name: "C", email: "c@x" } };
+    render(<SiteHeader />);
+    const toggle = screen.getByRole("button", { name: /account/i });
+    fireEvent.click(toggle);
+    const orders = screen.getByRole("link", { name: en.myOrders });
+    expect(orders).toHaveAttribute("href", "/account/orders");
+    fireEvent.click(orders);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: en.myOrders })).toBeNull();
+    session.data = null;
+  });
 });
