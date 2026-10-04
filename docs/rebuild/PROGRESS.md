@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P1.1 Category taxonomy
-- **Step:** 6 — built and tested; PR open; data move waits for the user (review CSV → merge → backup → preview → apply → cleanup)
+- **Step:** 6 — merged (#17, #18); tree applied to production 2026-10-05 (29 created, 8 updated, 102 moved; log in user's `export/`); live verified
 - **Last done:** P0.4 merged (#16, `12ef4e2`) and deployed; live check on www.himmat.store OK (pages 200, unknown URL 404 with header, /styleguide 404, EN/AR, health OK).
-- **Next:** user reviews `docs/rebuild/data/p1-1-category-moves.csv`, merges the P1.1 PR, runs the apply script (steps in `docs/rebuild/parts/P1.1.md`); I verify the live tree, then P1.2 product content
+- **Next:** user runs `--cleanup` (13 empty old categories) → mark P1.1 done → P1.2 product content. User: rotate the Neon DB password (it was pasted into the chat) and update Vercel env
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -27,7 +27,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | done | #16 | shell + lighter pages |
-| P1.1 | Category taxonomy | review | `rebuild/p1-1-categories` | |
+| P1.1 | Category taxonomy | review | #18 | hotfix #17 |
 | P1.2 | Product content | todo | | |
 | P1.3 | Product media | todo | | |
 | P2.1 | Home | todo | | |
@@ -59,3 +59,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-04 — P0.3 merged (#14) and deployed to production.
 - 2026-10-04 — P0.4 built (10 tasks), final review fixed, PR #16 ready for merge.
 - 2026-10-04 — P0.4 merged (#16) and deployed; P1.1 started, read-only catalog export script written.
+- 2026-10-05 — P1.1 merged (#18) + cost hotfix (#17); tree applied on production; site briefly 500 after a Vercel env change (`NEXT_PUBLIC_URL` required) → validateEnv now accepts either site URL name.
