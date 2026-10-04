@@ -10,13 +10,14 @@ import fs from "node:fs";
 import path from "node:path";
 import pg from "pg";
 
-const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const url = process.env.DATABASE_URL;
 if (!url) {
-  console.error("Set DATABASE_URL (or DIRECT_URL) first.");
+  console.error("Set DATABASE_URL first.");
   process.exit(1);
 }
 
 const client = new pg.Client({ connectionString: url });
+console.log(`Database: ${new URL(url).hostname}${new URL(url).pathname}`);
 
 const CATEGORIES = `
   SELECT c.id, c.name, c."nameAr", c.description, c.image, c."parentId",
