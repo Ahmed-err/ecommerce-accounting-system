@@ -59,6 +59,9 @@ jobs:
           NEXT_PUBLIC_URL: https://example.com
         run: npm run build
 
+      - name: No dictionary in client bundles
+        run: node scripts/check-client-bundle.mjs
+
       - name: Dependency audit
         run: npm run audit:deps
 
