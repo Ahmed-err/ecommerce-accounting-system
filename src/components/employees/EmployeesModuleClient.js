@@ -15,8 +15,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
@@ -1248,7 +1247,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
 
 export default function EmployeesModuleClient({ initialData, initialTab, initialStaff, permissions }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();

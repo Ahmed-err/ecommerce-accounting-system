@@ -6,7 +6,7 @@ import { normalizeAppLang } from "@/lib/i18n-lang";
 
 const LanguageContext = createContext();
 
-export function LanguageProvider({ children, initialLang = "ar", branding }) {
+export function LanguageProvider({ children, initialLang = "ar", branding, dictionary }) {
   const [lang, setLang] = useState(() => normalizeAppLang(initialLang));
 
   // The lang cookie (read by the server in layout.js) is the single source of truth.
@@ -47,6 +47,9 @@ export function LanguageProvider({ children, initialLang = "ar", branding }) {
         contactPhone,
         contactEmail,
         contactAddress,
+        social: branding?.social || {},
+        // Current language only; the server layout passes it and re-sends it after a language switch refresh.
+        dictionary: dictionary || {},
       }}
     >
       <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : "font-sans"}>
@@ -57,3 +60,5 @@ export function LanguageProvider({ children, initialLang = "ar", branding }) {
 }
 
 export const useLanguage = () => useContext(LanguageContext);
+
+export const useT = () => useContext(LanguageContext)?.dictionary || {};

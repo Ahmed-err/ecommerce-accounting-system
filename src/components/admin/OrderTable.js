@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { updateOrderStatus } from "@/app/actions/catalog";
 
 const STATUS_CONFIG = {
@@ -23,7 +22,7 @@ const STATUS_CONFIG = {
 
 export default function OrderTable({ initialOrders, total, searchParams }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [orders, setOrders] = useState(initialOrders);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");

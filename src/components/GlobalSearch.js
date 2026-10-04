@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export default function GlobalSearch({ inputId }) {
@@ -17,7 +16,7 @@ export default function GlobalSearch({ inputId }) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
   const searchPlaceholder =
     t.searchPlaceholder ||
     (lang === "ar" ? "بحث عن منتج" : "Search products");

@@ -72,6 +72,7 @@
 
 .dark {
   color-scheme: dark;
+  --ink-2: #DCE2EA;
   --background: #0B1422;
   --foreground: #EEF1F5;
   --card: #121E30;

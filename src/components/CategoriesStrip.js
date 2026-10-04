@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations, translateCategory } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { translateCategory } from "@/lib/i18n/translate-category";
 import { cn } from "@/lib/utils";
 
 function getCategoryImageUrl(image) {
@@ -18,7 +18,7 @@ function getCategoryImageUrl(image) {
 
 export default function CategoriesStrip({ categories }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const scrollRef = useRef(null);
   const [imageErrors, setImageErrors] = useState({});
 

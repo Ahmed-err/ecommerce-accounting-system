@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createTransaction, updateTransaction } from "@/app/actions/accounting";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { useSession } from "next-auth/react";
 import { UploadButton } from "@/lib/uploader";
 import { toast } from "sonner";
@@ -22,7 +21,7 @@ const today = () => new Date().toISOString().split("T")[0];
 
 export default function TransactionForm({ isOpen, onClose, transaction }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const isEditing = !!transaction;
   const { data: session } = useSession();
   const managerNoIncome = session?.user?.role === "MANAGER";

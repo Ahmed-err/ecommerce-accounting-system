@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, Edit, Trash2, X, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import EmployeeForm from "./EmployeeForm";
 import { deleteEmployee } from "@/app/actions/employees";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { toast } from "sonner";
 
@@ -36,7 +35,7 @@ const ROLE_LABELS = {
 export default function EmployeeTable({ initialEmployees, total, departments, searchParams }) {
   const { lang: langRaw, isRTL } = useLanguage();
   const lang = normalizeAppLang(langRaw);
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const roleLabels = {
     ADMIN: t.roleAdmin,
     MANAGER: t.roleManager,

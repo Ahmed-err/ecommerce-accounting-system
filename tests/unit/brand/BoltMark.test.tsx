@@ -34,4 +34,10 @@ describe("BoltMark", () => {
     const svg = fs.readFileSync(path.resolve(__dirname, "../../../src/app/icon.svg"), "utf8");
     expect(svg).toContain(BOLT_PATH_SMALL);
   });
+
+  it("auto tone follows the theme via classes", () => {
+    const { container } = render(<BoltMark tone="auto" />);
+    expect(container.querySelector("rect")?.getAttribute("class")).toContain("dark:fill-amber-500");
+    expect(container.querySelector("path")?.getAttribute("class")).toContain("dark:fill-navy-900");
+  });
 });

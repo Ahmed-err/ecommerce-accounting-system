@@ -48,8 +48,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "@/app/actions/inventory";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn, formatServerActionError } from "@/lib/utils";
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
 import { toast } from "sonner";
@@ -115,7 +114,7 @@ export default function ProductTable({
   unclassifiedCount = 0,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const searchParamsKey = searchParamsHook.toString();

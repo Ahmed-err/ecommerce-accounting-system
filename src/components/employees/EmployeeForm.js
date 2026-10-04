@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createEmployee, updateEmployee } from "@/app/actions/employees";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
@@ -21,7 +20,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
   const router = useRouter();
   const { lang: langRaw, isRTL } = useLanguage();
   const lang = normalizeAppLang(langRaw);
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const isEditing = !!employee;
 
   const departmentOptions = useMemo(() => {

@@ -6,15 +6,14 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 export default function HeroSlider({ banners }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const reduceMotion = useReducedMotion();
 
   const next = useCallback(

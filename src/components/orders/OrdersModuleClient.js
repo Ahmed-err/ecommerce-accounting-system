@@ -18,8 +18,7 @@ import {
 } from "recharts";
 import Image from "next/image";
 import Link from "next/link";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import {
   getOrdersTabData, createOrderReturn, approveOrderReturn, rejectOrderReturn,
   updateOrderStatusAction, getOrderItems,
@@ -987,7 +986,7 @@ function ReportsTab({ data, t, lang, isRTL }) {
 
 export default function OrdersModuleClient({ initialData, initialTab, initialListQuery = {}, permissions }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();

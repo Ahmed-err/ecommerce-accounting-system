@@ -22,8 +22,7 @@ import {
 import { UploadButton } from "@/lib/uploader";
 import { createProduct, updateProduct, generateSkuSuggestion, createCategory } from "@/app/actions/inventory";
 import { createSupplierAction } from "@/app/actions/suppliers";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { Loader2, Plus } from "lucide-react";
 import { cn, formatServerActionError } from "@/lib/utils";
 import InventoryBarcode from "./InventoryBarcode";
@@ -93,7 +92,7 @@ const emptyForm = {
 export default function ProductForm({ isOpen, onClose, product, categories, suppliers = [] }) {
   const router = useRouter();
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const isEditing = !!product;
 
   const [formData, setFormData] = useState(emptyForm);

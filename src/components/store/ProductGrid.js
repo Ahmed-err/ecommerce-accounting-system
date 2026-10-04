@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/sheet";
 import { Search, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import ProductCard from "./ProductCard";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations, translateCategory } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { translateCategory } from "@/lib/i18n/translate-category";
 import { getCatalogProductsByIds } from "@/app/actions/catalog";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ const getSortOptions = (t) => [
 
 function RecentViewedStrip() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function ProductGrid({
   priceBounds = { min: 0, max: 0 },
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const SORT_OPTIONS = getSortOptions(t);
 
   const router = useRouter();

@@ -21,6 +21,7 @@
     "db:local": "sh scripts/dev-db.sh",
     "setup:local": "sh scripts/setup-local.sh",
     "test": "vitest",
+    "test:unit": "vitest run tests/unit",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",

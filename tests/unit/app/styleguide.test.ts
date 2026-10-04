@@ -22,4 +22,10 @@ describe("/styleguide", () => {
     const { default: Page } = await import("@/app/styleguide/page");
     expect(Page()).toBeTruthy();
   });
+
+  it("metadata is hidden in production too", async () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    const { generateMetadata } = await import("@/app/styleguide/page");
+    expect(() => generateMetadata()).toThrow("NEXT_NOT_FOUND");
+  });
 });

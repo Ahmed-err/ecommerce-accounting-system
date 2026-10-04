@@ -1,12 +1,11 @@
 "use client";
 
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { Truck, ShieldCheck, Lock, Headphones } from "lucide-react";
 
 export default function TrustBadges() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const badges = [
     {

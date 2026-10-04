@@ -17,8 +17,7 @@ import {
   Cell,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 function fmtMonth(d, lang) {
@@ -37,7 +36,7 @@ export default function InventoryChartsClient({
   originAnalysis,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const receiptData = receiptValueByMonth.map((r) => ({
     name: fmtMonth(r.month, lang),

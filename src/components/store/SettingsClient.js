@@ -4,12 +4,11 @@ import { useState } from "react";
 import { User, Lock, Mail, Save, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateUserProfile } from "@/app/actions/user";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function SettingsClient({ user }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",

@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function PromoOffer({ offer }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [timeLeft, setTimeLeft] = useState({});
 
   useEffect(() => {

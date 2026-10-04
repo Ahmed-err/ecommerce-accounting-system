@@ -6,8 +6,7 @@ import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 function GridPattern({ className }) {
@@ -58,7 +57,7 @@ const FADE_UP = { hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }
 
 export default function AboutPageClient({ store, stats, features, team }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const fallbackFromTranslations = [
     { id: "fb1", iconKey: "Package", titleKey: "aboutFeatQualityTitle", descKey: "aboutFeatQualityDesc" },

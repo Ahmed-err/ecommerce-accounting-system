@@ -18,8 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn, formatServerActionError } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -36,7 +35,7 @@ export default function InventoryStockSection({
   canStockOps = true,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const [recvOpen, setRecvOpen] = useState(false);
   const [issueOpen, setIssueOpen] = useState(false);
@@ -235,7 +234,7 @@ export default function InventoryStockSection({
 
 function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [productId, setProductId] = useState("");
   const [qty, setQty] = useState("1");
   const [supplierId, setSupplierId] = useState("");
@@ -389,7 +388,7 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
 
 function StockDialogIssue({ open, onOpenChange, onDone }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [productId, setProductId] = useState("");
   const [qty, setQty] = useState("1");
   const [reason, setReason] = useState("");

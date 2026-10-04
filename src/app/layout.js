@@ -78,13 +78,14 @@ export default async function RootLayout({ children }) {
   const lang = normalizeAppLang(cookieStore.get("lang")?.value);
   const dir = lang === "ar" ? "rtl" : "ltr";
   const branding = await getStoreBranding();
+  const dictionary = translations[lang] || translations.ar;
 
   return (
     <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overflow-x-hidden">
       <body
         className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background min-w-0 overflow-x-hidden min-h-dvh`}
       >
-        <Providers lang={lang} branding={branding}>
+        <Providers lang={lang} branding={branding} dictionary={dictionary}>
           <CartProvider>
             {children}
             <ServiceWorkerRegistration />

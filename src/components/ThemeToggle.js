@@ -4,26 +4,26 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 // Light is the default; "system" is not offered (ThemeProvider has enableSystem={false}).
 export function nextTheme(current) {
   return current === "dark" ? "light" : "dark";
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { lang } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    return <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full" aria-hidden />;
+    return <Button variant="ghost" size="icon" className={cn("size-10 rounded-lg", className)} aria-hidden tabIndex={-1} />;
   }
 
   const isDark = resolvedTheme === "dark";
@@ -34,7 +34,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      className="w-9 h-9 rounded-full text-foreground"
+      className={cn("size-10 rounded-lg text-foreground", className)}
       onClick={() => setTheme(nextTheme(resolvedTheme))}
       title={`${t.toggleColorTheme}: ${modeLabel}`}
       aria-label={`${t.toggleColorTheme}. ${t.appearance}: ${modeLabel}`}

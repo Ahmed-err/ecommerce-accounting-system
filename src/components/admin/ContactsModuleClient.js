@@ -12,14 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Trash2, Reply } from "lucide-react";
 
 export default function ContactsModuleClient() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [status, setStatus] = useState("all");
   const [rows, setRows] = useState([]);
   const [sel, setSel] = useState(null);

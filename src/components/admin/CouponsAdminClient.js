@@ -11,8 +11,7 @@ import {
   listCouponsAdmin,
   updateCouponAdmin,
 } from "@/app/actions/coupons-admin";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 function CouponForm({ value, onChange, onSubmit, onCancel, saving, t, isEdit = false, lang = "en" }) {
   const isAr = lang === "ar";
@@ -92,7 +91,7 @@ export default function CouponsAdminClient({
   initialStatus,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
   const router = useRouter();
 
   const [rows, setRows] = useState(initialRows || []);

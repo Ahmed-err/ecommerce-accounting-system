@@ -21,8 +21,7 @@ import {
   Bell,
   TicketPercent,
 } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 function navItemVisible(item, userRole, permMap) {
   if (!item.roles.includes(userRole)) return false;
@@ -36,7 +35,7 @@ export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permi
   const pathname = usePathname();
   const { data: session } = useSession();
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const userRole = session?.user?.role || "CASHIER";
 

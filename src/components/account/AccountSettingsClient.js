@@ -41,8 +41,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { SUDAN_CITIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
@@ -71,7 +70,7 @@ export default function AccountSettingsClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { lang, setLang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
   const { setTheme } = useTheme();
   const { update } = useSession();
 

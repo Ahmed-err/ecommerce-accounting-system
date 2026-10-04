@@ -23,8 +23,7 @@ import {
   getStockMovementsAction,
   searchProductsForStock,
 } from "@/app/actions/inventory";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn, formatServerActionError } from "@/lib/utils";
 import { toast } from "sonner";
 import { ArrowDownCircle, ArrowUpCircle, Loader2 } from "lucide-react";
@@ -36,7 +35,7 @@ export default function InventoryStockPanel({
   canStockOps = true,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [issueOpen, setIssueOpen] = useState(false);
   const [productQuery, setProductQuery] = useState("");

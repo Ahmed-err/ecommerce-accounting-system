@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, Edit, Trash2, X, ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import TransactionForm from "./TransactionForm";
 import { deleteTransaction } from "@/app/actions/accounting";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { isSystemGeneratedTransaction } from "@/lib/accounting";
@@ -28,7 +27,7 @@ function formatDate(date, lang, mounted) {
 
 export default function TransactionTable({ initialTransactions, total, searchParams }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const pathname = usePathname();

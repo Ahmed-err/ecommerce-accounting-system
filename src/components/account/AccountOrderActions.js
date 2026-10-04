@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/components/store/CartProvider";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { getReorderPayloadForOrder, submitCustomerOrderReturn } from "@/app/actions/account-orders";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +36,7 @@ function returnErrorMessage(code, t) {
 export default function AccountOrderActions({ orderId, status, returnOpen, lines }) {
   const router = useRouter();
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const { addToCart } = useCart();
 
   const [reorderBusy, setReorderBusy] = useState(false);

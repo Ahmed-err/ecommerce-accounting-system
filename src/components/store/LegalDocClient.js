@@ -6,13 +6,12 @@ import { motion } from "framer-motion";
 import { Printer, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 export default function LegalDocClient({ contentAr, contentEn, updatedAt, docTitle }) {
   const { lang: siteLang } = useLanguage();
-  const t = translations[siteLang];
+  const t = useT();
   const [displayLang, setDisplayLang] = useState(siteLang === "en" ? "en" : "ar");
   const articleRef = useRef(null);
   const [toc, setToc] = useState([]);

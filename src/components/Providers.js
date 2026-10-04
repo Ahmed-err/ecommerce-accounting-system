@@ -22,7 +22,7 @@ function AppToaster() {
   );
 }
 
-export function Providers({ children, lang, branding }) {
+export function Providers({ children, lang, branding, dictionary }) {
   return (
     <SessionProvider basePath="/api/auth">
       <ThemeProvider
@@ -33,7 +33,7 @@ export function Providers({ children, lang, branding }) {
         disableTransitionOnChange={false}
         enableColorScheme
       >
-        <LanguageProvider initialLang={lang} branding={branding}>
+        <LanguageProvider initialLang={lang} branding={branding} dictionary={dictionary}>
           {children}
           <AppToaster />
         </LanguageProvider>

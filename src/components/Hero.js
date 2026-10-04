@@ -10,12 +10,11 @@ import {
     Truck,
     Headphones,
 } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function Hero() {
     const { isRTL, lang } = useLanguage();
-    const t = translations[lang];
+    const t = useT();
 
     const stats = [
         { icon: Truck, title: t.fastDelivery, desc: t.fastDeliveryDesc },

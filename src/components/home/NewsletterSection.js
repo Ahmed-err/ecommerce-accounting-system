@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, CheckCircle, Loader2 } from "lucide-react";
@@ -11,7 +10,7 @@ import { subscribeToNewsletter } from "@/app/actions/newsletter";
 
 export default function NewsletterSection() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
 
   const [email, setEmail]   = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
