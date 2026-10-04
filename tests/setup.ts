@@ -33,9 +33,13 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/context/LanguageContext", () => ({
-  useLanguage: () => ({ lang: "en", isRTL: false, setLang: vi.fn() }),
-}));
+vi.mock("@/context/LanguageContext", async () => {
+  const { default: en } = await import("@/lib/i18n/en");
+  return {
+    useLanguage: () => ({ lang: "en", isRTL: false, setLang: vi.fn() }),
+    useT: () => en,
+  };
+});
 
 vi.mock("@/lib/cloudinary", () => ({
   uploadImage: vi.fn(async () => ({ url: "https://example.com/img.webp", publicId: "pid_1" })),
