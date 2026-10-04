@@ -16,8 +16,8 @@ it("store pages do not render their own shell", () => {
   expect(bad.map((f) => path.relative(GROUP, f))).toEqual([]);
 });
 
-it("layout has a skip link and a focusable main", () => {
-  const s = fs.readFileSync(path.join(GROUP, "layout.js"), "utf8");
+it("the store shell has a skip link and a focusable main", () => {
+  const s = fs.readFileSync(path.resolve(__dirname, "../../../src/components/shell/StoreShell.js"), "utf8");
   expect(s).toContain('href="#content"');
   expect(s).toMatch(/<main id="content" tabIndex=\{-1\}/);
 });

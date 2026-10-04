@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import ErrorState from "@/components/shell/ErrorState";
 
-export default function RootError({ error, reset }) {
+export default function StoreError({ error, reset }) {
   useEffect(() => {
-    console.error("Root error:", error?.digest || error?.message);
+    console.error("Store error:", error?.digest || error?.message);
   }, [error]);
   return <ErrorState onRetry={reset} />;
 }
