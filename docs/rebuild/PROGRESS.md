@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P0.4 App shell (not started)
-- **Step:** 0 — waiting for user go-ahead
+- **Current part:** P0.4 App shell
+- **Step:** 2 — audit done (`docs/rebuild/parts/P0.4.md`), design + mockups approved (boards 5–6), spec written (`docs/superpowers/specs/2026-10-04-p0-4-app-shell-design.md`), awaiting user review
 - **Last done:** P0.3 merged (#14, `8262cca`) and deployed; live site verified (title "همّت — …", navy theme colour, Sarmadax credit, health OK).
-- **Next:** P0.4 audit → design (navbar, footer, layouts, loading/error/not-found states; shared a11y fixes button-name/link-name; keep Sarmadax credit; `/styleguide` must return a real 404 on production — today it renders the not-found UI with HTTP 200 and title "Style guide" because root `loading.js` streams first)
+- **Next:** user approves spec → writing-plans → build on `rebuild/p0-4-app-shell` (scope chosen: shell + current-language-only text)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -26,7 +26,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.1 | Local dev environment | done | #3 | |
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
-| P0.4 | App shell | todo | | |
+| P0.4 | App shell | design | `rebuild/p0-4-app-shell` | shell + lighter pages |
 | P1.1 | Category taxonomy | todo | | |
 | P1.2 | Product content | todo | | |
 | P1.3 | Product media | todo | | |
