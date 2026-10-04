@@ -25,6 +25,7 @@ import { createSupplierAction } from "@/app/actions/suppliers";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { Loader2, Plus } from "lucide-react";
 import { cn, formatServerActionError } from "@/lib/utils";
+import { sortForSelect } from "@/lib/category-tree";
 import InventoryBarcode from "./InventoryBarcode";
 
 const MAX_PRODUCT_IMAGES = 4;
@@ -349,8 +350,14 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
                     <SelectValue placeholder={t.inventorySelectCategory} />
                   </SelectTrigger>
                   <SelectContent className="border-border bg-popover text-popover-foreground">
-                    {localCategories.map((c) => (
-                      <SelectItem key={c.id} value={c.id.toString()}>
+                    {/* Products go in subcategories: a top category that has them is a heading only. */}
+                    {sortForSelect(localCategories).map((c) => (
+                      <SelectItem
+                        key={c.id}
+                        value={c.id.toString()}
+                        disabled={c.depth === 0 && c.children.length > 0}
+                        className={c.depth ? "ps-6" : "font-bold"}
+                      >
                         {lang === "ar" && c.nameAr ? c.nameAr : c.name}
                       </SelectItem>
                     ))}

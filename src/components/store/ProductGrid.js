@@ -261,6 +261,7 @@ export default function ProductGrid({
                 className={cn(
                   "w-full rounded-lg px-3 py-2 text-sm transition-all",
                   isRTL ? "text-right" : "text-left",
+                  cat.parentId ? "ps-6 text-[13px]" : "font-semibold text-foreground",
                   activeCategory === cat.id
                     ? "bg-amber-500/15 font-medium text-accent-text"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"

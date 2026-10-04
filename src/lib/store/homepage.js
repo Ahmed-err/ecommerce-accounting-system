@@ -3,6 +3,7 @@ import { prisma as db } from "@/lib/prisma";
 import { HERO_BANNER_SEED_DATA } from "@/lib/hero-defaults";
 import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
 import { getFallbackCategories } from "@/lib/store/fallback-data";
+import { buildCategoryTree } from "@/lib/category-tree";
 
 function buildFallbackFeatured() {
   return {
@@ -65,14 +66,17 @@ async function fetchHomepageData() {
 
     return {
       banners: resolvedBanners,
-      categories: categories
-        .map((c) => ({
+      // Top categories only, counting their subcategories' products.
+      categories: buildCategoryTree(
+        categories.map((c) => ({
           id: c.id,
           name: c.name,
+          nameAr: c.nameAr,
           image: c.image,
+          parentId: c.parentId,
           productCount: c._count.products,
         }))
-        .filter((c) => c.productCount > 0),
+      ).map(({ children: _children, ...top }) => top),
       featured,
       featuredOffer: offers[0] || null,
     };

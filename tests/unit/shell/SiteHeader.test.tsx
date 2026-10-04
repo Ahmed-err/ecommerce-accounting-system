@@ -6,7 +6,12 @@ const session = { data: null as null | { user: { role: string; name: string; ema
 const cart = { cartCount: 0, loaded: true };
 vi.mock("next-auth/react", () => ({ useSession: () => session, signOut: vi.fn() }));
 vi.mock("@/components/store/CartProvider", () => ({ useCart: () => cart }));
-vi.mock("@/app/actions/catalog", () => ({ getCatalogCategories: vi.fn(async () => []) }));
+vi.mock("@/app/actions/catalog", () => ({
+  getCatalogCategories: vi.fn(async () => [
+    { id: "top", name: "Refrigerators & Freezers", parentId: null, productCount: 2 },
+    { id: "sub", name: "Freezers", parentId: "top", productCount: 2 },
+  ]),
+}));
 vi.mock("@/components/store/NotificationBell", () => ({ default: () => null }));
 vi.mock("@/components/GlobalSearch", () => ({ default: () => <input aria-label="search" /> }));
 vi.mock("next-themes", () => ({ useTheme: () => ({ resolvedTheme: "light", setTheme: vi.fn() }) }));
@@ -78,5 +83,14 @@ describe("SiteHeader", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("link", { name: en.myOrders })).toBeNull();
     session.data = null;
+  });
+
+  it("categories menu lists subcategories under their parent", async () => {
+    render(<SiteHeader />);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.categoriesTab) }));
+    const sub = await screen.findByRole("link", { name: "Freezers" });
+    expect(sub).toHaveAttribute("href", "/products?category=sub");
+    expect(sub.className).toContain("ps-6");
+    expect(screen.getByRole("link", { name: "Refrigerators & Freezers" }).className).not.toContain("ps-6");
   });
 });

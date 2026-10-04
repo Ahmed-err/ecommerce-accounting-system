@@ -1,0 +1,39 @@
+[
+  { "name": "Refrigerators & Freezers", "nameAr": "الثلاجات والفريزرات", "children": [
+    { "name": "Refrigerators", "nameAr": "الثلاجات" },
+    { "name": "Freezers", "nameAr": "الفريزرات" } ] },
+  { "name": "Air Conditioning & Cooling", "nameAr": "التكييف والتبريد", "children": [
+    { "name": "Air Conditioners", "nameAr": "المكيفات" },
+    { "name": "Fans", "nameAr": "المراوح" },
+    { "name": "Water Coolers", "nameAr": "مبردات المياه" } ] },
+  { "name": "Cookers & Ovens", "nameAr": "البوتاجازات والأفران", "children": [
+    { "name": "Gas Cookers", "nameAr": "البوتاجازات" },
+    { "name": "Electric Cooktops & Hot Plates", "nameAr": "الهيترات والمسطحات الكهربائية" },
+    { "name": "Gas Burners", "nameAr": "الشعلات" },
+    { "name": "Electric Ovens", "nameAr": "الأفران الكهربائية" },
+    { "name": "Microwaves", "nameAr": "المايكرويف" } ] },
+  { "name": "Small Kitchen Appliances", "nameAr": "أجهزة المطبخ الصغيرة", "children": [
+    { "name": "Blenders & Food Processors", "nameAr": "الخلاطات والكبب" },
+    { "name": "Mixers, Grinders & Graters", "nameAr": "العجانات والمفارم والمطاحن" },
+    { "name": "Kettles & Coffee", "nameAr": "الكاتلات والقهوة" },
+    { "name": "Air Fryers", "nameAr": "القلايات الهوائية" },
+    { "name": "Ice Crushers", "nameAr": "كسارات الثلج" } ] },
+  { "name": "Cookware", "nameAr": "أواني الطبخ", "children": [
+    { "name": "Pressure Cookers", "nameAr": "حلل الضغط" } ] },
+  { "name": "Washing & Ironing", "nameAr": "الغسالات والمكاوي", "children": [
+    { "name": "Automatic Washing Machines", "nameAr": "الغسالات الأوتوماتيك" },
+    { "name": "Twin-Tub Washing Machines", "nameAr": "غسالات الحوضين" },
+    { "name": "Irons", "nameAr": "المكاوي" } ] },
+  { "name": "TV & Satellite", "nameAr": "الشاشات والستلايت", "children": [
+    { "name": "TVs", "nameAr": "الشاشات" },
+    { "name": "TV Stands", "nameAr": "حوامل الشاشات" },
+    { "name": "Receivers & LNBs", "nameAr": "الرسيفرات واللواقط" } ] },
+  { "name": "Power & Electrical", "nameAr": "الكهرباء والطاقة", "children": [
+    { "name": "Voltage Regulators", "nameAr": "منظمات الكهرباء" },
+    { "name": "Inverters & Batteries", "nameAr": "الانفيرترات والبطاريات" },
+    { "name": "Cables & Wires", "nameAr": "الأسلاك والكابلات" },
+    { "name": "Switches & Sockets", "nameAr": "المفاتيح والبرايز" },
+    { "name": "Lighting", "nameAr": "الإضاءة" },
+    { "name": "Water Pumps", "nameAr": "مضخات المياه" },
+    { "name": "Scales & Shop Equipment", "nameAr": "الموازين ومعدات المحلات" } ] }
+]

@@ -109,6 +109,11 @@ export const categoryMutationSchema = z.object({
     (v) => (v === "" || v === undefined ? undefined : String(v).trim()),
     z.string().max(2000).optional().nullable()
   ),
+  parentId: z.preprocess(
+    // "" or null = top category; omitted = leave unchanged on update.
+    (v) => (v === undefined ? undefined : v === "" || v === null ? null : String(v).trim()),
+    z.string().max(64).nullable().optional()
+  ),
 });
 
 export const categoryDeleteSchema = z.object({
