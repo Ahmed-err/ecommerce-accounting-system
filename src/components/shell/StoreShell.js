@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import SiteHeader from "@/components/shell/SiteHeader";
-import Footer from "@/components/Footer";
+import SiteFooter from "@/components/shell/SiteFooter";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
@@ -21,7 +21,7 @@ export default async function StoreShell({ children }) {
       <main id="content" tabIndex={-1} className="min-h-[60vh] outline-none">
         {children}
       </main>
-      <Footer />
+      <SiteFooter />
     </>
   );
 }

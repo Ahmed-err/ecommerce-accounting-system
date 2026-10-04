@@ -1,5 +1,13 @@
 // English UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "footerShop": "Shop",
+  "footerHelp": "Help",
+  "footerContact": "Contact",
+  "trackOrder": "Track your order",
+  "socialFacebook": "Facebook",
+  "socialInstagram": "Instagram",
+  "socialWhatsapp": "WhatsApp",
+  "socialTiktok": "TikTok",
   "cartWithCount": "Cart, {count} items",
   "cartEmptyLabel": "Cart, empty",
   "switchToEnglish": "English",
