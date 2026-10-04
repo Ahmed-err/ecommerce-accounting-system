@@ -4,13 +4,12 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Loader2, ArrowRight, ShieldCheck, CheckCircle2, Eye, EyeOff } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { resetPassword } from "../actions/reset-password";
 
 export default function ResetPasswordPage() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const searchParams = useSearchParams();
   const router = useRouter();

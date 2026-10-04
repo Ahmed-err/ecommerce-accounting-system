@@ -40,8 +40,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Plus, Pencil, Trash2, Download, Truck, CreditCard, FileText, RefreshCw } from "lucide-react";
 
@@ -100,7 +99,7 @@ function csvEscape(s) {
 
 export default function SuppliersModuleClient({ role = "" }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const sp = useSearchParams();
   const tab = TAB_KEYS.includes(sp.get("tab")) ? sp.get("tab") : "overview";
@@ -161,7 +160,7 @@ export default function SuppliersModuleClient({ role = "" }) {
 
 function OverviewTab({ data, loading, onRefresh }) {
   const { lang } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const kpis = data?.kpis;
   const top = data?.top || [];
   const recent = data?.recent || [];

@@ -4,8 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 // Light is the default; "system" is not offered (ThemeProvider has enableSystem={false}).
 export function nextTheme(current) {
@@ -16,7 +15,7 @@ export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { lang } = useLanguage();
-  const t = translations[lang] || translations.en;
+  const t = useT();
 
   useEffect(() => {
     setMounted(true);

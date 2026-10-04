@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import ar from "@/lib/i18n/ar";
+import en from "@/lib/i18n/en";
 
 const state = { lang: "ar" };
-vi.mock("@/context/LanguageContext", () => ({ useLanguage: () => state }));
+vi.mock("@/context/LanguageContext", () => ({ useLanguage: () => state, useT: () => (state.lang === "en" ? en : ar) }));
 
 import Price from "@/components/brand/Price";
 

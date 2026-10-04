@@ -7,8 +7,7 @@ import { useSession } from "next-auth/react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getMyOrderConfirmation } from "@/app/actions/catalog";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { Check, Package } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,7 +27,7 @@ function normalizeOrderIdParam(raw) {
 export default function OrderConfirmationClient({ initialOrderId = "" }) {
   const params = useParams();
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const { data: session, status: sessionStatus } = useSession();
   const [order, setOrder] = useState(null);
 

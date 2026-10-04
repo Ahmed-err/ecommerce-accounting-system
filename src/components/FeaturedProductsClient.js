@@ -4,12 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import ProductCard from "@/components/store/ProductCard";
 import { ArrowRight } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export function FeaturedProductsClient({ products, lang: initialLang }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang] || translations['ar'];
+  const t = useT();
 
   if (!products || products.length === 0) {
     return null; // or empty state

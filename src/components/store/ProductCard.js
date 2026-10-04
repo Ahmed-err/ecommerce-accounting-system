@@ -7,8 +7,8 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, GitCompareArrows, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "./CartProvider";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations, translateCategory } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { translateCategory } from "@/lib/i18n/translate-category";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,7 @@ export default function ProductCard({
   homeShowcase = false,
 }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const { addToCart } = useCart();
 
   const displayName =

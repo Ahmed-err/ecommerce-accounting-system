@@ -13,7 +13,7 @@ import {
   updateSettings,
 } from "@/app/actions/settings";
 import { updateRolePermission } from "@/app/actions/permissions";
-import { translations } from "@/lib/translations";
+import { useT } from "@/context/LanguageContext";
 
 const TABS = ["store", "shipping", "homepage", "about", "payment", "pos", "notifications", "seo", "legal", "users", "backup", "system"];
 
@@ -77,7 +77,7 @@ function formatDateTimeLocal(value) {
 }
 
 export default function AdminSettingsClient({ initialTab, initialData, lang }) {
-  const t = translations[lang] || translations.ar;
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

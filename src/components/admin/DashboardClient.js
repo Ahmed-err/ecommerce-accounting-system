@@ -33,8 +33,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 
 const PIE_COLORS = ["#f59e0b", "#22c55e", "#3b82f6", "#ef4444", "#a855f7", "#14b8a6"];
@@ -69,7 +68,7 @@ const KPI_ICONS = {
 
 export default function DashboardClient({ data, filters }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const kpiLabels = {
     totalRevenue: lang === "ar" ? "إجمالي الإيراد" : "Total Revenue",
     storeRevenue: lang === "ar" ? "إيراد المتجر" : "Online Store Revenue",

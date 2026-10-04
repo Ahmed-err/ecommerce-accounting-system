@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/store/CartProvider";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import BrandLockup from "@/components/brand/BrandLockup";
 import { normalizeAppLang } from "@/lib/i18n-lang";
@@ -229,7 +228,7 @@ export default function Navbar() {
     const { cartCount, loaded } = useCart();
     const { lang: langRaw, setLang, isRTL } = useLanguage();
     const lang = normalizeAppLang(langRaw);
-    const t = translations[lang] || translations.ar;
+    const t = useT();
     const [scrolled, setScrolled] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);

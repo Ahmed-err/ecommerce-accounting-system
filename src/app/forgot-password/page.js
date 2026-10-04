@@ -3,13 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { requestPasswordReset } from "../actions/reset-password";
 
 export default function ForgotPasswordPage() {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

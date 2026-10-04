@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import BrandLockup from "@/components/brand/BrandLockup";
 import DeveloperCredit from "@/components/brand/DeveloperCredit";
@@ -17,7 +16,7 @@ function digitsForTel(s) {
 export default function Footer() {
     const { lang: langRaw, isRTL, brandName, contactPhone, contactEmail, contactAddress } = useLanguage();
     const lang = normalizeAppLang(langRaw);
-    const t = translations[lang] || translations.ar;
+    const t = useT();
 
     const quickLinks = [
         { name: t.home, href: "/" },

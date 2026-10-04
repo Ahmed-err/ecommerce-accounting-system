@@ -1,8 +1,7 @@
 "use client";
 
 import BoltMark from "@/components/brand/BoltMark";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 export const BRAND_WORDMARK = { ar: "همّت", en: "Himmat" };
@@ -12,7 +11,7 @@ const FALLBACK_SHOP = { ar: "عصام الدين نصر للأدوات الكه�
 export default function BrandLockup({ variant = "compact", size, tone = "navy", className }) {
   const { lang, brandName } = useLanguage();
   const l = lang === "en" ? "en" : "ar";
-  const t = translations[l];
+  const t = useT();
   const wordmark = t.brandWordmark || BRAND_WORDMARK[l];
   const shop = (brandName || "").trim() || FALLBACK_SHOP[l];
 

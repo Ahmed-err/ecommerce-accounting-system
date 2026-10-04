@@ -7,14 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import NotificationBell from "@/components/admin/NotificationBell";
 
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function AdminLayoutClient({ children, unreadContactCount = 0, permissionNavMap = null }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { isRTL, lang, brandName } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));

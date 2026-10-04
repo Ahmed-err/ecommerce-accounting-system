@@ -15,8 +15,7 @@ import { previewCoupon } from "@/app/actions/coupon";
 import { listUserAddresses } from "@/app/actions/addresses";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import {
   SUDAN_CITIES,
   PAYMENT_METHODS,
@@ -37,7 +36,7 @@ const insetClass = "rounded-xl border border-border bg-muted/30 p-3 sm:p-4";
 
 export default function CheckoutClient({ proofWhatsappDigits = null, bankTransferDetails = null }) {
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang] || translations['ar'];
+  const t = useT();
   const {
     cart,
     removeFromCart,

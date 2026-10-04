@@ -5,12 +5,11 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function LoginPage() {
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

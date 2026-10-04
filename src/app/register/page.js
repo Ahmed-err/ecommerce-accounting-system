@@ -6,12 +6,11 @@ import Link from "next/link";
 import { Mail, Lock, User, Phone, Loader2, ArrowRight, UserPlus, ShieldCheck, Package, Zap, Eye, EyeOff } from "lucide-react";
 import { registerUser } from "../actions/register";
 import { signIn } from "next-auth/react";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function RegisterPage() {
   const { lang, isRTL, brandName } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);

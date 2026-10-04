@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
@@ -33,7 +32,7 @@ export default function RootError({ error, reset }) {
   const ctx = useLanguage();
   const lang = normalizeAppLang(ctx?.lang);
   const isRTL = ctx?.isRTL ?? lang === "ar";
-  const t = translations[lang] || translations.ar;
+  const t = useT();
 
   useEffect(() => {
     console.error("Root error:", error?.digest || error?.message);

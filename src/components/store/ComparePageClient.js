@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations, translateCategory } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
+import { translateCategory } from "@/lib/i18n/translate-category";
 import { useCart } from "@/components/store/CartProvider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { ArrowLeft, ArrowRight, ShoppingCart } from "lucide-react";
 
 export default function ComparePageClient({ products }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const { addToCart } = useCart();
 
   if (!products.length) {

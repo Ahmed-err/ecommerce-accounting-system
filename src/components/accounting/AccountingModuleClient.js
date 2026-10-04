@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useState, useTransition, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { getAccountingTabData } from "@/app/actions/accounting";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ function validTab(t) {
 
 export default function AccountingModuleClient({ initialTab, initialPayload, permissions, overdueCount: initialOverdue }) {
   const { lang, isRTL } = useLanguage();
-  const t = translations[lang];
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
