@@ -1,13 +1,9 @@
 export function serializeCatalogProduct(p) {
   if (!p) return null;
   const sellingPrice = Number(p.sellingPrice);
-  const purchasePrice = Number(p.purchasePrice);
+  // Public shape: no cost price, and a discount only from a compare-at price the admin set.
   const compareRaw = p.compareAtPrice != null ? Number(p.compareAtPrice) : null;
-  const derivedCompare =
-    (compareRaw == null || Number.isNaN(compareRaw)) && purchasePrice > 0
-      ? Math.round(purchasePrice * 1.5 * 100) / 100
-      : null;
-  const listPrice = compareRaw != null && !Number.isNaN(compareRaw) ? compareRaw : derivedCompare;
+  const listPrice = compareRaw != null && !Number.isNaN(compareRaw) ? compareRaw : null;
   const hasDiscount = listPrice != null && listPrice > sellingPrice && sellingPrice >= 0;
   const discountPct = hasDiscount ? Math.min(99, Math.round((1 - sellingPrice / listPrice) * 100)) : 0;
 
@@ -23,7 +19,6 @@ export function serializeCatalogProduct(p) {
     barcode: p.barcode,
     unit: p.unit || "pcs",
     sellingPrice,
-    purchasePrice,
     stock: p.stock,
     minStock: p.minStock,
     images: p.images || [],

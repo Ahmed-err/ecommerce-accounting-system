@@ -35,13 +35,9 @@ export default function ProductCard({
   const displayName =
     lang === "ar" && product.nameAr ? product.nameAr : product.name;
 
-  const purchase = Number(product.purchasePrice) || 0;
   const selling = Number(product.sellingPrice) || 0;
-  const refPrice = purchase > 0 ? purchase * 1.5 : 0;
-  const hasDiscount = refPrice > 0 && selling < refPrice;
-  const offPct = hasDiscount
-    ? Math.min(99, Math.round((1 - selling / refPrice) * 100))
-    : 0;
+  const hasDiscount = Boolean(product.hasDiscount);
+  const offPct = product.discountPct || 0;
 
   const [imgError, setImgError] = useState(false);
   const [qvOpen, setQvOpen] = useState(false);
