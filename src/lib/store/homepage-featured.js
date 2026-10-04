@@ -226,7 +226,7 @@ export async function getHomepageFeaturedSets(limit = DEFAULT_LIMIT) {
     };
   } catch (error) {
     console.error("Falling back to homepage featured placeholder data:", error);
-    const fallbackProducts = getFallbackCatalogProducts({ limit }).products;
+    const fallbackProducts = getFallbackCatalogProducts({ limit }).products.map(serializeCatalogProduct);
     return {
       bestSellers: fallbackProducts,
       newArrivals: fallbackProducts,

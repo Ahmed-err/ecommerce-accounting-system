@@ -9,7 +9,6 @@ export const productPublicFields = {
   sku: true,
   barcode: true,
   unit: true,
-  purchasePrice: true,
   sellingPrice: true,
   stock: true,
   minStock: true,
@@ -19,7 +18,6 @@ export const productPublicFields = {
   specs: true,
   highlights: true,
   categoryId: true,
-  supplierId: true,
   createdAt: true,
   updatedAt: true,
 };
