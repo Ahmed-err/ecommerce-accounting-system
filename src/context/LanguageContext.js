@@ -47,6 +47,7 @@ export function LanguageProvider({ children, initialLang = "ar", branding, dicti
         contactPhone,
         contactEmail,
         contactAddress,
+        social: branding?.social || {},
         // Current language only; the server layout passes it and re-sends it after a language switch refresh.
         dictionary: dictionary || {},
       }}
