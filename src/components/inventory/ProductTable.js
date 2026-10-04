@@ -51,6 +51,7 @@ import {
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn, formatServerActionError } from "@/lib/utils";
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
+import { parentError, sortForSelect } from "@/lib/category-tree";
 import { toast } from "sonner";
 
 const SORT_PAIRS = {
@@ -134,6 +135,7 @@ export default function ProductTable({
     nameAr: "",
     description: "",
     image: "",
+    parentId: "",
   });
   const [categorySaving, setCategorySaving] = useState(false);
 
@@ -276,7 +278,7 @@ export default function ProductTable({
   };
 
   const resetCategoryForm = () => {
-    setCategoryForm({ id: "", name: "", nameAr: "", description: "", image: "" });
+    setCategoryForm({ id: "", name: "", nameAr: "", description: "", image: "", parentId: "" });
   };
 
   const openCategoryCreate = () => {
@@ -291,6 +293,7 @@ export default function ProductTable({
       nameAr: category.nameAr || "",
       description: category.description || "",
       image: category.image || "",
+      parentId: category.parentId || "",
     });
     setIsCategoriesOpen(true);
   };
@@ -307,13 +310,20 @@ export default function ProductTable({
       nameAr: categoryForm.nameAr.trim() || null,
       description: categoryForm.description.trim() || null,
       image: categoryForm.image.trim() || null,
+      parentId: categoryForm.parentId || null,
     };
     const res = categoryForm.id
       ? await updateCategory(categoryForm.id, payload)
       : await createCategory(payload);
     setCategorySaving(false);
     if (!res.success) {
-      toast.error(formatServerActionError(res.error) || t.genericError);
+      toast.error(
+        res.error === "category_parent"
+          ? lang === "ar"
+            ? "لا يمكن وضع القسم تحت هذا القسم الرئيسي (مستويان فقط)."
+            : "Can't place the category there (two levels only)."
+          : formatServerActionError(res.error) || t.genericError
+      );
       return;
     }
     toast.success(lang === "ar" ? "تم حفظ القسم" : "Category saved");
@@ -560,9 +570,9 @@ export default function ProductTable({
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
                 <SelectItem value="all">{t.inventoryStatusAll}</SelectItem>
-                {categoriesState.map((c) => (
+                {sortForSelect(categoriesState).map((c) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
-                    {c.name}
+                    {c.depth ? "— " : ""}{c.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -704,9 +714,9 @@ export default function ProductTable({
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground">
                 <SelectItem value="x">{t.inventoryBulkCategory}</SelectItem>
-                {categoriesState.map((c) => (
+                {sortForSelect(categoriesState).map((c) => (
                   <SelectItem key={c.id} value={c.id}>
-                    {c.name}
+                    {c.depth ? "— " : ""}{c.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -1174,6 +1184,26 @@ export default function ProductTable({
                 dir="rtl"
               />
             </div>
+            <div className="space-y-1.5">
+              <label htmlFor="category-parent" className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {lang === "ar" ? "القسم الرئيسي" : "Parent category"}
+              </label>
+              <select
+                id="category-parent"
+                value={categoryForm.parentId}
+                onChange={(e) => setCategoryForm((prev) => ({ ...prev, parentId: e.target.value }))}
+                className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"
+              >
+                <option value="">{lang === "ar" ? "— قسم رئيسي (بدون أب) —" : "— None (top category) —"}</option>
+                {categoriesState
+                  .filter((c) => !parentError({ id: categoryForm.id || null, parentId: c.id }, categoriesState))
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {lang === "ar" && c.nameAr ? c.nameAr : c.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
             <Input
               value={categoryForm.description}
               onChange={(e) =>
@@ -1216,10 +1246,13 @@ export default function ProductTable({
           </div>
 
           <div className="mt-4 space-y-2 px-6 pb-6">
-            {categoriesState.map((category) => (
+            {sortForSelect(categoriesState).map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                className={cn(
+                  "flex items-center justify-between rounded-lg border border-border px-3 py-2",
+                  category.depth === 1 && "ms-6"
+                )}
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">

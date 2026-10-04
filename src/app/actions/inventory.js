@@ -12,6 +12,7 @@ import {
   getProductIdsForBulk,
 } from "@/lib/inventory";
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
+import { parentError } from "@/lib/category-tree";
 import {
   productMutationSchema,
   productOriginUpdateSchema,
@@ -119,6 +120,7 @@ export async function getCategories() {
       nameAr: row.nameAr,
       description: row.description,
       image: row.image,
+      parentId: row.parentId,
       productCount: row._count.products,
     }));
   } catch (error) {
@@ -325,6 +327,13 @@ export async function bulkDeleteProducts(ids) {
   }
 }
 
+// Two levels only: a parent must be a top category, and a category with subcategories stays on top.
+async function checkParent(id, parentId) {
+  if (!parentId) return null;
+  const all = await db.category.findMany({ select: { id: true, parentId: true } });
+  return parentError({ id, parentId }, all);
+}
+
 export async function createCategory(data) {
   try {
     await ensureManager();
@@ -333,12 +342,15 @@ export async function createCategory(data) {
       return { success: false, error: parsed.error.flatten().fieldErrors };
     }
     const d = parsed.data;
+    const reason = await checkParent(null, d.parentId);
+    if (reason) return { success: false, error: "category_parent", reason };
     const category = await db.category.create({
       data: {
         name: d.name,
         nameAr: d.nameAr || null,
         description: d.description || null,
         image: d.image || null,
+        parentId: d.parentId ?? null,
       },
     });
     await logAction("CREATE_CATEGORY", { categoryId: category.id, name: category.name });
@@ -360,6 +372,8 @@ export async function updateCategory(id, data) {
       return { success: false, error: parsed.error.flatten().fieldErrors };
     }
     const d = parsed.data;
+    const reason = await checkParent(id, d.parentId);
+    if (reason) return { success: false, error: "category_parent", reason };
     const category = await db.category.update({
       where: { id },
       data: {
@@ -367,6 +381,7 @@ export async function updateCategory(id, data) {
         nameAr: d.nameAr || null,
         description: d.description || null,
         image: d.image || null,
+        ...(d.parentId !== undefined && { parentId: d.parentId }),
       },
     });
     await logAction("UPDATE_CATEGORY", { categoryId: id, name: category.name });

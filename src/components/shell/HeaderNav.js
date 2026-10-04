@@ -75,7 +75,10 @@ export default function HeaderNav() {
                     <Link
                       href={`/products?category=${encodeURIComponent(cat.id)}`}
                       onClick={() => setOpen(false)}
-                      className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+                      className={cn(
+                        "block rounded-lg px-3 text-sm hover:bg-muted",
+                        cat.parentId ? "py-2 ps-6 font-medium text-ink-2" : "py-2.5 font-bold text-foreground"
+                      )}
                     >
                       {lang === "ar" && cat.nameAr ? cat.nameAr : cat.name}
                     </Link>

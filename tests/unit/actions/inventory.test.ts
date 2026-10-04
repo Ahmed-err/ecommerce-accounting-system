@@ -14,7 +14,7 @@ const db = {
   purchaseItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn() },
   orderReturnItem: { findMany: vi.fn(async () => []), deleteMany: vi.fn() },
   stockMovement: { create: vi.fn() },
-  category: { findUnique: vi.fn(), delete: vi.fn() },
+  category: { findUnique: vi.fn(), delete: vi.fn(), findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn() },
   $transaction: vi.fn(async (fn: any) => fn(db)),
 };
 
@@ -93,5 +93,37 @@ describe("actions/inventory", () => {
     expect(out).toEqual({ success: false, error: "products_have_history", count: 1 });
     expect(db.product.deleteMany).not.toHaveBeenCalled();
     expect(db.category.delete).not.toHaveBeenCalled();
+  });
+
+  describe("category parent", () => {
+    const cats = [
+      { id: "top", parentId: null },
+      { id: "sub", parentId: "top" },
+    ];
+
+    it("creates a subcategory under a top category", async () => {
+      db.category.findMany.mockResolvedValue(cats);
+      db.category.create.mockResolvedValue({ id: "new", name: "Fans" });
+      const { createCategory } = await import("@/app/actions/inventory");
+      const out = await createCategory({ name: "Fans", parentId: "top" });
+      expect(out.success).toBe(true);
+      expect(db.category.create.mock.calls.at(-1)[0].data.parentId).toBe("top");
+    });
+
+    it("refuses a third level", async () => {
+      db.category.findMany.mockResolvedValue(cats);
+      db.category.create.mockClear();
+      const { createCategory } = await import("@/app/actions/inventory");
+      const out = await createCategory({ name: "Deep", parentId: "sub" });
+      expect(out).toMatchObject({ success: false, error: "category_parent", reason: "depth" });
+      expect(db.category.create).not.toHaveBeenCalled();
+    });
+
+    it("leaves the parent unchanged when an update omits it", async () => {
+      db.category.update.mockResolvedValue({ id: "sub", name: "Sub" });
+      const { updateCategory } = await import("@/app/actions/inventory");
+      await updateCategory("sub", { name: "Sub" });
+      expect(db.category.update.mock.calls.at(-1)[0].data).not.toHaveProperty("parentId");
+    });
   });
 });
