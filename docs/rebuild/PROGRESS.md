@@ -6,7 +6,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P0.4 App shell
-- **Step:** 2 — audit done (`docs/rebuild/parts/P0.4.md`), design + mockups approved (boards 5–6), spec written (`docs/superpowers/specs/2026-10-04-p0-4-app-shell-design.md`), awaiting user review
+- **Step:** 2 — spec approved; plan written (`docs/superpowers/plans/2026-10-04-p0-4-app-shell.md`, 10 tasks), awaiting review + execution choice
 - **Last done:** P0.3 merged (#14, `8262cca`) and deployed; live site verified (title "همّت — …", navy theme colour, Sarmadax credit, health OK).
 - **Next:** user approves spec → writing-plans → build on `rebuild/p0-4-app-shell` (scope chosen: shell + current-language-only text)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
