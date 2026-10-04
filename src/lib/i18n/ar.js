@@ -1,5 +1,6 @@
 // Arabic UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "skipToContent": "تخطَّ إلى المحتوى",
   "home": "الرئيسية",
   "catalog": "المنتجات",
   "about": "من نحن",

@@ -1,5 +1,6 @@
 // English UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "skipToContent": "Skip to content",
   "home": "Home",
   "catalog": "Catalog",
   "about": "About",

@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage, useT } from "@/context/LanguageContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
 function BoltIllustration({ className }) {
@@ -42,8 +40,7 @@ export default function NotFoundClient() {
   };
 
   return (
-    <main className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      <Navbar />
+    <div className="bg-background">
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-20 text-center">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           <BoltIllustration className="mx-auto opacity-90" />
@@ -65,7 +62,6 @@ export default function NotFoundClient() {
           </Button>
         </div>
       </div>
-      <Footer />
-    </main>
+    </div>
   );
 }

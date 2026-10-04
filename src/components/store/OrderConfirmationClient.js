@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { getMyOrderConfirmation } from "@/app/actions/catalog";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { Check, Package } from "lucide-react";
@@ -68,14 +66,13 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
     (sessionStatus === "unauthenticated" || !session?.user);
 
   return (
-    <main
+    <div
       className={cn(
-        "min-h-screen bg-background",
+        "bg-background",
         isRTL ? "text-right" : "text-left"
       )}
-      dir={isRTL ? "rtl" : "ltr"}
+     
     >
-      <Navbar />
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15">
@@ -163,7 +160,6 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
           <p className="mt-6 text-xs text-muted-foreground">{t.contactRecall}</p>
         </div>
       </div>
-      <Footer />
-    </main>
+    </div>
   );
 }
