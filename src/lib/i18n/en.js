@@ -1,5 +1,12 @@
 // English UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "cartWithCount": "Cart, {count} items",
+  "cartEmptyLabel": "Cart, empty",
+  "switchToEnglish": "English",
+  "switchToArabic": "العربية",
+  "notifications": "Notifications",
+  "myAccount": "My account",
+  "staffArea": "Staff",
   "skipToContent": "Skip to content",
   "home": "Home",
   "catalog": "Catalog",

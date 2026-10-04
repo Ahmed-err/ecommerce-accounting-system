@@ -1,5 +1,12 @@
 // Arabic UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "cartWithCount": "السلة، {count} منتج",
+  "cartEmptyLabel": "السلة فارغة",
+  "switchToEnglish": "English",
+  "switchToArabic": "العربية",
+  "notifications": "الإشعارات",
+  "myAccount": "حسابي",
+  "staffArea": "لوحة العمل",
   "skipToContent": "تخطَّ إلى المحتوى",
   "home": "الرئيسية",
   "catalog": "المنتجات",

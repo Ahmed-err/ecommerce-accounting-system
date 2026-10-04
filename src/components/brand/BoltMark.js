@@ -8,6 +8,15 @@ const AMBER = "#F2A20C";
 export default function BoltMark({ size = 40, tone = "navy", title, className }) {
   const [tile, bolt] = tone === "amber" ? [AMBER, NAVY] : [NAVY, AMBER];
   const a11y = title ? { role: "img", "aria-label": title } : { "aria-hidden": "true" };
+  if (tone === "auto") {
+    // Follows the theme: navy tile in light mode, amber tile in dark mode (stays visible on navy bars).
+    return (
+      <svg width={size} height={size} viewBox="0 0 512 512" className={className} {...a11y}>
+        <rect width="512" height="512" rx="104" className="fill-navy-900 dark:fill-amber-500" />
+        <path d={size <= 32 ? BOLT_PATH_SMALL : BOLT_PATH} className="fill-amber-500 dark:fill-navy-900" />
+      </svg>
+    );
+  }
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" className={className} {...a11y}>
       <rect width="512" height="512" rx="104" fill={tile} />

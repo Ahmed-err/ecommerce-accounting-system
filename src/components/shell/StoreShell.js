@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import Navbar from "@/components/Navbar";
+import SiteHeader from "@/components/shell/SiteHeader";
 import Footer from "@/components/Footer";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
@@ -17,7 +17,7 @@ export default async function StoreShell({ children }) {
       >
         {t.skipToContent}
       </a>
-      <Navbar />
+      <SiteHeader />
       <main id="content" tabIndex={-1} className="min-h-[60vh] outline-none">
         {children}
       </main>
