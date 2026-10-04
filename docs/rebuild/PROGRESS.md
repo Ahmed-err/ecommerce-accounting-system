@@ -6,16 +6,16 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P1.1 Category taxonomy
-- **Step:** 1 — audit; waiting for the user's read-only catalog export
+- **Step:** 2 — design; audit done from the live store (`docs/rebuild/parts/P1.1.md`), proposed tree awaiting user approval + 3 questions
 - **Last done:** P0.4 merged (#16, `12ef4e2`) and deployed; live check on www.himmat.store OK (pages 200, unknown URL 404 with header, /styleguide 404, EN/AR, health OK).
-- **Next:** user runs `DATABASE_URL="<Neon unpooled url>" node scripts/export/catalog.mjs` and shares `export/catalog-<date>.json` → audit categories vs real products → propose taxonomy
+- **Next:** user approves/edits the tree → hotfix PR for X-01 (cost in public catalog) → user fixes X-02 (`NEXT_PUBLIC_SITE_URL`) → build tree UI + reviewed move CSV + apply script
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
 
 - Brand (P0.3): refine-not-redesign agreed; awaiting feedback on the brand sheet.
 - Vercel `DIRECT_URL` was a localhost value; user replaced it with the Neon unpooled string (2026-10-03).
-- Real catalog export (P1.1): script ready (`scripts/export/catalog.mjs`, READ ONLY transaction); waiting for the user to run it.
+- Real catalog: read from the live public pages instead (snapshot `export/catalog-live-2026-10-04.json`); DB export script kept for P1.2 if needed.
 
 ## Parts
 
@@ -27,7 +27,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | done | #16 | shell + lighter pages |
-| P1.1 | Category taxonomy | audit | `rebuild/p1-1-categories` | |
+| P1.1 | Category taxonomy | design | `rebuild/p1-1-categories` | |
 | P1.2 | Product content | todo | | |
 | P1.3 | Product media | todo | | |
 | P2.1 | Home | todo | | |
