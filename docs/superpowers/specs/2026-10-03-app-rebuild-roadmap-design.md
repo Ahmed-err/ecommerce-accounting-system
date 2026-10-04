@@ -71,7 +71,7 @@ Order is the execution order. IDs are used in PROGRESS.md, branch names (`rebuil
 2. **Design**: present the redesign/fix plan to the user; wait for approval. Larger parts get a spec in `docs/superpowers/specs/` and a plan in `docs/superpowers/plans/`.
 3. **Build** on branch `rebuild/<id>-<slug>`. Split oversized files (several are 1,000–1,650 lines) into focused components and modules as they are touched; no unrelated refactors.
 4. **Test**: unit/integration (Vitest) for logic, Playwright E2E for user flows in AR and EN, mobile and desktop viewports.
-5. **Verify**: `npm run lint`, `npm run build`, `npm run test:coverage`, `npm run audit:deps` pass locally; perf numbers recorded before/after for store pages.
+5. **Verify**: `npm run test:unit` locally; CI runs lint, build, client-bundle check, `audit:deps`, e2e and screenshots; perf numbers (perf-baseline workflow) recorded before/after for store pages.
 6. **Ship**: PR to `main`, CI green, user merges. PROGRESS.md updated.
 
 ## Definition of done (per part)
