@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 import { PAYMENT_METHODS, SUDAN_CITIES, CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { translations } from "@/lib/translations";
 import { serializeCatalogProduct } from "@/lib/catalog-serialize";
+import { buildCategoryTree, categoryWithChildren } from "@/lib/category-tree";
 import { createAdminBroadcastNotification, createNotification } from "@/lib/notifications";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
@@ -196,16 +197,16 @@ export async function getCatalogProducts({
           }
         : {};
 
+    // Accepts a category id or name; a top category also lists its subcategories' products.
     const normalizedCategory = String(category || "").trim();
-    const categoryFilter = normalizedCategory && normalizedCategory !== "all"
-      ? {
-          OR: [
-            { categoryId: normalizedCategory },
-            { category: { id: normalizedCategory } },
-            { category: { name: { equals: normalizedCategory, mode: "insensitive" } } },
-          ],
-        }
-      : {};
+    let categoryFilter = {};
+    if (normalizedCategory && normalizedCategory !== "all") {
+      const all = await db.category.findMany({ select: { id: true, name: true, parentId: true } });
+      const match =
+        all.find((c) => c.id === normalizedCategory) ||
+        all.find((c) => c.name.toLowerCase() === normalizedCategory.toLowerCase());
+      categoryFilter = { categoryId: { in: match ? categoryWithChildren(match.id, all) : [normalizedCategory] } };
+    }
 
     const whereBase = {
       ...priceFilter,
@@ -348,16 +349,21 @@ export async function getCatalogCategories() {
         },
       },
     });
-    return categories
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        nameAr: c.nameAr,
-        description: c.description,
-        image: c.image,
-        productCount: c._count.products,
-      }))
-      .filter((c) => c.productCount > 0);
+    // Flat list in tree order (each top category, then its subcategories); parents count
+    // their subcategories' products; empty categories are hidden.
+    const flat = categories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      nameAr: c.nameAr,
+      description: c.description,
+      image: c.image,
+      parentId: c.parentId,
+      productCount: c._count.products,
+    }));
+    return buildCategoryTree(flat).flatMap(({ children, ...top }) => [
+      top,
+      ...children.map(({ children: _children, ...k }) => k),
+    ]);
   } catch (error) {
     console.error("Failed to fetch catalog categories:", error);
     return getFallbackCategories();
