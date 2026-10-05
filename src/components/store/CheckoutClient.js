@@ -26,7 +26,7 @@ import {
 import { UploadButton } from "@/lib/uploader";
 import { checkoutShippingSchema } from "@/lib/schemas/checkout";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import ProductImage from "@/components/media/ProductImage";
 
 const panelClass =
   "rounded-2xl border border-border bg-card text-card-foreground shadow-sm";
@@ -1232,20 +1232,8 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   isRTL && "sm:flex-row-reverse"
                 )}
               >
-                <div className="relative mx-auto h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:mx-0 sm:h-[72px] sm:w-[72px]">
-                  {item.image ? (
-                    <Image
-                      src={item.image}
-                      alt={item.name || ""}
-                      fill
-                      className="object-contain p-1"
-                      sizes="80px"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-2xl opacity-40">
-                      📦
-                    </div>
-                  )}
+                <div className="relative mx-auto h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-white sm:mx-0 sm:h-[72px] sm:w-[72px]">
+                  <ProductImage src={item.image} alt={item.name || ""} sizes="80px" compact />
                 </div>
 
                 <div
