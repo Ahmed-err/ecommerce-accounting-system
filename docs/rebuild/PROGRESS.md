@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P1.3 Product media
-- **Step:** 6 — audit + build done in one pass (code only); PR open; screenshots review
-- **Last done:** P1.2 done — #20 merged and deployed; content applied on production 2026-10-05 (136 updated, duplicate hidden, 0 skipped); live verified (names, brand in structured data, specs).
-- **Next:** user merges the P1.3 PR → I verify live → P2.1 Home. Owner: replace the 68 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv`; fill the 106 zero prices; rotate the Neon DB password. P2.3 note: hidden/unknown product URL returns 200 (soft 404)
+- **Current part:** P2.1 Home
+- **Step:** 1 — audit (not started)
+- **Last done:** P1.3 done — #21 merged and deployed (Cloudinary loader live); 45 AI-cleaned photos applied on production 2026-10-05 by Claude (user-authorized; log `export/p1-3-photos-*.json`).
+- **Next:** P2.1 Home audit. Owner: 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password. P2.3 note: hidden/unknown product URL returns 200 (soft 404)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -29,8 +29,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.4 | App shell | done | #16 | shell + lighter pages |
 | P1.1 | Category taxonomy | done | #18 | hotfix #17 |
 | P1.2 | Product content | done | `rebuild/p1-2-content` | |
-| P1.3 | Product media | review | `rebuild/p1-3-media` | |
-| P2.1 | Home | todo | | |
+| P1.3 | Product media | done | `rebuild/p1-3-media` | |
+| P2.1 | Home | audit | `rebuild/p2-1-home` | |
 | P2.2 | Listing & search | todo | | |
 | P2.3 | Product page | todo | | |
 | P2.4 | Cart & checkout | todo | | |
@@ -61,3 +61,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-04 — P0.4 merged (#16) and deployed; P1.1 started, read-only catalog export script written.
 - 2026-10-05 — P1.1 merged (#18) + cost hotfix (#17); tree applied on production; site briefly 500 after a Vercel env change (`NEXT_PUBLIC_URL` required) → validateEnv now accepts either site URL name.
 - 2026-10-05 — P1.2 merged (#20) and content applied on production; brand field live.
+- 2026-10-05 — P1.3 merged (#21); 45 photos cleaned and applied. Claude may now merge PRs and run reviewed `scripts/apply/*` (user permission rules in `.claude/settings.local.json`; secrets in git-ignored `.env.photos`).
