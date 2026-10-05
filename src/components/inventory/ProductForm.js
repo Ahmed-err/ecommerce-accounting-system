@@ -69,6 +69,7 @@ const emptyForm = {
   name: "",
   nameEn: "",
   nameAr: "",
+  brand: "",
   description: "",
   descriptionEn: "",
   descriptionAr: "",
@@ -164,6 +165,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         name: product.name || "",
         nameEn: product.nameEn || "",
         nameAr: product.nameAr || "",
+        brand: product.brand || "",
         description: product.description || "",
         descriptionEn: product.descriptionEn || "",
         descriptionAr: product.descriptionAr || "",
@@ -218,6 +220,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         name: formData.name,
         nameEn: formData.nameEn || null,
         nameAr: formData.nameAr || null,
+        brand: formData.brand.trim() || null,
         description: formData.description || null,
         descriptionEn: formData.descriptionEn || null,
         descriptionAr: formData.descriptionAr || null,
@@ -306,6 +309,10 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.inventoryNameAr}</label>
                 <Input name="nameAr" value={formData.nameAr} onChange={handleChange} className="bg-background border-border" />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="product-brand" className="text-sm font-medium">{t.inventoryBrand}</label>
+                <Input id="product-brand" name="brand" value={formData.brand} onChange={handleChange} placeholder="LG, Unionaire…" className="bg-background border-border" dir="ltr" />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <div className="flex flex-wrap items-end gap-2">

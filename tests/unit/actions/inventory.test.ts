@@ -126,4 +126,15 @@ describe("actions/inventory", () => {
       expect(db.category.update.mock.calls.at(-1)[0].data).not.toHaveProperty("parentId");
     });
   });
+
+  it("saves the brand on create and leaves it alone when an update omits it", async () => {
+    const { createProduct, updateProduct } = await import("@/app/actions/inventory");
+    db.product.create.mockResolvedValue({ id: "p9" });
+    await createProduct({ name: "Fridge", sku: "S9", purchasePrice: 1, sellingPrice: 2, stock: 1, minStock: 0, categoryId: "c1", brand: "LG" });
+    expect(db.product.create.mock.calls.at(-1)[0].data.brand).toBe("LG");
+    db.product.findUnique.mockResolvedValue({ id: "p9", stock: 1, sellingPrice: 2, purchasePrice: 1 });
+    db.product.update.mockResolvedValue({ id: "p9" });
+    await updateProduct("p9", { name: "Fridge", sku: "S9", purchasePrice: 1, sellingPrice: 2, stock: 1, minStock: 0, categoryId: "c1" });
+    expect(db.product.update.mock.calls.at(-1)?.[0].data).not.toHaveProperty("brand");
+  });
 });

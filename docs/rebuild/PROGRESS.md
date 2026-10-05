@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P1.1 Category taxonomy
-- **Step:** 6 — merged (#17, #18); tree applied to production 2026-10-05 (29 created, 8 updated, 102 moved; log in user's `export/`); live verified
-- **Last done:** P0.4 merged (#16, `12ef4e2`) and deployed; live check on www.himmat.store OK (pages 200, unknown URL 404 with header, /styleguide 404, EN/AR, health OK).
-- **Next:** user runs `--cleanup` (13 empty old categories) → mark P1.1 done → P1.2 product content. User: rotate the Neon DB password (it was pasted into the chat) and update Vercel env
+- **Current part:** P1.2 Product content
+- **Step:** 6 — built and tested; PR open; content apply waits for the user (merge → deploy → backup → apply)
+- **Last done:** P1.1 done — tree applied and old categories cleaned up on production (2026-10-05); #19 env fix deployed, live OK.
+- **Next:** user merges the P1.2 PR, then runs `scripts/apply/p1-2-content.mjs --apply` (steps in `docs/rebuild/parts/P1.2.md`); I verify live → P1.3 media. User: rotate the Neon DB password; fill the 106 zero prices
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -27,8 +27,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.2 | Whole-app audit | done | #11 | hotfixes #5, #6, #8, #9, #10; deploy #7, #12, #13 |
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | done | #16 | shell + lighter pages |
-| P1.1 | Category taxonomy | review | #18 | hotfix #17 |
-| P1.2 | Product content | todo | | |
+| P1.1 | Category taxonomy | done | #18 | hotfix #17 |
+| P1.2 | Product content | review | `rebuild/p1-2-content` | |
 | P1.3 | Product media | todo | | |
 | P2.1 | Home | todo | | |
 | P2.2 | Listing & search | todo | | |

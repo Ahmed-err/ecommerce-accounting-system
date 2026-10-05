@@ -124,7 +124,6 @@ export default async function ProductDetailPage({ params }) {
     (host ? `${proto}://${host}` : "");
   const canonical = base ? `${base.replace(/\/$/, "")}/products/${slug}` : "";
 
-  const storeName = lang === "ar" ? store.nameAr : store.nameEn;
   const availability =
     product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
 
@@ -135,7 +134,7 @@ export default async function ProductDetailPage({ params }) {
     sku: product.sku,
     image: product.images || [],
     description: displayDescLong || product.description || "",
-    brand: { "@type": "Brand", name: storeName },
+    ...(product.brand && { brand: { "@type": "Brand", name: product.brand } }),
     offers: {
       "@type": "Offer",
       url: canonical || undefined,
