@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P1.2 Product content
-- **Step:** 1 — audit from the live snapshot (`export/catalog-live-2026-10-04.json`)
+- **Step:** 6 — built and tested; PR open; content apply waits for the user (merge → deploy → backup → apply)
 - **Last done:** P1.1 done — tree applied and old categories cleaned up on production (2026-10-05); #19 env fix deployed, live OK.
-- **Next:** P1.2 audit → naming convention + content proposal for approval. User: rotate the Neon DB password (pasted in chat) and update Vercel env
+- **Next:** user merges the P1.2 PR, then runs `scripts/apply/p1-2-content.mjs --apply` (steps in `docs/rebuild/parts/P1.2.md`); I verify live → P1.3 media. User: rotate the Neon DB password; fill the 106 zero prices
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -28,7 +28,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | done | #16 | shell + lighter pages |
 | P1.1 | Category taxonomy | done | #18 | hotfix #17 |
-| P1.2 | Product content | audit | `rebuild/p1-2-content` | |
+| P1.2 | Product content | review | `rebuild/p1-2-content` | |
 | P1.3 | Product media | todo | | |
 | P2.1 | Home | todo | | |
 | P2.2 | Listing & search | todo | | |

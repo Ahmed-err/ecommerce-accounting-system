@@ -141,6 +141,7 @@ model Product {
   name           String
   nameEn         String?
   nameAr         String?
+  brand          String?
   description    String?
   descriptionEn  String?
   descriptionAr  String?
@@ -177,6 +178,7 @@ model Product {
 
   @@index([categoryId, isActive])
   @@index([supplierId])
+  @@index([brand])
 }
 
 model Purchase {

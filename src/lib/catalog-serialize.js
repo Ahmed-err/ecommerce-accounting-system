@@ -12,6 +12,7 @@ export function serializeCatalogProduct(p) {
     name: p.name,
     nameEn: p.nameEn,
     nameAr: p.nameAr,
+    brand: p.brand ?? null,
     description: p.description,
     descriptionEn: p.descriptionEn,
     descriptionAr: p.descriptionAr,

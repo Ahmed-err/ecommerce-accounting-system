@@ -1,0 +1,3785 @@
+{
+ "products": [
+  {
+   "sku": "SKU-MSGCHXJL",
+   "expectOld": {
+    "nameAr": "مكيف Best متنقل 10,000 وحدة",
+    "nameEn": "Best 10,000 BTU Portable Air Conditioner"
+   },
+   "name": "مكيف Best متنقل 10,000 وحدة",
+   "nameAr": "مكيف Best متنقل 10,000 وحدة",
+   "nameEn": "Best Portable Air Conditioner 10,000 BTU",
+   "brand": "Best",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Best",
+     "valueAr": "Best"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Portable",
+     "valueAr": "متنقل"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "10,000 BTU",
+     "valueAr": "10,000 وحدة"
+    }
+   ],
+   "descriptionEn": "Best portable air conditioner with 10,000 BTU cooling. Cools effectively and moves easily between rooms; a practical design for homes and offices."
+  },
+  {
+   "sku": "SKU-MSGCRSOA",
+   "expectOld": {
+    "nameAr": "مكيف Fresh متنقل 10,000 وحدة",
+    "nameEn": "Fresh 10,000 BTU Portable Air Conditioner"
+   },
+   "name": "مكيف Fresh متنقل 10,000 وحدة",
+   "nameAr": "مكيف Fresh متنقل 10,000 وحدة",
+   "nameEn": "Fresh Portable Air Conditioner 10,000 BTU",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Portable",
+     "valueAr": "متنقل"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "10,000 BTU",
+     "valueAr": "10,000 وحدة"
+    }
+   ],
+   "descriptionEn": "Fresh portable air conditioner with 10,000 BTU cooling. Effective cooling and easy to move, suited to homes and offices."
+  },
+  {
+   "sku": "SKU-MSGCUO3E",
+   "expectOld": {
+    "nameAr": "مكيف ICE ثابت 6,000 وحدة",
+    "nameEn": "ICE 6,000 BTU Split Air Conditioner"
+   },
+   "name": "مكيف ICE ثابت 6,000 وحدة",
+   "nameAr": "مكيف ICE ثابت 6,000 وحدة",
+   "nameEn": "ICE Split Air Conditioner 6,000 BTU",
+   "brand": "ICE",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "ICE",
+     "valueAr": "ICE"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Split (fixed)",
+     "valueAr": "ثابت"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "6,000 BTU",
+     "valueAr": "6,000 وحدة"
+    }
+   ],
+   "descriptionEn": "ICE fixed air conditioner with 6,000 BTU cooling, built for effective cooling, reliable performance and economical power use."
+  },
+  {
+   "sku": "SKU-MSGCT9P6",
+   "expectOld": {
+    "nameAr": "مكيف نسمة ثابت 6,000 وحدة",
+    "nameEn": "Nasma 6,000 BTU Split Air Conditioner"
+   },
+   "name": "مكيف Nasma ثابت 6,000 وحدة",
+   "nameAr": "مكيف Nasma ثابت 6,000 وحدة",
+   "nameEn": "Nasma Split Air Conditioner 6,000 BTU",
+   "brand": "Nasma",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nasma",
+     "valueAr": "Nasma"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Split (fixed)",
+     "valueAr": "ثابت"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "6,000 BTU",
+     "valueAr": "6,000 وحدة"
+    }
+   ],
+   "descriptionEn": "Nasma fixed air conditioner with 6,000 BTU cooling. Steady cooling with efficiency suited to small rooms."
+  },
+  {
+   "sku": "SKU-MSGCVT38",
+   "expectOld": {
+    "nameAr": "مكيف ONAX متنقل 18,000 وحدة",
+    "nameEn": "ONAX 18,000 BTU Portable Air Conditioner"
+   },
+   "name": "مكيف ONAX متنقل 18,000 وحدة",
+   "nameAr": "مكيف ONAX متنقل 18,000 وحدة",
+   "nameEn": "ONAX Portable Air Conditioner 18,000 BTU",
+   "brand": "ONAX",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "ONAX",
+     "valueAr": "ONAX"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Portable",
+     "valueAr": "متنقل"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "18,000 BTU",
+     "valueAr": "18,000 وحدة"
+    }
+   ],
+   "descriptionEn": "ONAX portable air conditioner with 18,000 BTU cooling. Strong cooling for large spaces, easy to move and operate."
+  },
+  {
+   "sku": "SKU-MSGCX45F",
+   "expectOld": {
+    "nameAr": "مكيف Sharp سبليت 18,000 وحدة",
+    "nameEn": "Sharp 18,000 BTU Split Air Conditioner"
+   },
+   "name": "مكيف Sharp سبليت 18,000 وحدة",
+   "nameAr": "مكيف Sharp سبليت 18,000 وحدة",
+   "nameEn": "Sharp Split Air Conditioner 18,000 BTU",
+   "brand": "Sharp",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Sharp",
+     "valueAr": "Sharp"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Split",
+     "valueAr": "سبليت"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "18,000 BTU",
+     "valueAr": "18,000 وحدة"
+    }
+   ],
+   "descriptionEn": "Sharp split air conditioner with 18,000 BTU cooling. Strong cooling, quiet operation and high efficiency for comfort in any weather."
+  },
+  {
+   "sku": "SKU-MSGCYFP3",
+   "expectOld": {
+    "nameAr": "مكيف TCL سبليت 18,000 وحدة",
+    "nameEn": "TCL 18,000 BTU Split Air Conditioner"
+   },
+   "name": "مكيف TCL سبليت 18,000 وحدة",
+   "nameAr": "مكيف TCL سبليت 18,000 وحدة",
+   "nameEn": "TCL Split Air Conditioner 18,000 BTU",
+   "brand": "TCL",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "TCL",
+     "valueAr": "TCL"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Split",
+     "valueAr": "سبليت"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "18,000 BTU",
+     "valueAr": "18,000 وحدة"
+    }
+   ],
+   "descriptionEn": "TCL split air conditioner with 18,000 BTU cooling. Fast cooling and reliable performance in a modern design for homes and offices."
+  },
+  {
+   "sku": "SKU-MSGCPE27",
+   "expectOld": {
+    "nameAr": "مكيف Unioneaire متنقل 8,000 وحدة",
+    "nameEn": "Unionaire 8,000 BTU Portable Air Conditioner"
+   },
+   "name": "مكيف Unionaire متنقل 8,000 وحدة",
+   "nameAr": "مكيف Unionaire متنقل 8,000 وحدة",
+   "nameEn": "Unionaire Portable Air Conditioner 8,000 BTU",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Portable",
+     "valueAr": "متنقل"
+    },
+    {
+     "keyEn": "Cooling capacity",
+     "keyAr": "قدرة التبريد",
+     "valueEn": "8,000 BTU",
+     "valueAr": "8,000 وحدة"
+    }
+   ],
+   "descriptionEn": "Unionaire portable air conditioner with 8,000 BTU cooling. Comfortable cooling in a design that is easy to move and operate, suited to small and medium rooms."
+  },
+  {
+   "sku": "SKU-MSKM6MXK",
+   "expectOld": {
+    "nameAr": "قلاية هوائية",
+    "nameEn": "Air Fryer"
+   },
+   "name": "قلاية هوائية",
+   "nameAr": "قلاية هوائية",
+   "nameEn": "Air Fryer",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Air fryer for practical cooking with far less oil. Suitable for frying and preparing a wide range of everyday meals."
+  },
+  {
+   "sku": "SKU-MSHREGNU",
+   "expectOld": {
+    "nameAr": "غسالة LG أوتوماتيك 10 كجم",
+    "nameEn": "LG 10kg Automatic Washing Machine"
+   },
+   "name": "غسالة LG أوتوماتيك 10 كجم",
+   "nameAr": "غسالة LG أوتوماتيك 10 كجم",
+   "nameEn": "LG Automatic Washing Machine 10 kg",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Automatic",
+     "valueAr": "أوتوماتيك"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "LG automatic washing machine with a 10 kg capacity and strong washing performance, suited to large families and heavy use."
+  },
+  {
+   "sku": "SKU-MSHRC497",
+   "expectOld": {
+    "nameAr": "غسالة LG أوتوماتيك 7 كجم",
+    "nameEn": "LG 7kg Automatic Washing Machine"
+   },
+   "name": "غسالة LG أوتوماتيك 7 كجم",
+   "nameAr": "غسالة LG أوتوماتيك 7 كجم",
+   "nameEn": "LG Automatic Washing Machine 7 kg",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Automatic",
+     "valueAr": "أوتوماتيك"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "7 kg",
+     "valueAr": "7 كجم"
+    }
+   ],
+   "descriptionEn": "LG automatic washing machine with a 7 kg capacity. Effective washing with economical water and power use, suited to the daily needs of small families."
+  },
+  {
+   "sku": "SKU-MSHRDAR9",
+   "expectOld": {
+    "nameAr": "غسالة LG أوتوماتيك 8 كجم",
+    "nameEn": "LG 8kg Automatic Washing Machine"
+   },
+   "name": "غسالة LG أوتوماتيك 8 كجم",
+   "nameAr": "غسالة LG أوتوماتيك 8 كجم",
+   "nameEn": "LG Automatic Washing Machine 8 kg",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Automatic",
+     "valueAr": "أوتوماتيك"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 kg",
+     "valueAr": "8 كجم"
+    }
+   ],
+   "descriptionEn": "LG automatic washing machine with an 8 kg capacity. Cleans clothes efficiently with multiple wash programs and a practical design for home use."
+  },
+  {
+   "sku": "SKU-MSHR1VK9",
+   "expectOld": {
+    "nameAr": "خلاط كهربائي",
+    "nameEn": "Electric Blender"
+   },
+   "name": "خلاط كهربائي",
+   "nameAr": "خلاط كهربائي",
+   "nameEn": "Electric Blender",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Multi-purpose electric blender for juices, smoothies and mixing ingredients. Strong motor, easy to use and to clean."
+  },
+  {
+   "sku": "SKU-MSGF3H7D",
+   "expectOld": {
+    "nameAr": "كبة",
+    "nameEn": "Food Processor"
+   },
+   "name": "كبة كهربائية",
+   "nameAr": "كبة كهربائية",
+   "nameEn": "Electric Food Processor",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Electric food processor (kebbe) for chopping, mincing and mixing ingredients."
+  },
+  {
+   "sku": "SKU-MSKM9SEI",
+   "expectOld": {
+    "nameAr": "خلاط Hofmanns",
+    "nameEn": "Hofmanns Blender"
+   },
+   "name": "خلاط Hofmanns",
+   "nameAr": "خلاط Hofmanns",
+   "nameEn": "Hofmanns Blender",
+   "brand": "Hofmanns",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Hofmanns",
+     "valueAr": "Hofmanns"
+    }
+   ],
+   "descriptionEn": "Practical Hofmanns blender for juices and drinks and for mixing ingredients; suited to everyday kitchen use."
+  },
+  {
+   "sku": "SKU-MSKMJZ0N",
+   "expectOld": {
+    "nameAr": "خلاط Midea",
+    "nameEn": "Midea Blender"
+   },
+   "name": "خلاط Midea",
+   "nameAr": "خلاط Midea",
+   "nameEn": "Midea Blender",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    }
+   ],
+   "descriptionEn": "Practical Midea blender for juices and drinks and a wide range of ingredients. Designed for everyday kitchen use and easy to operate."
+  },
+  {
+   "sku": "SKU-MSKMANKO",
+   "expectOld": {
+    "nameAr": "خلاط SilverCrest",
+    "nameEn": "SilverCrest Blender"
+   },
+   "name": "خلاط SilverCrest",
+   "nameAr": "خلاط SilverCrest",
+   "nameEn": "SilverCrest Blender",
+   "brand": "SilverCrest",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "SilverCrest",
+     "valueAr": "SilverCrest"
+    }
+   ],
+   "descriptionEn": "SilverCrest blender for mixing and preparing a variety of ingredients and drinks, with a practical design for everyday kitchen use."
+  },
+  {
+   "sku": "SKU-MSGFBFVM",
+   "expectOld": {
+    "nameAr": "سلك كهربائي",
+    "nameEn": "Electrical Cable"
+   },
+   "name": "سلك كهربائي",
+   "nameAr": "سلك كهربائي",
+   "nameEn": "Electrical Cable",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Electrical wire for connections and electrical installation work."
+  },
+  {
+   "sku": "SKU-MSKN9VLD",
+   "expectOld": {
+    "nameAr": "بوتاجاز كهربائي رخام 4 عيون باللمس",
+    "nameEn": "4-Burner Marble Electric Touch-Control Cooktop"
+   },
+   "name": "بوتاجاز كهربائي رخام باللمس 4 عيون",
+   "nameAr": "بوتاجاز كهربائي رخام باللمس 4 عيون",
+   "nameEn": "Electric Touch Cooktop 4 Burners, Marble",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Electric",
+     "valueAr": "كهرباء"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    },
+    {
+     "keyEn": "Controls",
+     "keyAr": "التحكم",
+     "valueEn": "Touch",
+     "valueAr": "لمس"
+    }
+   ],
+   "descriptionEn": "Electric touch-control cooker with a marble top and four burners. A practical, elegant and easy-to-use cooking solution for home kitchens."
+  },
+  {
+   "sku": "SKU-MSHR3MCI",
+   "expectOld": {
+    "nameAr": "هيتر كهربائي 2 عين",
+    "nameEn": "Double Electric Hot Plate"
+   },
+   "name": "هيتر كهربائي 2 عين",
+   "nameAr": "هيتر كهربائي 2 عين",
+   "nameEn": "Electric Hot Plate 2 Burners",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Electric",
+     "valueAr": "كهرباء"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "2",
+     "valueAr": "2"
+    }
+   ],
+   "descriptionEn": "Two-burner electric hot plate for preparing meals at home, in offices and in small spaces. Heats quickly and is easy to use."
+  },
+  {
+   "sku": "SKU-MSGELUC5",
+   "expectOld": {
+    "nameAr": "هيتر لمس عين واحدة",
+    "nameEn": "Touch Single Burner Heater"
+   },
+   "name": "هيتر كهربائي باللمس عين واحدة",
+   "nameAr": "هيتر كهربائي باللمس عين واحدة",
+   "nameEn": "Electric Touch Hot Plate 1 Burner",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Electric",
+     "valueAr": "كهرباء"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "1",
+     "valueAr": "1"
+    },
+    {
+     "keyEn": "Controls",
+     "keyAr": "التحكم",
+     "valueEn": "Touch",
+     "valueAr": "لمس"
+    }
+   ],
+   "descriptionEn": "Single-burner electric hot plate with a touch surface, for home use."
+  },
+  {
+   "sku": "SKU-MSHQU4VI",
+   "expectOld": {
+    "nameAr": "فرن كهربائي 100 لتر بابين - استار",
+    "nameEn": "100L Electric Oven double door - star"
+   },
+   "name": "فرن كهربائي Star بابين 100 لتر",
+   "nameAr": "فرن كهربائي Star بابين 100 لتر",
+   "nameEn": "Star Electric Oven 100 L, Double Door",
+   "brand": "Star",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Star",
+     "valueAr": "Star"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "100 L",
+     "valueAr": "100 لتر"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    }
+   ],
+   "descriptionEn": "Star double-door electric oven with a 100 L capacity, for baking, grilling and everyday cooking."
+  },
+  {
+   "sku": "SKU-MSHQW4ES",
+   "expectOld": {
+    "nameAr": "فرن كهربائي 120 لتر  بابين - استار",
+    "nameEn": "120L Electric Oven double door - star"
+   },
+   "name": "فرن كهربائي Star بابين 120 لتر",
+   "nameAr": "فرن كهربائي Star بابين 120 لتر",
+   "nameEn": "Star Electric Oven 120 L, Double Door",
+   "brand": "Star",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Star",
+     "valueAr": "Star"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "120 L",
+     "valueAr": "120 لتر"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    }
+   ],
+   "descriptionEn": "Star double-door electric oven with a 120 L capacity and a large cooking space for baking, grilling and all kinds of meals. Even heat and reliable performance for home and commercial use."
+  },
+  {
+   "sku": "SKU-MSHQYLOZ",
+   "expectOld": {
+    "nameAr": "فرن كهربائي 75 لتر  - استار",
+    "nameEn": "75L Electric Oven  - star"
+   },
+   "name": "فرن كهربائي Star 75 لتر",
+   "nameAr": "فرن كهربائي Star 75 لتر",
+   "nameEn": "Star Electric Oven 75 L",
+   "brand": "Star",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Star",
+     "valueAr": "Star"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "75 L",
+     "valueAr": "75 لتر"
+    }
+   ],
+   "descriptionEn": "Star electric oven with a 75 L capacity for baking, grilling and reheating. Easy to use, with good heat distribution for balanced results."
+  },
+  {
+   "sku": "SKU-MSKLYTJQ",
+   "expectOld": {
+    "nameAr": "فرن Akai كهربائي 35 لتر",
+    "nameEn": "Akai 35L Electric Oven"
+   },
+   "name": "فرن كهربائي Akai 35 لتر",
+   "nameAr": "فرن كهربائي Akai 35 لتر",
+   "nameEn": "Akai Electric Oven 35 L",
+   "brand": "Akai",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Akai",
+     "valueAr": "Akai"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "35 L",
+     "valueAr": "35 لتر"
+    }
+   ],
+   "descriptionEn": "Akai electric oven with a 35 L capacity. Reliable performance for meals and baking, easy to use and practical for home kitchens."
+  },
+  {
+   "sku": "SKU-MSKM5E43",
+   "expectOld": {
+    "nameAr": "فرن Bestcook كهربائي 35 لتر",
+    "nameEn": "Bestcook 35L Electric Oven"
+   },
+   "name": "فرن كهربائي Bestcook 35 لتر",
+   "nameAr": "فرن كهربائي Bestcook 35 لتر",
+   "nameEn": "Bestcook Electric Oven 35 L",
+   "brand": "Bestcook",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Bestcook",
+     "valueAr": "Bestcook"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "35 L",
+     "valueAr": "35 لتر"
+    }
+   ],
+   "descriptionEn": "Bestcook electric oven with a 35 L capacity, enough room for meals, baking and grilling. Practical and easy to use for everyday home cooking."
+  },
+  {
+   "sku": "SKU-MSKLY3PW",
+   "expectOld": {
+    "nameAr": "فرن DSP كهربائي 35 لتر",
+    "nameEn": "DSP 35L Electric Oven"
+   },
+   "name": "فرن كهربائي DSP 35 لتر",
+   "nameAr": "فرن كهربائي DSP 35 لتر",
+   "nameEn": "DSP Electric Oven 35 L",
+   "brand": "DSP",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "DSP",
+     "valueAr": "DSP"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "35 L",
+     "valueAr": "35 لتر"
+    }
+   ],
+   "descriptionEn": "DSP electric oven with a 35 L capacity, built for effective cooking with good heat distribution; suited to baking, grilling and reheating."
+  },
+  {
+   "sku": "SKU-MSKLXA5F",
+   "expectOld": {
+    "nameAr": "فرن EastPoint كهربائي 35 لتر",
+    "nameEn": "EastPoint 35L Electric Oven"
+   },
+   "name": "فرن كهربائي EastPoint 35 لتر",
+   "nameAr": "فرن كهربائي EastPoint 35 لتر",
+   "nameEn": "EastPoint Electric Oven 35 L",
+   "brand": "EastPoint",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "EastPoint",
+     "valueAr": "EastPoint"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "35 L",
+     "valueAr": "35 لتر"
+    }
+   ],
+   "descriptionEn": "EastPoint electric oven with a 35 L capacity. Even heat and effective cooking for all kinds of food, in a compact, easy-to-use design."
+  },
+  {
+   "sku": "SKU-MSKLWAVT",
+   "expectOld": {
+    "nameAr": "فرن Ferre كهربائي 35 لتر",
+    "nameEn": "Ferre 35L Electric Oven"
+   },
+   "name": "فرن كهربائي Ferre 35 لتر",
+   "nameAr": "فرن كهربائي Ferre 35 لتر",
+   "nameEn": "Ferre Electric Oven 35 L",
+   "brand": "Ferre",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Ferre",
+     "valueAr": "Ferre"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "35 L",
+     "valueAr": "35 لتر"
+    }
+   ],
+   "descriptionEn": "Ferre electric oven with a 35 L capacity, combining a practical size with effective performance for everyday meals, baking and grilling."
+  },
+  {
+   "sku": "SKU-MSKLVHC9",
+   "expectOld": {
+    "nameAr": "فرن Ferre كهربائي 45 لتر",
+    "nameEn": "Ferre 45L Electric Oven"
+   },
+   "name": "فرن كهربائي Ferre 45 لتر",
+   "nameAr": "فرن كهربائي Ferre 45 لتر",
+   "nameEn": "Ferre Electric Oven 45 L",
+   "brand": "Ferre",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Ferre",
+     "valueAr": "Ferre"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "45 L",
+     "valueAr": "45 لتر"
+    }
+   ],
+   "descriptionEn": "Ferre electric oven with a 45 L capacity for baking, grilling and reheating. Easy to operate, with even heat for excellent results."
+  },
+  {
+   "sku": "SKU-MSKLUASR",
+   "expectOld": {
+    "nameAr": "فرن Ferre كهربائي 60 لتر",
+    "nameEn": "Ferre 60L Electric Oven"
+   },
+   "name": "فرن كهربائي Ferre 60 لتر",
+   "nameAr": "فرن كهربائي Ferre 60 لتر",
+   "nameEn": "Ferre Electric Oven 60 L",
+   "brand": "Ferre",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Ferre",
+     "valueAr": "Ferre"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "60 L",
+     "valueAr": "60 لتر"
+    }
+   ],
+   "descriptionEn": "Ferre electric oven with a 60 L capacity, room for meals, baking and grilling. Even heat and simple operation make it a good choice for the home."
+  },
+  {
+   "sku": "SKU-MSHQMVTH",
+   "expectOld": {
+    "nameAr": "مروحة هيلاهوب",
+    "nameEn": "Hila Hoop Fan"
+   },
+   "name": "مروحة هيلاهوب",
+   "nameAr": "مروحة هيلاهوب",
+   "nameEn": "Hila Hoop Fan",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Practical fan with good airflow and steady operation for everyday use."
+  },
+  {
+   "sku": "SKU-MSHPZOZJ",
+   "expectOld": {
+    "nameAr": "مراوح KDK",
+    "nameEn": "KDK Fan"
+   },
+   "name": "مروحة KDK",
+   "nameAr": "مروحة KDK",
+   "nameEn": "KDK Fan",
+   "brand": "KDK",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "KDK",
+     "valueAr": "KDK"
+    }
+   ],
+   "descriptionEn": "High-quality KDK fan with strong airflow and reliable performance, suited to home or commercial use."
+  },
+  {
+   "sku": "SKU-MSHQ3CGT",
+   "expectOld": {
+    "nameAr": "مروحة استاند باكستانية Mayouns",
+    "nameEn": "Mayouns Pakistani Stand Fan"
+   },
+   "name": "مروحة ستاند Mayouns باكستانية",
+   "nameAr": "مروحة ستاند Mayouns باكستانية",
+   "nameEn": "Mayouns Stand Fan",
+   "brand": "Mayouns",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Mayouns",
+     "valueAr": "Mayouns"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Stand",
+     "valueAr": "ستاند"
+    },
+    {
+     "keyEn": "Made in",
+     "keyAr": "بلد الصنع",
+     "valueEn": "Pakistan",
+     "valueAr": "باكستان"
+    }
+   ],
+   "descriptionEn": "Mayouns stand fan with a practical design and strong airflow, suited to homes and offices."
+  },
+  {
+   "sku": "SKU-MSGEPSYK",
+   "expectOld": {
+    "nameAr": "مروحة Stand ميديا",
+    "nameEn": "Media Stand Fan"
+   },
+   "name": "مروحة ستاند Midea",
+   "nameAr": "مروحة ستاند Midea",
+   "nameEn": "Midea Stand Fan",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Stand",
+     "valueAr": "ستاند"
+    }
+   ],
+   "descriptionEn": "Midea floor stand fan for ventilation and air circulation."
+  },
+  {
+   "sku": "SKU-MSHQKHXK",
+   "expectOld": {
+    "nameAr": "مروحة حائط",
+    "nameEn": "Wall Fan"
+   },
+   "name": "مروحة حائط",
+   "nameAr": "مروحة حائط",
+   "nameEn": "Wall Fan",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Wall-mounted",
+     "valueAr": "حائط"
+    }
+   ],
+   "descriptionEn": "Wall fan with a practical design that gives strong airflow while saving floor space; suited to homes and offices."
+  },
+  {
+   "sku": "SKU-MSGA9TVM",
+   "expectOld": {
+    "nameAr": "فريزر BestCool أفقي 12 قدم",
+    "nameEn": "BestCool 12 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر BestCool أفقي 12 قدم",
+   "nameAr": "فريزر BestCool أفقي 12 قدم",
+   "nameEn": "BestCool Chest Freezer 12 cu ft",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "BestCool chest freezer with a 12 cu ft capacity. Large storage, fast freezing and reliable performance for keeping frozen food for long periods."
+  },
+  {
+   "sku": "SKU-MSGAI8QB",
+   "expectOld": {
+    "nameAr": "فريزر BestCool هافاب أفقي 19 قدم",
+    "nameEn": "BestCool Havap 19 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر BestCool Hafab أفقي 19 قدم",
+   "nameAr": "فريزر BestCool Hafab أفقي 19 قدم",
+   "nameEn": "BestCool Hafab Chest Freezer 19 cu ft",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "19 cu ft",
+     "valueAr": "19 قدم"
+    },
+    {
+     "keyEn": "Model",
+     "keyAr": "الموديل",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    }
+   ],
+   "descriptionEn": "BestCool Hafab chest freezer with a 19 cu ft capacity and strong freezing, suited to home and commercial use."
+  },
+  {
+   "sku": "SKU-MSGAKDD1",
+   "expectOld": {
+    "nameAr": "فريزر BestCool هافاب عرض بابين",
+    "nameEn": "BestCool Havap 2 doors Chest Freezer"
+   },
+   "name": "فريزر BestCool Hafab عرض بابين",
+   "nameAr": "فريزر BestCool Hafab عرض بابين",
+   "nameEn": "BestCool Hafab Display Freezer, 2 Doors",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Display",
+     "valueAr": "عرض"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Model",
+     "keyAr": "الموديل",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    }
+   ],
+   "descriptionEn": "BestCool Hafab two-door display freezer. Fast cooling with economical power use; a good choice for homes and small shops."
+  },
+  {
+   "sku": "SKU-MSGASCKH",
+   "expectOld": {
+    "nameAr": "فريزر BestCool  هافتيك عرض",
+    "nameEn": "BestCool Havtic Chest Freezer"
+   },
+   "name": "فريزر BestCool Haftec عرض 8 قدم",
+   "nameAr": "فريزر BestCool Haftec عرض 8 قدم",
+   "nameEn": "BestCool Haftec Display Freezer 8 cu ft",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Display",
+     "valueAr": "عرض"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 cu ft",
+     "valueAr": "8 قدم"
+    },
+    {
+     "keyEn": "Model",
+     "keyAr": "الموديل",
+     "valueEn": "Haftec",
+     "valueAr": "Haftec"
+    }
+   ],
+   "descriptionEn": "BestCool freezer with an 8 cu ft capacity, built for steady freezing and practical storage in a sturdy, easy-to-use design."
+  },
+  {
+   "sku": "SKU-MSGB4MLW",
+   "expectOld": {
+    "nameAr": "فريزر Haftec أفقي 8 قدم",
+    "nameEn": "Haftec 8 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر Haftec أفقي 8 قدم",
+   "nameAr": "فريزر Haftec أفقي 8 قدم",
+   "nameEn": "Haftec Chest Freezer 8 cu ft",
+   "brand": "Haftec",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Haftec",
+     "valueAr": "Haftec"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 cu ft",
+     "valueAr": "8 قدم"
+    }
+   ],
+   "descriptionEn": "Haftec freezer with an 8 cu ft capacity. Effective freezing and suitable storage for frozen food, with efficient power use."
+  },
+  {
+   "sku": "SKU-MSC29SO7",
+   "expectOld": {
+    "nameAr": "فريزر ال جي 10 قدم",
+    "nameEn": "LG  Freezer 10 FT"
+   },
+   "name": "فريزر LG رأسي 10 قدم",
+   "nameAr": "فريزر LG رأسي 10 قدم",
+   "nameEn": "LG Upright Freezer 10 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Upright",
+     "valueAr": "رأسي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    }
+   ],
+   "descriptionEn": "LG upright freezer with plenty of storage and practical shelves and drawers to keep frozen food organised. Strong freezing in an elegant design for homes and shops."
+  },
+  {
+   "sku": "SKU-MSGB3G24",
+   "expectOld": {
+    "nameAr": "فريزر M.T أفقي 8 قدم",
+    "nameEn": "M.T 8 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر M.T أفقي 8 قدم",
+   "nameAr": "فريزر M.T أفقي 8 قدم",
+   "nameEn": "M.T Chest Freezer 8 cu ft",
+   "brand": "M.T",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "M.T",
+     "valueAr": "M.T"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 cu ft",
+     "valueAr": "8 قدم"
+    }
+   ],
+   "descriptionEn": "M.T chest freezer with an 8 cu ft capacity. Fast freezing, practical storage, economical power use and a sturdy design for home and commercial use."
+  },
+  {
+   "sku": "SKU-MSGA6WFM",
+   "expectOld": {
+    "nameAr": "فريزر Midea 12 قدم",
+    "nameEn": "Midea Freezer 12FT"
+   },
+   "name": "فريزر Midea أفقي 12 قدم",
+   "nameAr": "فريزر Midea أفقي 12 قدم",
+   "nameEn": "Midea Chest Freezer 12 cu ft",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "Midea chest freezer with fast freezing, suitable storage and economical power use, for home or commercial use."
+  },
+  {
+   "sku": "SKU-MSGB6I91",
+   "expectOld": {
+    "nameAr": "فريزر Nikai أفقي 6 قدم",
+    "nameEn": "Nikai 6 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر Nikai أفقي 6 قدم",
+   "nameAr": "فريزر Nikai أفقي 6 قدم",
+   "nameEn": "Nikai Chest Freezer 6 cu ft",
+   "brand": "Nikai",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nikai",
+     "valueAr": "Nikai"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "6 cu ft",
+     "valueAr": "6 قدم"
+    }
+   ],
+   "descriptionEn": "Compact Nikai freezer with a 6 cu ft capacity. Fast freezing and reliable performance for homes and small shops."
+  },
+  {
+   "sku": "SKU-MSG9UB88",
+   "expectOld": {
+    "nameAr": "فريزر StarTech أفقي 8 قدم",
+    "nameEn": "StarTech 8 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر StarTech أفقي 8 قدم",
+   "nameAr": "فريزر StarTech أفقي 8 قدم",
+   "nameEn": "StarTech Chest Freezer 8 cu ft",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 cu ft",
+     "valueAr": "8 قدم"
+    }
+   ],
+   "descriptionEn": "StarTech chest freezer with an 8 cu ft capacity. Fast freezing and suitable storage for meat and frozen food over long periods, with economical power use."
+  },
+  {
+   "sku": "SKU-MSG9VB9Q",
+   "expectOld": {
+    "nameAr": "فريزر StarTech أفقي",
+    "nameEn": "StarTech Chest Freezer"
+   },
+   "name": "فريزر StarTech أفقي",
+   "nameAr": "فريزر StarTech أفقي",
+   "nameEn": "StarTech Chest Freezer",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    }
+   ],
+   "descriptionEn": "StarTech chest freezer with large storage and strong cooling, suited to homes, shops and restaurants."
+  },
+  {
+   "sku": "SKU-MSG9W5VQ",
+   "expectOld": {
+    "nameAr": "فريزر StarTech M.T أفقي 14 قدم",
+    "nameEn": "StarTech M.T 14 Cu.ft Chest Freezer"
+   },
+   "name": "فريزر StarTech M.T أفقي 14 قدم",
+   "nameAr": "فريزر StarTech M.T أفقي 14 قدم",
+   "nameEn": "StarTech M.T Chest Freezer 14 cu ft",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "14 cu ft",
+     "valueAr": "14 قدم"
+    },
+    {
+     "keyEn": "Model",
+     "keyAr": "الموديل",
+     "valueEn": "M.T",
+     "valueAr": "M.T"
+    }
+   ],
+   "descriptionEn": "StarTech M.T freezer with a 14 cu ft capacity. Large storage and fast freezing to keep food quality, with a sturdy design and economical power use."
+  },
+  {
+   "sku": "UNI-CFREEZER-282",
+   "expectOld": {
+    "nameAr": "فريزر يونيون إير 12 قدم",
+    "nameEn": "Unionaire  Freezer 12 FT"
+   },
+   "name": "فريزر Unionaire أفقي 12 قدم",
+   "nameAr": "فريزر Unionaire أفقي 12 قدم",
+   "nameEn": "Unionaire Chest Freezer 12 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "Unionaire chest freezer with reliable freezing and a roomy interior for all kinds of frozen food. Easy to use and well built for home and commercial use."
+  },
+  {
+   "sku": "UNI-CFREEZER-250",
+   "expectOld": {
+    "nameAr": "فريزر يونيون إير 9 قدم",
+    "nameEn": "Unionaire  Freezer 9 FT"
+   },
+   "name": "فريزر Unionaire أفقي 9 قدم",
+   "nameAr": "فريزر Unionaire أفقي 9 قدم",
+   "nameEn": "Unionaire Chest Freezer 9 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Chest",
+     "valueAr": "أفقي"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "9 cu ft",
+     "valueAr": "9 قدم"
+    }
+   ],
+   "descriptionEn": "Unionaire chest freezer with large storage for keeping big amounts of frozen food for long periods. Its practical design suits homes, restaurants and shops, with efficient freezing."
+  },
+  {
+   "sku": "UNI-UPFREEZER-230",
+   "expectOld": {
+    "nameAr": "فريزر يونيون إير رأسي 6 احواض",
+    "nameEn": "Unionaire Upright Freezer"
+   },
+   "name": "فريزر Unionaire رأسي 6 أدراج",
+   "nameAr": "فريزر Unionaire رأسي 6 أدراج",
+   "nameEn": "Unionaire Upright Freezer, 6 Drawers",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Upright",
+     "valueAr": "رأسي"
+    },
+    {
+     "keyEn": "Drawers",
+     "keyAr": "عدد الأدراج",
+     "valueEn": "6",
+     "valueAr": "6"
+    }
+   ],
+   "descriptionEn": "Unionaire upright freezer with organised storage and easy access thanks to its vertical design. Keeps all kinds of frozen food with steady cooling; practical for homes and shops."
+  },
+  {
+   "sku": "SKU-MSGDJGYG",
+   "expectOld": {
+    "nameAr": "شعلة Newdale 3 عيون",
+    "nameEn": "Newdale 3 Burner Gas Stove"
+   },
+   "name": "شعلة Newdale 3 عيون",
+   "nameAr": "شعلة Newdale 3 عيون",
+   "nameEn": "Newdale Gas Burner 3 Burners",
+   "brand": "Newdale",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Newdale",
+     "valueAr": "Newdale"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "3",
+     "valueAr": "3"
+    }
+   ],
+   "descriptionEn": "Newdale three-burner gas stove with even heat and reliable performance for everyday cooking."
+  },
+  {
+   "sku": "SKU-MSGDL5P4",
+   "expectOld": {
+    "nameAr": "شعلة Nikai 3 عيون",
+    "nameEn": "Nikai 3 Burner Gas Stove"
+   },
+   "name": "شعلة Nikai 3 عيون",
+   "nameAr": "شعلة Nikai 3 عيون",
+   "nameEn": "Nikai Gas Burner 3 Burners",
+   "brand": "Nikai",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nikai",
+     "valueAr": "Nikai"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "3",
+     "valueAr": "3"
+    }
+   ],
+   "descriptionEn": "Nikai three-burner gas stove, well built with steady performance, suited to home use."
+  },
+  {
+   "sku": "SKU-MSGFNLTJ",
+   "expectOld": {
+    "nameAr": "شعلة نيكورا",
+    "nameEn": "Nikura Burner"
+   },
+   "name": "شعلة Nikura",
+   "nameAr": "شعلة Nikura",
+   "nameEn": "Nikura Burner",
+   "brand": "Nikura",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nikura",
+     "valueAr": "Nikura"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas / electric",
+     "valueAr": "غاز / كهرباء"
+    }
+   ],
+   "descriptionEn": "Nikura gas/electric burner for cooking."
+  },
+  {
+   "sku": "SKU-MSHQZJE3",
+   "expectOld": {
+    "nameAr": "بوتاجاز رخام 4 عيون",
+    "nameEn": "4 Burner Marble Gas Cooker"
+   },
+   "name": "بوتاجاز رخام 4 عيون",
+   "nameAr": "بوتاجاز رخام 4 عيون",
+   "nameEn": "Gas Cooker 4 Burners, Marble",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    }
+   ],
+   "descriptionEn": "Gas cooker with a marble top and four burners. Even heat and a practical, easy-to-clean design for everyday home cooking."
+  },
+  {
+   "sku": "SKU-MSKN2QPM",
+   "expectOld": {
+    "nameAr": "بوتاجاز Bestcook 5 عيون",
+    "nameEn": "Bestcook 5-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Bestcook 5 عيون",
+   "nameAr": "بوتاجاز Bestcook 5 عيون",
+   "nameEn": "Bestcook Gas Cooker 5 Burners",
+   "brand": "Bestcook",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Bestcook",
+     "valueAr": "Bestcook"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "5",
+     "valueAr": "5"
+    }
+   ],
+   "descriptionEn": "Bestcook gas cooker with five burners, room to cook several dishes at once, in a practical design for everyday home use."
+  },
+  {
+   "sku": "SKU-MSKMP11C",
+   "expectOld": {
+    "nameAr": "بوتاجاز Digi 5 عيون",
+    "nameEn": "Digi 5-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Digi 5 عيون",
+   "nameAr": "بوتاجاز Digi 5 عيون",
+   "nameEn": "Digi Gas Cooker 5 Burners",
+   "brand": "Digi",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Digi",
+     "valueAr": "Digi"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "5",
+     "valueAr": "5"
+    }
+   ],
+   "descriptionEn": "Digi cooker with five burners, room to cook several dishes at once, in a practical design for everyday home use."
+  },
+  {
+   "sku": "SKU-MSKMPS33",
+   "expectOld": {
+    "nameAr": "بوتاجاز Digi 6 عيون",
+    "nameEn": "Digi 6-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Digi 6 عيون (4 غاز + 2 كهرباء)",
+   "nameAr": "بوتاجاز Digi 6 عيون (4 غاز + 2 كهرباء)",
+   "nameEn": "Digi Cooker 6 Burners (4 Gas + 2 Electric)",
+   "brand": "Digi",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Digi",
+     "valueAr": "Digi"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "4 gas + 2 electric",
+     "valueAr": "4 غاز + 2 كهرباء"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "6",
+     "valueAr": "6"
+    }
+   ],
+   "descriptionEn": "Digi cooker with six burners: four gas and two electric. Plenty of room to cook several dishes at once, in a practical design for home kitchens."
+  },
+  {
+   "sku": "SKU-MSKN5C9V",
+   "expectOld": {
+    "nameAr": "بوتاجاز Fresh 4 عيون",
+    "nameEn": "Fresh 4-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Fresh 4 عيون",
+   "nameAr": "بوتاجاز Fresh 4 عيون",
+   "nameEn": "Fresh Gas Cooker 4 Burners",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    }
+   ],
+   "descriptionEn": "Fresh gas cooker with four burners: a practical everyday cooker, sized for home kitchens and easy to use."
+  },
+  {
+   "sku": "SKU-MSKN4417",
+   "expectOld": {
+    "nameAr": "بوتاجاز Fresh 5 عيون",
+    "nameEn": "Fresh 5-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Fresh 5 عيون",
+   "nameAr": "بوتاجاز Fresh 5 عيون",
+   "nameEn": "Fresh Gas Cooker 5 Burners",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "5",
+     "valueAr": "5"
+    }
+   ],
+   "descriptionEn": "Fresh gas cooker with five burners for everyday cooking, with practical room for several meals and an easy-to-use design."
+  },
+  {
+   "sku": "SKU-MSKMQH3B",
+   "expectOld": {
+    "nameAr": "بوتاجاز Glem 5 عيون ايطالي",
+    "nameEn": "Glem 5-Burner Gas Cooker"
+   },
+   "name": "بوتاجاز Glem إيطالي 5 عيون",
+   "nameAr": "بوتاجاز Glem إيطالي 5 عيون",
+   "nameEn": "Glem Gas Cooker 5 Burners",
+   "brand": "Glem",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Glem",
+     "valueAr": "Glem"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "5",
+     "valueAr": "5"
+    },
+    {
+     "keyEn": "Made in",
+     "keyAr": "بلد الصنع",
+     "valueEn": "Italy",
+     "valueAr": "إيطاليا"
+    }
+   ],
+   "descriptionEn": "Italian Glem cooker with five burners, practical room to cook several dishes at once, designed for everyday kitchen use."
+  },
+  {
+   "sku": "SKU-MSKN8NLD",
+   "expectOld": {
+    "nameAr": "بوتاجاز Hafab رخام 4 عيون",
+    "nameEn": "Hafab 4-Burner Marble Gas Cooker"
+   },
+   "name": "بوتاجاز Hafab رخام 4 عيون",
+   "nameAr": "بوتاجاز Hafab رخام 4 عيون",
+   "nameEn": "Hafab Gas Cooker 4 Burners, Marble",
+   "brand": "Hafab",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    }
+   ],
+   "descriptionEn": "Hafab gas cooker with a marble top and four burners for everyday cooking, in a practical design for home use."
+  },
+  {
+   "sku": "SKU-MSHQ5QJH",
+   "expectOld": {
+    "nameAr": "بوتاجاز Hafab رخام مع شفاط - 4 عيون",
+    "nameEn": "Hafab Marble Gas Cooker with Hood - 4 Burners"
+   },
+   "name": "بوتاجاز Hafab رخام مع شفاط 4 عيون",
+   "nameAr": "بوتاجاز Hafab رخام مع شفاط 4 عيون",
+   "nameEn": "Hafab Gas Cooker 4 Burners, Marble, with Hood",
+   "brand": "Hafab",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    },
+    {
+     "keyEn": "Feature",
+     "keyAr": "ميزة",
+     "valueEn": "Built-in hood",
+     "valueAr": "شفاط مدمج"
+    }
+   ],
+   "descriptionEn": "Hafab gas cooker with a marble top, a built-in hood and four burners, combining a practical design with reliable everyday performance."
+  },
+  {
+   "sku": "SKU-MSKN6JOW",
+   "expectOld": {
+    "nameAr": "بوتاجاز Haftec رخام 4 عيون",
+    "nameEn": "Haftec 4-Burner Marble Gas Cooker"
+   },
+   "name": "بوتاجاز Haftec رخام 4 عيون",
+   "nameAr": "بوتاجاز Haftec رخام 4 عيون",
+   "nameEn": "Haftec Gas Cooker 4 Burners, Marble",
+   "brand": "Haftec",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Haftec",
+     "valueAr": "Haftec"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "4",
+     "valueAr": "4"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    }
+   ],
+   "descriptionEn": "Haftec gas cooker with a marble top and four burners, practical and easy to clean, suited to everyday kitchen use."
+  },
+  {
+   "sku": "SKU-MSKN7NMD",
+   "expectOld": {
+    "nameAr": "بوتاجاز Haftec رخام 5 عيون",
+    "nameEn": "Haftec 5-Burner Marble Gas Cooker"
+   },
+   "name": "بوتاجاز Haftec رخام 5 عيون",
+   "nameAr": "بوتاجاز Haftec رخام 5 عيون",
+   "nameEn": "Haftec Gas Cooker 5 Burners, Marble",
+   "brand": "Haftec",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Haftec",
+     "valueAr": "Haftec"
+    },
+    {
+     "keyEn": "Fuel",
+     "keyAr": "نوع التشغيل",
+     "valueEn": "Gas",
+     "valueAr": "غاز"
+    },
+    {
+     "keyEn": "Burners",
+     "keyAr": "عدد العيون",
+     "valueEn": "5",
+     "valueAr": "5"
+    },
+    {
+     "keyEn": "Surface",
+     "keyAr": "السطح",
+     "valueEn": "Marble",
+     "valueAr": "رخام"
+    }
+   ],
+   "descriptionEn": "Haftec gas cooker with a marble top and five burners: plenty of room to cook several dishes at once, practical and easy to clean."
+  },
+  {
+   "sku": "SKU-MSGERZYT",
+   "expectOld": {
+    "nameAr": "كسارة تلج حجم 500 واط",
+    "nameEn": "Ice Crusher Size 500 watt"
+   },
+   "name": "كسارة ثلج كهربائية 500 واط",
+   "nameAr": "كسارة ثلج كهربائية 500 واط",
+   "nameEn": "Electric Ice Crusher 500 W",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Power",
+     "keyAr": "القدرة",
+     "valueEn": "500 W",
+     "valueAr": "500 واط"
+    }
+   ],
+   "descriptionEn": "Electric ice crusher for making crushed ice, 500 W."
+  },
+  {
+   "sku": "SKU-MSGFIION",
+   "expectOld": {
+    "nameAr": "انفيرتر",
+    "nameEn": "Inverter"
+   },
+   "name": "انفيرتر",
+   "nameAr": "انفيرتر",
+   "nameEn": "Power Inverter",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Device that converts DC power to AC power."
+  },
+  {
+   "sku": "SKU-MSGFMZ5F",
+   "expectOld": {
+    "nameAr": "بطارية شحن 1500 فولت",
+    "nameEn": "Rechargeable Battery 1500 V"
+   },
+   "name": "جهاز UPS (بطارية شحن) 1500 VA",
+   "nameAr": "جهاز UPS (بطارية شحن) 1500 VA",
+   "nameEn": "UPS 1500 VA",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "UPS",
+     "valueAr": "UPS"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "1,500 VA",
+     "valueAr": "1,500 VA"
+    }
+   ],
+   "descriptionEn": "Rechargeable UPS backup power unit rated 1500 VA."
+  },
+  {
+   "sku": "SKU-MSGFLXAQ",
+   "expectOld": {
+    "nameAr": "بطارية شحن 850 فولت",
+    "nameEn": "Rechargeable Battery 850V"
+   },
+   "name": "جهاز UPS (بطارية شحن) 850 VA",
+   "nameAr": "جهاز UPS (بطارية شحن) 850 VA",
+   "nameEn": "UPS 850 VA",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "UPS",
+     "valueAr": "UPS"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "850 VA",
+     "valueAr": "850 VA"
+    }
+   ],
+   "descriptionEn": "Rechargeable UPS backup power unit rated 850 VA."
+  },
+  {
+   "sku": "SKU-MSHR7EGP",
+   "expectOld": {
+    "nameAr": "مكواة كهربائية",
+    "nameEn": "Electric Dry Iron"
+   },
+   "name": "مكواة كهربائية",
+   "nameAr": "مكواة كهربائية",
+   "nameEn": "Electric Dry Iron",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Dry",
+     "valueAr": "جافة"
+    }
+   ],
+   "descriptionEn": "Electric iron for fast, effective ironing with even heat, suited to all kinds of fabric."
+  },
+  {
+   "sku": "SKU-MSHR9UWX",
+   "expectOld": {
+    "nameAr": "مكواة Nikai بخار",
+    "nameEn": "Nikai Steam Iron"
+   },
+   "name": "مكواة بخار Nikai",
+   "nameAr": "مكواة بخار Nikai",
+   "nameEn": "Nikai Steam Iron",
+   "brand": "Nikai",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nikai",
+     "valueAr": "Nikai"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Steam",
+     "valueAr": "بخار"
+    }
+   ],
+   "descriptionEn": "Nikai steam iron for fast, effective ironing, with even steam and heat that remove creases easily from all kinds of fabric. Easy to use and reliable every day."
+  },
+  {
+   "sku": "SKU-MSHRAWPP",
+   "expectOld": {
+    "nameAr": "مكواة Sayonapps بخار",
+    "nameEn": "Sayonapps Steam Iron"
+   },
+   "name": "مكواة بخار Sayonapps",
+   "nameAr": "مكواة بخار Sayonapps",
+   "nameEn": "Sayonapps Steam Iron",
+   "brand": "Sayonapps",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Sayonapps",
+     "valueAr": "Sayonapps"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Steam",
+     "valueAr": "بخار"
+    }
+   ],
+   "descriptionEn": "Sayonapps steam iron with practical performance and good steam distribution, for easy ironing and excellent results in a short time."
+  },
+  {
+   "sku": "SKU-MSGFKT6O",
+   "expectOld": {
+    "nameAr": "كنكة قهوة Marado",
+    "nameEn": "Marado Coffee Pot"
+   },
+   "name": "كنكة قهوة Marado",
+   "nameAr": "كنكة قهوة Marado",
+   "nameEn": "Marado Coffee Pot",
+   "brand": "Marado",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Marado",
+     "valueAr": "Marado"
+    }
+   ],
+   "descriptionEn": "Marado coffee pot for making coffee."
+  },
+  {
+   "sku": "SKU-MSKMLVSH",
+   "expectOld": {
+    "nameAr": "كاتيل Midea كهربائي",
+    "nameEn": "Midea Electric Kettle"
+   },
+   "name": "كاتيل كهربائي Midea",
+   "nameAr": "كاتيل كهربائي Midea",
+   "nameEn": "Midea Electric Kettle",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    }
+   ],
+   "descriptionEn": "Midea electric kettle for boiling water quickly and easily; for tea, coffee and other hot drinks at home or in the office."
+  },
+  {
+   "sku": "SKU-MSKML3RX",
+   "expectOld": {
+    "nameAr": "كاتيل Midea زجاج",
+    "nameEn": "Midea Glass Electric Kettle"
+   },
+   "name": "كاتيل كهربائي زجاج Midea",
+   "nameAr": "كاتيل كهربائي زجاج Midea",
+   "nameEn": "Midea Glass Electric Kettle",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    },
+    {
+     "keyEn": "Material",
+     "keyAr": "الخامة",
+     "valueEn": "Glass",
+     "valueAr": "زجاج"
+    }
+   ],
+   "descriptionEn": "Midea glass electric kettle for boiling and heating water quickly and easily, with a practical, elegant design for daily use at home or in the office."
+  },
+  {
+   "sku": "SKU-MSGEQXSZ",
+   "expectOld": {
+    "nameAr": "إضاءة شارع",
+    "nameEn": "Streetlight"
+   },
+   "name": "إضاءة شارع",
+   "nameAr": "إضاءة شارع",
+   "nameEn": "Street Light",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Use",
+     "keyAr": "الاستخدام",
+     "valueEn": "Outdoor",
+     "valueAr": "خارجي"
+    }
+   ],
+   "descriptionEn": "Outdoor floodlight / lamp for streets and open areas."
+  },
+  {
+   "sku": "SKU-MSKM7BMM",
+   "expectOld": {
+    "nameAr": "مايكرويف LG 20 لتر",
+    "nameEn": "LG 20L Microwave Oven"
+   },
+   "name": "مايكرويف LG 20 لتر",
+   "nameAr": "مايكرويف LG 20 لتر",
+   "nameEn": "LG Microwave Oven 20 L",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "20 L",
+     "valueAr": "20 لتر"
+    }
+   ],
+   "descriptionEn": "LG microwave with a 20 L capacity for heating and cooking a variety of food; a practical size for home kitchens and small spaces."
+  },
+  {
+   "sku": "SKU-MSKM9257",
+   "expectOld": {
+    "nameAr": "مايكرويف LG 42 لتر",
+    "nameEn": "LG 42L Microwave Oven"
+   },
+   "name": "مايكرويف LG 42 لتر",
+   "nameAr": "مايكرويف LG 42 لتر",
+   "nameEn": "LG Microwave Oven 42 L",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "42 L",
+     "valueAr": "42 لتر"
+    }
+   ],
+   "descriptionEn": "LG microwave with a 42 L capacity, a larger interior for heating and preparing bigger amounts of food; suited to everyday home use."
+  },
+  {
+   "sku": "SKU-MSKM8L7R",
+   "expectOld": {
+    "nameAr": "مايكرويف Midea 20 لتر",
+    "nameEn": "Midea 20L Microwave Oven"
+   },
+   "name": "مايكرويف Midea 20 لتر",
+   "nameAr": "مايكرويف Midea 20 لتر",
+   "nameEn": "Midea Microwave Oven 20 L",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "20 L",
+     "valueAr": "20 لتر"
+    }
+   ],
+   "descriptionEn": "Midea microwave with a 20 L capacity, a practical way to heat and prepare food, sized for everyday home use."
+  },
+  {
+   "sku": "SKU-MSGFAE4R",
+   "expectOld": {
+    "nameAr": "مفراكة DSP",
+    "nameEn": "DSP Grater"
+   },
+   "name": "مفراكة كهربائية DSP",
+   "nameAr": "مفراكة كهربائية DSP",
+   "nameEn": "DSP Electric Grater",
+   "brand": "DSP",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "DSP",
+     "valueAr": "DSP"
+    }
+   ],
+   "descriptionEn": "DSP electric grater (mafraka) for preparing and chopping food."
+  },
+  {
+   "sku": "SKU-MSKMNZEL",
+   "expectOld": {
+    "nameAr": "مفرمة لحم DSP",
+    "nameEn": "DSP Meat Grinder"
+   },
+   "name": "مفرمة لحم DSP",
+   "nameAr": "مفرمة لحم DSP",
+   "nameEn": "DSP Meat Grinder",
+   "brand": "DSP",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "DSP",
+     "valueAr": "DSP"
+    }
+   ],
+   "descriptionEn": "DSP electric meat grinder for mincing meat and other ingredients easily; practical food preparation at home."
+  },
+  {
+   "sku": "SKU-MSGETE5W",
+   "expectOld": {
+    "nameAr": "سحان سيلفر كريست كبير 200 جرام",
+    "nameEn": "Silver Crest Large Grinder 200g"
+   },
+   "name": "سحان SilverCrest كبير 200 جرام",
+   "nameAr": "سحان SilverCrest كبير 200 جرام",
+   "nameEn": "SilverCrest Grinder 200 g",
+   "brand": "SilverCrest",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "SilverCrest",
+     "valueAr": "SilverCrest"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "200 g",
+     "valueAr": "200 جرام"
+    }
+   ],
+   "descriptionEn": "SilverCrest grinder with a 200 g capacity."
+  },
+  {
+   "sku": "SKU-MSHR8HQP",
+   "expectOld": {
+    "nameAr": "عجانة كهربائية",
+    "nameEn": "Stand Mixer"
+   },
+   "name": "عجانة كهربائية",
+   "nameAr": "عجانة كهربائية",
+   "nameEn": "Electric Stand Mixer",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Multi-purpose electric stand mixer for kneading dough, whisking eggs and mixing ingredients, with strong performance that makes kitchen work easier."
+  },
+  {
+   "sku": "SKU-MSHQRBSE",
+   "expectOld": {
+    "nameAr": "حلة ضغط 16 لتر",
+    "nameEn": "16L Pressure Cooker"
+   },
+   "name": "حلة ضغط 16 لتر",
+   "nameAr": "حلة ضغط 16 لتر",
+   "nameEn": "Pressure Cooker 16 L",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "16 L",
+     "valueAr": "16 لتر"
+    }
+   ],
+   "descriptionEn": "Pressure cooker with a 16 L capacity for fast cooking while keeping food quality."
+  },
+  {
+   "sku": "SKU-MSGFA40G",
+   "expectOld": {
+    "nameAr": "حلة ضغط كهربائية ديزني",
+    "nameEn": "Disney Pot"
+   },
+   "name": "حلة ضغط كهربائية Disney",
+   "nameAr": "حلة ضغط كهربائية Disney",
+   "nameEn": "Disney Electric Pressure Cooker",
+   "brand": "Disney",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Disney",
+     "valueAr": "Disney"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Electric",
+     "valueAr": "كهربائية"
+    }
+   ],
+   "descriptionEn": "Smart electric pressure cooker for home use."
+  },
+  {
+   "sku": "SKU-MSKMN1QM",
+   "expectOld": {
+    "nameAr": "حلة ضغط Midea",
+    "nameEn": "Midea Pressure Cooker"
+   },
+   "name": "حلة ضغط Midea",
+   "nameAr": "حلة ضغط Midea",
+   "nameEn": "Midea Pressure Cooker",
+   "brand": "Midea",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Midea",
+     "valueAr": "Midea"
+    }
+   ],
+   "descriptionEn": "Midea pressure cooker that makes cooking easier and faster, preparing a variety of food efficiently while keeping its flavour."
+  },
+  {
+   "sku": "SKU-MSGFCTVO",
+   "expectOld": {
+    "nameAr": "رسيفر دانسات",
+    "nameEn": "Dansat Receiver"
+   },
+   "name": "رسيفر Dansat",
+   "nameAr": "رسيفر Dansat",
+   "nameEn": "Dansat Satellite Receiver",
+   "brand": "Dansat",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Dansat",
+     "valueAr": "Dansat"
+    }
+   ],
+   "descriptionEn": "Dansat satellite TV receiver."
+  },
+  {
+   "sku": "SKU-MSGFEX62",
+   "expectOld": {
+    "nameAr": "LNB لاقط إشارة دش",
+    "nameEn": "LNB Satellite Dish Signal Receiver"
+   },
+   "name": "LNB لاقط إشارة دش",
+   "nameAr": "LNB لاقط إشارة دش",
+   "nameEn": "LNB Satellite Dish Signal Receiver",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Signal receiver mounted on the satellite dish; it picks up the satellite signal and passes it to the receiver."
+  },
+  {
+   "sku": "SKU-MSG9ZTJH",
+   "expectOld": {
+    "nameAr": "ثلاجة BestCool بابين 10 قدم (تجميد)",
+    "nameEn": "BestCool 10 Cu.ft Double Door Refrigerator"
+   },
+   "name": "ثلاجة BestCool بابين 10 قدم (تجميد)",
+   "nameAr": "ثلاجة BestCool بابين 10 قدم (تجميد)",
+   "nameEn": "BestCool Double-Door Refrigerator 10 cu ft (Freezing)",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    },
+    {
+     "keyEn": "Variant",
+     "keyAr": "الإصدار",
+     "valueEn": "Freezing",
+     "valueAr": "تجميد"
+    }
+   ],
+   "descriptionEn": "BestCool refrigerator with a 10 cu ft capacity, top freezer and effective cooling. Reliable with economical power use; suited to everyday home use."
+  },
+  {
+   "sku": "SKU-MSGA0LDV",
+   "expectOld": {
+    "nameAr": "ثلاجة BestCool 12 قدم (تجميد)",
+    "nameEn": "BestCool Refrigerator 12 FT"
+   },
+   "name": "ثلاجة BestCool 12 قدم (تجميد)",
+   "nameAr": "ثلاجة BestCool 12 قدم (تجميد)",
+   "nameEn": "BestCool Refrigerator 12 cu ft (Freezing)",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    },
+    {
+     "keyEn": "Variant",
+     "keyAr": "الإصدار",
+     "valueEn": "Freezing",
+     "valueAr": "تجميد"
+    }
+   ],
+   "descriptionEn": "BestCool refrigerator with a modern design and high-efficiency cooling, practical storage that keeps food and drinks fresh."
+  },
+  {
+   "sku": "SKU-MSGA28OH",
+   "expectOld": {
+    "nameAr": "ثلاجة BestCool 12 قدم (بخارية)",
+    "nameEn": "BestCool Refrigerator 12 FT"
+   },
+   "name": "ثلاجة BestCool 12 قدم (بخارية)",
+   "nameAr": "ثلاجة BestCool 12 قدم (بخارية)",
+   "nameEn": "BestCool Refrigerator 12 cu ft (Steam)",
+   "brand": "BestCool",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "BestCool",
+     "valueAr": "BestCool"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    },
+    {
+     "keyEn": "Variant",
+     "keyAr": "الإصدار",
+     "valueEn": "Steam (bukhariya)",
+     "valueAr": "بخارية"
+    }
+   ],
+   "descriptionEn": "BestCool refrigerator built for steady cooling and storage suited to daily use, with economical operation and an elegant design."
+  },
+  {
+   "sku": "SKU-MSGB6VNT",
+   "expectOld": {
+    "nameAr": "ثلاجة Candis بابين 12 قدم",
+    "nameEn": "Candis 12 Cu.ft Double Door Refrigerator"
+   },
+   "name": "ثلاجة Candis بابين 12 قدم",
+   "nameAr": "ثلاجة Candis بابين 12 قدم",
+   "nameEn": "Candis Double-Door Refrigerator 12 cu ft",
+   "brand": "Candis",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Candis",
+     "valueAr": "Candis"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "Candis refrigerator with a 12 cu ft capacity, top freezer and effective cooling. Spacious storage that keeps food fresh for longer."
+  },
+  {
+   "sku": "SKU-MSGC4UVE",
+   "expectOld": {
+    "nameAr": "ثلاجة Hafab استاند",
+    "nameEn": "Hafab Upright Refrigerator"
+   },
+   "name": "ثلاجة Hafab استاند",
+   "nameAr": "ثلاجة Hafab استاند",
+   "nameEn": "Hafab Upright Refrigerator",
+   "brand": "Hafab",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Upright",
+     "valueAr": "استاند"
+    }
+   ],
+   "descriptionEn": "Hafab upright refrigerator with spacious storage and effective cooling, suited to home and commercial use."
+  },
+  {
+   "sku": "SKU-MSC204QU",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 10 قدم",
+    "nameEn": "LG Double Door Refrigerator 10 ft"
+   },
+   "name": "ثلاجة LG بابين 10 قدم",
+   "nameAr": "ثلاجة LG بابين 10 قدم",
+   "nameEn": "LG Double-Door Refrigerator 10 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 10 cu ft capacity, built for effective cooling and ideal food storage in an elegant design for any kitchen. High build quality, practical storage and economical power use make it a good choice for everyday home use."
+  },
+  {
+   "sku": "SKU-MSC25XWT",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 12 قدم",
+    "nameEn": "LG Double Door Refrigerator 12 ft"
+   },
+   "name": "ثلاجة LG بابين 12 قدم",
+   "nameAr": "ثلاجة LG بابين 12 قدم",
+   "nameEn": "LG Double-Door Refrigerator 12 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 12 cu ft capacity. Strong cooling with balanced airflow keeps food fresh for longer; a modern design, spacious storage and efficient power use for everyday use."
+  },
+  {
+   "sku": "SKU-MSC27BDL",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 14 قدم",
+    "nameEn": "LG Double Door Refrigerator 14 ft"
+   },
+   "name": "ثلاجة LG بابين 14 قدم",
+   "nameAr": "ثلاجة LG بابين 14 قدم",
+   "nameEn": "LG Double-Door Refrigerator 14 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "14 cu ft",
+     "valueAr": "14 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 14 cu ft capacity, combining large storage with an elegant design. Fast, effective cooling keeps food and drinks at their best, with practical, easy-to-organise shelves."
+  },
+  {
+   "sku": "SKU-MSC28KET",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 16 قدم",
+    "nameEn": "LG Double Door Refrigerator 16 ft"
+   },
+   "name": "ثلاجة LG بابين 16 قدم",
+   "nameAr": "ثلاجة LG بابين 16 قدم",
+   "nameEn": "LG Double-Door Refrigerator 16 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "16 cu ft",
+     "valueAr": "16 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 16 cu ft capacity. Large storage and advanced cooling keep food fresh, in a modern design with economical power use."
+  },
+  {
+   "sku": "SKU-MSC2AZ8E",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 20 قدم",
+    "nameEn": "LG Double Door Refrigerator 20 ft"
+   },
+   "name": "ثلاجة LG بابين 20 قدم",
+   "nameAr": "ثلاجة LG بابين 20 قدم",
+   "nameEn": "LG Double-Door Refrigerator 20 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "20 cu ft",
+     "valueAr": "20 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 20 cu ft capacity. Large storage and advanced cooling keep food fresh for longer, in a premium design for modern kitchens."
+  },
+  {
+   "sku": "SKU-MSC2BZZZ",
+   "expectOld": {
+    "nameAr": "ثلاجة LG بابين 23 قدم",
+    "nameEn": "LG Double Door Refrigerator 23 ft"
+   },
+   "name": "ثلاجة LG بابين 23 قدم",
+   "nameAr": "ثلاجة LG بابين 23 قدم",
+   "nameEn": "LG Double-Door Refrigerator 23 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "23 cu ft",
+     "valueAr": "23 قدم"
+    }
+   ],
+   "descriptionEn": "LG double-door refrigerator with a 23 cu ft capacity, designed for large families. Spacious storage and effective cooling keep food fresh, with an elegant design and high build quality."
+  },
+  {
+   "sku": "SKU-MSC2F16Q",
+   "expectOld": {
+    "nameAr": "ثلاجة LG إنفرتر",
+    "nameEn": "LG Inverter Refrigerator"
+   },
+   "name": "ثلاجة LG إنفرتر",
+   "nameAr": "ثلاجة LG إنفرتر",
+   "nameEn": "LG Inverter Refrigerator",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Feature",
+     "keyAr": "ميزة",
+     "valueEn": "Inverter compressor",
+     "valueAr": "إنفرتر"
+    }
+   ],
+   "descriptionEn": "LG refrigerator with inverter technology: steady cooling with lower power use and quieter operation, keeping food fresh while cutting electricity use."
+  },
+  {
+   "sku": "SKU-MSC23COG",
+   "expectOld": {
+    "nameAr": "ثلاجة LG باب واحد 10 قدم",
+    "nameEn": "LG Single Door Refrigerator 10 ft"
+   },
+   "name": "ثلاجة LG باب واحد 10 قدم",
+   "nameAr": "ثلاجة LG باب واحد 10 قدم",
+   "nameEn": "LG Single-Door Refrigerator 10 cu ft",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "1",
+     "valueAr": "1"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    }
+   ],
+   "descriptionEn": "LG single-door refrigerator with a 10 cu ft capacity. Steady cooling in a practical design for small and medium spaces; high quality, easy to use, low power use and storage that fits daily needs."
+  },
+  {
+   "sku": "SKU-MSC2E34Q",
+   "expectOld": {
+    "nameAr": "ثلاجة LG سمارت",
+    "nameEn": "LG Smart Refrigerator"
+   },
+   "name": "ثلاجة LG سمارت",
+   "nameAr": "ثلاجة LG سمارت",
+   "nameEn": "LG Smart Refrigerator",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Feature",
+     "keyAr": "ميزة",
+     "valueEn": "Smart",
+     "valueAr": "سمارت"
+    }
+   ],
+   "descriptionEn": "LG Smart refrigerator with smart features that improve cooling efficiency and ease of use, in a modern design for today's kitchens."
+  },
+  {
+   "sku": "SKU-MSGB7MOU",
+   "expectOld": {
+    "nameAr": "ثلاجة StarTech بابين 10 قدم",
+    "nameEn": "StarTech 10 Cu.ft Double Door Refrigerator"
+   },
+   "name": "ثلاجة StarTech بابين 10 قدم",
+   "nameAr": "ثلاجة StarTech بابين 10 قدم",
+   "nameEn": "StarTech Double-Door Refrigerator 10 cu ft",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    }
+   ],
+   "descriptionEn": "StarTech refrigerator with a 10 cu ft capacity, elegant design and high-efficiency cooling. Reliable with economical power use; suited to everyday use."
+  },
+  {
+   "sku": "SKU-MSG9OBGU",
+   "expectOld": {
+    "nameAr": "ثلاجة StarTech بابين 12 قدم",
+    "nameEn": "StarTech 12 Cu.ft Double Door Refrigerator"
+   },
+   "name": "ثلاجة StarTech بابين 12 قدم",
+   "nameAr": "ثلاجة StarTech بابين 12 قدم",
+   "nameEn": "StarTech Double-Door Refrigerator 12 cu ft",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    }
+   ],
+   "descriptionEn": "StarTech refrigerator with a 12 cu ft capacity. Steady cooling and more storage for a family's daily needs, with a top freezer, practical shelves and an elegant design."
+  },
+  {
+   "sku": "SKU-MSG9PIH1",
+   "expectOld": {
+    "nameAr": "ثلاجة StarTech بابين 14 قدم",
+    "nameEn": "StarTech 14 Cu.ft Double Door Refrigerator"
+   },
+   "name": "ثلاجة StarTech بابين 14 قدم",
+   "nameAr": "ثلاجة StarTech بابين 14 قدم",
+   "nameEn": "StarTech Double-Door Refrigerator 14 cu ft",
+   "brand": "StarTech",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "StarTech",
+     "valueAr": "StarTech"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "14 cu ft",
+     "valueAr": "14 قدم"
+    }
+   ],
+   "descriptionEn": "StarTech refrigerator with a 14 cu ft capacity. Large storage and effective cooling keep food fresh for longer, with a top freezer and several shelves for easy organising."
+  },
+  {
+   "sku": "UNI-REF-10FT-320",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 10 قدم",
+    "nameEn": "Unionaire Refrigerator 10 ft"
+   },
+   "name": "ثلاجة Unionaire 10 قدم",
+   "nameAr": "ثلاجة Unionaire 10 قدم",
+   "nameEn": "Unionaire Refrigerator 10 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 cu ft",
+     "valueAr": "10 قدم"
+    }
+   ],
+   "descriptionEn": "Unionaire refrigerator with a 10 cu ft capacity. Reliable cooling and practical storage for daily use at home or in the office; an elegant design with shelves that make organising easy, and steady, efficient cooling."
+  },
+  {
+   "sku": "UNI-REF-12FT-440",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 12 قدم فروست / نوفروست بابين",
+    "nameEn": "Unionaire Refrigerator 12 ft Frost / No Frost double doors"
+   },
+   "name": "ثلاجة Unionaire بابين 12 قدم (فروست / نوفروست)",
+   "nameAr": "ثلاجة Unionaire بابين 12 قدم (فروست / نوفروست)",
+   "nameEn": "Unionaire Double-Door Refrigerator 12 cu ft (Frost / No Frost)",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "12 cu ft",
+     "valueAr": "12 قدم"
+    },
+    {
+     "keyEn": "Variant",
+     "keyAr": "الإصدار",
+     "valueEn": "Frost or No Frost, by model",
+     "valueAr": "فروست أو نوفروست حسب الموديل"
+    }
+   ],
+   "descriptionEn": "Unionaire 12 cu ft refrigerator with storage suited to families and effective cooling that keeps food and drinks fresh. Available as Frost or No Frost depending on the model, with good cold distribution, practical shelves and a design for any kitchen."
+  },
+  {
+   "sku": "UNI-REF-14FT-600",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 14 قدم بابين disri",
+    "nameEn": "Unionaire Refrigerator 14 ft double doors disri"
+   },
+   "name": "ثلاجة Unionaire بابين 14 قدم",
+   "nameAr": "ثلاجة Unionaire بابين 14 قدم",
+   "nameEn": "Unionaire Double-Door Refrigerator 14 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "14 cu ft",
+     "valueAr": "14 قدم"
+    },
+    {
+     "keyEn": "Model",
+     "keyAr": "الموديل",
+     "valueEn": "Disri",
+     "valueAr": "Disri"
+    }
+   ],
+   "descriptionEn": "Unionaire 14 cu ft refrigerator with large storage for home use and effective cooling that keeps food and drinks at their best. A practical interior makes organising easy, and the modern look adds elegance to the kitchen."
+  },
+  {
+   "sku": "UNI-REF-16FT-600",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 16 قدم بابين",
+    "nameEn": "Unionaire Refrigerator 16 ft double doors"
+   },
+   "name": "ثلاجة Unionaire بابين 16 قدم",
+   "nameAr": "ثلاجة Unionaire بابين 16 قدم",
+   "nameEn": "Unionaire Double-Door Refrigerator 16 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "16 cu ft",
+     "valueAr": "16 قدم"
+    }
+   ],
+   "descriptionEn": "Unionaire 16 cu ft refrigerator with spacious storage for large families, steady cooling and an interior that makes arranging all kinds of food easy. Practical and elegant for everyday use."
+  },
+  {
+   "sku": "UNI-REF-18FT-700",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 18 قدم بابين",
+    "nameEn": "Unionaire Refrigerator 18 ft double doors"
+   },
+   "name": "ثلاجة Unionaire بابين 18 قدم",
+   "nameAr": "ثلاجة Unionaire بابين 18 قدم",
+   "nameEn": "Unionaire Double-Door Refrigerator 18 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "18 cu ft",
+     "valueAr": "18 قدم"
+    }
+   ],
+   "descriptionEn": "Unionaire 18 cu ft refrigerator built for large storage with high cooling efficiency, for homes that need extra room for food and drinks. Easy to use and reliably built."
+  },
+  {
+   "sku": "UNI-REF-20FT-800",
+   "expectOld": {
+    "nameAr": "ثلاجة يونيون إير 20 قدم بابين",
+    "nameEn": "Unionaire Refrigerator 20 ft double doors"
+   },
+   "name": "ثلاجة Unionaire بابين 20 قدم",
+   "nameAr": "ثلاجة Unionaire بابين 20 قدم",
+   "nameEn": "Unionaire Double-Door Refrigerator 20 cu ft",
+   "brand": "Unionaire",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Unionaire",
+     "valueAr": "Unionaire"
+    },
+    {
+     "keyEn": "Doors",
+     "keyAr": "عدد الأبواب",
+     "valueEn": "2",
+     "valueAr": "2"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "20 cu ft",
+     "valueAr": "20 قدم"
+    }
+   ],
+   "descriptionEn": "The Unionaire 20 cu ft refrigerator is ideal for large families, with spacious storage and effective cooling for food and drinks. A practical design and solid build make it reliable every day."
+  },
+  {
+   "sku": "SKU-MSGC91OP",
+   "expectOld": {
+    "nameAr": "ثلاجة نيكاي مستعملة 6 قدم",
+    "nameEn": "Used Nikai Refrigerator 6 ft"
+   },
+   "name": "ثلاجة Nikai مستعملة 6 قدم",
+   "nameAr": "ثلاجة Nikai مستعملة 6 قدم",
+   "nameEn": "Nikai Refrigerator 6 cu ft (Used)",
+   "brand": "Nikai",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Nikai",
+     "valueAr": "Nikai"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "6 cu ft",
+     "valueAr": "6 قدم"
+    },
+    {
+     "keyEn": "Condition",
+     "keyAr": "الحالة",
+     "valueEn": "Used, in good working order",
+     "valueAr": "مستعملة بحالة تشغيل جيدة"
+    }
+   ],
+   "descriptionEn": "Used Nikai refrigerator in good working order, suited to commercial use or workplaces, with effective cooling for daily use."
+  },
+  {
+   "sku": "SKU-MSGEU5E3",
+   "expectOld": {
+    "nameAr": "ميزان توشيبا",
+    "nameEn": "Toshiba Scale"
+   },
+   "name": "ميزان رقمي حاسب للسعر 40 كجم",
+   "nameAr": "ميزان رقمي حاسب للسعر 40 كجم",
+   "nameEn": "Digital Price Scale 40 kg",
+   "brand": null,
+   "specs": [
+    {
+     "keyEn": "Max weight",
+     "keyAr": "أقصى وزن",
+     "valueEn": "40 kg",
+     "valueAr": "40 كجم"
+    },
+    {
+     "keyEn": "Display",
+     "keyAr": "الشاشة",
+     "valueEn": "Weight, unit price, total price",
+     "valueAr": "الوزن، سعر الوحدة، السعر الإجمالي"
+    }
+   ],
+   "descriptionEn": "Digital price-computing scale, up to 40 kg, with displays for weight, unit price and total price.",
+   "descriptionAr": "ميزان رقمي حاسب للسعر يتحمل حتى 40 كيلوجرام، يعرض الوزن وسعر الوحدة والسعر الإجمالي.",
+   "description": "ميزان رقمي حاسب للسعر يتحمل حتى 40 كيلوجرام، يعرض الوزن وسعر الوحدة والسعر الإجمالي."
+  },
+  {
+   "sku": "SKU-MSGFGV5J",
+   "expectOld": {
+    "nameAr": "حامل شاشة متحرك",
+    "nameEn": "Movable TV Stand"
+   },
+   "name": "حامل شاشة متحرك",
+   "nameAr": "حامل شاشة متحرك",
+   "nameEn": "Movable TV Stand",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Movable stand for mounting and holding TV screens."
+  },
+  {
+   "sku": "SKU-MSGDRAZ3",
+   "expectOld": {
+    "nameAr": "شاشة Dansat 43 بوصة",
+    "nameEn": "Dansat 43-Inch LED TV"
+   },
+   "name": "شاشة Dansat 43 بوصة",
+   "nameAr": "شاشة Dansat 43 بوصة",
+   "nameEn": "Dansat LED TV 43 in",
+   "brand": "Dansat",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Dansat",
+     "valueAr": "Dansat"
+    },
+    {
+     "keyEn": "Screen size",
+     "keyAr": "مقاس الشاشة",
+     "valueEn": "43 in",
+     "valueAr": "43 بوصة"
+    }
+   ],
+   "descriptionEn": "Dansat 43-inch TV with high picture quality and a modern design for homes and offices."
+  },
+  {
+   "sku": "SKU-MSGDWVZC",
+   "expectOld": {
+    "nameAr": "شاشة LG 49 بوصة",
+    "nameEn": "LG 49-Inch LED TV"
+   },
+   "name": "شاشة LG 49 بوصة",
+   "nameAr": "شاشة LG 49 بوصة",
+   "nameEn": "LG LED TV 49 in",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Screen size",
+     "keyAr": "مقاس الشاشة",
+     "valueEn": "49 in",
+     "valueAr": "49 بوصة"
+    }
+   ],
+   "descriptionEn": "LG 49-inch TV with excellent picture quality, vivid colours and an elegant design."
+  },
+  {
+   "sku": "SKU-MSGDVLHX",
+   "expectOld": {
+    "nameAr": "شاشة SKY 32 بوصة",
+    "nameEn": "SKY 32-Inch LED TV"
+   },
+   "name": "شاشة SKY 32 بوصة",
+   "nameAr": "شاشة SKY 32 بوصة",
+   "nameEn": "SKY LED TV 32 in",
+   "brand": "SKY",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "SKY",
+     "valueAr": "SKY"
+    },
+    {
+     "keyEn": "Screen size",
+     "keyAr": "مقاس الشاشة",
+     "valueEn": "32 in",
+     "valueAr": "32 بوصة"
+    }
+   ],
+   "descriptionEn": "SKY 32-inch TV with a clear picture and a practical design for everyday use."
+  },
+  {
+   "sku": "SKU-MSHQ108K",
+   "expectOld": {
+    "nameAr": "شاشة Samsung 43 بوصة",
+    "nameEn": "Samsung 43-Inch LED TV"
+   },
+   "name": "شاشة Samsung 43 بوصة",
+   "nameAr": "شاشة Samsung 43 بوصة",
+   "nameEn": "Samsung LED TV 43 in",
+   "brand": "Samsung",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Samsung",
+     "valueAr": "Samsung"
+    },
+    {
+     "keyEn": "Screen size",
+     "keyAr": "مقاس الشاشة",
+     "valueEn": "43 in",
+     "valueAr": "43 بوصة"
+    }
+   ],
+   "descriptionEn": "Samsung 43-inch TV with high picture quality and clear colours, in an elegant design for many uses."
+  },
+  {
+   "sku": "SKU-MSHQ24EQ",
+   "expectOld": {
+    "nameAr": "شاشة Samsung 55 بوصة",
+    "nameEn": "Samsung 55-Inch LED TV"
+   },
+   "name": "شاشة Samsung 55 بوصة",
+   "nameAr": "شاشة Samsung 55 بوصة",
+   "nameEn": "Samsung LED TV 55 in",
+   "brand": "Samsung",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Samsung",
+     "valueAr": "Samsung"
+    },
+    {
+     "keyEn": "Screen size",
+     "keyAr": "مقاس الشاشة",
+     "valueEn": "55 in",
+     "valueAr": "55 بوصة"
+    }
+   ],
+   "descriptionEn": "Samsung 55-inch TV for a great viewing experience, with a clear picture and modern design."
+  },
+  {
+   "sku": "SKU-MSHRJW1Y",
+   "expectOld": {
+    "nameAr": "غسالة عظيم حوضين 10 كجم",
+    "nameEn": "Azim 10kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Azim حوضين 10 كجم",
+   "nameAr": "غسالة Azim حوضين 10 كجم",
+   "nameEn": "Azim Twin-Tub Washing Machine 10 kg",
+   "brand": "Azim",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Azim",
+     "valueAr": "Azim"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "Azim twin-tub washing machine with a 10 kg capacity, built for fast, effective washing with reliable performance and easy use every day."
+  },
+  {
+   "sku": "SKU-MSHRKS1R",
+   "expectOld": {
+    "nameAr": "غسالة Digi حوضين 10 كجم",
+    "nameEn": "Digi 10kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Digi حوضين 10 كجم",
+   "nameAr": "غسالة Digi حوضين 10 كجم",
+   "nameEn": "Digi Twin-Tub Washing Machine 10 kg",
+   "brand": "Digi",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Digi",
+     "valueAr": "Digi"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "Digi twin-tub washing machine with a 10 kg capacity. Reliable washing and spinning in a practical design sized for daily needs."
+  },
+  {
+   "sku": "SKU-MSHRG6Y9",
+   "expectOld": {
+    "nameAr": "غسالة Fresh حوضين 10 كجم",
+    "nameEn": "Fresh 10kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Fresh حوضين 10 كجم",
+   "nameAr": "غسالة Fresh حوضين 10 كجم",
+   "nameEn": "Fresh Twin-Tub Washing Machine 10 kg",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "Fresh twin-tub washing machine with a 10 kg capacity. Effective washing and a family-sized capacity, easy to operate and maintain."
+  },
+  {
+   "sku": "SKU-MSHRI5KM",
+   "expectOld": {
+    "nameAr": "غسالة Fresh حوضين 8 كجم",
+    "nameEn": "Fresh 8kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Fresh حوضين 8 كجم",
+   "nameAr": "غسالة Fresh حوضين 8 كجم",
+   "nameEn": "Fresh Twin-Tub Washing Machine 8 kg",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "8 kg",
+     "valueAr": "8 كجم"
+    }
+   ],
+   "descriptionEn": "Fresh twin-tub washing machine with an 8 kg capacity. Reliable, sized for small and medium families, simple to operate and efficient with water and power."
+  },
+  {
+   "sku": "SKU-MSHRHETZ",
+   "expectOld": {
+    "nameAr": "غسالة Fresh حوضين 9 كجم",
+    "nameEn": "Fresh 9kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Fresh حوضين 9 كجم",
+   "nameAr": "غسالة Fresh حوضين 9 كجم",
+   "nameEn": "Fresh Twin-Tub Washing Machine 9 kg",
+   "brand": "Fresh",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Fresh",
+     "valueAr": "Fresh"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "9 kg",
+     "valueAr": "9 كجم"
+    }
+   ],
+   "descriptionEn": "Fresh twin-tub washing machine with a 9 kg capacity. Effective washing and fast spinning in a practical, easy-to-use design for a family's daily needs."
+  },
+  {
+   "sku": "SKU-MSHRIZEN",
+   "expectOld": {
+    "nameAr": "غسالة Hafab حوضين 10 كجم",
+    "nameEn": "Hafab 10kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة Hafab حوضين 10 كجم",
+   "nameAr": "غسالة Hafab حوضين 10 كجم",
+   "nameEn": "Hafab Twin-Tub Washing Machine 10 kg",
+   "brand": "Hafab",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Hafab",
+     "valueAr": "Hafab"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "Hafab twin-tub washing machine with a 10 kg capacity. Effective washing and spinning with a large capacity for home use; easy to operate and durable."
+  },
+  {
+   "sku": "SKU-MSHRFBMA",
+   "expectOld": {
+    "nameAr": "غسالة LG حوضين 10 كجم",
+    "nameEn": "LG 10kg Twin Tub Washing Machine"
+   },
+   "name": "غسالة LG حوضين 10 كجم",
+   "nameAr": "غسالة LG حوضين 10 كجم",
+   "nameEn": "LG Twin-Tub Washing Machine 10 kg",
+   "brand": "LG",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "LG",
+     "valueAr": "LG"
+    },
+    {
+     "keyEn": "Type",
+     "keyAr": "النوع",
+     "valueEn": "Twin-tub",
+     "valueAr": "حوضين"
+    },
+    {
+     "keyEn": "Capacity",
+     "keyAr": "السعة",
+     "valueEn": "10 kg",
+     "valueAr": "10 كجم"
+    }
+   ],
+   "descriptionEn": "LG twin-tub washing machine with a 10 kg capacity. Easy to use with fast washing and spinning, in a practical design for daily use."
+  },
+  {
+   "sku": "SKU-MSGEIKP8",
+   "expectOld": {
+    "nameAr": "منظم اكنان 300 فولت حجم 500",
+    "nameEn": "Aknan Voltage Regulator 300V Size 500"
+   },
+   "name": "منظم كهرباء Aknan 500 VA",
+   "nameAr": "منظم كهرباء Aknan 500 VA",
+   "nameEn": "Aknan Voltage Regulator 500 VA",
+   "brand": "Aknan",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Aknan",
+     "valueAr": "Aknan"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "500 VA",
+     "valueAr": "500 VA"
+    }
+   ],
+   "descriptionEn": "Aknan voltage regulator that stabilises power and protects appliances from current fluctuations; 500 VA."
+  },
+  {
+   "sku": "SKU-MSGE0N51",
+   "expectOld": {
+    "nameAr": "منظم مارشال 3000 فولت",
+    "nameEn": "Marshall 3000V Voltage Regulator"
+   },
+   "name": "منظم كهرباء Marshall 3000 VA",
+   "nameAr": "منظم كهرباء Marshall 3000 VA",
+   "nameEn": "Marshall Voltage Regulator 3000 VA",
+   "brand": "Marshall",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Marshall",
+     "valueAr": "Marshall"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "3,000 VA",
+     "valueAr": "3,000 VA"
+    }
+   ],
+   "descriptionEn": "Marshall voltage regulator rated 3000 VA, protecting appliances from high and low voltage and stabilising the power supply."
+  },
+  {
+   "sku": "SKU-MSGEK8C3",
+   "expectOld": {
+    "nameAr": "منظم بريماكس حجم 1000",
+    "nameEn": "Primax Voltage Regulator Size 1000"
+   },
+   "name": "منظم كهرباء Primax 1000 VA",
+   "nameAr": "منظم كهرباء Primax 1000 VA",
+   "nameEn": "Primax Voltage Regulator 1000 VA",
+   "brand": "Primax",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Primax",
+     "valueAr": "Primax"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "1,000 VA",
+     "valueAr": "1,000 VA"
+    }
+   ],
+   "descriptionEn": "Primax voltage regulator that stabilises voltage and protects appliances; 1000 VA."
+  },
+  {
+   "sku": "SKU-MSHR6GF8",
+   "expectOld": {
+    "nameAr": "منظم كهرباء",
+    "nameEn": "Voltage Stabilizer"
+   },
+   "name": "منظم كهرباء",
+   "nameAr": "منظم كهرباء",
+   "nameEn": "Voltage Stabilizer",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Voltage stabilizer that protects electrical appliances from voltage fluctuations, helping them perform better and last longer."
+  },
+  {
+   "sku": "SKU-MSGF6P5C",
+   "expectOld": {
+    "nameAr": "منظم جبر مائي 2000 فولت",
+    "nameEn": "Water Pump Control"
+   },
+   "name": "منظم كهرباء Jabr مائي 2000 VA",
+   "nameAr": "منظم كهرباء Jabr مائي 2000 VA",
+   "nameEn": "Jabr Voltage Regulator 2000 VA",
+   "brand": "Jabr",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Jabr",
+     "valueAr": "Jabr"
+    },
+    {
+     "keyEn": "Rating",
+     "keyAr": "القدرة",
+     "valueEn": "2,000 VA",
+     "valueAr": "2,000 VA"
+    }
+   ],
+   "descriptionEn": "Jabr voltage regulator that stabilises the current and protects appliances from voltage fluctuations; 2000 VA."
+  },
+  {
+   "sku": "SKU-MSGENVHU",
+   "expectOld": {
+    "nameAr": "مبرد مياه Geepas",
+    "nameEn": "Geepas Water Cooler"
+   },
+   "name": "مبرد مياه Geepas",
+   "nameAr": "مبرد مياه Geepas",
+   "nameEn": "Geepas Water Cooler",
+   "brand": "Geepas",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Geepas",
+     "valueAr": "Geepas"
+    }
+   ],
+   "descriptionEn": "Geepas water cooler providing cold water for home and office use."
+  },
+  {
+   "sku": "SKU-MSGEOT0O",
+   "expectOld": {
+    "nameAr": "مبرد مياه جراند",
+    "nameEn": "Grand Water Cooler"
+   },
+   "name": "مبرد مياه Grand",
+   "nameAr": "مبرد مياه Grand",
+   "nameEn": "Grand Water Cooler",
+   "brand": "Grand",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Grand",
+     "valueAr": "Grand"
+    }
+   ],
+   "descriptionEn": "Grand water cooler for chilling water."
+  },
+  {
+   "sku": "SKU-MSGEMNQB",
+   "expectOld": {
+    "nameAr": "مبرد مياه برايم",
+    "nameEn": "Prime Water Cooler"
+   },
+   "name": "مبرد مياه Prime",
+   "nameAr": "مبرد مياه Prime",
+   "nameEn": "Prime Water Cooler",
+   "brand": "Prime",
+   "specs": [
+    {
+     "keyEn": "Brand",
+     "keyAr": "العلامة التجارية",
+     "valueEn": "Prime",
+     "valueAr": "Prime"
+    }
+   ],
+   "descriptionEn": "Prime water cooler for chilling and dispensing water at home or in the office."
+  },
+  {
+   "sku": "SKU-MSHQOS0T",
+   "expectOld": {
+    "nameAr": "مبرد مياه",
+    "nameEn": "cooler"
+   },
+   "name": "مبرد مياه",
+   "nameAr": "مبرد مياه",
+   "nameEn": "Water Cooler",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Water cooler with excellent cooling and economical power use, suited to homes and offices."
+  },
+  {
+   "sku": "SKU-MSGFJO2V",
+   "expectOld": {
+    "nameAr": "موتور مياه",
+    "nameEn": "Water Pump Motor"
+   },
+   "name": "موتور مياه",
+   "nameAr": "موتور مياه",
+   "nameEn": "Water Pump Motor",
+   "brand": null,
+   "specs": [],
+   "descriptionEn": "Motor for pumping water, for home or commercial use."
+  }
+ ],
+ "remove": [
+  "SKU-MSG9LBZN"
+ ]
+}

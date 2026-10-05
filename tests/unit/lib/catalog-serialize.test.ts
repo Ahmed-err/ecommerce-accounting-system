@@ -19,4 +19,9 @@ describe("public catalog product", () => {
     expect(p.listPrice).toBe(125);
     expect(p.discountPct).toBe(20);
   });
+
+  it("passes the product brand through", () => {
+    expect(serializeCatalogProduct({ ...base, brand: "LG" }).brand).toBe("LG");
+    expect(serializeCatalogProduct(base).brand).toBeNull();
+  });
 });
