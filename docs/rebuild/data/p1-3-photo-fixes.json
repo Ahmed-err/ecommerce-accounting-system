@@ -1,0 +1,396 @@
+{
+ "fixes": [
+  {
+   "sku": "SKU-MSKM6MXK",
+   "name_en": "Air Fryer",
+   "fix": "too small (500×500), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787397231/products/cdso1azlihamd91hmxtn.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787397231/products/cdso1azlihamd91hmxtn.jpg",
+   "publicId": "products/p1-3-sku-mskm6mxk"
+  },
+  {
+   "sku": "SKU-MSHRJW1Y",
+   "name_en": "Azim Twin-Tub Washing Machine 10 kg",
+   "fix": "too small (590×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787398438/products/gwck1cqctrnkruknbmqe.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787398438/products/gwck1cqctrnkruknbmqe.jpg",
+   "publicId": "products/p1-3-sku-mshrjw1y"
+  },
+  {
+   "sku": "SKU-MSGFAE4R",
+   "name_en": "DSP Electric Grater",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787847772/products/yemaumdxu7ukdljltvr1.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787847772/products/yemaumdxu7ukdljltvr1.jpg",
+   "publicId": "products/p1-3-sku-msgfae4r"
+  },
+  {
+   "sku": "SKU-MSKLY3PW",
+   "name_en": "DSP Electric Oven 35 L",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787397721/products/uzb5vaorgkeyf9x9uiuc.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787397721/products/uzb5vaorgkeyf9x9uiuc.jpg",
+   "publicId": "products/p1-3-sku-mskly3pw"
+  },
+  {
+   "sku": "SKU-MSKMPS33",
+   "name_en": "Digi Cooker 6 Burners (4 Gas + 2 Electric)",
+   "fix": "too small (360×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787391231/products/dzkrgyy3gnksqc7yicbm.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787391231/products/dzkrgyy3gnksqc7yicbm.jpg",
+   "publicId": "products/p1-3-sku-mskmps33"
+  },
+  {
+   "sku": "SKU-MSHRKS1R",
+   "name_en": "Digi Twin-Tub Washing Machine 10 kg",
+   "fix": "too small (430×430)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787398290/products/kozy1ewrlamgadkwmw7q.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787398290/products/kozy1ewrlamgadkwmw7q.jpg",
+   "publicId": "products/p1-3-sku-mshrks1r"
+  },
+  {
+   "sku": "SKU-MSGFA40G",
+   "name_en": "Disney Electric Pressure Cooker",
+   "fix": "too small (560×558)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787847916/products/ri9qnb0gxn6z1m0lldxj.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787847916/products/ri9qnb0gxn6z1m0lldxj.jpg",
+   "publicId": "products/p1-3-sku-msgfa40g"
+  },
+  {
+   "sku": "SKU-MSGF3H7D",
+   "name_en": "Electric Food Processor",
+   "fix": "too small (300×300)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787848314/products/ezvahagkflnz5jxkaxud.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787848314/products/ezvahagkflnz5jxkaxud.jpg",
+   "publicId": "products/p1-3-sku-msgf3h7d"
+  },
+  {
+   "sku": "SKU-MSHR3MCI",
+   "name_en": "Electric Hot Plate 2 Burners",
+   "fix": "too small (1200×463)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787841788/products/y7qcy5xtxin8xlvg4alw.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787841788/products/y7qcy5xtxin8xlvg4alw.jpg",
+   "publicId": "products/p1-3-sku-mshr3mci"
+  },
+  {
+   "sku": "SKU-MSGFBFVM",
+   "name_en": "Electrical Cable",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787847757/products/oam9p4raisboubuyc5z8.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787847757/products/oam9p4raisboubuyc5z8.jpg",
+   "publicId": "products/p1-3-sku-msgfbfvm"
+  },
+  {
+   "sku": "SKU-MSHRI5KM",
+   "name_en": "Fresh Twin-Tub Washing Machine 8 kg",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787398763/products/hj5ulpy4ktjglt7ohhpz.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787398763/products/hj5ulpy4ktjglt7ohhpz.jpg",
+   "publicId": "products/p1-3-sku-mshri5km"
+  },
+  {
+   "sku": "SKU-MSGEOT0O",
+   "name_en": "Grand Water Cooler",
+   "fix": "too small (500×1500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787849353/products/sgoppqbo4sti4bwjygow.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787849353/products/sgoppqbo4sti4bwjygow.jpg",
+   "publicId": "products/p1-3-sku-msgeot0o"
+  },
+  {
+   "sku": "SKU-MSHRIZEN",
+   "name_en": "Hafab Twin-Tub Washing Machine 10 kg",
+   "fix": "too small (1080×486), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787398625/products/lolmree7rggezv7xfbbl.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787398625/products/lolmree7rggezv7xfbbl.jpg",
+   "publicId": "products/p1-3-sku-mshrizen"
+  },
+  {
+   "sku": "SKU-MSGC4UVE",
+   "name_en": "Hafab Upright Refrigerator",
+   "fix": "too small (443×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1788095929/products/fu41fpsa9kxouj5cjc1j.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1788095929/products/fu41fpsa9kxouj5cjc1j.jpg",
+   "publicId": "products/p1-3-sku-msgc4uve"
+  },
+  {
+   "sku": "SKU-MSGB4MLW",
+   "name_en": "Haftec Chest Freezer 8 cu ft",
+   "fix": "too small (443×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1788097122/products/j08jxngwndtkwl88cih9.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1788097122/products/j08jxngwndtkwl88cih9.jpg",
+   "publicId": "products/p1-3-sku-msgb4mlw"
+  },
+  {
+   "sku": "SKU-MSKN7NMD",
+   "name_en": "Haftec Gas Cooker 5 Burners, Marble",
+   "fix": "too small (1175×552), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787389820/products/ebczjom1p3gc7eahze1d.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787389820/products/ebczjom1p3gc7eahze1d.jpg",
+   "publicId": "products/p1-3-sku-mskn7nmd"
+  },
+  {
+   "sku": "SKU-MSHQMVTH",
+   "name_en": "Hila Hoop Fan",
+   "fix": "too small (500×308), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787843676/products/pyhso6tzpwlowqmzmrab.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787843676/products/pyhso6tzpwlowqmzmrab.jpg",
+   "publicId": "products/p1-3-sku-mshqmvth"
+  },
+  {
+   "sku": "SKU-MSGCUO3E",
+   "name_en": "ICE Split Air Conditioner 6,000 BTU",
+   "fix": "too small (472×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787853094/products/x9wpix981j2frqotb9wx.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787853094/products/x9wpix981j2frqotb9wx.jpg",
+   "publicId": "products/p1-3-sku-msgcuo3e"
+  },
+  {
+   "sku": "SKU-MSKMJZ0N",
+   "name_en": "Midea Blender",
+   "fix": "too small (569×502)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787392155/products/w4pixkzsr9hqimm0nlsn.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787392155/products/w4pixkzsr9hqimm0nlsn.jpg",
+   "publicId": "products/p1-3-sku-mskmjz0n"
+  },
+  {
+   "sku": "SKU-MSGEPSYK",
+   "name_en": "Midea Stand Fan",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787849653/products/xcunee1pghy9rxz1lt6c.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787849653/products/xcunee1pghy9rxz1lt6c.jpg",
+   "publicId": "products/p1-3-sku-msgepsyk"
+  },
+  {
+   "sku": "SKU-MSGB6I91",
+   "name_en": "Nikai Chest Freezer 6 cu ft",
+   "fix": "too small (492×383)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1788096593/products/t3anhiz29jf8cg2cwlev.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1788096593/products/t3anhiz29jf8cg2cwlev.jpg",
+   "publicId": "products/p1-3-sku-msgb6i91"
+  },
+  {
+   "sku": "SKU-MSGDL5P4",
+   "name_en": "Nikai Gas Burner 3 Burners",
+   "fix": "too small (857×236)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787851716/products/gbhcjezm4osu3p2vir62.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787851716/products/gbhcjezm4osu3p2vir62.jpg",
+   "publicId": "products/p1-3-sku-msgdl5p4"
+  },
+  {
+   "sku": "SKU-MSGC91OP",
+   "name_en": "Nikai Refrigerator 6 cu ft (Used)",
+   "fix": "too small (375×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1788095956/products/vgnojvthcgit79mycecr.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1788095956/products/vgnojvthcgit79mycecr.jpg",
+   "publicId": "products/p1-3-sku-msgc91op"
+  },
+  {
+   "sku": "SKU-MSGETE5W",
+   "name_en": "SilverCrest Grinder 200 g",
+   "fix": "too small (590×590)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787849156/products/qfjjtylwi5a4uxggjkpx.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787849156/products/qfjjtylwi5a4uxggjkpx.jpg",
+   "publicId": "products/p1-3-sku-msgete5w"
+  },
+  {
+   "sku": "SKU-MSHQU4VI",
+   "name_en": "Star Electric Oven 100 L, Double Door",
+   "fix": "too small (510×510)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787843077/products/zrwr4rrtomvbcjfwdhwz.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787843077/products/zrwr4rrtomvbcjfwdhwz.jpg",
+   "publicId": "products/p1-3-sku-mshqu4vi"
+  },
+  {
+   "sku": "SKU-MSHQW4ES",
+   "name_en": "Star Electric Oven 120 L, Double Door",
+   "fix": "too small (510×510)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787843236/products/dsw07u1cfyuti3burjbl.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787843236/products/dsw07u1cfyuti3burjbl.jpg",
+   "publicId": "products/p1-3-sku-mshqw4es"
+  },
+  {
+   "sku": "SKU-MSGB7MOU",
+   "name_en": "StarTech Double-Door Refrigerator 10 cu ft",
+   "fix": "too small (226×590), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787853518/products/vkijrsel2h9hu03wb0a0.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787853518/products/vkijrsel2h9hu03wb0a0.jpg",
+   "publicId": "products/p1-3-sku-msgb7mou"
+  },
+  {
+   "sku": "SKU-MSGCYFP3",
+   "name_en": "TCL Split Air Conditioner 18,000 BTU",
+   "fix": "too small (1200×464), busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787853028/products/eue8i1g5zvdhzo8xerld.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787853028/products/eue8i1g5zvdhzo8xerld.jpg",
+   "publicId": "products/p1-3-sku-msgcyfp3"
+  },
+  {
+   "sku": "UNI-REF-10FT-320",
+   "name_en": "Unionaire Refrigerator 10 cu ft",
+   "fix": "too small (500×500)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1785602431/products/lltdcmtgid9crtg9q8re.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1785602431/products/lltdcmtgid9crtg9q8re.jpg",
+   "publicId": "products/p1-3-uni-ref-10ft-320"
+  },
+  {
+   "sku": "SKU-MSHR6GF8",
+   "name_en": "Voltage Stabilizer",
+   "fix": "too small (679×565)",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787841680/products/lbyaeqljoctszequ3cw8.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_upscale/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787841680/products/lbyaeqljoctszequ3cw8.jpg",
+   "publicId": "products/p1-3-sku-mshr6gf8"
+  },
+  {
+   "sku": "SKU-MSKM5E43",
+   "name_en": "Bestcook Electric Oven 35 L",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787397529/products/t7naljpgojqlodsyhjux.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787397529/products/t7naljpgojqlodsyhjux.jpg",
+   "publicId": "products/p1-3-sku-mskm5e43"
+  },
+  {
+   "sku": "SKU-MSKMP11C",
+   "name_en": "Digi Gas Cooker 5 Burners",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787390889/products/evitewklerouhzbe9ei4.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787390889/products/evitewklerouhzbe9ei4.jpg",
+   "publicId": "products/p1-3-sku-mskmp11c"
+  },
+  {
+   "sku": "SKU-MSHR7EGP",
+   "name_en": "Electric Dry Iron",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787841541/products/ouzjeoqrhzzmpsktedcu.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787841541/products/ouzjeoqrhzzmpsktedcu.jpg",
+   "publicId": "products/p1-3-sku-mshr7egp"
+  },
+  {
+   "sku": "SKU-MSGERZYT",
+   "name_en": "Electric Ice Crusher 500 W",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787849125/products/tgwvdyhij2tprdxxeli4.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787849125/products/tgwvdyhij2tprdxxeli4.jpg",
+   "publicId": "products/p1-3-sku-msgerzyt"
+  },
+  {
+   "sku": "SKU-MSGFKT6O",
+   "name_en": "Marado Coffee Pot",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787847179/products/khxyyieglwjtyabhwntx.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787847179/products/khxyyieglwjtyabhwntx.jpg",
+   "publicId": "products/p1-3-sku-msgfkt6o"
+  },
+  {
+   "sku": "SKU-MSGFGV5J",
+   "name_en": "Movable TV Stand",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787847690/products/f3nfc8wbyiscczfeljxk.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787847690/products/f3nfc8wbyiscczfeljxk.jpg",
+   "publicId": "products/p1-3-sku-msgfgv5j"
+  },
+  {
+   "sku": "SKU-MSGCT9P6",
+   "name_en": "Nasma Split Air Conditioner 6,000 BTU",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787853114/products/rcbsgzqc04efnqlshfc0.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787853114/products/rcbsgzqc04efnqlshfc0.jpg",
+   "publicId": "products/p1-3-sku-msgct9p6"
+  },
+  {
+   "sku": "SKU-MSGDJGYG",
+   "name_en": "Newdale Gas Burner 3 Burners",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787851746/products/n8vzzczxrav2vvcntxmb.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787851746/products/n8vzzczxrav2vvcntxmb.jpg",
+   "publicId": "products/p1-3-sku-msgdjgyg"
+  },
+  {
+   "sku": "SKU-MSHR9UWX",
+   "name_en": "Nikai Steam Iron",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787841036/products/ssa1j1ugucucumbe1m0f.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787841036/products/ssa1j1ugucucumbe1m0f.jpg",
+   "publicId": "products/p1-3-sku-mshr9uwx"
+  },
+  {
+   "sku": "SKU-MSGDVLHX",
+   "name_en": "SKY LED TV 32 in",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787851418/products/mnfotfwuosd96koyfdwu.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787851418/products/mnfotfwuosd96koyfdwu.jpg",
+   "publicId": "products/p1-3-sku-msgdvlhx"
+  },
+  {
+   "sku": "SKU-MSHQ108K",
+   "name_en": "Samsung LED TV 43 in",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787845778/products/x9lxiin6mqby7ie6z5np.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787845778/products/x9lxiin6mqby7ie6z5np.jpg",
+   "publicId": "products/p1-3-sku-mshq108k"
+  },
+  {
+   "sku": "SKU-MSHRAWPP",
+   "name_en": "Sayonapps Steam Iron",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787840916/products/zag1iqf6nzrkvwjyshv7.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787840916/products/zag1iqf6nzrkvwjyshv7.jpg",
+   "publicId": "products/p1-3-sku-mshrawpp"
+  },
+  {
+   "sku": "SKU-MSGEQXSZ",
+   "name_en": "Street Light",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787849074/products/utzthxb0osp79wpkuerq.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787849074/products/utzthxb0osp79wpkuerq.jpg",
+   "publicId": "products/p1-3-sku-msgeqxsz"
+  },
+  {
+   "sku": "SKU-MSGFMZ5F",
+   "name_en": "UPS 1500 VA",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1787846777/products/cqmbipnssx0c6klzic7j.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1787846777/products/cqmbipnssx0c6klzic7j.jpg",
+   "publicId": "products/p1-3-sku-msgfmz5f"
+  },
+  {
+   "sku": "UNI-REF-20FT-800",
+   "name_en": "Unionaire Double-Door Refrigerator 20 cu ft",
+   "fix": "busy background",
+   "oldUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/v1785604789/products/gjdkv5vfyzolonq4gkzz.jpg",
+   "processedUrl": "https://res.cloudinary.com/dmnqypzhs/image/upload/e_background_removal/b_white,c_pad,ar_1:1,w_1200/f_jpg,q_90/v1785604789/products/gjdkv5vfyzolonq4gkzz.jpg",
+   "publicId": "products/p1-3-uni-ref-20ft-800"
+  }
+ ],
+ "rejected": [
+  {
+   "sku": "SKU-MSGEIKP8",
+   "name_en": "Aknan Voltage Regulator 500 VA",
+   "reason": "poster text washed out"
+  },
+  {
+   "sku": "SKU-MSKLWAVT",
+   "name_en": "Ferre Electric Oven 35 L",
+   "reason": "several ovens in one shop photo"
+  },
+  {
+   "sku": "SKU-MSKLVHC9",
+   "name_en": "Ferre Electric Oven 45 L",
+   "reason": "several ovens in one shop photo"
+  },
+  {
+   "sku": "SKU-MSKLUASR",
+   "name_en": "Ferre Electric Oven 60 L",
+   "reason": "several ovens in one shop photo"
+  },
+  {
+   "sku": "SKU-MSGCPE27",
+   "name_en": "Unionaire Portable Air Conditioner 8,000 BTU",
+   "reason": "illustrated room scene, background not removable"
+  },
+  {
+   "sku": "SKU-MSKN8NLD",
+   "name_en": "Hafab Gas Cooker 4 Burners, Marble",
+   "reason": "ad button left in the photo"
+  }
+ ]
+}
