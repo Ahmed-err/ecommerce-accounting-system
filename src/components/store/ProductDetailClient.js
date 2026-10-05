@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { getCatalogProductsByIds } from "@/app/actions/catalog";
 import { toggleWishlistProductAction } from "@/app/actions/wishlist";
 import { requestProductStockAlertAction } from "@/app/actions/stock-alert";
+import ProductImage, { ProductImagePlaceholder } from "@/components/media/ProductImage";
 
 function nameFor(product, lang) {
   return lang === "ar" ? product.nameAr || product.name : product.nameEn || product.name;
@@ -345,7 +345,7 @@ export default function ProductDetailClient({
                       : "border-border/60 opacity-80 hover:border-border hover:opacity-100"
                   )}
                 >
-                  <Image src={img} alt="" fill sizes="(max-width: 1024px) 72px, 76px" className="object-cover" />
+                  <ProductImage src={img} sizes="76px" compact padded={false} className="p-1" />
                 </button>
               ))}
             </div>
@@ -424,13 +424,12 @@ export default function ProductDetailClient({
                     >
                       <div className="relative h-full w-full p-2 sm:p-4">
                         <div className="relative h-full w-full origin-center transition-transform duration-500 lg:group-hover:scale-[1.02]">
-                          <Image
+                          <ProductImage
                             src={images[activeImageIndex]}
                             alt={`${displayN} — ${lang === "ar" ? "صورة" : "image"} ${activeImageIndex + 1} / ${images.length}`}
-                            fill
                             sizes="(max-width: 1024px) 100vw, 50vw"
-                            className="object-contain"
                             priority={activeImageIndex === 0}
+                            padded={false}
                           />
                         </div>
                       </div>
@@ -438,7 +437,7 @@ export default function ProductDetailClient({
                   </AnimatePresence>
                 </div>
               ) : (
-                <div className="flex h-full items-center justify-center text-8xl opacity-20">📦</div>
+                <ProductImagePlaceholder />
               )}
 
               {images.length > 1 && (

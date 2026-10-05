@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, GitCompareArrows, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ProductImage from "@/components/media/ProductImage";
 
 const WISHLIST_KEY = "powerstore_wishlist";
 
@@ -39,7 +39,6 @@ export default function ProductCard({
   const hasDiscount = Boolean(product.hasDiscount);
   const offPct = product.discountPct || 0;
 
-  const [imgError, setImgError] = useState(false);
   const [qvOpen, setQvOpen] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -98,21 +97,8 @@ export default function ProductCard({
       dir={isRTL ? "rtl" : "ltr"}
     >
       {/* Image */}
-      <div className="relative h-56 w-full shrink-0 overflow-hidden bg-muted sm:h-64">
-        {imageUrl && !imgError ? (
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            className="object-contain p-2"
-            sizes="448px"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-5xl opacity-20">
-            📦
-          </div>
-        )}
+      <div className="relative h-56 w-full shrink-0 overflow-hidden bg-white sm:h-64">
+        <ProductImage src={imageUrl} alt={product.name} sizes="448px" />
         {hasDiscount && (
           <span className="absolute left-3 top-3 rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white">
             −{offPct}% {t.discountBadge}
@@ -279,7 +265,7 @@ export default function ProductCard({
         <div className="relative z-10">
           <div
             className={cn(
-              "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted/30",
+              "relative flex shrink-0 items-center justify-center overflow-hidden bg-white",
               imgHeight
             )}
           >
@@ -299,29 +285,17 @@ export default function ProductCard({
                 −{offPct}% {t.discountBadge}
               </span>
             )}
-            {imageUrl && !imgError ? (
-              <div className="relative h-full w-full transition-transform duration-500 group-hover:scale-105">
-                <Image
-                  src={imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-2"
-                  sizes={
-                    homeShowcase
-                      ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 28vw, 22vw"
-                      : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  }
-                  onError={() => setImgError(true)}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4 text-muted-foreground/50">
-                <span className="text-6xl">📦</span>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                  {t.noImage}
-                </span>
-              </div>
-            )}
+            <div className="relative h-full w-full transition-transform duration-500 group-hover:scale-105">
+              <ProductImage
+                src={imageUrl}
+                alt={product.name}
+                sizes={
+                  homeShowcase
+                    ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 28vw, 22vw"
+                    : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                }
+              />
+            </div>
 
             {isOutOfStock && (
               <span

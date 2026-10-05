@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { Search as SearchIcon, X, Loader2 } from "lucide-react";
 import { getCatalogProducts } from "@/app/actions/catalog";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { useDebounce } from "@/hooks/useDebounce";
+import ProductImage from "@/components/media/ProductImage";
 
 export default function GlobalSearch({ inputId }) {
   const [query, setQuery] = useState("");
@@ -137,13 +137,8 @@ export default function GlobalSearch({ inputId }) {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-muted ${isRTL ? "text-right" : "text-left"}`}
                 >
-                  <div className="relative h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
-                    <Image
-                      src={product.images[0] || "/placeholder.png"}
-                      alt={product.name}
-                      fill
-                      className="object-contain p-1"
-                    />
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-white">
+                    <ProductImage src={product.images?.[0]} alt={product.name} sizes="48px" compact padded={false} className="p-1" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{product.name}</p>

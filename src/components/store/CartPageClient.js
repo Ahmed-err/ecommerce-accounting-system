@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -24,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { previewCoupon } from "@/app/actions/coupon";
 import { getCatalogProducts } from "@/app/actions/catalog";
 import ProductCard from "@/components/store/ProductCard";
+import ProductImage from "@/components/media/ProductImage";
 
 function CartSkeleton() {
   return (
@@ -343,21 +343,9 @@ export default function CartPageClient() {
                   >
                     <Link
                       href={`/products/${item.id}`}
-                      className="relative mx-auto h-28 w-full max-w-[200px] shrink-0 overflow-hidden rounded-xl bg-muted sm:mx-0 sm:h-24 sm:w-24 md:h-28 md:w-28"
+                      className="relative mx-auto h-28 w-full max-w-[200px] shrink-0 overflow-hidden rounded-xl border border-border bg-white sm:mx-0 sm:h-24 sm:w-24 md:h-28 md:w-28"
                     >
-                      {item.image ? (
-                        <Image
-                          src={item.image}
-                          alt=""
-                          fill
-                          className="object-contain p-1"
-                          sizes="(max-width:640px) 200px, 112px"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          —
-                        </div>
-                      )}
+                      <ProductImage src={item.image} sizes="(max-width:640px) 200px, 112px" compact />
                     </Link>
 
                     <div

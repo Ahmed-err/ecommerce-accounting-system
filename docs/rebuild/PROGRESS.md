@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P1.3 Product media
-- **Step:** 1 — audit (not started)
+- **Step:** 6 — audit + build done in one pass (code only); PR open; screenshots review
 - **Last done:** P1.2 done — #20 merged and deployed; content applied on production 2026-10-05 (136 updated, duplicate hidden, 0 skipped); live verified (names, brand in structured data, specs).
-- **Next:** P1.3 audit: image ratio/resolution/background/duplicates, 18 products without photos, Cloudinary transforms. User: rotate the Neon DB password (pasted in chat twice); fill the 106 zero prices. P2.3 note: unknown/hidden product URL returns 200 with the not-found page (soft 404)
+- **Next:** user merges the P1.3 PR → I verify live → P2.1 Home. Owner: replace the 68 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv`; fill the 106 zero prices; rotate the Neon DB password. P2.3 note: hidden/unknown product URL returns 200 (soft 404)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -29,7 +29,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.4 | App shell | done | #16 | shell + lighter pages |
 | P1.1 | Category taxonomy | done | #18 | hotfix #17 |
 | P1.2 | Product content | done | `rebuild/p1-2-content` | |
-| P1.3 | Product media | audit | `rebuild/p1-3-media` | |
+| P1.3 | Product media | review | `rebuild/p1-3-media` | |
 | P2.1 | Home | todo | | |
 | P2.2 | Listing & search | todo | | |
 | P2.3 | Product page | todo | | |
