@@ -7,6 +7,7 @@ export const productMutationSchema = z.object({
   name: z.string().trim().min(1).max(500),
   nameEn: z.string().trim().max(500).optional().nullable(),
   nameAr: z.string().trim().max(500).optional().nullable(),
+  brand: z.string().trim().max(100).optional().nullable(),
   description: z.string().max(10000).optional().nullable(),
   descriptionEn: z.string().max(10000).optional().nullable(),
   descriptionAr: z.string().max(10000).optional().nullable(),

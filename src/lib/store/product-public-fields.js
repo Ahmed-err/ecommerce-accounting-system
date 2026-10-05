@@ -3,6 +3,7 @@ export const productPublicFields = {
   name: true,
   nameEn: true,
   nameAr: true,
+  brand: true,
   description: true,
   descriptionEn: true,
   descriptionAr: true,

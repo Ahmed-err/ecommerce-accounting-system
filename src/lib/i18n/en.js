@@ -1038,6 +1038,7 @@ const dictionary = {
   "inventoryAddFirstProduct": "Add first product",
   "inventoryNameEn": "Name (English)",
   "inventoryNameAr": "Name (Arabic)",
+  "inventoryBrand": "Brand",
   "inventoryDescEn": "Description (English)",
   "inventoryDescAr": "Description (Arabic)",
   "inventoryActive": "Active",

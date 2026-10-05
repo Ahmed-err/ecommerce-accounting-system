@@ -1038,6 +1038,7 @@ const dictionary = {
   "inventoryAddFirstProduct": "أضف أول منتج",
   "inventoryNameEn": "الاسم (إنجليزي)",
   "inventoryNameAr": "الاسم (عربي)",
+  "inventoryBrand": "العلامة التجارية",
   "inventoryDescEn": "الوصف (إنجليزي)",
   "inventoryDescAr": "الوصف (عربي)",
   "inventoryActive": "نشط",
