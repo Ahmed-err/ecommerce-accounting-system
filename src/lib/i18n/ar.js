@@ -1039,6 +1039,8 @@ const dictionary = {
   "inventoryNameEn": "الاسم (إنجليزي)",
   "inventoryNameAr": "الاسم (عربي)",
   "inventoryBrand": "العلامة التجارية",
+  "photoComingSoon": "الصورة قريبًا",
+  "photoGuideline": "أفضل نتيجة: صورة مربعة، 1000 بكسل على الأقل، والمنتج على خلفية بيضاء سادة.",
   "inventoryDescEn": "الوصف (إنجليزي)",
   "inventoryDescAr": "الوصف (عربي)",
   "inventoryActive": "نشط",

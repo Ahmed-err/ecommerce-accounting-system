@@ -746,6 +746,7 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
             )}
 
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 p-6">
+              <p className="text-center text-xs text-muted-foreground">{t.photoGuideline}</p>
               {formData.images.length >= MAX_PRODUCT_IMAGES ? (
                 <p className="text-xs text-amber-700 dark:text-amber-300">
                   {lang === "ar"

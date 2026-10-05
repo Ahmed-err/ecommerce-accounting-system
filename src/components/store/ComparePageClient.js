@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { translateCategory } from "@/lib/i18n/translate-category";
 import { useCart } from "@/components/store/CartProvider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, ShoppingCart } from "lucide-react";
+import ProductImage from "@/components/media/ProductImage";
 
 export default function ComparePageClient({ products }) {
   const { lang, isRTL } = useLanguage();
@@ -56,17 +56,9 @@ export default function ComparePageClient({ products }) {
               >
                 <div className="relative mx-auto mb-2 h-32 w-full max-w-[140px] overflow-hidden rounded-xl bg-muted">
                   {p.images?.[0] ? (
-                    <Image
-                      src={p.images[0]}
-                      alt=""
-                      fill
-                      className="object-contain p-2"
-                      sizes="140px"
-                    />
+                    <ProductImage src={p.images[0]} sizes="140px" />
                   ) : (
-                    <span className="flex h-full items-center justify-center text-2xl opacity-30">
-                      📦
-                    </span>
+                    <ProductImage src={null} compact />
                   )}
                 </div>
                 <Link

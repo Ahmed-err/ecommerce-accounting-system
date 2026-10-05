@@ -1039,6 +1039,8 @@ const dictionary = {
   "inventoryNameEn": "Name (English)",
   "inventoryNameAr": "Name (Arabic)",
   "inventoryBrand": "Brand",
+  "photoComingSoon": "Photo coming soon",
+  "photoGuideline": "Best results: square photo, at least 1000 px, product on a plain white background.",
   "inventoryDescEn": "Description (English)",
   "inventoryDescAr": "Description (Arabic)",
   "inventoryActive": "Active",
