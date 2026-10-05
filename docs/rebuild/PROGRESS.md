@@ -6,7 +6,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P2.1 Home
-- **Step:** 1 — audit (not started)
+- **Step:** 6 — audit + build done (light 3D approved); PR open
 - **Last done:** P1.3 done — #21 merged and deployed (Cloudinary loader live); 45 AI-cleaned photos applied on production 2026-10-05 by Claude (user-authorized; log `export/p1-3-photos-*.json`).
 - **Next:** P2.1 Home audit. Owner: 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password. P2.3 note: hidden/unknown product URL returns 200 (soft 404)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
@@ -30,7 +30,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P1.1 | Category taxonomy | done | #18 | hotfix #17 |
 | P1.2 | Product content | done | `rebuild/p1-2-content` | |
 | P1.3 | Product media | done | `rebuild/p1-3-media` | |
-| P2.1 | Home | audit | `rebuild/p2-1-home` | |
+| P2.1 | Home | review | `rebuild/p2-1-home` | |
 | P2.2 | Listing & search | todo | | |
 | P2.3 | Product page | todo | | |
 | P2.4 | Cart & checkout | todo | | |

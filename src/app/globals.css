@@ -3,6 +3,7 @@
 @import "./styles/tokens.css";
 @import "./styles/palette.css";
 @import "./styles/typography.css";
+@import "./styles/motion.css";
 /* @import "shadcn/tailwind.css"; */
 
 @custom-variant dark (&:is(.dark *));

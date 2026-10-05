@@ -35,6 +35,7 @@ export function serializeCatalogProduct(p) {
       ? {
           id: p.category.id,
           name: p.category.name,
+          nameAr: p.category.nameAr ?? null,
           description: p.category.description,
           image: p.category.image,
         }

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useLanguage, useT } from "@/context/LanguageContext";
 
 export default function AboutTeaser() {
@@ -12,11 +11,11 @@ export default function AboutTeaser() {
     <section className="py-10 bg-muted dark:bg-neutral-950/60 border-y border-border sm:py-14 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
-          className="grid grid-cols-1 gap-10 items-start lg:grid-cols-3 lg:gap-14"
+          className="reveal grid grid-cols-1 gap-10 items-start lg:grid-cols-2 lg:gap-14"
           dir={isRTL ? "rtl" : "ltr"}
         >
           {/* ── Left column: text ─────────────────────────────────────── */}
-          <div className="lg:col-span-1 space-y-5 sm:space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             <h2
               className={`text-2xl font-black uppercase tracking-tighter italic text-foreground sm:text-3xl lg:text-4xl ${
                 isRTL ? "text-right" : "text-left"
@@ -73,46 +72,8 @@ export default function AboutTeaser() {
             </div>
           </div>
 
-          {/* ── Right column: images ──────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* Main large image */}
-            <div className="relative rounded-2xl overflow-hidden border border-border">
-              <Image
-                src="https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80"
-                alt={isRTL ? "ألواح طاقة شمسية" : "Solar panels"}
-                width={1200}
-                height={700}
-                className="w-full h-36 object-cover sm:h-48 md:h-56 lg:h-[240px] xl:h-[280px]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <h3 className="text-white text-base font-bold sm:text-xl">{t.solarPanelTitle}</h3>
-                <p className="text-gray-200 text-xs mt-1 sm:text-sm">{t.solarPanelDesc}</p>
-              </div>
-            </div>
-
-            {/* Two smaller images */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-5">
-              <div className="relative rounded-xl overflow-hidden border border-border sm:rounded-2xl">
-                <Image
-                  src="https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=900&q=80"
-                  alt={isRTL ? "أدوات كهربائية" : "Electrical tools"}
-                  width={900}
-                  height={600}
-                  className="w-full h-28 object-cover sm:h-36 md:h-44"
-                />
-              </div>
-              <div className="relative rounded-xl overflow-hidden border border-border sm:rounded-2xl">
-                <Image
-                  src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=900&q=80"
-                  alt={isRTL ? "كابلات وأسلاك" : "Cables and wires"}
-                  width={900}
-                  height={600}
-                  className="w-full h-28 object-cover sm:h-36 md:h-44"
-                />
-              </div>
-            </div>
-
+          {/* ── Right column: where to find the shop (stock solar photos removed, P2.1) ── */}
+          <div className="space-y-4 sm:space-y-6">
             {/* Location card */}
             <div className="bg-card border border-border rounded-xl p-4 sm:rounded-2xl sm:p-6">
               <p className="text-foreground font-bold text-sm sm:text-base">{t.locationTitle}</p>
