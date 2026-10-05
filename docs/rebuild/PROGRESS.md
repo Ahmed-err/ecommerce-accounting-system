@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P1.2 Product content
-- **Step:** 6 — built and tested; PR open; content apply waits for the user (merge → deploy → backup → apply)
-- **Last done:** P1.1 done — tree applied and old categories cleaned up on production (2026-10-05); #19 env fix deployed, live OK.
-- **Next:** user merges the P1.2 PR, then runs `scripts/apply/p1-2-content.mjs --apply` (steps in `docs/rebuild/parts/P1.2.md`); I verify live → P1.3 media. User: rotate the Neon DB password; fill the 106 zero prices
+- **Current part:** P1.3 Product media
+- **Step:** 1 — audit (not started)
+- **Last done:** P1.2 done — #20 merged and deployed; content applied on production 2026-10-05 (136 updated, duplicate hidden, 0 skipped); live verified (names, brand in structured data, specs).
+- **Next:** P1.3 audit: image ratio/resolution/background/duplicates, 18 products without photos, Cloudinary transforms. User: rotate the Neon DB password (pasted in chat twice); fill the 106 zero prices. P2.3 note: unknown/hidden product URL returns 200 with the not-found page (soft 404)
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -28,8 +28,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P0.3 | Brand identity + design system | done | #14 | refine, don't redesign; a11y target deferred to P0.4/P2 |
 | P0.4 | App shell | done | #16 | shell + lighter pages |
 | P1.1 | Category taxonomy | done | #18 | hotfix #17 |
-| P1.2 | Product content | review | `rebuild/p1-2-content` | |
-| P1.3 | Product media | todo | | |
+| P1.2 | Product content | done | `rebuild/p1-2-content` | |
+| P1.3 | Product media | audit | `rebuild/p1-3-media` | |
 | P2.1 | Home | todo | | |
 | P2.2 | Listing & search | todo | | |
 | P2.3 | Product page | todo | | |
@@ -60,3 +60,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-04 — P0.4 built (10 tasks), final review fixed, PR #16 ready for merge.
 - 2026-10-04 — P0.4 merged (#16) and deployed; P1.1 started, read-only catalog export script written.
 - 2026-10-05 — P1.1 merged (#18) + cost hotfix (#17); tree applied on production; site briefly 500 after a Vercel env change (`NEXT_PUBLIC_URL` required) → validateEnv now accepts either site URL name.
+- 2026-10-05 — P1.2 merged (#20) and content applied on production; brand field live.
