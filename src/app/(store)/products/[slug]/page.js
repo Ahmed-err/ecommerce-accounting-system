@@ -1,5 +1,6 @@
 import ProductDetailClient from "@/components/store/ProductDetailClient";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { translations } from "@/lib/translations";
 import { getProductReviewSummary, listApprovedReviews } from "@/lib/reviews";
 import {
@@ -35,7 +36,10 @@ export async function generateMetadata({ params }) {
   const b = getBrandingForLang(branding, lang);
 
   if (!product) {
-    return { title: lang === "ar" ? "المنتج غير موجود" : "Product Not Found" };
+    return {
+      title: lang === "ar" ? "المنتج غير موجود" : "Product Not Found",
+      robots: { index: false, follow: true },
+    };
   }
 
   const displayName =
@@ -50,18 +54,11 @@ export async function generateMetadata({ params }) {
     displayDesc?.slice(0, 160) ||
     (lang === "ar" ? `اشتري ${displayName} من ${b.brandName}.` : `Buy ${displayName} from ${b.brandName}.`);
 
-  const h = await headers();
-  const host = h.get("x-forwarded-host") || h.get("host") || "";
-  const proto = h.get("x-forwarded-proto") || "http";
-  const base =
-    process.env.AUTH_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (host ? `${proto}://${host}` : "");
-
   return {
     title: `${displayName} | ${b.brandName}`,
     description,
-    alternates: base ? { canonical: `${base.replace(/\/$/, "")}/products/${slug}` } : undefined,
+    // One canonical per product: the id URL, whichever slug (sku, name) was used to reach it.
+    alternates: { canonical: `${getAbsoluteSiteUrl()}/products/${product.id}` },
     openGraph: {
       title: displayName,
       description,
@@ -115,14 +112,7 @@ export default async function ProductDetailPage({ params }) {
       ? product.descriptionAr || product.description || ""
       : product.descriptionEn || product.description || "";
 
-  const h = await headers();
-  const host = h.get("x-forwarded-host") || h.get("host") || "";
-  const proto = h.get("x-forwarded-proto") || "http";
-  const base =
-    process.env.AUTH_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (host ? `${proto}://${host}` : "");
-  const canonical = base ? `${base.replace(/\/$/, "")}/products/${slug}` : "";
+  const canonical = `${getAbsoluteSiteUrl()}/products/${product.id}`;
 
   const availability =
     product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
@@ -137,7 +127,7 @@ export default async function ProductDetailPage({ params }) {
     ...(product.brand && { brand: { "@type": "Brand", name: product.brand } }),
     offers: {
       "@type": "Offer",
-      url: canonical || undefined,
+      url: canonical,
       priceCurrency: store.currency || "SDG",
       price: String(product.sellingPrice),
       availability,
@@ -174,10 +164,7 @@ export default async function ProductDetailPage({ params }) {
   };
 
   return (
-    <div
-      className={`bg-background pb-24 lg:pb-10 ${lang === "ar" ? "text-right" : "text-left"}`}
-     
-    >
+    <div className="bg-background pb-24 lg:pb-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}

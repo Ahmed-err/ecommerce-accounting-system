@@ -1279,7 +1279,9 @@ const dictionary = {
   "catalogRemoveFilter": "إزالة عامل التصفية: {name}",
   "catalogClearAll": "مسح الكل",
   "catalogResultCount": "{count} منتج",
-  "catalogInStock": "المتوفر فقط"
+  "catalogInStock": "المتوفر فقط",
+  "pdpWriteFirstReview": "لا توجد تقييمات بعد — اكتب أول تقييم",
+  "pdpUnitPiece": "القطعة"
 };
 
 export default dictionary;

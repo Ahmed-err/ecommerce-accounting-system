@@ -1279,7 +1279,9 @@ const dictionary = {
   "catalogRemoveFilter": "Remove filter: {name}",
   "catalogClearAll": "Clear all",
   "catalogResultCount": "{count} products",
-  "catalogInStock": "In stock only"
+  "catalogInStock": "In stock only",
+  "pdpWriteFirstReview": "No reviews yet — write the first one",
+  "pdpUnitPiece": "piece"
 };
 
 export default dictionary;
