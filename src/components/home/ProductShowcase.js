@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProductCard from "@/components/store/ProductCard";
@@ -97,13 +96,9 @@ export default function ProductShowcase({ featured }) {
               isRTL && "lg:[direction:rtl]"
             )}
           >
-            <motion.aside
-              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55 }}
+            <aside
               className={cn(
-                "space-y-4 rounded-2xl border border-foreground/10 bg-card/60 p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-4 lg:h-fit xl:p-6",
+                "reveal space-y-4 rounded-2xl border border-foreground/10 bg-card/60 p-4 sm:p-5 lg:sticky lg:top-24 lg:col-span-4 lg:h-fit xl:p-6",
                 isRTL ? "text-right lg:[direction:rtl]" : "text-left"
               )}
             >
@@ -145,7 +140,7 @@ export default function ProductShowcase({ featured }) {
               <p className="text-xs text-muted-foreground">
                 {catalogActiveCount}+ {isRTL ? "منتجات نشطة في المتجر" : "active products in store"}
               </p>
-            </motion.aside>
+            </aside>
 
             <div className="lg:col-span-8">
             {tabsConfig.map((tab) => {
@@ -164,11 +159,8 @@ export default function ProductShowcase({ featured }) {
                   activeTab !== tab.value && "hidden"
                 )}
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.38 }}
-                  className="grid w-full min-w-0 grid-cols-2 items-stretch gap-3 sm:gap-4 xl:grid-cols-3 xl:gap-5"
+                <div
+                  className="reveal-stagger grid w-full min-w-0 grid-cols-2 items-stretch gap-3 sm:gap-4 xl:grid-cols-3 xl:gap-5"
                 >
                   {tab.data.map((product, i) => (
                     <div
@@ -222,7 +214,7 @@ export default function ProductShowcase({ featured }) {
                       {t.shopNow || "Shop Now"}
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               </TabsContent>
               );
             })}

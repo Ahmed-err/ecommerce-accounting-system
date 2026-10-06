@@ -10,6 +10,8 @@ import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { cookies } from "next/headers";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
+import HomeHero from "@/components/home/HomeHero";
 
 const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
 const NewsletterSection = dynamic(() => import("@/components/home/NewsletterSection"));
@@ -19,7 +21,7 @@ export default async function HomePage() {
   const lang = cookieStore.get("lang")?.value || "ar";
   const isRTL = lang === "ar";
 
-  const { banners, categories, featured, featuredOffer } = await getHomepageData();
+  const { banners, categories, brands, heroProducts, productTotal, featured, featuredOffer } = await getHomepageData();
   const hasFeaturedProducts = (featured?.catalogActiveCount ?? 0) > 0;
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
@@ -31,14 +33,14 @@ export default async function HomePage() {
     "@type": "Store",
     name: b.brandName,
     description: t.brandDesc,
-    url: process.env.NEXT_PUBLIC_URL || "https://essamnasr.com",
+    url: getAbsoluteSiteUrl(),
     address: { "@type": "PostalAddress", addressLocality: "Khartoum", addressCountry: "SD" },
   };
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: b.brandName,
-    url: process.env.NEXT_PUBLIC_URL || "https://essamnasr.com",
+    url: getAbsoluteSiteUrl(),
     inLanguage: lang,
   };
 
@@ -48,31 +50,20 @@ export default async function HomePage() {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteJsonLd) }} />
-      <a
-        href="#home-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 z-[9999] bg-amber-500 text-black px-4 py-2 rounded-lg font-bold shadow-lg ring-2 ring-amber-600/30"
-      >
-        {isRTL ? "تجاوز إلى المحتوى الرئيسي" : "Skip to main content"}
-      </a>
       
       <div id="home-main" className={`relative z-0 flex-grow ${isRTL ? "text-right" : "text-left"}`}>
-        {/* 1. Hero Slider */}
-        <section aria-label={isRTL ? "العروض الرئيسية" : "Hero banners"}>
-          <HeroSlider banners={banners} />
-        </section>
+        {/* 1. Hero: real products in layered depth */}
+        <HomeHero products={heroProducts} total={productTotal} brands={brands} />
 
-        {/* 2. Trust Badges */}
-        <div className="border-b border-foreground/5 relative z-10" aria-label={isRTL ? "مزايا المتجر" : "Store trust badges"}>
-           <TrustBadges />
-        </div>
+        {/* Banners the admin created (none = section hidden) */}
+        {banners.length ? (
+          <section aria-label={isRTL ? "العروض" : "Offers"}>
+            <HeroSlider banners={banners} />
+          </section>
+        ) : null}
 
-        {/* 3. Brands Marquee */}
-        <BrandsMarquee />
-
-        {/* 4. Categories Strip */}
-        <section aria-label={isRTL ? "فئات المنتجات" : "Product categories"}>
-          <CategoriesStrip categories={categories} />
-        </section>
+        {/* Categories with real product photos */}
+        <CategoriesStrip categories={categories} />
 
         {/* 5. Product Showcase (only when there are active storefront products) */}
         {hasFeaturedProducts && (
@@ -80,6 +71,14 @@ export default async function HomePage() {
             <ProductShowcase featured={featured} />
           </section>
         )}
+
+        {/* Real brands */}
+        <BrandsMarquee brands={brands} />
+
+        {/* Trust badges */}
+        <div className="border-b border-foreground/5 relative z-10" aria-label={isRTL ? "مزايا المتجر" : "Store trust badges"}>
+           <TrustBadges />
+        </div>
 
         {/* 6. Special Promo Offer */}
         {featuredOffer && (
@@ -100,9 +99,6 @@ export default async function HomePage() {
       </div>
       
       
-      {/* Decorative Blur Elements — subtle in light, richer in dark */}
-      <div className="fixed top-0 -left-1/4 w-1/2 h-1/2 bg-amber-500/[0.06] dark:bg-amber-500/10 blur-[120px] pointer-events-none -z-10" />
-      <div className="fixed bottom-0 -right-1/4 w-1/2 h-1/2 bg-orange-500/[0.05] dark:bg-orange-600/10 blur-[120px] pointer-events-none -z-10" />
     </div>
   );
 }

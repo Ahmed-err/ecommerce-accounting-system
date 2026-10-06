@@ -192,7 +192,8 @@ export default function ProductCard({
     <>
       <motion.div
         className={cn(
-          "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          // Visible from the first paint; .reveal animates it in where the browser supports scroll timelines.
+          "reveal group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
           homeShowcase
@@ -201,14 +202,6 @@ export default function ProductCard({
           compactRail && "rounded-2xl",
           homeShowcase && "rounded-2xl sm:rounded-3xl"
         )}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{
-          duration: 0.5,
-          delay: index * 0.08,
-          ease: [0.25, 0.1, 0.25, 1],
-        }}
         whileHover={
           compactRail
             ? {}

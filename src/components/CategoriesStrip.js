@@ -1,123 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useRef, useState } from "react";
+import ProductImage from "@/components/media/ProductImage";
+import Tilt3D from "@/components/motion/Tilt3D";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { translateCategory } from "@/lib/i18n/translate-category";
-import { cn } from "@/lib/utils";
 
-function getCategoryImageUrl(image) {
-  if (!image) return null;
-  if (typeof image === "string") {
-    const trimmed = image.trim();
-    return trimmed || null;
-  }
-  return null;
-}
-
+// Top categories with a real product photo as the cover (P2.1).
 export default function CategoriesStrip({ categories }) {
-  const { lang, isRTL } = useLanguage();
+  const { isRTL } = useLanguage();
   const t = useT();
-  const scrollRef = useRef(null);
-  const [imageErrors, setImageErrors] = useState({});
-
-  if (!categories || categories.length === 0) return null;
-
-  const handleMouseDown = (e) => {
-    const slider = scrollRef.current;
-    if (!slider) return;
-
-    let isDown = true;
-    const startX = e.pageX - slider.offsetLeft;
-    const scrollLeft = slider.scrollLeft;
-
-    const move = (ev) => {
-      if (!isDown) return;
-      ev.preventDefault();
-      const x = ev.pageX - slider.offsetLeft;
-      slider.scrollLeft = scrollLeft - (x - startX) * 1.5;
-    };
-
-    const up = () => {
-      isDown = false;
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-  };
+  if (!categories?.length) return null;
 
   return (
-    <section
-      className="py-8 bg-background border-y border-foreground/5 sm:py-10 lg:py-12"
-      dir={isRTL ? "rtl" : "ltr"}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-5 flex items-center justify-between sm:mb-6">
-          <h2 className="text-start text-lg font-black uppercase tracking-tighter text-foreground underline decoration-amber-500 underline-offset-8 sm:text-2xl">
+    <section id="categories" className="scroll-mt-20 py-12 sm:py-16" dir={isRTL ? "rtl" : "ltr"} aria-labelledby="home-categories">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between gap-4">
+          <h2 id="home-categories" className="type-h2 text-foreground">
             {t.shopByCategory}
           </h2>
-          <Link
-            href="/products"
-            className={cn(
-              "inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-accent-text transition-colors hover:text-accent-text sm:text-sm",
-              isRTL && "flex-row-reverse",
-              "text-start"
-            )}
-          >
-            <span>{isRTL ? "عرض الكل" : "View All"}</span>
-            <span aria-hidden>{isRTL ? "←" : "→"}</span>
+          <Link href="/products" className="shrink-0 text-sm font-semibold text-accent-text hover:underline">
+            {t.viewAll}
           </Link>
         </div>
-
-        <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory sm:gap-4 sm:pb-6"
-          aria-label={isRTL ? "أقسام المنتجات" : "Product categories"}
-          onMouseDown={handleMouseDown}
-        >
+        <ul className="reveal-stagger mt-8 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
           {categories.map((cat) => {
-            const categoryLabel = translateCategory(cat.name, t, cat.nameAr);
-            const imageUrl = getCategoryImageUrl(cat.image);
-            const shouldUseFallback = !imageUrl || imageErrors[cat.id];
-
+            const label = translateCategory(cat.name, t, cat.nameAr);
             return (
-              <Link
-                key={cat.id}
-                href={`/products?category=${encodeURIComponent(cat.id)}`}
-                draggable={false}
-                className="flex-shrink-0 snap-start group flex flex-col items-center gap-3 p-4 rounded-2xl bg-background border border-foreground/10 hover:border-amber-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-lg active:scale-95 w-28 sm:w-36 md:w-44 lg:w-48 sm:gap-4 sm:p-5 sm:rounded-3xl lg:p-6 lg:rounded-[2rem]"
-                aria-label={`${isRTL ? "تصفح فئة" : "Browse category"} ${categoryLabel}`}
-              >
-                <div className="relative h-16 w-16 rounded-xl flex items-center justify-center bg-amber-500/5 overflow-hidden group-hover:scale-110 group-hover:bg-amber-500/10 transition-all duration-500 sm:h-20 sm:w-20 sm:rounded-2xl lg:h-24 lg:w-24">
-                  {shouldUseFallback ? (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-accent-text">
-                      <span className="text-xs font-semibold uppercase tracking-[0.2em]">
-                        {categoryLabel.slice(0, 2)}
+              <li key={cat.id}>
+                <Tilt3D className="h-full rounded-2xl">
+                  <Link
+                    href={`/products?category=${encodeURIComponent(cat.id)}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-amber-500/60"
+                  >
+                    <span className="relative block aspect-[4/3] overflow-hidden border-b border-border">
+                      <ProductImage
+                        src={cat.cover}
+                        alt=""
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="p-4 transition-transform duration-500 group-hover:scale-105"
+                        padded={false}
+                      />
+                      <span className="tilt3d-shine pointer-events-none absolute inset-0" aria-hidden="true" />
+                    </span>
+                    <span className="tilt3d-pop flex flex-1 items-center justify-between gap-2 px-4 py-3">
+                      <span className="font-bold text-foreground group-hover:text-accent-text">{label}</span>
+                      <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                        {t.homeBrandProducts.replace("{count}", cat.productCount)}
                       </span>
-                    </div>
-                  ) : (
-                    <Image
-                      src={imageUrl}
-                      alt={categoryLabel}
-                      width={96}
-                      height={96}
-                      draggable={false}
-                      onError={() => setImageErrors((prev) => ({ ...prev, [cat.id]: true }))}
-                      className="object-cover rounded-lg transition-all duration-500 sm:rounded-xl"
-                    />
-                  )}
-                </div>
-
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-accent-text transition-colors truncate w-full text-center sm:text-[10px] sm:tracking-[0.22em] lg:text-[11px] lg:tracking-[0.25em]">
-                  {categoryLabel}
-                </p>
-              </Link>
+                    </span>
+                  </Link>
+                </Tilt3D>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </section>
   );
