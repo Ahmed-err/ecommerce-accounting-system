@@ -24,4 +24,9 @@ describe("public catalog product", () => {
     expect(serializeCatalogProduct({ ...base, brand: "LG" }).brand).toBe("LG");
     expect(serializeCatalogProduct(base).brand).toBeNull();
   });
+
+  it("keeps the Arabic category name for the store", () => {
+    const p = serializeCatalogProduct({ ...base, category: { id: "c1", name: "Fans", nameAr: "المراوح" } });
+    expect(p.category).toMatchObject({ name: "Fans", nameAr: "المراوح" });
+  });
 });

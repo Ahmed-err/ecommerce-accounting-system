@@ -217,6 +217,7 @@ export async function getCatalogProducts({
         ? {
             OR: [
               { name: { contains: search, mode: "insensitive" } },
+              { brand: { contains: search, mode: "insensitive" } },
               { description: { contains: search, mode: "insensitive" } },
               { sku: { contains: search, mode: "insensitive" } },
             ],

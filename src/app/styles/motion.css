@@ -1,0 +1,64 @@
+/* Motion for the store (P2.1). Content is never hidden: reveals only run where the
+   browser supports scroll timelines and the visitor allows motion. */
+
+@keyframes reveal-up {
+  from { opacity: 0.001; transform: translateY(28px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+    .reveal-stagger > * {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+/* 3D tilt: --rx/--ry are set by <Tilt3D> from the pointer position. */
+.tilt3d {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.tilt3d[data-active] { transition-duration: 0.08s; }
+.tilt3d-pop { transform: translateZ(28px); }
+.tilt3d-shine {
+  background: radial-gradient(circle at var(--sx, 50%) var(--sy, 50%), rgb(255 255 255 / 0.35), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tilt3d[data-active] .tilt3d-shine { opacity: 1; }
+
+/* Hero depth: --px/--py (pointer, -1..1) and --scroll (0..1) set by <DepthStage>. */
+.depth-layer {
+  transform:
+    translate3d(
+      calc(var(--px, 0) * var(--depth, 0) * 18px),
+      calc(var(--py, 0) * var(--depth, 0) * 14px + var(--scroll, 0) * var(--depth, 0) * -60px),
+      0
+    )
+    rotate(var(--tilt, 0deg));
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes float-y {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -10px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .float-slow { animation: float-y 6s ease-in-out infinite; }
+  .float-slow-2 { animation: float-y 7s ease-in-out -2s infinite; }
+  .float-slow-3 { animation: float-y 8s ease-in-out -4s infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt3d, .depth-layer { transform: none !important; transition: none; }
+}
