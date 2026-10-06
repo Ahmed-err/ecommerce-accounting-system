@@ -176,6 +176,7 @@ export async function getCatalogProducts({
   minPrice,
   maxPrice,
   inStockOnly,
+  brand = "",
 } = {}) {
   try {
     const minP =
@@ -224,6 +225,9 @@ export async function getCatalogProducts({
           }
         : {}),
       ...categoryFilter,
+      ...(String(brand || "").trim()
+        ? { brand: { equals: String(brand).trim(), mode: "insensitive" } }
+        : {}),
     };
 
     let orderBy = { createdAt: "desc" };
@@ -335,6 +339,24 @@ export async function getMyOrderConfirmation(orderId) {
   } catch (e) {
     console.error("getMyOrderConfirmation:", e);
     return null;
+  }
+}
+
+// Brands of active products with counts, most products first (P2.2 brand filter).
+export async function getCatalogBrands() {
+  try {
+    const rows = await db.product.groupBy({
+      by: ["brand"],
+      where: { isActive: true, brand: { not: null } },
+      _count: { _all: true },
+    });
+    return rows
+      .filter((r) => r.brand?.trim())
+      .map((r) => ({ name: r.brand.trim(), count: r._count._all }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  } catch (error) {
+    console.error("Failed to fetch catalog brands:", error);
+    return [];
   }
 }
 
