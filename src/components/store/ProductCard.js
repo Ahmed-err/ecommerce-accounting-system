@@ -89,7 +89,7 @@ export default function ProductCard({
     ? "h-40"
     : homeShowcase
       ? "h-40 w-full sm:h-44 md:h-48 lg:h-[12.5rem]"
-      : "h-64";
+      : "h-40 sm:h-56 lg:h-64";
 
   const quickBody = (
     <div
@@ -225,8 +225,7 @@ export default function ProductCard({
         {!compactRail && onToggleCompare && (
           <label
             className={cn(
-              "absolute left-3 top-3 z-20 flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm",
-              isRTL && "left-auto right-3"
+              "absolute start-3 top-3 z-20 flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm"
             )}
           >
             <input
@@ -244,9 +243,7 @@ export default function ProductCard({
           type="button"
           onClick={toggleWishlist}
           className={cn(
-            "absolute top-3 z-20 rounded-full border border-white/10 bg-black/40 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/60",
-            isRTL ? "left-3 right-auto" : "right-3",
-            !compactRail && onToggleCompare && (isRTL ? "left-24" : "right-24")
+            "absolute end-3 top-3 z-20 rounded-full border border-white/10 bg-black/40 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
           )}
           aria-label={wishlisted ? t.removeFromWishlist : t.addToWishlist}
         >
@@ -266,13 +263,13 @@ export default function ProductCard({
               href={`/products/${product.id}`}
               className="absolute inset-0 z-10"
               aria-hidden
+              tabIndex={-1}
             />
             <div className="absolute inset-0 z-[5] bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             {hasDiscount && (
               <span
                 className={cn(
-                  "absolute z-[15] rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white",
-                  isRTL ? "left-3 right-auto top-3" : "right-3 top-3"
+                  "absolute bottom-3 end-3 z-[15] rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white"
                 )}
               >
                 −{offPct}% {t.discountBadge}
@@ -293,8 +290,7 @@ export default function ProductCard({
             {isOutOfStock && (
               <span
                 className={cn(
-                  "absolute z-[15] rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white",
-                  isRTL ? "right-3 top-3" : "left-3 top-3"
+                  "absolute bottom-3 start-3 z-[15] rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
                 )}
               >
                 {t.outOfStock}
@@ -305,7 +301,7 @@ export default function ProductCard({
               <button
                 type="button"
                 onClick={() => setQvOpen(true)}
-                className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 max-md:opacity-100 max-md:bg-black/20"
+                className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 focus-visible:opacity-100 max-md:hidden"
               >
                 <span className="rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm pointer-events-none">
                   {t.quickView}
@@ -316,7 +312,7 @@ export default function ProductCard({
 
           <div
             className={cn(
-              "relative z-10 flex min-h-0 flex-1 flex-col p-5 pb-6",
+              "relative z-10 flex min-h-0 flex-1 flex-col p-3 pb-4 sm:p-5 sm:pb-6",
               compactRail && "p-3 pb-4",
               homeShowcase && "gap-2 p-4 pb-4 sm:p-5 sm:pb-5",
               isRTL ? "text-right" : "text-left"
@@ -339,7 +335,7 @@ export default function ProductCard({
                     ? "text-sm line-clamp-2 leading-snug"
                     : homeShowcase
                       ? "line-clamp-2 min-h-[2.65rem] text-[15px] font-semibold leading-snug sm:min-h-[2.9rem] sm:text-base sm:leading-snug"
-                      : "line-clamp-2 text-lg leading-snug sm:line-clamp-3"
+                      : "line-clamp-2 text-sm leading-snug sm:line-clamp-3 sm:text-lg"
                 )}
               >
                 {displayName}
@@ -414,7 +410,7 @@ export default function ProductCard({
                 <span
                   className={cn(
                     "min-w-0 flex-1 truncate font-bold tabular-nums text-foreground",
-                    compactRail ? "text-base" : "text-xl"
+                    compactRail ? "text-base" : "text-base sm:text-xl"
                   )}
                 >
                   {selling.toLocaleString()} {t.currency}

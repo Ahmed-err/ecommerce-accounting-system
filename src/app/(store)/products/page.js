@@ -2,9 +2,11 @@ import {
   getCatalogProducts,
   getCatalogCategories,
   getCatalogPriceBounds,
+  getCatalogBrands,
 } from "@/app/actions/catalog";
 import ProductGrid from "@/components/store/ProductGrid";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { translations, translateCategory } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { jsonLdHtml } from "@/lib/json-ld";
@@ -33,6 +35,7 @@ export async function generateMetadata({ searchParams }) {
       minPrice: params?.minPrice,
       maxPrice: params?.maxPrice,
       inStockOnly: params?.inStock,
+      brand: params?.brand,
     });
     ogImage = products[0]?.images?.[0];
   } catch {
@@ -59,12 +62,13 @@ export default async function ProductsPage({ searchParams }) {
   const minPrice = params?.minPrice;
   const maxPrice = params?.maxPrice;
   const inStockOnly = params?.inStock;
+  const brand = params?.brand || "";
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const t = translations[lang];
 
-  const [{ products, total }, categories, priceBounds, { total: allProductsTotal }] = await Promise.all([
+  const [{ products, total }, categories, priceBounds, { total: allProductsTotal }, brands] = await Promise.all([
     getCatalogProducts({
       search,
       category,
@@ -73,16 +77,15 @@ export default async function ProductsPage({ searchParams }) {
       minPrice,
       maxPrice,
       inStockOnly,
+      brand,
     }),
     getCatalogCategories(),
     getCatalogPriceBounds(),
     getCatalogProducts({ page: 1, limit: 1 }),
+    getCatalogBrands(),
   ]);
 
-  const headersList = await headers();
-  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "";
-  const proto = headersList.get("x-forwarded-proto") || "https";
-  const origin = host ? `${proto}://${host}` : "";
+  const origin = getAbsoluteSiteUrl().replace(/\/$/, "");
 
   const itemListJson = {
     "@context": "https://schema.org",
@@ -97,10 +100,7 @@ export default async function ProductsPage({ searchParams }) {
   };
 
   return (
-    <div
-      className={`bg-background ${lang === "ar" ? "text-right" : "text-left"}`}
-     
-    >
+    <div className="bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(itemListJson) }}
@@ -117,6 +117,7 @@ export default async function ProductsPage({ searchParams }) {
           allProductsTotal={allProductsTotal}
           categories={categories}
           priceBounds={priceBounds}
+          brands={brands}
         />
       </div>
     </div>

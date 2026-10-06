@@ -1269,7 +1269,17 @@ const dictionary = {
   "accountPrefsSaved": "تم حفظ التفضيلات.",
   "accountLabelHome": "المنزل",
   "accountLabelWork": "العمل",
-  "accountLabelOther": "أخرى"
+  "accountLabelOther": "أخرى",
+  "catalogBrand": "الماركة",
+  "catalogAllBrands": "كل الماركات",
+  "catalogPriceFrom": "من",
+  "catalogPriceTo": "إلى",
+  "catalogSearchLabel": "ابحث في المنتجات",
+  "catalogClearSearch": "مسح البحث",
+  "catalogRemoveFilter": "إزالة عامل التصفية: {name}",
+  "catalogClearAll": "مسح الكل",
+  "catalogResultCount": "{count} منتج",
+  "catalogInStock": "المتوفر فقط"
 };
 
 export default dictionary;
