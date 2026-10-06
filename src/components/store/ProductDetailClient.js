@@ -30,6 +30,7 @@ import { useCart } from "./CartProvider";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { translateCategory } from "@/lib/i18n/translate-category";
 import ProductReviewsClient from "./ProductReviewsClient";
+import { unitLabel } from "@/lib/store/unit-label";
 import ProductCard from "./ProductCard";
 import { cn } from "@/lib/utils";
 import { getCatalogProductsByIds } from "@/app/actions/catalog";
@@ -299,7 +300,7 @@ export default function ProductDetailClient({
         </Link>
         <span className="opacity-40">/</span>
         <Link href={categoryHref} className="hover:text-accent-text">
-          {translateCategory(product.category?.name, t)}
+          {translateCategory(product.category?.name, t, product.category?.nameAr)}
         </Link>
         <span className="opacity-40">/</span>
         <span className="line-clamp-1 font-medium text-foreground">{displayN}</span>
@@ -316,8 +317,7 @@ export default function ProductDetailClient({
       <div className="grid min-w-0 max-w-full grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <div
           className={cn(
-            "flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-4",
-            isRTL && "lg:flex-row-reverse"
+            "flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-4"
           )}
         >
           {/* Thumbnail rail: all images; horizontal scroll on mobile, vertical on lg+ */}
@@ -473,27 +473,17 @@ export default function ProductDetailClient({
                         .replace("{current}", String(activeImageIndex + 1))
                         .replace("{total}", String(images.length))}
                     </span>
-                    <span className="hidden opacity-70 sm:inline">
-                      · {images.length} {lang === "ar" ? "صور" : "photos"}
-                    </span>
                   </div>
                 </>
               )}
             </div>
 
-            {images.length > 1 && (
-              <p className="text-center text-[11px] text-muted-foreground lg:text-start">
-                {lang === "ar"
-                  ? "اضغط الصور المصغّرة أو استخدم الأسهم لتصفح كل الصور."
-                  : "Tap thumbnails or use arrows to browse all images."}
-              </p>
-            )}
           </div>
         </div>
 
         <div className="flex min-w-0 max-w-full flex-col lg:sticky lg:top-24 lg:self-start">
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-text">
-            {translateCategory(product.category?.name, t)}
+            {translateCategory(product.category?.name, t, product.category?.nameAr)}
           </p>
           <h1 className="mt-2 text-2xl font-black text-foreground sm:text-3xl lg:text-4xl">{displayN}</h1>
 
@@ -519,7 +509,13 @@ export default function ProductDetailClient({
             }}
             className="mt-4 flex flex-wrap items-center gap-2 text-start transition-opacity hover:opacity-80"
           >
-            <span className="flex items-center gap-0.5" dir="ltr">
+            {totalRev === 0 ? (
+              <span className="text-sm font-medium text-accent-text underline-offset-4 hover:underline">
+                {t.pdpWriteFirstReview}
+              </span>
+            ) : (
+            <>
+            <span className="flex items-center gap-0.5" dir="ltr" aria-hidden="true">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star
                   key={s}
@@ -536,12 +532,14 @@ export default function ProductDetailClient({
             <span className="text-sm text-muted-foreground">
               ({totalRev} {t.pdpReviewsCount})
             </span>
+            </>
+            )}
           </button>
 
-          <div className="mt-6 space-y-2" dir="ltr">
+          <div className="mt-6 space-y-2">
             <div className="flex flex-wrap items-end gap-3">
               <span className="text-3xl font-black tabular-nums text-foreground">
-                {product.sellingPrice.toLocaleString()}{" "}
+                <bdi>{product.sellingPrice.toLocaleString()}</bdi>{" "}
                 <span className="text-lg font-semibold text-muted-foreground">{t.currency}</span>
               </span>
               {product.hasDiscount && product.listPrice != null ? (
@@ -555,8 +553,8 @@ export default function ProductDetailClient({
                 </Badge>
               ) : null}
             </div>
-            <p className="text-xs text-muted-foreground" dir={isRTL ? "rtl" : "ltr"}>
-              {t.pdpPricePerUnit}: {product.unit || "pcs"}
+            <p className="text-xs text-muted-foreground">
+              {t.pdpPricePerUnit}: {unitLabel(product.unit, t)}
             </p>
           </div>
 
@@ -662,15 +660,11 @@ export default function ProductDetailClient({
         </div>
       </div>
 
-      <motion.section
+      <section
         id="pdp-detail-tabs"
-        className="mt-14 w-full min-w-0 max-w-full scroll-mt-24"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.45 }}
+        className="reveal mt-14 w-full min-w-0 max-w-full scroll-mt-24"
       >
-        <Tabs value={detailTab} onValueChange={onTabChange} className="w-full min-w-0 max-w-full">
+        <Tabs value={detailTab} onValueChange={onTabChange} className="w-full min-w-0 max-w-full flex-col">
           <TabsList
             variant="line"
             className={cn(
@@ -703,7 +697,7 @@ export default function ProductDetailClient({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="description" className="flex-none outline-none">
+          <TabsContent value="description" className="w-full min-w-0 outline-none">
             <div className="rounded-2xl border border-border bg-card/40 p-6">
               {highlightLines.length > 0 ? (
                 <ul className="mb-6 list-disc space-y-2 ps-5 text-sm text-foreground">
@@ -722,7 +716,7 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
 
-          <TabsContent value="specs" className="flex-none outline-none">
+          <TabsContent value="specs" className="w-full min-w-0 outline-none">
             <div className="overflow-x-auto rounded-2xl border border-border">
               {specRows.length === 0 ? (
                 <p className="p-6 text-sm text-muted-foreground">{t.pdpSpecsEmpty}</p>
@@ -753,13 +747,13 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
 
-          <TabsContent value="reviews" className="flex-none w-full min-w-0 max-w-full outline-none">
+          <TabsContent value="reviews" className="w-full min-w-0 max-w-full outline-none">
             <div className="min-w-0 max-w-full rounded-2xl border border-border bg-card/40 p-3 sm:p-6 lg:p-8">
               <ProductReviewsClient productId={product.id} embedded />
             </div>
           </TabsContent>
 
-          <TabsContent value="shipping" className="flex-none outline-none">
+          <TabsContent value="shipping" className="w-full min-w-0 outline-none">
             <div className="space-y-6 rounded-2xl border border-border bg-card/40 p-6">
               <div>
                 <h3 className="text-lg font-bold text-foreground">{t.pdpShippingTitle}</h3>
@@ -787,22 +781,13 @@ export default function ProductDetailClient({
             </div>
           </TabsContent>
         </Tabs>
-      </motion.section>
+      </section>
 
       {relatedProducts.length > 0 ? (
-        <motion.section
-          className="mt-16"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <section className="reveal mt-16">
           <h2 className="mb-6 text-xl font-bold text-foreground">{t.pdpRelatedTitle}</h2>
           <div
-            className={cn(
-              "flex gap-4 overflow-x-auto pb-4",
-              isRTL ? "flex-row-reverse" : "flex-row"
-            )}
+            className="flex gap-4 overflow-x-auto pb-4"
           >
             {relatedProducts.map((p, i) => (
               <div key={p.id} className="w-[min(100%,260px)] shrink-0">
@@ -810,23 +795,14 @@ export default function ProductDetailClient({
               </div>
             ))}
           </div>
-        </motion.section>
+        </section>
       ) : null}
 
       {recentProducts.length > 0 ? (
-        <motion.section
-          className="mt-14"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.06 }}
-        >
+        <section className="reveal mt-14">
           <h2 className="mb-6 text-xl font-bold text-foreground">{t.catalogRecentlyViewed}</h2>
           <div
-            className={cn(
-              "flex gap-4 overflow-x-auto pb-4",
-              isRTL ? "flex-row-reverse" : "flex-row"
-            )}
+            className="flex gap-4 overflow-x-auto pb-4"
           >
             {recentProducts.map((p, i) => (
               <div key={p.id} className="w-[min(100%,260px)] shrink-0">
@@ -834,7 +810,7 @@ export default function ProductDetailClient({
               </div>
             ))}
           </div>
-        </motion.section>
+        </section>
       ) : null}
 
       <div
@@ -850,6 +826,7 @@ export default function ProductDetailClient({
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="p-3 text-muted-foreground hover:text-foreground"
+                aria-label={t.decreaseQuantity}
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -858,6 +835,7 @@ export default function ProductDetailClient({
                 type="button"
                 onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                 className="p-3 text-muted-foreground hover:text-foreground"
+                aria-label={t.increaseQuantity}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -899,6 +877,7 @@ function QtyAndActions({ quantity, setQuantity, product, inStock, added, onAdd, 
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="p-3 text-muted-foreground hover:text-foreground"
+            aria-label={t.decreaseQuantity}
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -907,6 +886,7 @@ function QtyAndActions({ quantity, setQuantity, product, inStock, added, onAdd, 
             type="button"
             onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
             className="p-3 text-muted-foreground hover:text-foreground"
+            aria-label={t.increaseQuantity}
           >
             <Plus className="h-4 w-4" />
           </button>
