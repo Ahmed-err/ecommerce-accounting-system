@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P2.2 Listing & search
+- **Current part:** P2.3 Product page
 - **Step:** 1 — audit
-- **Last done:** P2.1 done — #22 merged, deployed, verified live 2026-10-06 (hero with real products + light 3D, photo categories, real brands, scroll reveals). Fix: Arabic brand-list separator.
-- **Next:** P2.2 Listing & search audit (brand filter from P1.2). Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password. P2.3 note: hidden/unknown product URL returns 200 (soft 404)
+- **Last done:** P2.2 done — #24 merged, deployed, verified live 2026-10-06 (brand filter, collapsed categories, RTL order fixed, 2-up phone grid, labelled filters). Zero-price products left as is (user); checkout still accepts price 0.
+- **Next:** P2.3 Product page audit (soft 404 on hidden/unknown product; slug URLs; a11y aria-hidden-focus 1, button-name 2). Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -31,7 +31,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P1.2 | Product content | done | `rebuild/p1-2-content` | |
 | P1.3 | Product media | done | `rebuild/p1-3-media` | |
 | P2.1 | Home | done | `rebuild/p2-1-home` | #22 |
-| P2.2 | Listing & search | todo | | |
+| P2.2 | Listing & search | done | `rebuild/p2-2-listing` | #24 |
 | P2.3 | Product page | todo | | |
 | P2.4 | Cart & checkout | todo | | |
 | P2.5 | Auth | todo | | |
