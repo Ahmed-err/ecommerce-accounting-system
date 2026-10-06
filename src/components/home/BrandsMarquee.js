@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 function BrandChip({ brand, t, hidden }) {
   return (
     <Link
-      href={`/products?search=${encodeURIComponent(brand.name)}`}
+      href={`/products?brand=${encodeURIComponent(brand.name)}`}
       tabIndex={hidden ? -1 : undefined}
       aria-hidden={hidden || undefined}
       className="group flex shrink-0 items-baseline gap-2 rounded-xl border border-border bg-card px-5 py-3 transition-colors hover:border-amber-500/60"

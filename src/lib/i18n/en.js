@@ -1269,7 +1269,17 @@ const dictionary = {
   "accountPrefsSaved": "Preferences saved.",
   "accountLabelHome": "Home",
   "accountLabelWork": "Work",
-  "accountLabelOther": "Other"
+  "accountLabelOther": "Other",
+  "catalogBrand": "Brand",
+  "catalogAllBrands": "All brands",
+  "catalogPriceFrom": "From",
+  "catalogPriceTo": "To",
+  "catalogSearchLabel": "Search products",
+  "catalogClearSearch": "Clear search",
+  "catalogRemoveFilter": "Remove filter: {name}",
+  "catalogClearAll": "Clear all",
+  "catalogResultCount": "{count} products",
+  "catalogInStock": "In stock only"
 };
 
 export default dictionary;
