@@ -1048,7 +1048,7 @@ const dictionary = {
   "homeHeroSubtitleEmpty": "ثلاجات وشاشات وغسالات وأجهزة مطبخ لبيتك.",
   "homeHeroCta": "تسوّق الآن",
   "homeHeroSecondary": "تصفّح الأقسام",
-  "listSeparator": " و",
+  "listSeparator": "، ",
   "homeBrandsTitle": "العلامات التجارية المتوفرة",
   "homeBrandProducts": "{count} منتج",
   "inventoryDescEn": "الوصف (إنجليزي)",
