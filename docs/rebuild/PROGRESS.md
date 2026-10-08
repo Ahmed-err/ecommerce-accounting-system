@@ -5,10 +5,10 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P2.4 Cart & checkout
-- **Step:** 4 — PR #26 green; waiting for the owner to approve the merge
-- **Last done:** P2.3 done — #25 merged, deployed, verified live 2026-10-06 (phone tab overflow, visible sections, Arabic category/unit, RTL price, canonical by id, noindex on missing product).
-- **Next:** P2.4 Cart & checkout audit (checkout accepts price 0 — owner chose to leave; show it clearly?). Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Current part:** P2.5 Auth
+- **Step:** 1 — audit
+- **Last done:** P2.4 done — #26 merged, deployed, verified live 2026-10-08 (no tax; delivery shown = charged; transfer receipt required; RTL/summary cleanup).
+- **Next:** P2.5 Auth audit. Owner (optional): fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -33,7 +33,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.1 | Home | done | `rebuild/p2-1-home` | #22 |
 | P2.2 | Listing & search | done | `rebuild/p2-2-listing` | #24 |
 | P2.3 | Product page | done | `rebuild/p2-3-product` | #25 |
-| P2.4 | Cart & checkout | review | `rebuild/p2-4-checkout` | #26; parts/P2.4.md |
+| P2.4 | Cart & checkout | done | `rebuild/p2-4-checkout` | #26 |
 | P2.5 | Auth | todo | | |
 | P2.6 | Customer account | todo | | |
 | P2.7 | Content, SEO, PWA | todo | | |
