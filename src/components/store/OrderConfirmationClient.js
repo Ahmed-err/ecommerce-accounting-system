@@ -135,8 +135,7 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
           ) : null}
           <div
             className={cn(
-              "mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center",
-              isRTL && "sm:flex-row-reverse"
+              "mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center"
             )}
           >
             <Link
@@ -155,7 +154,14 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
               >
                 {t.myOrders}
               </Link>
-            ) : null}
+            ) : (
+              <Link
+                href="/track-order"
+                className={buttonVariants({ variant: "outline", size: "lg" })}
+              >
+                {t.trackOrder}
+              </Link>
+            )}
           </div>
           <p className="mt-6 text-xs text-muted-foreground">{t.contactRecall}</p>
         </div>

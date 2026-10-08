@@ -4,7 +4,8 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import QRCode from "qrcode";
-import { PAYMENT_METHODS, SUDAN_CITIES, CHECKOUT_TAX_RATE } from "@/lib/constants";
+import { PAYMENT_METHODS } from "@/lib/constants";
+import { getShippingRateForCity } from "@/lib/shipping";
 import { translations } from "@/lib/translations";
 import { serializeCatalogProduct } from "@/lib/catalog-serialize";
 import { buildCategoryTree, categoryWithChildren } from "@/lib/category-tree";
@@ -38,22 +39,6 @@ async function ensureStaff() {
   }
 }
 
-function getShippingRateForCity(cityName, shippingZones = []) {
-  const normalized = String(cityName || "").trim().toLowerCase();
-  if (!normalized) return null;
-
-  const fromZones = (Array.isArray(shippingZones) ? shippingZones : []).find((zone) =>
-    Array.isArray(zone.governorates) &&
-    zone.governorates.some((g) => String(g || "").trim().toLowerCase() === normalized)
-  );
-  if (fromZones) return Number(fromZones.shippingCost ?? 0);
-
-  const fallback = SUDAN_CITIES.find(
-    (c) => String(c.name || "").trim().toLowerCase() === normalized
-  );
-  return fallback ? Number(fallback.rate ?? 0) : null;
-}
-
 const PAYMENT_PROOF_URL_MAX_LEN = 2048;
 
 /** Accept only HTTPS URLs on Cloudinary (same host as checkout uploads). */
@@ -71,60 +56,6 @@ function sanitizePaymentProofUrl(raw) {
   const host = u.hostname.toLowerCase();
   if (!host.endsWith("cloudinary.com")) return null;
   return s;
-}
-
-export async function getCheckoutShippingOptions() {
-  try {
-    const store = await getOrCreateStoreSettings();
-    const zones = Array.isArray(store?.shippingZones) ? store.shippingZones : [];
-
-    const zoneOptions = zones.flatMap((zone) =>
-      (Array.isArray(zone.governorates) ? zone.governorates : [])
-        .map((name) => String(name || "").trim())
-        .filter(Boolean)
-        .map((name) => ({
-          name,
-          rate: Number(zone.shippingCost ?? 0),
-          zoneName: String(zone.zoneName || "").trim(),
-          deliveryDaysEstimate: String(zone.deliveryDaysEstimate || "").trim(),
-        }))
-    );
-
-    const seen = new Set();
-    const deduped = [];
-    for (const option of zoneOptions) {
-      const key = option.name.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        deduped.push(option);
-      }
-    }
-
-    if (deduped.length > 0) {
-      return { options: deduped };
-    }
-
-    return {
-      options: SUDAN_CITIES.map((c) => ({
-        name: c.name,
-        arName: c.arName,
-        rate: Number(c.rate ?? 0),
-        zoneName: "",
-        deliveryDaysEstimate: "",
-      })),
-    };
-  } catch (error) {
-    console.error("getCheckoutShippingOptions:", error);
-    return {
-      options: SUDAN_CITIES.map((c) => ({
-        name: c.name,
-        arName: c.arName,
-        rate: Number(c.rate ?? 0),
-        zoneName: "",
-        deliveryDaysEstimate: "",
-      })),
-    };
-  }
 }
 
 export async function getCatalogPriceBounds() {
@@ -484,7 +415,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     }
 
     // Shipping policy:
-    // - Customers/Guests: derive shipping from SUDAN_CITIES (never trust shippingCost from client).
+    // - Customers/Guests: derive shipping from the checkout options (never trust shippingCost from client).
     // - Staff/POS: shipping is 0 (POS UI currently treats it as local walk-in).
     const normalizedCity = typeof guest.city === "string" ? guest.city.trim() : "";
     const storeSettings = await getOrCreateStoreSettings();
@@ -604,9 +535,9 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         }
 
         const afterDiscount = Math.round((totalItemsAmount - discountAmount) * 100) / 100;
-        const taxAmount = Math.round(afterDiscount * CHECKOUT_TAX_RATE * 100) / 100;
-        const grandTotal =
-          Math.round((afterDiscount + Number(shippingCharge) + taxAmount) * 100) / 100;
+        // No tax on store orders (owner, 2026-10-08).
+        const taxAmount = 0;
+        const grandTotal = Math.round((afterDiscount + Number(shippingCharge)) * 100) / 100;
 
         const newOrder = await tx.order.create({
           data: {
@@ -733,11 +664,11 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
     }
 
     try {
-      const { grandTotal, taxAmount } = totals;
+      const { grandTotal } = totals;
       const sellerName = translations.en.brandName;
-      const qrData = `Seller: ${sellerName}\nVAT: 310123456700003\nDate: ${new Date().toISOString()}\nTotal: ${grandTotal.toFixed(
+      const qrData = `Seller: ${sellerName}\nDate: ${new Date().toISOString()}\nTotal: ${grandTotal.toFixed(
         2
-      )} SDG\nTax: ${taxAmount.toFixed(2)} SDG`;
+      )} SDG`;
 
       let qrCodeBase64 = null;
       try {

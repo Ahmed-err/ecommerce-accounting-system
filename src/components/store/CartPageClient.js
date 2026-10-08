@@ -15,7 +15,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/components/store/CartProvider";
 import { useLanguage, useT } from "@/context/LanguageContext";
-import { CHECKOUT_TAX_RATE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
@@ -96,11 +95,7 @@ export default function CartPageClient() {
 
   const afterDiscount = Math.max(0, Math.round((cartTotal - discountAmount) * 100) / 100);
 
-  const { estimatedTax, estimatedGrand } = useMemo(() => {
-    const tax = Math.round(afterDiscount * CHECKOUT_TAX_RATE * 100) / 100;
-    const grand = Math.round((afterDiscount + tax) * 100) / 100;
-    return { estimatedTax: tax, estimatedGrand: grand };
-  }, [afterDiscount]);
+  const estimatedGrand = afterDiscount;
 
   const categoryForCrossSell = cart.find((i) => i.categoryName)?.categoryName;
 
@@ -164,10 +159,7 @@ export default function CartPageClient() {
   const summaryRows = (
     <>
       <div
-        className={cn(
-          "flex justify-between gap-4 text-sm text-muted-foreground",
-          isRTL && "flex-row-reverse"
-        )}
+        className="flex justify-between gap-4 text-sm text-muted-foreground"
       >
         <span className="min-w-0 leading-snug">
           {t.subtotal}{" "}
@@ -181,10 +173,7 @@ export default function CartPageClient() {
       </div>
       {discountAmount > 0 && (
         <div
-          className={cn(
-            "flex justify-between gap-4 text-sm text-emerald-600 dark:text-emerald-400",
-            isRTL && "flex-row-reverse"
-          )}
+          className="flex justify-between gap-4 text-sm text-emerald-600 dark:text-emerald-400"
         >
           <span>{t.discountLabel}</span>
           <span className="shrink-0 tabular-nums">
@@ -193,26 +182,7 @@ export default function CartPageClient() {
         </div>
       )}
       <div
-        className={cn(
-          "flex justify-between gap-4 text-sm text-muted-foreground",
-          isRTL && "flex-row-reverse"
-        )}
-      >
-        <span className="min-w-0 leading-snug">
-          {t.estimatedTax}{" "}
-          <span className="text-xs opacity-80">
-            ({Math.round(CHECKOUT_TAX_RATE * 100)}%)
-          </span>
-        </span>
-        <span className="shrink-0 tabular-nums text-foreground">
-          {estimatedTax.toLocaleString()} {t.currency}
-        </span>
-      </div>
-      <div
-        className={cn(
-          "flex justify-between gap-4 text-sm text-muted-foreground",
-          isRTL && "flex-row-reverse"
-        )}
+        className="flex justify-between gap-4 text-sm text-muted-foreground"
       >
         <span>{t.delivery}</span>
         <span className="max-w-[55%] text-end text-xs leading-snug text-accent-text dark:text-amber-400">
@@ -271,25 +241,16 @@ export default function CartPageClient() {
   return (
     <div className="pb-28 lg:pb-0">
       <div
-        className={cn(
-          "mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between"
-        )}
+        className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="text-sm text-muted-foreground">
           {cartCount} {t.items} · {cartTotal.toLocaleString()} {t.currency}
         </p>
         <Link
           href="/products"
-          className={cn(
-            "inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-accent-text transition-colors hover:text-accent-text dark:text-amber-400",
-            isRTL && "flex-row-reverse"
-          )}
+          className="inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-accent-text transition-colors hover:text-accent-text dark:text-amber-400"
         >
-          {isRTL ? (
-            <ArrowLeft className="h-4 w-4" />
-          ) : (
-            <ArrowRight className="h-4 w-4 rotate-180" />
-          )}
+          {isRTL ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
           {t.continueShopping}
         </Link>
       </div>
@@ -297,16 +258,11 @@ export default function CartPageClient() {
       <div
         className={cn(
           "grid gap-8 xl:gap-10",
-          isRTL
-            ? "lg:grid-cols-[min(100%,380px)_1fr]"
-            : "lg:grid-cols-[1fr_min(100%,380px)]"
+          "lg:grid-cols-[1fr_min(100%,380px)]"
         )}
       >
         <div
-          className={cn(
-            "min-w-0 space-y-3 sm:space-y-4",
-            isRTL && "lg:col-start-2 lg:row-start-1"
-          )}
+          className="min-w-0 space-y-3 sm:space-y-4 lg:col-start-1 lg:row-start-1"
         >
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-foreground sm:text-xl">
@@ -336,10 +292,7 @@ export default function CartPageClient() {
                   )}
                 >
                   <div
-                    className={cn(
-                      "flex flex-col gap-4 sm:flex-row sm:items-stretch",
-                      isRTL && "sm:flex-row-reverse"
-                    )}
+                    className="flex flex-col gap-4 sm:flex-row sm:items-stretch"
                   >
                     <Link
                       href={`/products/${item.id}`}
@@ -375,16 +328,10 @@ export default function CartPageClient() {
                       </div>
 
                       <div
-                        className={cn(
-                          "flex flex-wrap items-center gap-3 sm:gap-4",
-                          isRTL && "flex-row-reverse sm:flex-row-reverse"
-                        )}
+                        className="flex flex-wrap items-center gap-3 sm:gap-4"
                       >
                         <div
-                          className={cn(
-                            "inline-flex h-11 items-center rounded-xl border border-input bg-background",
-                            isRTL && "flex-row-reverse"
-                          )}
+                          className="inline-flex h-11 items-center rounded-xl border border-input bg-background"
                         >
                           <button
                             type="button"
@@ -409,20 +356,14 @@ export default function CartPageClient() {
                         </div>
 
                         <div
-                          className={cn(
-                            "flex flex-1 flex-wrap items-center gap-3 sm:justify-end",
-                            isRTL && "sm:flex-row-reverse"
-                          )}
+                          className="flex flex-1 flex-wrap items-center gap-3 sm:justify-end"
                         >
                           <span className="text-sm font-bold tabular-nums text-accent-text dark:text-amber-400">
                             {t.cartLineTotal}: {line.toLocaleString()}{" "}
                             {t.currency}
                           </span>
                           <div
-                            className={cn(
-                              "flex flex-wrap items-center gap-2",
-                              isRTL && "flex-row-reverse"
-                            )}
+                            className="flex flex-wrap items-center gap-2"
                           >
                             <button
                               type="button"
@@ -434,10 +375,7 @@ export default function CartPageClient() {
                             <button
                               type="button"
                               onClick={() => removeFromCart(item.id)}
-                              className={cn(
-                                "inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm text-destructive transition-colors hover:bg-destructive/10",
-                                isRTL && "flex-row-reverse"
-                              )}
+                              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
                             >
                               <Trash2 className="h-4 w-4 shrink-0" />
                               {t.remove}
@@ -461,13 +399,10 @@ export default function CartPageClient() {
                 {savedForLater.map((item) => (
                   <div
                     key={item.id}
-                    className={cn(
-                      "flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm",
-                      isRTL && "flex-row-reverse"
-                    )}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm"
                   >
                     <span className="min-w-0 truncate font-medium">{item.name}</span>
-                    <div className={cn("flex shrink-0 gap-2", isRTL && "flex-row-reverse")}>
+                    <div className={cn("flex shrink-0 gap-2")}>
                       <button
                         type="button"
                         onClick={() => restoreFromSavedForLater(item.id)}
@@ -488,24 +423,10 @@ export default function CartPageClient() {
               </div>
             </div>
           )}
-
-          {crossSell.length > 0 && (
-            <div className="mt-10 space-y-4">
-              <h3 className="text-lg font-bold text-foreground">{t.crossSellTitle}</h3>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {crossSell.map((p, i) => (
-                  <ProductCard key={p.id} product={p} index={i} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <aside
-          className={cn(
-            "h-fit rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:sticky lg:top-24 xl:p-6",
-            isRTL && "lg:col-start-1 lg:row-start-1"
-          )}
+          className="h-fit rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start xl:p-6"
         >
           <h2 className="mb-4 text-lg font-bold text-foreground">
             {t.orderSummary}
@@ -513,7 +434,7 @@ export default function CartPageClient() {
           <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
             {t.estimatedDeliveryHint}
           </p>
-          <div className={cn("mb-4 flex gap-2", isRTL && "flex-row-reverse")}>
+          <div className="mb-4 flex gap-2">
             <Input
               value={couponDraft}
               onChange={(e) => setCouponDraft(e.target.value)}
@@ -539,10 +460,7 @@ export default function CartPageClient() {
           <div className="space-y-3">{summaryRows}</div>
           <Separator className="my-4" />
           <div
-            className={cn(
-              "mb-2 flex justify-between gap-4 text-lg font-bold",
-              isRTL && "flex-row-reverse"
-            )}
+            className="mb-2 flex justify-between gap-4 text-lg font-bold"
           >
             <span className="text-foreground">{t.grandTotal}</span>
             <span className="tabular-nums text-accent-text dark:text-amber-400">
@@ -567,6 +485,17 @@ export default function CartPageClient() {
             )}
           </Link>
         </aside>
+
+        {crossSell.length > 0 && (
+          <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-2">
+            <h3 className="text-lg font-bold text-foreground">{t.crossSellTitle}</h3>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              {crossSell.map((p, i) => (
+                <ProductCard key={p.id} product={p} index={i} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile checkout bar */}
@@ -585,7 +514,7 @@ export default function CartPageClient() {
               {estimatedGrand.toLocaleString()} {t.currency}
             </p>
             <p className="text-[10px] text-muted-foreground">
-              {t.estimatedTax} · {Math.round(CHECKOUT_TAX_RATE * 100)}%
+              {t.delivery}: {t.shippingAtCheckout}
             </p>
           </div>
           <Link
@@ -595,7 +524,7 @@ export default function CartPageClient() {
               "shrink-0 touch-manipulation bg-amber-500 px-5 text-black hover:bg-amber-400"
             )}
           >
-            {t.checkout}
+            {t.proceedToCheckout}
           </Link>
         </div>
       </div>

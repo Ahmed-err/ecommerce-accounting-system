@@ -1,5 +1,5 @@
-/** VAT applied at checkout on (subtotal − coupon discount). Align with invoice copy. */
-export const CHECKOUT_TAX_RATE = 0.14;
+/** VAT that store checkout added until 2026-10-08; only used to rebuild invoices of older orders. */
+export const LEGACY_CHECKOUT_TAX_RATE = 0.14;
 
 /** Admin inventory table — keep in sync with server fetch limit. */
 export const INVENTORY_PAGE_SIZE = 20;

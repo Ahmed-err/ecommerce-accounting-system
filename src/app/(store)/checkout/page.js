@@ -4,6 +4,7 @@ import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { getOrCreateStoreSettings } from "@/lib/settings";
+import { buildShippingOptions } from "@/lib/shipping";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -24,13 +25,13 @@ export default async function CheckoutPage() {
   return (
     <div
       className={`bg-background ${lang === "ar" ? "text-right" : "text-left"}`}
-     
     >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground sm:mb-8 sm:text-3xl md:text-4xl">
           {(translations[lang] || translations.ar).checkout}
         </h1>
         <CheckoutClient
+          shippingOptions={buildShippingOptions(store.shippingZones)}
           proofWhatsappDigits={store.bankTransferProofWhatsapp}
           bankTransferDetails={{
             bankNameEn: store.bankTransferBankNameEn,

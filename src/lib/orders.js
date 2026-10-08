@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/prisma";
-import { CHECKOUT_TAX_RATE } from "@/lib/constants";
+import { LEGACY_CHECKOUT_TAX_RATE } from "@/lib/constants";
 
 export function n(v) {
   if (v == null) return 0;
@@ -308,7 +308,7 @@ export async function ensureOrderInvoice(order) {
   let discountAmount;
 
   if (net > itemsSubtotal + 0.05) {
-    const afterDiscount = Math.round((net / (1 + CHECKOUT_TAX_RATE)) * 100) / 100;
+    const afterDiscount = Math.round((net / (1 + LEGACY_CHECKOUT_TAX_RATE)) * 100) / 100;
     taxAmount = Math.round((net - afterDiscount) * 100) / 100;
     discountAmount = Math.max(0, Math.round((itemsSubtotal - afterDiscount) * 100) / 100);
   } else {

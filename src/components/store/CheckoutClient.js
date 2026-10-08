@@ -3,25 +3,20 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ArrowLeft, AlertTriangle, Check, Loader2, User, MapPin, CreditCard, Package, Shield } from "lucide-react";
+import { ShoppingBag, ArrowRight, ArrowLeft, AlertTriangle, Check, Loader2, User, MapPin, CreditCard, Package, Shield, Smartphone, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/components/store/CartProvider";
 import { useSession } from "next-auth/react";
-import { placeOrder, getCheckoutShippingOptions } from "@/app/actions/catalog";
+import { placeOrder } from "@/app/actions/catalog";
 import { validateCartStock } from "@/app/actions/cart";
-import { previewCoupon } from "@/app/actions/coupon";
 import { listUserAddresses } from "@/app/actions/addresses";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import {
-  SUDAN_CITIES,
   PAYMENT_METHODS,
   STORE_BANK_DETAILS,
   resolveBankTransferProofWhatsapp,
-  CHECKOUT_TAX_RATE,
 } from "@/lib/constants";
 import { UploadButton } from "@/lib/uploader";
 import { checkoutShippingSchema } from "@/lib/schemas/checkout";
@@ -34,19 +29,25 @@ const fieldBase =
   "w-full rounded-xl border bg-background px-3 py-2.5 text-foreground transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-amber-500 focus-visible:ring-2 focus-visible:ring-amber-500/25 focus-visible:outline-none sm:py-3";
 const insetClass = "rounded-xl border border-border bg-muted/30 p-3 sm:p-4";
 
-export default function CheckoutClient({ proofWhatsappDigits = null, bankTransferDetails = null }) {
+function ReviewRow({ label, children }) {
+  return (
+    <div className="flex gap-2">
+      <dt className="shrink-0 text-muted-foreground">{label}:</dt>
+      <dd className="min-w-0 break-words text-foreground">{children}</dd>
+    </div>
+  );
+}
+
+export default function CheckoutClient({ shippingOptions, proofWhatsappDigits = null, bankTransferDetails = null }) {
   const { lang, isRTL, brandName } = useLanguage();
   const t = useT();
   const {
     cart,
-    removeFromCart,
-    updateQuantity,
     clearCart,
     cartTotal,
     cartCount,
     loaded,
-    appliedCoupon: cartAppliedCoupon,
-    setAppliedCoupon: persistCartCoupon,
+    appliedCoupon,
   } = useCart();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
@@ -60,10 +61,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
     paymentMethod: "CASH_ON_DELIVERY",
     transferScreenshotUrl: "",
     orderNotes: "",
-    couponCode: "",
   });
-  const [couponDraft, setCouponDraft] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, percentOff }
   const [savedAddresses, setSavedAddresses] = useState([]);
   const defaultAddressAppliedRef = useRef(false);
   const [copiedWhatsApp, setCopiedWhatsApp] = useState(false);
@@ -71,18 +69,20 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [stockValidation, setStockValidation] = useState({ valid: true, issues: [] });
-  const [couponBusy, setCouponBusy] = useState(false);
-  const [shippingOptions, setShippingOptions] = useState(
-    SUDAN_CITIES.map((c) => ({ name: c.name, arName: c.arName, rate: c.rate }))
-  );
 
-  const shippingCost = useMemo(() => {
-    const selected = shippingOptions.find(
-      (c) =>
-        String(c.name || "").toLowerCase() === String(guestInfo.city || "").toLowerCase()
-    );
-    return selected ? Number(selected.rate || 0) : 0;
-  }, [guestInfo.city, shippingOptions]);
+  const selectedCity = useMemo(
+    () =>
+      shippingOptions.find(
+        (c) => String(c.name || "").toLowerCase() === String(guestInfo.city || "").toLowerCase()
+      ) || null,
+    [guestInfo.city, shippingOptions]
+  );
+  const shippingCost = selectedCity ? Number(selectedCity.rate || 0) : 0;
+  const cityLabel = selectedCity
+    ? lang === "ar"
+      ? selectedCity.arName || selectedCity.name
+      : selectedCity.name
+    : "";
 
   const discountAmount = useMemo(() => {
     if (!appliedCoupon?.percentOff) return 0;
@@ -93,8 +93,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
   }, [appliedCoupon, cartTotal]);
 
   const afterDiscount = Math.max(0, Math.round((cartTotal - discountAmount) * 100) / 100);
-  const vatAmount = Math.round(afterDiscount * CHECKOUT_TAX_RATE * 100) / 100;
-  const finalTotal = Math.round((afterDiscount + shippingCost + vatAmount) * 100) / 100;
+  const finalTotal = Math.round((afterDiscount + shippingCost) * 100) / 100;
   const router = useRouter();
   const skipEmptyCartRedirectRef = useRef(false);
 
@@ -172,13 +171,6 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
   }, [session]);
 
   useEffect(() => {
-    if (!loaded || !cartAppliedCoupon?.code) return;
-    setAppliedCoupon((prev) => (prev?.code ? prev : cartAppliedCoupon));
-    setGuestInfo((g) => (g.couponCode ? g : { ...g, couponCode: cartAppliedCoupon.code }));
-    setCouponDraft((d) => (d ? d : cartAppliedCoupon.code));
-  }, [loaded, cartAppliedCoupon]);
-
-  useEffect(() => {
     if (!session?.user?.id) return;
     listUserAddresses().then((res) => {
       if (res.success && Array.isArray(res.addresses)) {
@@ -201,19 +193,6 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
       defaultAddressAppliedRef.current = true;
     }
   }, [session?.user?.id, savedAddresses]);
-
-  useEffect(() => {
-    let cancelled = false;
-    getCheckoutShippingOptions().then((res) => {
-      if (cancelled) return;
-      if (Array.isArray(res?.options) && res.options.length > 0) {
-        setShippingOptions(res.options);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // Reset stock validation UI when cart totals change.
   useEffect(() => {
@@ -264,32 +243,6 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
 
     setFormErrors({});
     return true;
-  };
-
-  const handleApplyCoupon = async () => {
-    const code = couponDraft.trim();
-    if (!code) {
-      toast.error(t.couponInvalid);
-      return;
-    }
-    setCouponBusy(true);
-    try {
-      const res = await previewCoupon(code);
-      if (res.valid) {
-        setAppliedCoupon({ code: res.code, percentOff: res.percentOff });
-        persistCartCoupon({ code: res.code, percentOff: res.percentOff });
-        setGuestInfo((g) => ({ ...g, couponCode: res.code }));
-        toast.success(t.couponToastSuccess);
-      } else {
-        setAppliedCoupon(null);
-        persistCartCoupon(null);
-        setGuestInfo((g) => ({ ...g, couponCode: "" }));
-        if (res.error === "rate_limit") toast.error(t.couponRateLimited);
-        else toast.error(t.couponInvalid);
-      }
-    } finally {
-      setCouponBusy(false);
-    }
   };
 
   const applySavedAddress = (addr) => {
@@ -395,9 +348,19 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
       setError(t.selectPaymentMethod || "Please select a payment method");
       return;
     }
+    // The server rejects a bank transfer without a receipt; say so here, not at the last step.
+    if (guestInfo.paymentMethod === "BANK_TRANSFER" && !guestInfo.transferScreenshotUrl) {
+      setError(t.transferProofRequired);
+      return;
+    }
     setError("");
     setCurrentStep(3);
   };
+
+  const paymentMethod = PAYMENT_METHODS.find((m) => m.id === guestInfo.paymentMethod);
+  const paymentMethodName = paymentMethod ? (lang === "ar" ? paymentMethod.arName : paymentMethod.enName) : "";
+  const ForwardArrow = isRTL ? ArrowLeft : ArrowRight;
+  const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   if (!loaded) {
     return (
@@ -436,12 +399,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         >
           <Link href="/products">
             <Button className="h-11 touch-manipulation bg-amber-500 font-semibold text-black hover:bg-amber-600">
-              <ArrowRight
-                className={cn(
-                  "h-4 w-4 shrink-0",
-                  isRTL ? "ms-2" : "me-2 rotate-180"
-                )}
-              />
+              <BackArrow className="h-4 w-4 shrink-0" />
               {t.browseProducts}
             </Button>
           </Link>
@@ -465,13 +423,10 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         <Link
           href="/products"
           className={cn(
-            "mb-2 inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-accent-text dark:hover:text-amber-400",
-            isRTL && "flex-row-reverse"
+            "mb-2 inline-flex min-h-10 touch-manipulation items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-accent-text dark:hover:text-amber-400"
           )}
         >
-          <ArrowRight
-            className={cn("h-4 w-4 shrink-0", !isRTL && "rotate-180")}
-          />
+          <BackArrow className="h-4 w-4 shrink-0" />
           {t.continueShopping}
         </Link>
 
@@ -483,8 +438,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
         >
           <div
             className={cn(
-              "mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between",
-              isRTL && "sm:flex-row-reverse"
+              "mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
             )}
           >
             <h2 className="text-base font-bold text-foreground sm:text-lg">
@@ -547,8 +501,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
             >
               <div
                 className={cn(
-                  "flex items-start gap-3",
-                  isRTL && "flex-row-reverse"
+                  "flex items-start gap-3"
                 )}
               >
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
@@ -567,14 +520,6 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
           )}
         </AnimatePresence>
 
-        {currentStep < 3 && (
-          <p className="mb-4 text-center text-xs text-muted-foreground lg:hidden">
-            {t.checkoutStepOf
-              .replace("{current}", String(currentStep))
-              .replace("{total}", "3")}
-          </p>
-        )}
-
         <AnimatePresence mode="wait">
           {/* Customer Information Step */}
           {currentStep === 1 && (
@@ -588,7 +533,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
             >
               <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
                 <User className="h-5 w-5 shrink-0 text-accent-text" />
-                {session?.user ? t.customerInfoTitle : t.guestInfoTitle}
+                {t.deliveryDetailsTitle}
               </h2>
 
               {savedAddresses.length > 0 && (
@@ -652,7 +597,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-bold text-accent-text">📱</span>
+                    <Smartphone className="h-4 w-4 shrink-0 text-accent-text" />
                     {t.phoneRequiredLabel} *
                   </label>
                   <div className="relative">
@@ -690,9 +635,9 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="text-muted-foreground">📞</span>
+                    <Phone className="h-4 w-4 shrink-0 text-accent-text" />
                     {t.phoneOptional}{" "}
-                    <span className="text-xs opacity-80">({t.optional})</span>
+                    <span className="text-xs opacity-80">{t.optional}</span>
                   </label>
                   <input
                     type="tel"
@@ -799,53 +744,6 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                 </div>
               </div>
 
-              <Separator />
-
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">
-                  {t.couponPlaceholder}
-                </label>
-                <div
-                  className={cn(
-                    "flex flex-col gap-2 sm:flex-row",
-                    isRTL && "sm:flex-row-reverse"
-                  )}
-                >
-                  <Input
-                    value={couponDraft}
-                    onChange={(e) => setCouponDraft(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleApplyCoupon();
-                      }
-                    }}
-                    placeholder="SAVE10"
-                    className="h-11 border-input bg-background uppercase sm:flex-1"
-                    disabled={couponBusy}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="h-11 shrink-0 touch-manipulation bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-60 sm:min-w-[100px]"
-                    onClick={handleApplyCoupon}
-                    disabled={couponBusy}
-                  >
-                    {couponBusy ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      t.applyCoupon
-                    )}
-                  </Button>
-                </div>
-                {appliedCoupon && (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                    {t.couponSavedInline}: {appliedCoupon.code} (−
-                    {appliedCoupon.percentOff}%)
-                  </p>
-                )}
-              </div>
-
               <div className="space-y-2">
                 <label className="text-sm text-muted-foreground">
                   {t.deliveryNotes}
@@ -870,10 +768,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               </div>
 
               <div
-                className={cn(
-                  "flex pt-2",
-                  isRTL ? "justify-start" : "justify-end"
-                )}
+                className="flex justify-end pt-2"
               >
                 <Button
                   type="button"
@@ -881,12 +776,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   className="h-11 min-w-[120px] touch-manipulation bg-amber-500 font-semibold text-black hover:bg-amber-600"
                 >
                   {lang === "ar" ? "التالي" : "Next"}
-                  <ArrowLeft
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      isRTL ? "ms-2 rotate-180" : "me-2"
-                    )}
-                  />
+                  <ForwardArrow className="h-4 w-4 shrink-0" />
                 </Button>
               </div>
             </motion.div>
@@ -960,43 +850,35 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
               </div>
 
               {guestInfo.paymentMethod === "BANK_TRANSFER" && (
-                <div
-                  className={cn(
-                    "space-y-3 rounded-2xl border border-blue-500/25 bg-blue-500/10 p-4 sm:p-5",
-                    isRTL ? "text-right" : "text-left"
-                  )}
-                >
-                  <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">{t.bankTransferInstructions}</p>
+                <div className={cn(insetClass, "space-y-3")}>
+                  <p className="text-sm font-semibold text-accent-text dark:text-amber-400">
+                    {t.bankTransferInstructions}
+                  </p>
                   <p className="text-sm text-foreground/90">{t.transferToFollowing}</p>
-                  <div className="bg-muted/50 p-3 rounded-lg border border-border text-sm space-y-1">
-                    <p>
-                      <span className="text-muted-foreground">{t.bankLabel}:</span>{" "}
-                      <span className="text-foreground font-medium">
-                        {lang === "ar" ? resolvedBankDetails.arBankName : resolvedBankDetails.bankName}
+                  <dl className="space-y-1 rounded-lg border border-border bg-card p-3 text-sm">
+                    <ReviewRow label={t.bankLabel}>
+                      {lang === "ar" ? resolvedBankDetails.arBankName : resolvedBankDetails.bankName}
+                    </ReviewRow>
+                    <ReviewRow label={t.accountNumberLabel}>
+                      <span dir="ltr" className="font-mono font-bold">
+                        {resolvedBankDetails.accountNumber}
                       </span>
+                    </ReviewRow>
+                    <ReviewRow label={t.accountNameLabel}>
+                      {lang === "ar" ? resolvedBankDetails.arAccountName : resolvedBankDetails.accountName}
+                    </ReviewRow>
+                  </dl>
+                  <div className="space-y-2 rounded-lg border border-border bg-card p-3">
+                    <p className="text-xs font-semibold text-muted-foreground">{t.confirmationWhatsapp}</p>
+                    <p className="font-mono font-bold text-foreground">
+                      <span dir="ltr">+{bankProofWaDigits}</span>
                     </p>
-                    <p>
-                      <span className="text-muted-foreground">{t.accountNumberLabel}:</span>{" "}
-                      <span className="text-foreground font-mono font-bold">{resolvedBankDetails.accountNumber}</span>
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">{t.accountNameLabel}:</span>{" "}
-                      <span className="text-foreground font-medium">
-                        {lang === "ar" ? resolvedBankDetails.arAccountName : resolvedBankDetails.accountName}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 p-3 rounded-lg border border-border space-y-2">
-                    <p className="text-xs text-muted-foreground font-semibold">
-                      {lang === "ar" ? "رقم واتساب التأكيد" : "Confirmation WhatsApp"}
-                    </p>
-                    <p className="text-foreground font-mono font-bold">+{bankProofWaDigits}</p>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={copyWhatsApp}
-                        className="h-8 text-xs bg-muted border-border text-foreground hover:bg-muted/70"
+                        className="h-8 border-border bg-muted text-xs text-foreground hover:bg-muted/70"
                       >
                         {copiedWhatsApp
                           ? (lang === "ar" ? "تم النسخ" : "Copied")
@@ -1006,16 +888,14 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                         href={`${whatsappUrl}?text=${whatsappMessage}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="h-8 px-3 inline-flex items-center rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                        className="inline-flex h-8 items-center rounded-md bg-emerald-600 px-3 text-xs font-medium text-white transition-colors hover:bg-emerald-500"
                       >
                         {lang === "ar" ? "فتح واتساب" : "Open WhatsApp"}
                       </a>
                     </div>
                   </div>
-                  <div className="bg-muted/50 p-3 rounded-lg border border-border space-y-2">
-                    <p className="text-xs text-muted-foreground font-semibold">
-                      {lang === "ar" ? "رفع لقطة شاشة التحويل (اختياري)" : "Upload transfer screenshot (optional)"}
-                    </p>
+                  <div className="space-y-2 rounded-lg border border-border bg-card p-3">
+                    <p className="text-xs font-semibold text-muted-foreground">{t.transferProofLabel} *</p>
                     <UploadButton
                       endpoint="paymentProof"
                       content={{
@@ -1030,6 +910,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                         const first = res?.[0]?.url;
                         if (first) {
                           setGuestInfo((prev) => ({ ...prev, transferScreenshotUrl: first }));
+                          setError("");
                         }
                       }}
                       onUploadError={(uploadErr) => {
@@ -1037,19 +918,27 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                       }}
                     />
                     {guestInfo.transferScreenshotUrl && (
-                      <div className="text-xs text-emerald-400 break-all">
-                        {lang === "ar" ? "تم رفع الصورة:" : "Uploaded:"} {guestInfo.transferScreenshotUrl}
-                      </div>
+                      <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        <Check className="h-4 w-4 shrink-0" />
+                        {t.transferProofUploaded}
+                        <a
+                          href={guestInfo.transferScreenshotUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          {t.transferProofView}
+                        </a>
+                      </p>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground italic font-medium">{t.sendScreenshotNotice}</p>
+                  <p className="text-xs text-muted-foreground">{t.sendScreenshotNotice}</p>
                 </div>
               )}
               
               <div
                 className={cn(
-                  "flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between",
-                  isRTL && "sm:flex-row-reverse"
+                  "flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"
                 )}
               >
                 <Button
@@ -1058,12 +947,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   variant="outline"
                   className="h-11 w-full touch-manipulation border-border sm:w-auto"
                 >
-                  <ArrowRight
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      isRTL ? "ms-2" : "me-2 rotate-180"
-                    )}
-                  />
+                  <BackArrow className="h-4 w-4 shrink-0" />
                   {lang === "ar" ? "السابق" : "Previous"}
                 </Button>
                 <Button
@@ -1072,12 +956,7 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
                   className="h-11 w-full touch-manipulation bg-amber-500 font-semibold text-black hover:bg-amber-600 sm:w-auto sm:min-w-[120px]"
                 >
                   {lang === "ar" ? "التالي" : "Next"}
-                  <ArrowLeft
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      isRTL ? "ms-2 rotate-180" : "me-2"
-                    )}
-                  />
+                  <ForwardArrow className="h-4 w-4 shrink-0" />
                 </Button>
               </div>
             </motion.div>
@@ -1085,514 +964,185 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
 
           {/* Review Order Step */}
           {currentStep === 3 && (
-            <motion.div 
+            <motion.div
               key="step3"
+              className={cn(panelClass, "mb-6 space-y-4 p-4 sm:p-6")}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className={cn(panelClass, "mb-6 space-y-4 p-4 sm:p-6")}>
-                <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                  <Package className="h-5 w-5 shrink-0 text-accent-text" />
-                  {t.reviewProducts}
-                </h2>
+              <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+                <Package className="h-5 w-5 shrink-0 text-accent-text" />
+                {t.checkoutReviewTitle}
+              </h2>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className={cn(insetClass, "space-y-2")}>
-                    <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
-                      <User className="h-4 w-4 shrink-0" />
-                      {t.customerInfoTitle}
-                    </h3>
-                    <div className="space-y-1 text-xs">
-                      <p>
-                        <span className="text-muted-foreground">{t.fullName}:</span>{" "}
-                        <span className="text-foreground">{guestInfo.name}</span>
-                      </p>
-                      <p>
-                        <span className="text-muted-foreground">
-                          {t.phoneRequiredLabel}:
-                        </span>{" "}
-                        <span className="text-foreground">{guestInfo.phone}</span>
-                      </p>
-                      {guestInfo.phoneAlt && (
-                        <p>
-                          <span className="text-muted-foreground">
-                            {t.phoneOptional}:
-                          </span>{" "}
-                          <span className="text-foreground">
-                            {guestInfo.phoneAlt}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className={cn(insetClass, "space-y-2")}>
-                    <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
-                      <MapPin className="h-4 w-4 shrink-0" />
-                      {t.deliveryInfoTitle}
-                    </h3>
-                    <div className="space-y-1 text-xs">
-                      <p>
-                        <span className="text-muted-foreground">
-                          {t.shippingCityLabel}:
-                        </span>{" "}
-                        <span className="text-foreground">{guestInfo.city}</span>
-                      </p>
-                      <p>
-                        <span className="text-muted-foreground">
-                          {t.shippingAddressLabel}:
-                        </span>{" "}
-                        <span className="break-words text-foreground">
-                          {guestInfo.address}
-                        </span>
-                      </p>
-                      {guestInfo.orderNotes?.trim() && (
-                        <p>
-                          <span className="text-muted-foreground">
-                            {t.deliveryNotes}:
-                          </span>{" "}
-                          <span className="break-words text-foreground">
-                            {guestInfo.orderNotes.trim()}
-                          </span>
-                        </p>
-                      )}
-                      {appliedCoupon && (
-                        <p>
-                          <span className="text-muted-foreground">
-                            {t.couponSavedInline}:
-                          </span>{" "}
-                          <span className="text-emerald-600 dark:text-emerald-400">
-                            {appliedCoupon.code} (−{appliedCoupon.percentOff}%)
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className={cn(insetClass, "space-y-2")}>
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    {t.deliveryDetailsTitle}
+                  </h3>
+                  <dl className="space-y-1 text-sm">
+                    <ReviewRow label={t.fullName}>{guestInfo.name}</ReviewRow>
+                    <ReviewRow label={t.reviewPhoneLabel}>
+                      <span dir="ltr">
+                        {guestInfo.phoneAlt ? `${guestInfo.phone} / ${guestInfo.phoneAlt}` : guestInfo.phone}
+                      </span>
+                    </ReviewRow>
+                    <ReviewRow label={t.reviewCityLabel}>{cityLabel}</ReviewRow>
+                    <ReviewRow label={t.reviewAddressLabel}>{guestInfo.address}</ReviewRow>
+                    {guestInfo.orderNotes?.trim() && (
+                      <ReviewRow label={t.deliveryNotes}>{guestInfo.orderNotes.trim()}</ReviewRow>
+                    )}
+                  </dl>
                 </div>
-              
-              <div className={cn(insetClass, "space-y-1")}>
-                <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
-                  <CreditCard className="h-4 w-4 shrink-0" />
-                  {t.paymentMethodShort}
-                </h3>
-                <p className="text-xs text-foreground">
-                  {lang === "ar" 
-                    ? PAYMENT_METHODS.find(m => m.id === guestInfo.paymentMethod)?.arName
-                    : PAYMENT_METHODS.find(m => m.id === guestInfo.paymentMethod)?.enName
-                  }
-                </p>
+                <div className={cn(insetClass, "space-y-2")}>
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-accent-text dark:text-amber-400">
+                    <CreditCard className="h-4 w-4 shrink-0" />
+                    {t.paymentMethodShort}
+                  </h3>
+                  <p className="text-sm text-foreground">{paymentMethodName}</p>
+                  {guestInfo.paymentMethod === "BANK_TRANSFER" && guestInfo.transferScreenshotUrl && (
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <Check className="h-4 w-4 shrink-0" />
+                      {t.transferProofUploaded}
+                    </p>
+                  )}
+                </div>
               </div>
-              
-              <div className={cn("flex", isRTL ? "justify-end" : "justify-start")}>
+
+              <div className="flex justify-start">
                 <Button
                   type="button"
                   onClick={() => setCurrentStep(2)}
                   variant="outline"
                   className="h-11 touch-manipulation border-border"
                 >
-                  <ArrowRight
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      isRTL ? "ms-2" : "me-2 rotate-180"
-                    )}
-                  />
+                  <BackArrow className="h-4 w-4 shrink-0" />
                   {lang === "ar" ? "السابق" : "Previous"}
                 </Button>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Cart Items - Show on all steps for reference */}
-        <div className="space-y-3 sm:space-y-4">
-          {currentStep !== 3 && (
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2 px-2">
-              <Package className="h-5 w-5 text-accent-text" />
-              {lang === "ar" ? "منتجات في السلة" : "Cart Items"}
-            </h2>
-          )}
-          
-          {cart.map((item, index) => (
-            <motion.div 
-              key={item.id} 
-              className={cn(
-                "rounded-xl border border-border bg-muted/25 p-3 sm:p-4",
-                stockIssuesById[item.id] && "border-destructive/40"
-              )}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ borderColor: "rgba(245, 158, 11, 0.3)" }}
-            >
-              <div
-                className={cn(
-                  "flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center",
-                  isRTL && "sm:flex-row-reverse"
-                )}
-              >
-                <div className="relative mx-auto h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-white sm:mx-0 sm:h-[72px] sm:w-[72px]">
-                  <ProductImage src={item.image} alt={item.name || ""} sizes="80px" compact />
-                </div>
+      </div>
 
-                <div
-                  className={cn(
-                    "min-w-0 flex-1",
-                    isRTL ? "text-right" : "text-left"
-                  )}
-                >
-                  <Link href={`/products/${item.id}`}>
-                    <h3 className="line-clamp-2 font-semibold text-foreground transition-colors hover:text-accent-text dark:hover:text-amber-400">
-                      {item.name}
-                    </h3>
-                  </Link>
-                  <p className="mt-1 font-bold text-accent-text dark:text-amber-400">
-                    {item.price.toLocaleString()} {t.currency}
+      <div className="min-w-0 lg:col-span-5 xl:col-span-4">
+        <div className={cn(panelClass, "space-y-4 p-4 sm:p-6 lg:sticky lg:top-24 xl:top-28")}>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+              <Package className="h-5 w-5 shrink-0 text-accent-text" />
+              {t.orderSummary}
+            </h2>
+            <Link
+              href="/cart"
+              className="inline-flex min-h-10 items-center text-sm font-medium text-accent-text hover:underline dark:text-amber-400"
+            >
+              {t.editCart}
+            </Link>
+          </div>
+
+          <ul className="space-y-3">
+            {cart.map((item) => (
+              <li key={item.id} className="flex items-center gap-3">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-white">
+                  <ProductImage src={item.image} alt={item.name || ""} sizes="48px" compact />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm leading-snug text-foreground">{item.name}</p>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {t.qtyShort}: {item.quantity}
                   </p>
                   {stockIssuesById[item.id] && (
-                    <p className="mt-2 text-xs leading-relaxed text-destructive">
+                    <p className="mt-1 text-xs leading-relaxed text-destructive">
                       {formatStockIssue(stockIssuesById[item.id])}
                     </p>
                   )}
                 </div>
-
-                <div
-                  className={cn(
-                    "flex flex-wrap items-center justify-between gap-3 sm:justify-end",
-                    isRTL && "sm:flex-row-reverse"
-                  )}
-                >
-                  {currentStep === 1 ? (
-                    <div className="inline-flex items-center rounded-xl border border-input bg-background">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        className="flex min-h-10 min-w-10 items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
-                        aria-label={t.decreaseQuantity}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="min-w-[2rem] px-1 text-center text-sm font-medium tabular-nums text-foreground">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const cap =
-                            typeof item.stock === "number"
-                              ? item.stock
-                              : Number.MAX_SAFE_INTEGER;
-                          updateQuantity(
-                            item.id,
-                            Math.min(cap, item.quantity + 1)
-                          );
-                        }}
-                        disabled={
-                          typeof item.stock === "number" &&
-                          item.quantity >= item.stock
-                        }
-                        className="flex min-h-10 min-w-10 items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                        aria-label={t.increaseQuantity}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="rounded-xl border border-input bg-muted/40 px-3 py-2">
-                      <span className="text-sm font-medium text-foreground">
-                        {t.qtyShort}: {item.quantity}
-                      </span>
-                    </div>
-                  )}
-
-                  <div
-                    className={cn(
-                      "shrink-0 tabular-nums",
-                      isRTL ? "text-left" : "text-right"
-                    )}
-                  >
-                    <p className="whitespace-nowrap font-bold text-foreground">
-                      {(item.price * item.quantity).toLocaleString()}{" "}
-                      {t.currency}
-                    </p>
-                  </div>
-
-                  {currentStep === 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeFromCart(item.id)}
-                      className="flex min-h-10 min-w-10 items-center justify-center text-muted-foreground transition-colors hover:text-destructive"
-                      aria-label={t.remove}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      <motion.div
-        className="min-w-0 lg:col-span-5 xl:col-span-4"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, delay: 0.1 }}
-      >
-        <motion.div
-          className={cn(
-            panelClass,
-            "space-y-4 p-4 sm:p-6 lg:sticky lg:top-24 xl:top-28"
-          )}
-          transition={{ duration: 0.3 }}
-        >
-          <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-            <Package className="h-5 w-5 shrink-0 text-accent-text" />
-            {t.orderSummary}
-          </h2>
-
-          <div className="space-y-3">
-            <div className={cn(insetClass, "space-y-2")}>
-              <div
-                className={cn(
-                  "flex items-center justify-between gap-2",
-                  isRTL && "flex-row-reverse"
-                )}
-              >
-                <span className="text-lg font-bold tabular-nums text-accent-text dark:text-amber-400">
-                  {finalTotal.toLocaleString()} {t.currency}
+                <span className="shrink-0 whitespace-nowrap text-sm font-semibold tabular-nums text-foreground">
+                  {(item.price * item.quantity).toLocaleString()} {t.currency}
                 </span>
-                <span className="font-bold text-foreground">{t.grandTotal}</span>
-              </div>
+              </li>
+            ))}
+          </ul>
+
+          <dl className="space-y-2 border-t border-border pt-3 text-sm">
+            <div className="flex justify-between gap-2 text-muted-foreground">
+              <dt>
+                {t.productsTotal} ({cartCount} {t.items})
+              </dt>
+              <dd className="shrink-0 tabular-nums text-foreground">
+                {cartTotal.toLocaleString()} {t.currency}
+              </dd>
             </div>
-
-            <div className="space-y-2 border-t border-border pt-3 text-xs">
-              <div
-                className={cn(
-                  "flex justify-between gap-2 text-muted-foreground",
-                  isRTL && "flex-row-reverse"
-                )}
-              >
-                <span className="tabular-nums text-foreground">
-                  {cartTotal.toLocaleString()} {t.currency}
-                </span>
-                <span className="min-w-0 text-end">
-                  {t.productsTotal} ({cartCount} {t.items})
-                </span>
-              </div>
-              {discountAmount > 0 && (
-                <div
-                  className={cn(
-                    "flex justify-between text-emerald-600 dark:text-emerald-400",
-                    isRTL && "flex-row-reverse"
-                  )}
-                >
-                  <span className="tabular-nums">
-                    −{discountAmount.toLocaleString()} {t.currency}
-                  </span>
-                  <span>{t.discountLabel}</span>
-                </div>
-              )}
-              <div
-                className={cn(
-                  "flex justify-between gap-2 text-muted-foreground",
-                  isRTL && "flex-row-reverse"
-                )}
-              >
-                <span className="tabular-nums">
-                  {shippingCost > 0
-                    ? `${shippingCost.toLocaleString()} ${t.currency}`
-                    : "—"}
-                </span>
-                <span className="max-w-[60%] text-end leading-snug">
-                  {t.delivery} ({guestInfo.city || t.cityNotSelected})
-                </span>
-              </div>
-              <div
-                className={cn(
-                  "flex justify-between gap-2 text-muted-foreground",
-                  isRTL && "flex-row-reverse"
-                )}
-              >
-                <span className="tabular-nums text-foreground">
-                  {vatAmount.toLocaleString()} {t.currency}
-                </span>
-                <span className="max-w-[55%] text-end">
-                  {isRTL
-                    ? `ضريبة القيمة المضافة (${Math.round(CHECKOUT_TAX_RATE * 100)}٪)`
-                    : `VAT (${Math.round(CHECKOUT_TAX_RATE * 100)}%)`}
-                </span>
-              </div>
-            </div>
-            
-            {/* Order Summary Details */}
-            {currentStep === 3 && (
-              <div className={cn(insetClass, "space-y-2")}>
-                <h3 className="mb-2 text-sm font-semibold text-accent-text dark:text-amber-400">
-                  {t.orderDetailsQuick}
-                </h3>
-                <div className="space-y-1.5 text-xs text-muted-foreground">
-                  <div
-                    className={cn(
-                      "flex justify-between gap-2",
-                      isRTL && "flex-row-reverse"
-                    )}
-                  >
-                    <span>{t.productsTotal}</span>
-                    <span className="tabular-nums">
-                      {cartCount} {t.items}
-                    </span>
-                  </div>
-                  <div
-                    className={cn(
-                      "flex justify-between gap-2",
-                      isRTL && "flex-row-reverse"
-                    )}
-                  >
-                    <span>{t.paymentMethodShort}</span>
-                    <span className="max-w-[55%] truncate text-end text-foreground">
-                      {lang === "ar"
-                        ? PAYMENT_METHODS.find(
-                            (m) => m.id === guestInfo.paymentMethod
-                          )?.arName
-                        : PAYMENT_METHODS.find(
-                            (m) => m.id === guestInfo.paymentMethod
-                          )?.enName}
-                    </span>
-                  </div>
-                  <div
-                    className={cn(
-                      "flex justify-between gap-2",
-                      isRTL && "flex-row-reverse"
-                    )}
-                  >
-                    <span>{t.delivery}</span>
-                    <span className="max-w-[55%] truncate text-end text-foreground">
-                      {guestInfo.city}
-                    </span>
-                  </div>
-                </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between gap-2 text-emerald-600 dark:text-emerald-400">
+                <dt>
+                  {t.discountLabel} ({appliedCoupon.code})
+                </dt>
+                <dd className="shrink-0 tabular-nums">
+                  −{discountAmount.toLocaleString()} {t.currency}
+                </dd>
               </div>
             )}
+            <div className="flex justify-between gap-2 text-muted-foreground">
+              <dt className="min-w-0">
+                {t.delivery}
+                {cityLabel ? ` (${cityLabel})` : ""}
+              </dt>
+              <dd className="shrink-0 tabular-nums text-foreground">
+                {selectedCity ? `${shippingCost.toLocaleString()} ${t.currency}` : t.cityNotSelected}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
+            <span className="font-bold text-foreground">{t.grandTotal}</span>
+            <span className="text-lg font-bold tabular-nums text-accent-text dark:text-amber-400">
+              {finalTotal.toLocaleString()} {t.currency}
+            </span>
           </div>
-
-          {currentStep === 3 && (
-            <details
-              className={cn(
-                "mb-4 rounded-xl border border-border bg-card p-3 text-card-foreground",
-                isRTL && "text-right"
-              )}
-              open
-            >
-              <summary className="cursor-pointer text-sm font-semibold text-foreground">
-                {t.reviewOrderToggle}
-              </summary>
-              <ul
-                className={cn(
-                  "mt-3 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground",
-                  isRTL && "text-right"
-                )}
-              >
-                {cart.map((item) => (
-                  <li
-                    key={item.id}
-                    className={cn(
-                      "flex justify-between gap-2",
-                      isRTL && "flex-row-reverse"
-                    )}
-                  >
-                    <span className="min-w-0 truncate">{item.name}</span>
-                    <span className="shrink-0 tabular-nums text-foreground">
-                      ×{item.quantity}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-
-          {/* Error Display */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                <div
-                  className={cn(
-                    "flex flex-col gap-2",
-                    isRTL && "text-right"
-                  )}
-                >
-                  <div className={cn("flex items-start gap-2", isRTL && "flex-row-reverse")}>
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span className="min-w-0">{error}</span>
-                  </div>
-                  <p className="text-xs opacity-90">{t.paymentRetryHint}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {currentStep === 3 ? (
             <Button
               type="button"
               onClick={handleCheckout}
               disabled={loading || isProcessing}
-              className="hidden h-14 w-full touch-manipulation rounded-xl bg-amber-500 text-base font-semibold text-black hover:bg-amber-600 disabled:opacity-60 lg:inline-flex"
+              className="hidden h-14 w-full touch-manipulation gap-2 rounded-xl bg-amber-500 text-base font-semibold text-black hover:bg-amber-600 disabled:opacity-60 lg:inline-flex"
             >
               {isProcessing ? (
                 <>
-                  <Loader2
-                    className={cn(
-                      "h-5 w-5 animate-spin shrink-0",
-                      isRTL ? "ms-2" : "me-2"
-                    )}
-                  />
+                  <Loader2 className="h-5 w-5 shrink-0 animate-spin" />
                   {t.placingOrder}
                 </>
               ) : (
                 <>
-                  <Shield
-                    className={cn(
-                      "h-5 w-5 shrink-0",
-                      isRTL ? "ms-2" : "me-2"
-                    )}
-                  />
+                  <Shield className="h-5 w-5 shrink-0" />
                   {t.placeOrderBtn}
                 </>
               )}
             </Button>
           ) : (
-            <div className="hidden py-2 text-center lg:block">
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                {t.completeStepsHint}
-              </p>
-            </div>
+            <p className="hidden py-2 text-center text-xs leading-relaxed text-muted-foreground lg:block">
+              {t.completeStepsHint}
+            </p>
           )}
 
           {!session && (
-            <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-3">
-              <p className="text-center text-xs text-muted-foreground">
-                {t.haveAccount}{" "}
-                <Link
-                  href="/login"
-                  className="font-semibold text-accent-text hover:underline dark:text-amber-400"
-                >
-                  {t.loginInstead}
-                </Link>
-              </p>
-            </div>
+            <p className="rounded-xl border border-border bg-muted/30 p-3 text-center text-xs text-muted-foreground">
+              {t.haveAccount}{" "}
+              <Link
+                href="/login"
+                className="font-semibold text-accent-text hover:underline dark:text-amber-400"
+              >
+                {t.loginInstead}
+              </Link>
+            </p>
           )}
-
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {currentStep === 3 && (
         <div
@@ -1601,13 +1151,8 @@ export default function CheckoutClient({ proofWhatsappDigits = null, bankTransfe
             "pb-[max(1rem,env(safe-area-inset-bottom))]"
           )}
         >
-          <div
-            className={cn(
-              "mx-auto flex max-w-7xl items-center gap-3",
-              isRTL && "flex-row-reverse"
-            )}
-          >
-            <div className={cn("min-w-0 flex-1", isRTL && "text-right")}>
+          <div className="mx-auto flex max-w-7xl items-center gap-3">
+            <div className="min-w-0 flex-1">
               <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                 {t.grandTotal}
               </p>
