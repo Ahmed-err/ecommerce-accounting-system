@@ -40,4 +40,14 @@ describe("placeOrder", () => {
     expect(out).toEqual({ success: false, error: 'Not enough stock for "Drill". Available: 1, Requested: 5' });
     expect(tx.order.create).not.toHaveBeenCalled();
   });
+
+  it("charges items plus delivery with no tax", async () => {
+    tx.product.findFirst.mockResolvedValue({ id: "p1", name: "Drill", stock: 5, sellingPrice: 100 });
+    tx.order.create.mockRejectedValue(new Error("stop after create"));
+    const { placeOrder } = await import("@/app/actions/catalog");
+
+    await placeOrder(null, [{ id: "p1", name: "Drill", quantity: 2 }], guest);
+
+    expect(tx.order.create.mock.calls[0][0].data.totalAmount).toBe(200 + 1500);
+  });
 });

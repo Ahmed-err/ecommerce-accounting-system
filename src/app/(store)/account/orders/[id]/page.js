@@ -49,7 +49,7 @@ export default async function AccountOrderDetailPage({ params }) {
           <div className="flex justify-between"><span>{t.subtotal}</span><span>{subtotal.toLocaleString()} {t.currency}</span></div>
           <div className="flex justify-between"><span>{lang === "ar" ? "الخصم" : "Discount"}</span><span>{discount.toLocaleString()} {t.currency}</span></div>
           <div className="flex justify-between"><span>{t.delivery}</span><span>{order.shippingCost.toLocaleString()} {t.currency}</span></div>
-          <div className="flex justify-between"><span>{t.estimatedTax}</span><span>{tax.toLocaleString()} {t.currency}</span></div>
+          {tax > 0 && <div className="flex justify-between"><span>{t.estimatedTax}</span><span>{tax.toLocaleString()} {t.currency}</span></div>}
           <div className="flex justify-between font-bold"><span>{t.grandTotal}</span><span>{order.totalAmount.toLocaleString()} {t.currency}</span></div>
         </div>
 
