@@ -1369,7 +1369,19 @@ const dictionary = {
   "accountNotificationsLoading": "جارٍ التحميل…",
   "accountViewOrder": "عرض الطلب",
   "contactPhoneLabel": "رقم هاتفك (اختياري)",
-  "contactFaqNoMatch": "لا توجد أسئلة مطابقة."
+  "contactFaqNoMatch": "لا توجد أسئلة مطابقة.",
+  "trackTitle": "تتبع طلبك",
+  "trackIntro": "اكتب رقم الطلب ورقم الهاتف الذي استخدمته عند الطلب.",
+  "trackOrderNumber": "رقم الطلب",
+  "trackOrderNumberHint": "8 أحرف وأرقام، تجده في صفحة تأكيد الطلب أو في الرسالة.",
+  "trackPhone": "رقم الهاتف",
+  "trackSubmit": "عرض حالة الطلب",
+  "trackErr_invalid": "تأكد من رقم الطلب (8 أحرف وأرقام) ورقم الهاتف.",
+  "trackErr_not_found": "لم نجد طلباً بهذا الرقم وهذا الهاتف.",
+  "trackErr_rate_limited": "محاولات كثيرة. حاول بعد قليل.",
+  "trackErr_system": "حدث خطأ. حاول مرة أخرى.",
+  "trackHelp": "سؤال عن طلبك؟",
+  "trackSignedInHint": "لديك حساب؟ كل طلباتك في"
 };
 
 export default dictionary;

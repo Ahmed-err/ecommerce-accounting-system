@@ -1369,7 +1369,19 @@ const dictionary = {
   "accountNotificationsLoading": "Loading…",
   "accountViewOrder": "View order",
   "contactPhoneLabel": "Your phone (optional)",
-  "contactFaqNoMatch": "No matching questions."
+  "contactFaqNoMatch": "No matching questions.",
+  "trackTitle": "Track your order",
+  "trackIntro": "Enter the order number and the phone number you used when ordering.",
+  "trackOrderNumber": "Order number",
+  "trackOrderNumberHint": "8 letters and digits, shown on the order confirmation page or message.",
+  "trackPhone": "Phone number",
+  "trackSubmit": "Show order status",
+  "trackErr_invalid": "Check the order number (8 letters and digits) and the phone number.",
+  "trackErr_not_found": "We couldn't find an order with this number and phone.",
+  "trackErr_rate_limited": "Too many attempts. Try again shortly.",
+  "trackErr_system": "Something went wrong. Try again.",
+  "trackHelp": "A question about your order?",
+  "trackSignedInHint": "Have an account? All your orders are in"
 };
 
 export default dictionary;
