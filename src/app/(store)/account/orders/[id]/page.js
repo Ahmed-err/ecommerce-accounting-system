@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountOrderDetailPage({ params }) {
   const session = await auth();
-  if (!session) redirect("/login");
   const { id } = await params;
+  if (!session) redirect(`/login?callbackUrl=${encodeURIComponent(`/account/orders/${id}`)}`);
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
