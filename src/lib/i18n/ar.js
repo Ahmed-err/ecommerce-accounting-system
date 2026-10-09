@@ -1334,7 +1334,16 @@ const dictionary = {
   "authErr_register_failed": "تعذّر إنشاء الحساب. حاول مرة أخرى.",
   "authErr_token_invalid": "رابط إعادة التعيين غير صالح أو انتهت صلاحيته.",
   "authErr_reset_failed": "تعذّر تغيير كلمة المرور. حاول مرة أخرى.",
-  "authErr_system_error": "حدث خطأ. حاول مرة أخرى."
+  "authErr_system_error": "حدث خطأ. حاول مرة أخرى.",
+  "orderStatus_PENDING": "قيد الانتظار",
+  "orderStatus_PROCESSING": "قيد التجهيز",
+  "orderStatus_SHIPPED": "خرج للتوصيل",
+  "orderStatus_DELIVERED": "تم التوصيل",
+  "orderStatus_CANCELLED": "ملغي",
+  "paymentMethod_CASH_ON_DELIVERY": "الدفع عند الاستلام",
+  "paymentMethod_BANK_TRANSFER": "تحويل بنكي",
+  "paymentMethod_CASH": "نقداً",
+  "paymentMethod_CARD": "بطاقة"
 };
 
 export default dictionary;

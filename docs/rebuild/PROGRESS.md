@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P2.6 Customer account
-- **Step:** 1 — audit
+- **Step:** 3 — build (plan approved 2026-10-09: no tax number; remove newsletter + currency)
 - **Last done:** P2.5 done — #27 merged, deployed, verified live 2026-10-09 (titles, no made-up stats, protected pages → login with callbackUrl). Includes open-redirect fix (control chars in callbackUrl).
-- **Next:** P2.6 Customer account audit. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Next:** P2.6 build after approval of `parts/P2.6.md`. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -35,7 +35,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.3 | Product page | done | `rebuild/p2-3-product` | #25 |
 | P2.4 | Cart & checkout | done | `rebuild/p2-4-checkout` | #26 |
 | P2.5 | Auth | done | `rebuild/p2-5-auth` | #27 |
-| P2.6 | Customer account | todo | | |
+| P2.6 | Customer account | audit | `rebuild/p2-6-account` | parts/P2.6.md |
 | P2.7 | Content, SEO, PWA | todo | | |
 | P3.1 | Admin shell & dashboard | todo | | |
 | P3.2 | Inventory | todo | | |

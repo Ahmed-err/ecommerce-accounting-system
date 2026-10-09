@@ -1334,7 +1334,16 @@ const dictionary = {
   "authErr_register_failed": "Couldn't create the account. Please try again.",
   "authErr_token_invalid": "This reset link is invalid or has expired.",
   "authErr_reset_failed": "Couldn't change the password. Please try again.",
-  "authErr_system_error": "Something went wrong. Please try again."
+  "authErr_system_error": "Something went wrong. Please try again.",
+  "orderStatus_PENDING": "Pending",
+  "orderStatus_PROCESSING": "Being prepared",
+  "orderStatus_SHIPPED": "Out for delivery",
+  "orderStatus_DELIVERED": "Delivered",
+  "orderStatus_CANCELLED": "Cancelled",
+  "paymentMethod_CASH_ON_DELIVERY": "Cash on delivery",
+  "paymentMethod_BANK_TRANSFER": "Bank transfer",
+  "paymentMethod_CASH": "Cash",
+  "paymentMethod_CARD": "Card"
 };
 
 export default dictionary;
