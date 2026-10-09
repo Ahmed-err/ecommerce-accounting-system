@@ -1381,7 +1381,8 @@ const dictionary = {
   "trackErr_rate_limited": "Too many attempts. Try again shortly.",
   "trackErr_system": "Something went wrong. Try again.",
   "trackHelp": "A question about your order?",
-  "trackSignedInHint": "Have an account? All your orders are in"
+  "trackSignedInHint": "Have an account? All your orders are in",
+  "categoryMetaDesc": "Shop {name} at Himmat, with the price and specs for every product."
 };
 
 export default dictionary;

@@ -1381,7 +1381,8 @@ const dictionary = {
   "trackErr_rate_limited": "محاولات كثيرة. حاول بعد قليل.",
   "trackErr_system": "حدث خطأ. حاول مرة أخرى.",
   "trackHelp": "سؤال عن طلبك؟",
-  "trackSignedInHint": "لديك حساب؟ كل طلباتك في"
+  "trackSignedInHint": "لديك حساب؟ كل طلباتك في",
+  "categoryMetaDesc": "تسوّق {name} من همّت، مع السعر والمواصفات لكل منتج."
 };
 
 export default dictionary;

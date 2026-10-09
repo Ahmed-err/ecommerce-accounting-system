@@ -8,6 +8,11 @@ import AboutTeaser from "@/components/AboutTeaser";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import { translations } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
+
+export function generateMetadata() {
+  return { alternates: { canonical: `${getAbsoluteSiteUrl()}/` } };
+}
 import { cookies } from "next/headers";
 import { jsonLdHtml } from "@/lib/json-ld";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";

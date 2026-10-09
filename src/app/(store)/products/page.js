@@ -10,6 +10,7 @@ import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { translations, translateCategory } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { prisma as db } from "@/lib/prisma";
 
 export async function generateMetadata({ searchParams }) {
   const params = await searchParams;
@@ -19,10 +20,16 @@ export async function generateMetadata({ searchParams }) {
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
   const category = params?.category;
-  const titleBase =
+  // Category links carry the id; older links (and the old sitemap) carry the English name.
+  const cat =
     category && category !== "all"
-      ? `${translateCategory(category, t)} | ${t.catalog}`
-      : `${t.allProducts} | ${b.brandName}`;
+      ? await db.category
+          .findFirst({ where: { OR: [{ id: category }, { name: category }] }, select: { id: true, name: true, nameAr: true } })
+          .catch(() => null)
+      : null;
+  const catName = cat ? (lang === "ar" ? cat.nameAr || translateCategory(cat.name, t) : cat.name) : null;
+  const titleBase = catName ? `${catName} | ${b.brandName}` : `${t.allProducts} | ${b.brandName}`;
+  const canonical = `${getAbsoluteSiteUrl()}/products${cat ? `?category=${encodeURIComponent(cat.id)}` : ""}`;
 
   let ogImage;
   try {
@@ -44,7 +51,10 @@ export async function generateMetadata({ searchParams }) {
 
   return {
     title: titleBase,
-    description: t.allProductsDesc,
+    description: catName ? t.categoryMetaDesc.replace("{name}", catName) : t.allProductsDesc,
+    alternates: { canonical },
+    // Searches and filtered views are thin duplicates of the category pages.
+    ...(params?.search || params?.brand || params?.minPrice || params?.maxPrice ? { robots: { index: false, follow: true } } : {}),
     openGraph: ogImage
       ? { images: [{ url: ogImage, alt: titleBase }] }
       : undefined,
