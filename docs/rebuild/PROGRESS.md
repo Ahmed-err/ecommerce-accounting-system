@@ -6,9 +6,9 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P2.6 Customer account
-- **Step:** 3 — build (plan approved 2026-10-09: no tax number; remove newsletter + currency)
+- **Step:** 4 — test (PR open, CI running)
 - **Last done:** P2.5 done — #27 merged, deployed, verified live 2026-10-09 (titles, no made-up stats, protected pages → login with callbackUrl). Includes open-redirect fix (control chars in callbackUrl).
-- **Next:** P2.6 build after approval of `parts/P2.6.md`. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Next:** P2.6: CI green → merge → verify live; return window (P2.6 #14) moved to P3.3. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions

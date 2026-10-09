@@ -67,7 +67,7 @@ export default async function AccountOrdersPage({ searchParams }) {
             name="search"
             defaultValue={search}
             placeholder={t.accountOrdersSearch}
-            className="h-11 flex-1 rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="h-11 w-full rounded-lg border border-input sm:flex-1 bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
           <label className="sr-only" htmlFor="orders-status">{t.adminStatus}</label>
           <select

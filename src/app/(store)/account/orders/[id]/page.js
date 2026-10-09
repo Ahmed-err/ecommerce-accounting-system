@@ -95,12 +95,14 @@ export default async function AccountOrderDetailPage({ params }) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <section className="space-y-3 rounded-xl border border-border bg-card p-4 text-sm">
-            <div>
-              <h2 className="text-xs font-medium text-muted-foreground">{t.accountOrderDelivery}</h2>
-              <p className="mt-1 text-foreground">{order.guestName}</p>
-              {order.guestPhone ? <p className="text-foreground" dir="ltr">{order.guestPhone}</p> : null}
-              {address ? <p className="text-foreground">{address}</p> : null}
-            </div>
+            {order.guestName || order.guestPhone || address ? (
+              <div>
+                <h2 className="text-xs font-medium text-muted-foreground">{t.accountOrderDelivery}</h2>
+                {order.guestName ? <p className="mt-1 text-foreground">{order.guestName}</p> : null}
+                {order.guestPhone ? <p className="text-foreground"><span dir="ltr">{order.guestPhone}</span></p> : null}
+                {address ? <p className="text-foreground">{address}</p> : null}
+              </div>
+            ) : null}
             <div>
               <h2 className="text-xs font-medium text-muted-foreground">{t.paymentMethodTitle}</h2>
               <p className="mt-1 text-foreground">{paymentMethodLabel(order.paymentMethod, t)}</p>

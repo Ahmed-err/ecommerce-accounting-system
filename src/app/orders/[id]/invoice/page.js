@@ -56,7 +56,8 @@ export default async function InvoicePage({ params }) {
   const receiptData = buildReceiptData({
     receiptFromServer: {
       orderId: order.id,
-      orderRef: `#${order.id.slice(-8).toUpperCase()}`,
+      // Placeholder invoice numbers are replaced by the order ref below, so don't list it twice.
+      orderRef: invoice.invoiceNumber?.startsWith("BACKFILL-") ? "" : `#${order.id.slice(-8).toUpperCase()}`,
       createdAt: order.createdAt,
       // Invoices created after the fact carry a "BACKFILL-<order id>" number; show the order ref instead.
       invoiceNumber: invoice.invoiceNumber?.startsWith("BACKFILL-") ? order.id.slice(-8).toUpperCase() : invoice.invoiceNumber,

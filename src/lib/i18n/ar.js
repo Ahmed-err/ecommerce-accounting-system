@@ -1210,7 +1210,7 @@ const dictionary = {
   "accountTabProfile": "الملف الشخصي",
   "accountTabAddresses": "العناوين",
   "accountTabSecurity": "الأمان",
-  "accountTabNotifications": "الإشعارات",
+  "accountTabNotifications": "التنبيهات",
   "accountTabPreferences": "التفضيلات",
   "accountAvatarUpload": "رفع صورة",
   "accountEmailReadOnly": "لا يمكن تغيير البريد (تسجيل الدخول عبر جوجل)",

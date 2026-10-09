@@ -1210,7 +1210,7 @@ const dictionary = {
   "accountTabProfile": "Profile",
   "accountTabAddresses": "Addresses",
   "accountTabSecurity": "Security",
-  "accountTabNotifications": "Notifications",
+  "accountTabNotifications": "Alerts",
   "accountTabPreferences": "Preferences",
   "accountAvatarUpload": "Upload photo",
   "accountEmailReadOnly": "Email cannot be changed (Google sign-in).",
