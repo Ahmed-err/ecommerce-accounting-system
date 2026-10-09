@@ -131,8 +131,8 @@ const dictionary = {
   "phoneOptional": "Second phone",
   "optional": "(optional)",
   "min6Chars": "At least 6 characters",
-  "contactSalesTitle": "Contact Sales",
-  "contactSalesDesc": "Do you have questions about wholesale orders or specific electrical equipment? Our team is here to help power your project.",
+  "contactSalesTitle": "Contact us",
+  "contactSalesDesc": "A question about a product or an order? Call us, message us on WhatsApp, or leave a message and we'll reply.",
   "ourOffices": "Our Offices",
   "visitUs": "Visit Us",
   "addressLine1": "Khartoum, Al-Hurriyah Street",
@@ -1367,7 +1367,9 @@ const dictionary = {
   "accountNotificationsEmpty": "No notifications yet. Updates about your orders will appear here.",
   "accountNotificationsMarkAll": "Mark all as read",
   "accountNotificationsLoading": "Loading…",
-  "accountViewOrder": "View order"
+  "accountViewOrder": "View order",
+  "contactPhoneLabel": "Your phone (optional)",
+  "contactFaqNoMatch": "No matching questions."
 };
 
 export default dictionary;

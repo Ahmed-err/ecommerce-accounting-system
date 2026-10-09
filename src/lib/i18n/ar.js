@@ -131,8 +131,8 @@ const dictionary = {
   "phoneOptional": "رقم هاتف آخر",
   "optional": "(اختياري)",
   "min6Chars": "٦ أحرف على الأقل",
-  "contactSalesTitle": "اتصل بالمبيعات",
-  "contactSalesDesc": "هل لديك أسئلة حول الطلبات بالجملة أو معدات كهربائية محددة؟ فريقنا هنا لمساعدتك في تزويد مشروعك بالطاقة.",
+  "contactSalesTitle": "تواصل معنا",
+  "contactSalesDesc": "سؤال عن منتج أو طلب؟ اتصل بنا أو راسلنا على واتساب، أو اترك رسالة وسنرد عليك.",
   "ourOffices": "مكاتبنا",
   "visitUs": "تفضل بزيارتنا",
   "addressLine1": "الخرطوم، شارع الحرية",
@@ -1367,7 +1367,9 @@ const dictionary = {
   "accountNotificationsEmpty": "لا توجد إشعارات بعد. ستصلك هنا تحديثات طلباتك.",
   "accountNotificationsMarkAll": "تحديد الكل كمقروء",
   "accountNotificationsLoading": "جارٍ التحميل…",
-  "accountViewOrder": "عرض الطلب"
+  "accountViewOrder": "عرض الطلب",
+  "contactPhoneLabel": "رقم هاتفك (اختياري)",
+  "contactFaqNoMatch": "لا توجد أسئلة مطابقة."
 };
 
 export default dictionary;

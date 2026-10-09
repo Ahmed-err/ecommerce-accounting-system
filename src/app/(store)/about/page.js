@@ -52,7 +52,7 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-background text-foreground">
-      <AboutPageClient store={store} stats={data.stats} features={data.features} team={data.team} />
+      <AboutPageClient store={store} features={data.features} team={data.team} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
     </div>
   );
