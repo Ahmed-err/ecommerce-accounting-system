@@ -22,3 +22,30 @@ describe("A4 invoice header", () => {
     expect(html).not.toContain('class="inv-mark"');
   });
 });
+
+describe("online invoice without a cashier", () => {
+  it("omits the cashier line when cashier is null", async () => {
+    const { buildReceiptData, buildReceiptMarkup } = await import("@/lib/receipt");
+    const data = buildReceiptData({
+      receiptFromServer: { orderId: "o1", items: [], totalAmount: 0 },
+      store: {},
+      cashier: null,
+      lang: "ar",
+      subtotalBeforeDiscount: 0,
+    });
+    expect(data.cashierName).toBe("");
+    expect(buildReceiptMarkup(data, { paper: "a4" })).not.toContain("أمين الصندوق");
+  });
+
+  it("keeps the cashier line for POS receipts", async () => {
+    const { buildReceiptData, buildReceiptMarkup } = await import("@/lib/receipt");
+    const data = buildReceiptData({
+      receiptFromServer: { orderId: "o1", items: [], totalAmount: 0 },
+      store: {},
+      cashier: { name: "Sara" },
+      lang: "ar",
+      subtotalBeforeDiscount: 0,
+    });
+    expect(buildReceiptMarkup(data, { paper: "a4" })).toContain("Sara");
+  });
+});

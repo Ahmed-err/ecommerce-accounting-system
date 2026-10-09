@@ -9,6 +9,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
 import { sendEmailVerification, sendAccountDeletionEmail } from "@/lib/senders";
+import { phoneVariants } from "@/lib/auth-identity";
 
 const profileSchema = z.object({
   firstName: z.string().min(1).max(80),
@@ -120,6 +121,17 @@ export async function updateAccountProfile(data) {
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) return { success: false, error: "User not found" };
 
+    // Same phone rules as sign-up, so the saved number works for login and can't
+    // duplicate another account's number in a different form.
+    let phone = null;
+    if (p.phone?.trim()) {
+      const v = phoneVariants(p.phone);
+      if (!v) return { success: false, error: "phone_invalid", field: "phone" };
+      const taken = await db.user.findFirst({ where: { phone: { in: v.variants }, id: { not: userId } }, select: { id: true } });
+      if (taken) return { success: false, error: "phone_in_use", field: "phone" };
+      phone = v.canonical;
+    }
+
     let dob = null;
     if (p.dateOfBirth && p.dateOfBirth.trim()) {
       const d = new Date(p.dateOfBirth);
@@ -133,7 +145,7 @@ export async function updateAccountProfile(data) {
           firstName: p.firstName,
           lastName: p.lastName,
           name: `${p.firstName} ${p.lastName}`,
-          phone: p.phone?.trim() ? p.phone.replace(/\s/g, "") : null,
+          phone,
           gender: p.gender === "" || !p.gender ? null : p.gender,
           dateOfBirth: dob,
           avatar: p.avatar || null,

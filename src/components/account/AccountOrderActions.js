@@ -35,7 +35,7 @@ function returnErrorMessage(code, t) {
 
 export default function AccountOrderActions({ orderId, status, returnOpen, lines }) {
   const router = useRouter();
-  const { lang, isRTL } = useLanguage();
+  const { isRTL } = useLanguage();
   const t = useT();
   const { addToCart } = useCart();
 
@@ -168,7 +168,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
 
   return (
     <>
-      <div className={cn("flex flex-wrap gap-2", isRTL && "flex-row-reverse")}>
+      <div className="flex flex-wrap gap-2">
         {status === "DELIVERED" && (
           <Button
             type="button"
@@ -188,14 +188,18 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
         >
           {t.accountDownloadInvoice}
         </a>
-        <Button
-          type="button"
-          className="rounded-lg bg-amber-500 px-3 py-2 text-sm text-black hover:bg-amber-600 disabled:opacity-50"
-          disabled={!returnOpen}
-          onClick={returnOpen ? openReturn : undefined}
-        >
-          {returnOpen ? t.accountRequestReturn : t.accountReturnPeriodEnded}
-        </Button>
+        {status === "DELIVERED" &&
+          (returnOpen ? (
+            <Button
+              type="button"
+              className="rounded-lg bg-amber-500 px-3 py-2 text-sm text-black hover:bg-amber-600"
+              onClick={openReturn}
+            >
+              {t.accountRequestReturn}
+            </Button>
+          ) : (
+            <p className="self-center text-sm text-muted-foreground">{t.accountReturnPeriodEnded}</p>
+          ))}
       </div>
 
       <Dialog open={returnOpenDlg} onOpenChange={setReturnOpenDlg}>
@@ -238,7 +242,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
                         !ln.isActive && "opacity-50"
                       )}
                     >
-                      <label className={cn("flex items-center gap-2 text-sm", isRTL && "flex-row-reverse")}>
+                      <label className="flex items-center gap-2 text-sm">
                         <input
                           type="checkbox"
                           checked={!!pick[ln.productId]?.checked}
@@ -250,7 +254,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
                         </span>
                       </label>
                       {ln.isActive && pick[ln.productId]?.checked ? (
-                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground">{t.accountReturnQty}</span>
                           <Input
                             type="number"
@@ -275,7 +279,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
                 />
               </div>
             </div>
-            <DialogFooter className={cn("mt-4 sm:justify-between", isRTL && "sm:flex-row-reverse")}>
+            <DialogFooter className="mt-4 sm:justify-between">
               <Button type="button" variant="outline" onClick={() => setReturnOpenDlg(false)}>
                 {t.cancel}
               </Button>

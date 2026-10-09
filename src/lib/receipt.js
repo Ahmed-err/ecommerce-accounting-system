@@ -185,7 +185,8 @@ export function buildReceiptData({
     invoiceNumber: receiptFromServer.invoiceNumber || receiptFromServer.orderId?.slice(-8) || "",
     date: d.toLocaleDateString(isAr ? "ar-SD" : "en-US"),
     time: d.toLocaleTimeString(isAr ? "ar-SD" : "en-US", { hour: "2-digit", minute: "2-digit" }),
-    cashierName: cashier?.name || cashier?.email || (isAr ? "كاشير" : "Cashier"),
+    // cashier: null for online orders, which have no cashier line.
+    cashierName: cashier === null ? "" : cashier?.name || cashier?.email || (isAr ? "كاشير" : "Cashier"),
     customerName: receiptFromServer.guestName || "",
     customerPhone: receiptFromServer.guestPhone || "",
     customerEmail: receiptFromServer.guestEmail || "",
@@ -459,7 +460,7 @@ export function buildReceiptInnerHtml(data, { paper = "thermal", paperWidth = "8
       <div class="inv-meta-row"><span>${escapeHtml(L.invoiceNo)}</span><strong class="n">${escapeHtml(data.invoiceNumber)}</strong></div>
       ${data.orderRef ? `<div class="inv-meta-row"><span>${escapeHtml(L.orderRef)}</span><span class="n">${escapeHtml(data.orderRef)}</span></div>` : ""}
       <div class="inv-meta-row"><span>${escapeHtml(L.date)}</span><span class="n">${escapeHtml(data.date)} · ${escapeHtml(data.time)}</span></div>
-      <div class="inv-meta-row"><span>${escapeHtml(L.cashier)}</span><span class="n">${escapeHtml(data.cashierName)}</span></div>
+      ${data.cashierName ? `<div class="inv-meta-row"><span>${escapeHtml(L.cashier)}</span><span class="n">${escapeHtml(data.cashierName)}</span></div>` : ""}
     </div>
   </header>
 
@@ -536,7 +537,7 @@ export function buildReceiptInnerHtml(data, { paper = "thermal", paperWidth = "8
   <div class="row"><span>${escapeHtml(L.invoiceNo)}</span><span class="n">${escapeHtml(data.invoiceNumber)}</span></div>
   ${data.orderRef ? `<div class="row"><span>${escapeHtml(L.orderRef)}</span><span class="n">${escapeHtml(data.orderRef)}</span></div>` : ""}
   <div class="row"><span>${escapeHtml(L.date)}</span><span class="n">${escapeHtml(data.date)} ${escapeHtml(data.time)}</span></div>
-  <div class="row"><span>${escapeHtml(L.cashier)}</span><span class="n">${escapeHtml(data.cashierName)}</span></div>
+  ${data.cashierName ? `<div class="row"><span>${escapeHtml(L.cashier)}</span><span class="n">${escapeHtml(data.cashierName)}</span></div>` : ""}
   <hr/>
   <div class="row"><span>${escapeHtml(L.customer)}</span><span class="n">${escapeHtml(data.customerName)}</span></div>
   <div class="row"><span>${escapeHtml(L.phone)}</span><span class="n">${escapeHtml(data.customerPhone)}</span></div>

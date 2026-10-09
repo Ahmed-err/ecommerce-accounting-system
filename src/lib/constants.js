@@ -54,4 +54,5 @@ export function resolveBankTransferProofWhatsapp(stored) {
   return STORE_WHATSAPP_NUMBER;
 }
 
-export const STORE_VAT_NUMBER = process.env.STORE_VAT_NUMBER || "310123456700003";
+// Printed on invoices only when the store has a real tax registration (set in the environment).
+export const STORE_VAT_NUMBER = process.env.STORE_VAT_NUMBER || "";

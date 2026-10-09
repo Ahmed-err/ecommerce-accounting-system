@@ -19,7 +19,7 @@
   max-width: 210mm;
   min-height: 0;
   margin: 0 auto;
-  padding: 0;
+  padding: 10mm;
   box-sizing: border-box;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
   font-size: 13px;
@@ -39,20 +39,12 @@
   border-bottom: 3px solid #0f172a;
 }
 
-.scope :global(.invoice-pro[dir="rtl"] .inv-header) {
-  flex-direction: row-reverse;
-}
-
 .scope :global(.invoice-pro .inv-brand) {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   flex: 1;
   min-width: 0;
-}
-
-.scope :global(.invoice-pro[dir="rtl"] .inv-brand) {
-  flex-direction: row-reverse;
 }
 
 .scope :global(.invoice-pro .inv-logo img) {
@@ -70,16 +62,16 @@
 
 .scope :global(.invoice-pro .inv-wordmark) {
   font-weight: 800;
-  font-size: 22px;
+  font-size: 28px;
   color: #0E1A2B;
 }
 
+/* Himmat (the mark) leads; the registered shop name is a small label under it. */
 .scope :global(.invoice-pro .inv-store-name) {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #020617;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
 }
 
 .scope :global(.invoice-pro .inv-doc-title) {
