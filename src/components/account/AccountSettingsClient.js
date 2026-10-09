@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import {
   updateAccountProfile,
   resendEmailVerification,
@@ -199,6 +199,8 @@ export default function AccountSettingsClient({
       confirmPassword: confPwd,
     });
     if (res.success) {
+      // The change ends sessions issued before it, including this one: sign in again with the new password.
+      await signIn("credentials", { email: user.email, password: newPwd, redirect: false });
       toast.success(t.success);
       setCurPwd("");
       setNewPwd("");

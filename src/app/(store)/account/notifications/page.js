@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountNotificationsPage() {
   const session = await auth();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?callbackUrl=/account/notifications");
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";

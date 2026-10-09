@@ -51,4 +51,15 @@ describe("refreshAuthToken", () => {
     });
     expect(await refreshAuthToken(token, load, now)).toBe(token);
   });
+
+  it("ends sessions issued before the password was changed", async () => {
+    const load = vi.fn(async () => ({ role: "CUSTOMER", isActive: true, passwordChangedAt: new Date(now - 1000) }));
+    expect(await refreshAuthToken({ id: "u1", issuedAt: now - 5000 }, load, now)).toBeNull();
+    expect(await refreshAuthToken({ id: "u1" }, load, now)).toBeNull();
+  });
+
+  it("keeps sessions issued after the password change", async () => {
+    const load = vi.fn(async () => ({ role: "CUSTOMER", isActive: true, passwordChangedAt: new Date(now - 5000) }));
+    expect(await refreshAuthToken({ id: "u1", issuedAt: now - 1000 }, load, now)).toMatchObject({ id: "u1", checkedAt: now });
+  });
 });

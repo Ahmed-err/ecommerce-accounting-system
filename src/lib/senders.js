@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import twilio from "twilio";
 import { translations } from "@/lib/translations";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
 const BRAND_EN = translations.en.brandName;
 
@@ -28,7 +29,7 @@ export async function sendEmailVerification(to, token) {
     });
     if (!process.env.SMTP_USER) return false;
 
-    const verifyUrl = `${process.env.AUTH_URL || "http://localhost:3000"}/account/settings?vt=${encodeURIComponent(token)}&ve=${encodeURIComponent(to)}`;
+    const verifyUrl = `${getAbsoluteSiteUrl()}/account/settings?vt=${encodeURIComponent(token)}&ve=${encodeURIComponent(to)}`;
 
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
@@ -80,7 +81,7 @@ export async function sendResetEmail(to, token) {
       },
     });
 
-    const resetLink = `${process.env.AUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
+    const resetLink = `${getAbsoluteSiteUrl()}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
 
     const mailOptions = {
       from: `"${BRAND_EN} Security" <${process.env.SMTP_USER}>`,
@@ -196,9 +197,10 @@ export async function sendContactReplyEmail(to, subject, htmlBody) {
   }
 }
 
-export async function sendResetSMS(to, token) {
+/** `email` is the account's email: reset links identify the account by it, not by phone. */
+export async function sendResetSMS(to, token, email) {
   try {
-    const resetLink = `${process.env.AUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
+    const resetLink = `${getAbsoluteSiteUrl()}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
     if (isMockSmsProvider()) {
       logMockSms("RESET_PASSWORD", { to, resetLink });
       return true;
