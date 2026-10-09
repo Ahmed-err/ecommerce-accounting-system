@@ -11,14 +11,13 @@ export default function CustomerNotificationsClient({
   loadingText,
   viewOrderText,
   lang,
-  isRTL,
 }) {
   const [rows, setRows] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications?limit=100&type=ORDER_STATUS", {
+      const res = await fetch("/api/notifications?limit=100&type=ORDER_STATUS&customerOnly=1", {
         cache: "no-store",
       });
       const json = await res.json();
@@ -45,18 +44,20 @@ export default function CustomerNotificationsClient({
 
   return (
     <div className="space-y-4">
-      <div className={`flex ${isRTL ? "flex-row-reverse" : ""} justify-end`}>
-        <Button
-          variant="outline"
-          onClick={markAll}
-          disabled={!rows.some((r) => !r.read)}
-          className="border-border text-foreground hover:bg-muted"
-          type="button"
-        >
-          <CheckCheck className="h-4 w-4 me-1" />
-          {markAllText}
-        </Button>
-      </div>
+      {rows.length > 0 && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            onClick={markAll}
+            disabled={!rows.some((r) => !r.read)}
+            className="border-border text-foreground hover:bg-muted"
+            type="button"
+          >
+            <CheckCheck className="h-4 w-4 me-1" />
+            {markAllText}
+          </Button>
+        </div>
+      )}
 
       {!loaded ? (
         <div className="rounded-xl border border-border bg-card/30 p-6 text-center text-sm text-muted-foreground">
@@ -82,7 +83,7 @@ export default function CustomerNotificationsClient({
                   {lang === "ar" ? n.titleAr : n.titleEn}
                 </p>
                 <span className="shrink-0 text-[11px] text-muted-foreground sm:text-xs">
-                  {new Date(n.createdAt).toLocaleString(lang === "ar" ? "ar-SD" : "en-US")}
+                  {new Date(n.createdAt).toLocaleString(lang === "ar" ? "ar-SD-u-nu-latn" : "en-GB", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
                 </span>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -92,7 +93,7 @@ export default function CustomerNotificationsClient({
                 <Link
                   href={n.link}
                   onClick={() => !n.read && markOneRead(n.id)}
-                  className="mt-2 inline-block text-xs text-accent-text hover:text-accent-text"
+                  className="mt-2 inline-block text-sm font-medium text-accent-text hover:underline"
                 >
                   {viewOrderText}
                 </Link>

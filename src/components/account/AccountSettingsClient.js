@@ -13,8 +13,6 @@ import {
   changeAccountPassword,
   updateNotificationPreferences,
   updateAccountPreferences,
-  revokeSessionToken,
-  revokeAllOtherSessions,
   deleteMyAccount,
 } from "@/app/actions/user";
 import {
@@ -62,7 +60,6 @@ export default function AccountSettingsClient({
   initialTab,
   user: initialUser,
   addresses: initialAddresses,
-  sessions,
   hasOAuth,
   whatsappEnabled,
 }) {
@@ -99,11 +96,6 @@ export default function AccountSettingsClient({
 
   const [prefLanguage, setPrefLanguage] = useState(user?.prefLanguage || lang);
   const [prefTheme, setPrefThemeLocal] = useState(user?.prefTheme || "system");
-  const [prefCurrency, setPrefCurrency] = useState(user?.prefCurrency || "");
-  const [newsletterSubscribed, setNewsletterSubscribed] = useState(
-    user?.newsletterSubscribed ?? true
-  );
-
   const [curPwd, setCurPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [confPwd, setConfPwd] = useState("");
@@ -169,6 +161,8 @@ export default function AccountSettingsClient({
       router.refresh();
     } else if (res.error === "phone_in_use") {
       toast.error(t.accountPhoneInUse);
+    } else if (res.error === "phone_invalid") {
+      toast.error(t.accountPhoneInvalid);
     } else toast.error(res.error || t.error);
   };
 
@@ -230,8 +224,8 @@ export default function AccountSettingsClient({
     const res = await updateAccountPreferences({
       prefLanguage,
       prefTheme,
-      prefCurrency: prefCurrency || null,
-      newsletterSubscribed,
+      prefCurrency: user?.prefCurrency || null,
+      newsletterSubscribed: user?.newsletterSubscribed ?? false,
     });
     setPrefsSaving(false);
     if (res.success) {
@@ -307,12 +301,7 @@ export default function AccountSettingsClient({
 
   return (
     <div className={cn("space-y-8", isRTL ? "text-right" : "text-left")} dir={isRTL ? "rtl" : "ltr"}>
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">{t.accountSettingsTitle}</h1>
-        <p className="text-sm text-muted-foreground">{user?.email}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 border-b border-border pb-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <Button
             key={tab}
@@ -391,12 +380,16 @@ export default function AccountSettingsClient({
                     )}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">{t.phoneOptional}</label>
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="regular-nums" />
+                    <label className="text-sm text-muted-foreground" htmlFor="acc-phone">{t.authPhone}</label>
+                    <Input id="acc-phone" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" placeholder="0912345678" value={phone} onChange={(e) => setPhone(e.target.value)} className="regular-nums text-start rtl:text-right" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">{t.accountGender}</label>
-                    <Select value={gender || "none"} onValueChange={(v) => setGender(v === "none" ? "" : v)}>
+                    <Select
+                      value={gender || "none"}
+                      onValueChange={(v) => setGender(v === "none" ? "" : v)}
+                      items={{ none: "—", male: t.accountGenderMale, female: t.accountGenderFemale, other: t.accountGenderOther }}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -533,52 +526,6 @@ export default function AccountSettingsClient({
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.accountSessionsTitle}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {!sessions?.length && (
-                    <p className="text-sm text-muted-foreground">{t.accountSessionsEmpty}</p>
-                  )}
-                  {sessions?.map((s, i) => (
-                    <div key={s.sessionToken} className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Web · #{s.sessionToken.slice(0, 8)}…</p>
-                        <p className="text-xs text-muted-foreground">
-                          {t.empColDate}: {new Date(s.updatedAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
-                        </p>
-                        {i === 0 && <Badge className="mt-1">{t.accountSessionThis}</Badge>}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          const r = await revokeSessionToken(s.sessionToken);
-                          if (r.success) router.refresh();
-                          else toast.error(r.error || t.error);
-                        }}
-                      >
-                        {t.accountSessionRevoke}
-                      </Button>
-                    </div>
-                  ))}
-                  {sessions?.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={async () => {
-                        await revokeAllOtherSessions();
-                        router.refresh();
-                        toast.message(t.success);
-                      }}
-                    >
-                      {t.accountSessionsRevokeOthers}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
 
               <Card className="border-destructive/50">
                 <CardHeader>
@@ -703,7 +650,7 @@ export default function AccountSettingsClient({
                 <form onSubmit={handleSavePrefs} className="max-w-md space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">{t.language}</label>
-                    <Select value={prefLanguage} onValueChange={setPrefLanguage}>
+                    <Select value={prefLanguage} onValueChange={setPrefLanguage} items={{ ar: "العربية", en: "English" }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ar">العربية</SelectItem>
@@ -713,7 +660,11 @@ export default function AccountSettingsClient({
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">{t.appearance}</label>
-                    <Select value={prefTheme} onValueChange={setPrefThemeLocal}>
+                    <Select
+                      value={prefTheme}
+                      onValueChange={setPrefThemeLocal}
+                      items={{ light: t.themeLight, dark: t.themeDark, system: t.themeSystem }}
+                    >
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="light">{t.themeLight}</SelectItem>
@@ -722,19 +673,6 @@ export default function AccountSettingsClient({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">{t.accountPrefCurrency}</label>
-                    <Input value={prefCurrency} onChange={(e) => setPrefCurrency(e.target.value)} placeholder="SDG" />
-                  </div>
-                  <label className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
-                    <span className="text-sm">{t.newsletterTitle}</span>
-                    <input
-                      type="checkbox"
-                      className="h-5 w-5 accent-amber-500"
-                      checked={newsletterSubscribed}
-                      onChange={(e) => setNewsletterSubscribed(e.target.checked)}
-                    />
-                  </label>
                   <Button type="submit" disabled={prefsSaving} className="bg-amber-500 text-black hover:bg-amber-600">
                     {prefsSaving ? t.saving : t.save}
                   </Button>
