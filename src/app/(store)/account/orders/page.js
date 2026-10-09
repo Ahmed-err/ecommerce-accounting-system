@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountOrdersPage({ searchParams }) {
   const session = await auth();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?callbackUrl=/account/orders");
 
   const params = await searchParams;
   const page = Math.max(1, Number(params?.page || 1));

@@ -10,7 +10,8 @@ export function canSignIn(user) {
 
 /**
  * Re-reads role and active state at most every AUTH_RECHECK_MS.
- * Returns null (Auth.js then clears the session) when the account can no longer sign in.
+ * Returns null (Auth.js then clears the session) when the account can no longer sign in
+ * or its password changed after the session was issued.
  * A failed lookup keeps the token, so a database blip does not sign everyone out.
  */
 export async function refreshAuthToken(token, loadUser, now = Date.now()) {
@@ -26,5 +27,9 @@ export async function refreshAuthToken(token, loadUser, now = Date.now()) {
   }
 
   if (!canSignIn(user)) return null;
+  // A password change or reset ends every session issued before it. Tokens from before
+  // `issuedAt` existed count as issued at 0, so they end once if the password has changed.
+  const changedAt = user.passwordChangedAt ? new Date(user.passwordChangedAt).getTime() : 0;
+  if (changedAt > (token.issuedAt || 0)) return null;
   return { ...token, role: user.role, checkedAt: now };
 }

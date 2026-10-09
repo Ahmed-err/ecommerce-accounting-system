@@ -6,16 +6,10 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { canSignIn, refreshAuthToken } from "@/lib/auth-session-guard";
+import { accountLookupWhere } from "@/lib/auth-identity";
 
 const googleId = process.env.GOOGLE_CLIENT_ID;
 const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-function normalizePhone(input) {
-  const raw = String(input || "").trim();
-  const normalized = raw.replace(/[^\d+]/g, "");
-  if (!/^\+?\d{8,15}$/.test(normalized)) return null;
-  return normalized.startsWith("+") ? normalized : `+${normalized}`;
-}
 
 export const {
   handlers,
@@ -37,11 +31,11 @@ export const {
     },
     async jwt(params) {
       const token = await authConfig.callbacks.jwt(params);
-      if (params.user) return { ...token, checkedAt: Date.now() };
+      if (params.user) return { ...token, issuedAt: Date.now(), checkedAt: Date.now() };
       return refreshAuthToken(token, (id) =>
         prisma.user.findUnique({
           where: { id },
-          select: { role: true, isActive: true, accountDeletedAt: true },
+          select: { role: true, isActive: true, accountDeletedAt: true, passwordChangedAt: true },
         })
       );
     },
@@ -61,21 +55,15 @@ export const {
         if (!credentials?.email || !credentials?.password) return null;
         const identifier = String(credentials.email).trim();
 
-        const rateKey = `login_${identifier}`;
+        const rateKey = `login_${identifier.toLowerCase()}`;
         const allowed = await checkRateLimit(rateKey, 10, 15 * 60 * 1000, { failClosed: true });
         if (!allowed) {
             throw new Error("Too many login attempts. Please try again later.");
         }
 
-        const normalizedPhone = normalizePhone(identifier);
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: identifier },
-              ...(normalizedPhone ? [{ phone: normalizedPhone }, { phone: identifier }] : [{ phone: identifier }]),
-            ]
-          },
-        });
+        const where = accountLookupWhere(identifier);
+        if (!where) return null;
+        const user = await prisma.user.findFirst({ where });
 
         if (!user || !user.password) return null;
 

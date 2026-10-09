@@ -1,138 +1,88 @@
 "use server";
 
+import { createHash, randomUUID } from "node:crypto";
 import { prisma as db } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { sendResetEmail, sendResetSMS } from "@/lib/senders";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { accountLookupWhere, isStrongPassword } from "@/lib/auth-identity";
 
-export async function requestPasswordReset(email) {
+// Only a hash of the reset token is stored, so a database read can't be used to reset passwords.
+const hashToken = (token) => createHash("sha256").update(String(token || "")).digest("hex");
+
+// Errors are codes; the pages show them in the visitor's language.
+export async function requestPasswordReset(identifier) {
   try {
-    // Get IP for additional rate limiting
+    const raw = String(identifier || "").trim();
     const ip = await getClientIP();
-    const rateKey = email.toLowerCase().trim();
-    
-    // Use database-backed rate limiter
-    const [emailAllowed, ipAllowed] = await Promise.all([
-      checkRateLimit(`reset_${rateKey}`, 5, 15 * 60 * 1000),
-      checkRateLimit(`reset_ip_${ip}`, 10, 15 * 60 * 1000)
+    const [idAllowed, ipAllowed] = await Promise.all([
+      checkRateLimit(`reset_${raw.toLowerCase()}`, 5, 15 * 60 * 1000),
+      checkRateLimit(`reset_ip_${ip}`, 10, 15 * 60 * 1000),
     ]);
-    
-    if (!emailAllowed || !ipAllowed) {
-       console.warn(`[SECURITY] Rate Limit trigger on password reset for: ${rateKey}`);
-       return { success: false, error: "Too many requests. Try again in 15 minutes." };
+    if (!idAllowed || !ipAllowed) {
+      console.warn(`[SECURITY] Rate limit on password reset for: ${raw.toLowerCase()}`);
+      return { success: false, error: "rate_limited" };
     }
 
-    const isPhone = /^[0-9+\-()\s]+$/.test(email);
-    
-    const user = await db.user.findFirst({
-        where: {
-            OR: [
-                { email },
-                { phone: email }
-            ]
-        }
+    const where = accountLookupWhere(raw);
+    const user = where ? await db.user.findFirst({ where }) : null;
+    // Same answer whether or not the account exists.
+    if (!user?.email) return { success: true };
+
+    const token = randomUUID();
+    await db.verificationToken.create({
+      data: { identifier: user.email, token: hashToken(token), expires: new Date(Date.now() + 3600000) },
     });
 
-    if (!user) {
-      // Don't reveal if user exists for security
-      return { success: true }; 
-    }
-
-    const token = crypto.randomUUID();
-    const expires = new Date(Date.now() + 3600000); // 1 hour
-
-    await db.verificationToken.upsert({
-      where: { identifier_token: { identifier: user.email, token: token } },
-      update: { token, expires },
-      create: {
-        identifier: user.email,
-        token,
-        expires,
-      },
-    });
-
-    let sent = false;
-    
-    if (isPhone && user.phone) {
-       sent = await sendResetSMS(user.phone, token);
-    } else {
-       sent = await sendResetEmail(user.email, token);
-    }
-
-    if (!sent) {
-        console.warn("[AUTH] Password reset delivery failed for:", isPhone ? "phone" : "email");
-    }
+    const byPhone = !raw.includes("@") && user.phone;
+    const sent = byPhone ? await sendResetSMS(user.phone, token, user.email) : await sendResetEmail(user.email, token);
+    if (!sent) console.warn("[AUTH] Password reset delivery failed for:", byPhone ? "phone" : "email");
 
     return { success: true };
   } catch (error) {
     console.error("Forgot password error:", error);
-    return { success: false, error: "System error occurred." };
+    return { success: false, error: "system_error" };
   }
 }
 
-export async function validateResetToken(email, token) {
-   try {
-     const storedToken = await db.verificationToken.findUnique({
-       where: { identifier_token: { identifier: email, token: token } }
-     });
-
-     if (!storedToken || storedToken.expires < new Date()) {
-       return { valid: false };
-     }
-
-     return { valid: true };
-   } catch (error) {
-     return { valid: false };
-   }
+async function findValidToken(email, token) {
+  const stored = await db.verificationToken.findUnique({
+    where: { identifier_token: { identifier: String(email || ""), token: hashToken(token) } },
+  });
+  return stored && stored.expires >= new Date() ? stored : null;
 }
 
-function validatePassword(password) {
-  if (password.length < 8) return "Password must be at least 8 characters long.";
-  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter.";
-  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter.";
-  if (!/[0-9]/.test(password)) return "Password must contain at least one number.";
-  return null;
+export async function validateResetToken(email, token) {
+  try {
+    return { valid: Boolean(await findValidToken(email, token)) };
+  } catch {
+    return { valid: false };
+  }
 }
 
 export async function resetPassword(email, token, newPassword) {
   try {
     const ip = await getClientIP();
-    const resetAttemptAllowed = await checkRateLimit(`reset_attempt_${ip}`, 10, 15 * 60 * 1000);
-    if (!resetAttemptAllowed) {
-      return { success: false, error: "Too many attempts. Try again in 15 minutes." };
-    }
+    const allowed = await checkRateLimit(`reset_attempt_${ip}`, 10, 15 * 60 * 1000);
+    if (!allowed) return { success: false, error: "rate_limited" };
+    if (!isStrongPassword(newPassword)) return { success: false, error: "password_weak" };
 
-    const passwordError = validatePassword(newPassword);
-    if (passwordError) {
-      return { success: false, error: passwordError };
-    }
-
-    const storedToken = await db.verificationToken.findUnique({
-      where: { identifier_token: { identifier: email, token: token } }
-    });
-
-    if (!storedToken || storedToken.expires < new Date()) {
-      return { success: false, error: "Invalid or expired token." };
-    }
+    const stored = await findValidToken(email, token);
+    if (!stored) return { success: false, error: "token_invalid" };
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
+    // passwordChangedAt also ends every session issued before the reset (auth-session-guard).
     await db.$transaction([
       db.user.update({
-        where: { email },
-        data: { 
-          password: hashedPassword,
-          passwordChangedAt: new Date()
-        }
+        where: { email: stored.identifier },
+        data: { password: hashedPassword, passwordChangedAt: new Date() },
       }),
-      db.verificationToken.delete({
-        where: { identifier_token: { identifier: email, token: token } }
-      })
+      db.verificationToken.deleteMany({ where: { identifier: stored.identifier } }),
     ]);
 
     return { success: true };
   } catch (error) {
     console.error("Reset password error:", error);
-    return { success: false, error: "Failed to reset password." };
+    return { success: false, error: "reset_failed" };
   }
 }

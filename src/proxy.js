@@ -4,6 +4,13 @@ import { logger } from "@/lib/logger";
 
 const { auth } = NextAuth(authConfig);
 
+// Sends people to login with a way back to the page they asked for.
+function loginUrl(nextUrl) {
+  const url = new URL("/login", nextUrl);
+  url.searchParams.set("callbackUrl", `${nextUrl.pathname}${nextUrl.search}`);
+  return url;
+}
+
 export default auth((req) => {
   const { nextUrl } = req;
   const requestId = req.headers.get("x-request-id") || crypto.randomUUID();
@@ -31,7 +38,7 @@ export default auth((req) => {
   if (isPosRoute) {
     if (!isLoggedIn) {
       logger.warn("proxy_blocked", { requestId, path, reason: "unauthenticated_pos" });
-      return Response.redirect(new URL("/login", nextUrl));
+      return Response.redirect(loginUrl(nextUrl));
     }
     if (!["ADMIN", "MANAGER", "CASHIER"].includes(userRole)) {
       logger.warn("proxy_blocked", { requestId, path, reason: "forbidden_pos_role", userRole });
@@ -44,7 +51,7 @@ export default auth((req) => {
   if (isAdminRoute) {
     if (!isLoggedIn) {
       logger.warn("proxy_blocked", { requestId, path, reason: "unauthenticated_admin" });
-      return Response.redirect(new URL("/login", nextUrl));
+      return Response.redirect(loginUrl(nextUrl));
     }
 
     // Customers cannot access admin

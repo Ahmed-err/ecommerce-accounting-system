@@ -24,8 +24,8 @@ export async function generateMetadata({ params }) {
 
 export default async function InvoicePage({ params }) {
   const session = await auth();
-  if (!session) redirect("/login");
   const { id } = await params;
+  if (!session) redirect(`/login?callbackUrl=${encodeURIComponent(`/orders/${id}/invoice`)}`);
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
