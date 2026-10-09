@@ -1,7 +1,7 @@
 import { prisma as db } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { auth } from "@/auth";
 import PrintButton from "@/components/common/PrintButton";
 import { cookies } from "next/headers";
@@ -19,7 +19,8 @@ export async function generateMetadata({ params }) {
   const lang = cookieStore.get("lang")?.value || "ar";
   const store = await getOrCreateStoreSettings();
   const brandName = lang === "ar" ? store.nameAr || store.nameEn : store.nameEn || store.nameAr;
-  return { title: `Invoice - ${id.slice(-8).toUpperCase()} | ${brandName}` };
+  const label = lang === "ar" ? "فاتورة" : "Invoice";
+  return { title: `${label} #${id.slice(-8).toUpperCase()} | ${brandName}`, robots: { index: false } };
 }
 
 export default async function InvoicePage({ params }) {
@@ -56,8 +57,9 @@ export default async function InvoicePage({ params }) {
     receiptFromServer: {
       orderId: order.id,
       orderRef: `#${order.id.slice(-8).toUpperCase()}`,
-      createdAt: invoice.issuedAt || order.createdAt,
-      invoiceNumber: invoice.invoiceNumber,
+      createdAt: order.createdAt,
+      // Invoices created after the fact carry a "BACKFILL-<order id>" number; show the order ref instead.
+      invoiceNumber: invoice.invoiceNumber?.startsWith("BACKFILL-") ? order.id.slice(-8).toUpperCase() : invoice.invoiceNumber,
       paymentMethod: order.paymentMethod,
       guestName: order.guestName || order.user?.name || "",
       guestPhone: order.guestPhone || "",
@@ -84,9 +86,8 @@ export default async function InvoicePage({ params }) {
       ...printerStore,
       currency: store.currency || "SDG",
     },
-    cashier: {
-      name: isStaff ? (session.user?.name || session.user?.email) : (lang === "ar" ? "النظام" : "System"),
-    },
+    // Online orders have no cashier; the person viewing the invoice isn't one either.
+    cashier: null,
     lang,
     subtotalBeforeDiscount: lineSubtotal,
     discountType: "fixed",
@@ -102,9 +103,10 @@ export default async function InvoicePage({ params }) {
       <div className="flex w-full max-w-[210mm] justify-between items-center mb-6 print:hidden">
         <Link
           href={backHref}
+          aria-label={lang === "ar" ? "رجوع" : "Back"}
           className="p-2 bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-colors border border-border"
         >
-          <ArrowLeft className="w-5 h-5" />
+          {lang === "ar" ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
         </Link>
         <PrintButton targetId="invoice-print-area" />
       </div>
