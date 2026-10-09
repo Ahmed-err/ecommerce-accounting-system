@@ -1343,7 +1343,31 @@ const dictionary = {
   "paymentMethod_CASH_ON_DELIVERY": "الدفع عند الاستلام",
   "paymentMethod_BANK_TRANSFER": "تحويل بنكي",
   "paymentMethod_CASH": "نقداً",
-  "paymentMethod_CARD": "بطاقة"
+  "paymentMethod_CARD": "بطاقة",
+  "accountOrdersSearch": "ابحث برقم الطلب",
+  "accountOrdersAllStatuses": "كل الحالات",
+  "accountOrdersFilter": "بحث",
+  "accountOrdersEmpty": "لم تطلب شيئاً بعد",
+  "accountOrdersClear": "عرض كل الطلبات",
+  "accountOrdersItemsCount": "{count} قطعة",
+  "accountOrdersPages": "صفحات الطلبات",
+  "accountOrdersPage": "صفحة {page} من {pages}",
+  "accountOrdersPrev": "السابق",
+  "accountOrdersNext": "التالي",
+  "accountOrdersBack": "كل الطلبات",
+  "accountOrderTitle": "الطلب #{ref}",
+  "accountOrderHeading": "الطلب",
+  "accountOrderItems": "المنتجات",
+  "accountOrderQty": "{qty}",
+  "accountOrderDelivery": "التوصيل إلى",
+  "accountOrderSummary": "ملخص المبلغ",
+  "accountOrderDiscount": "الخصم",
+  "accountPhoneInvalid": "اكتب رقم هاتف صحيح، مثل 0912345678.",
+  "accountNotificationsSubtitle": "تحديثات حالة طلباتك",
+  "accountNotificationsEmpty": "لا توجد إشعارات بعد. ستصلك هنا تحديثات طلباتك.",
+  "accountNotificationsMarkAll": "تحديد الكل كمقروء",
+  "accountNotificationsLoading": "جارٍ التحميل…",
+  "accountViewOrder": "عرض الطلب"
 };
 
 export default dictionary;

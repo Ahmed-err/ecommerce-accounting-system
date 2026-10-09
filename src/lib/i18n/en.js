@@ -1343,7 +1343,31 @@ const dictionary = {
   "paymentMethod_CASH_ON_DELIVERY": "Cash on delivery",
   "paymentMethod_BANK_TRANSFER": "Bank transfer",
   "paymentMethod_CASH": "Cash",
-  "paymentMethod_CARD": "Card"
+  "paymentMethod_CARD": "Card",
+  "accountOrdersSearch": "Search by order number",
+  "accountOrdersAllStatuses": "All statuses",
+  "accountOrdersFilter": "Search",
+  "accountOrdersEmpty": "You haven't ordered anything yet",
+  "accountOrdersClear": "Show all orders",
+  "accountOrdersItemsCount": "{count} items",
+  "accountOrdersPages": "Order pages",
+  "accountOrdersPage": "Page {page} of {pages}",
+  "accountOrdersPrev": "Previous",
+  "accountOrdersNext": "Next",
+  "accountOrdersBack": "All orders",
+  "accountOrderTitle": "Order #{ref}",
+  "accountOrderHeading": "Order",
+  "accountOrderItems": "Items",
+  "accountOrderQty": "{qty}",
+  "accountOrderDelivery": "Deliver to",
+  "accountOrderSummary": "Amount summary",
+  "accountOrderDiscount": "Discount",
+  "accountPhoneInvalid": "Enter a valid phone number, e.g. 0912345678.",
+  "accountNotificationsSubtitle": "Updates about your orders",
+  "accountNotificationsEmpty": "No notifications yet. Updates about your orders will appear here.",
+  "accountNotificationsMarkAll": "Mark all as read",
+  "accountNotificationsLoading": "Loading…",
+  "accountViewOrder": "View order"
 };
 
 export default dictionary;
