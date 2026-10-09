@@ -36,6 +36,8 @@ const AUTH_PAGES = ["/login", "/register", "/forgot-password", "/reset-password"
 /** True for a same-site path to send someone back to after login. */
 export function isSafeCallbackPath(path) {
   if (typeof path !== "string" || !path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return false;
+  // Browsers drop tabs/newlines from URLs ("/\t/evil.com" → "//evil.com"), so refuse any whitespace or control character.
+  if (/[\s\u0000-\u001f\u007f]/.test(path)) return false;
   const pathname = path.split(/[?#]/)[0];
   return !AUTH_PAGES.includes(pathname);
 }

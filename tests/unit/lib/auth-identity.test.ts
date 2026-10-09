@@ -45,6 +45,14 @@ describe("isSafeCallbackPath", () => {
     expect(isSafeCallbackPath("/login")).toBe(false);
     expect(isSafeCallbackPath(null)).toBe(false);
   });
+
+  it("rejects paths that browsers turn into another site", () => {
+    // Browsers drop tabs/newlines from URLs, so "/\t/evil.com" becomes "//evil.com".
+    for (const p of ["/\t/evil.com", "/\n/evil.com", "/\r\n/evil.com", "/ /evil.com", "/\u0000/evil.com"]) {
+      expect(isSafeCallbackPath(p)).toBe(false);
+    }
+    expect(isSafeCallbackPath("/products?q=a%20b")).toBe(true);
+  });
 });
 
 describe("accountLookupWhere", () => {
