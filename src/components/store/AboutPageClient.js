@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage, useT } from "@/context/LanguageContext";
@@ -24,38 +23,10 @@ function GridPattern({ className }) {
   );
 }
 
-function StatCounter({ value, label, isRTL }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [n, setN] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const target = Math.max(0, Math.floor(Number(value) || 0));
-    const dur = 1100;
-    let start;
-    const tick = (ts) => {
-      if (!start) start = ts;
-      const p = Math.min(1, (ts - start) / dur);
-      const eased = 1 - (1 - p) ** 3;
-      setN(Math.floor(target * eased));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [inView, value]);
-
-  return (
-    <div ref={ref} className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
-      <p className="text-3xl font-black text-accent-text dark:text-amber-400 tabular-nums">{n.toLocaleString(isRTL ? "ar-SD" : "en-US")}</p>
-      <p className="mt-2 text-sm font-semibold text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
 const STAGGER = { visible: { transition: { staggerChildren: 0.08 } } };
 const FADE_UP = { hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } };
 
-export default function AboutPageClient({ store, stats, features, team }) {
+export default function AboutPageClient({ store, features, team }) {
   const { lang, isRTL } = useLanguage();
   const t = useT();
 
@@ -74,7 +45,6 @@ export default function AboutPageClient({ store, stats, features, team }) {
   const address = lang === "ar" ? store.addressAr || store.addressEn : store.addressEn || store.addressAr;
 
   const displayFeatures = features?.length ? features : fallbackFromTranslations;
-  const years = stats.yearsInBusiness ?? (lang === "ar" ? 15 : 15);
 
   const hours = store.businessHoursJson && typeof store.businessHoursJson === "object" ? store.businessHoursJson : {};
   const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -183,16 +153,6 @@ export default function AboutPageClient({ store, stats, features, team }) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="mb-10 text-center text-2xl font-black text-foreground">{t.aboutStatsTitle}</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCounter value={years} label={t.aboutStatYears} isRTL={isRTL} />
-          <StatCounter value={stats.productCount} label={t.aboutStatProducts} isRTL={isRTL} />
-          <StatCounter value={stats.happyCustomers} label={t.aboutStatCustomers} isRTL={isRTL} />
-          <StatCounter value={stats.ordersDelivered} label={t.aboutStatOrders} isRTL={isRTL} />
-        </div>
-      </section>
-
       {team?.length ? (
         <section className="border-t border-border bg-muted/15 py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -236,6 +196,7 @@ export default function AboutPageClient({ store, stats, features, team }) {
             </a>
           </Button>
         ) : null}
+        {dayKeys.some((d) => hours[d]) ? (
         <div className="mt-10">
           <h3 className="mb-4 font-bold text-foreground">{t.aboutHoursTitle}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -253,6 +214,7 @@ export default function AboutPageClient({ store, stats, features, team }) {
             })}
           </ul>
         </div>
+        ) : null}
       </section>
 
       <section className="border-t border-border bg-amber-500/10 py-14 dark:bg-amber-500/5">

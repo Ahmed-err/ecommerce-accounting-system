@@ -153,26 +153,26 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
               ) : null}
             </div>
           </div>
+          {DAYS.some((d) => hours[d]) ? (
           <div className="flex items-start gap-4">
             <Clock className="mt-1 h-5 w-5 shrink-0 text-accent-text" />
             <div>
-              <h3 className="font-bold text-foreground">{t.workingHours}</h3>
+              <h3 className="font-bold text-foreground">{t.aboutHoursTitle}</h3>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                 {DAYS.map((d) => {
                   const h = hours[d];
                   if (!h) return null;
                   return (
                     <li key={d} className="flex justify-between gap-4 border-b border-border/50 py-1">
-                      <span className="capitalize">{d}</span>
-                      <span dir="ltr">
-                        {h.open ? `${h.from}–${h.to}` : "—"}
-                      </span>
+                      <span>{t[`aboutDay_${d}`]}</span>
+                      {h.open ? <span dir="ltr">{`${h.from}–${h.to}`}</span> : <span>{t.aboutClosed}</span>}
                     </li>
                   );
                 })}
               </ul>
             </div>
           </div>
+          ) : null}
           <div className="flex flex-wrap gap-3 border-t border-border pt-4">
             {store.facebookUrl ? (
               <a href={store.facebookUrl} target="_blank" rel="noreferrer" className="text-sm text-accent-text hover:underline">
@@ -193,6 +193,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
         </div>
       </div>
 
+      {faqs.length > 0 && (
       <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
         <h2 className="text-xl font-bold text-foreground">{t.contactFaqTitle}</h2>
         <Input
@@ -203,7 +204,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
         />
         <div className="mt-6 space-y-2">
           {filteredFaq.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t.catalogEmptyTitle}</p>
+            <p className="text-sm text-muted-foreground">{t.contactFaqNoMatch}</p>
           ) : (
             filteredFaq.map((f) => (
               <details key={f.id} className="group rounded-xl border border-border bg-muted/20 open:bg-muted/30">
@@ -218,6 +219,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -1,49 +1,47 @@
 import { prisma as db } from "@/lib/prisma";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_URL || "https://essamnasr.com").replace(
-  /\/$/,
-  ""
-);
 export const revalidate = 3600;
 
 export default async function sitemap() {
+  const base = getAbsoluteSiteUrl();
   let products = [];
   let categories = [];
   try {
     [products, categories] = await Promise.all([
-      db.product.findMany({
-        where: { isActive: true },
-        select: { id: true, updatedAt: true },
-      }),
+      db.product.findMany({ where: { isActive: true }, select: { id: true, updatedAt: true } }),
+      // Only categories with something on sale; links use the id, like the site's own links.
       db.category.findMany({
-        select: { name: true },
+        where: { products: { some: { isActive: true } } },
+        select: { id: true, updatedAt: true },
       }),
     ]);
   } catch {
     // Build/ISR without DB: static URLs only
   }
 
-  const paths = ["/", "/about", "/contact", "/products", "/login", "/register", "/terms", "/privacy"];
-  const staticPages = paths.map((path) => ({
-    url: path === "/" ? `${BASE_URL}/` : `${BASE_URL}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "/" ? "daily" : "monthly",
-    priority: path === "/" ? 1.0 : path === "/products" ? 0.8 : 0.5,
-  }));
+  const staticPages = [
+    { path: "/", changeFrequency: "daily", priority: 1.0 },
+    { path: "/products", changeFrequency: "daily", priority: 0.8 },
+    { path: "/about", changeFrequency: "monthly", priority: 0.5 },
+    { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
+    { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
+    { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
+  ].map(({ path, ...rest }) => ({ url: `${base}${path}`, ...rest }));
 
-  const productPages = products.map((p) => ({
-    url: `${BASE_URL}/products/${p.id}`,
-    lastModified: p.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
-
-  const categoryPages = categories.map((c) => ({
-    url: `${BASE_URL}/products?category=${encodeURIComponent(c.name)}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  return [...staticPages, ...productPages, ...categoryPages];
+  return [
+    ...staticPages,
+    ...categories.map((c) => ({
+      url: `${base}/products?category=${encodeURIComponent(c.id)}`,
+      lastModified: c.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    })),
+    ...products.map((p) => ({
+      url: `${base}/products/${p.id}`,
+      lastModified: p.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    })),
+  ];
 }

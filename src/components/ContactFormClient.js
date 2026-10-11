@@ -124,14 +124,17 @@ export default function ContactFormClient({ defaultSubject }) {
 
         <div className="space-y-2">
           <label htmlFor="contact-phone" className="text-sm font-medium text-muted-foreground">
-            {t.phoneOptional}
+            {t.contactPhoneLabel}
           </label>
           <Input
             id="contact-phone"
             name="phone"
             dir="ltr"
-            className="border-border bg-background"
-            placeholder="09xxxxxxxx"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            className="border-border bg-background rtl:text-right"
+            placeholder="0912345678"
           />
         </div>
 

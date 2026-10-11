@@ -156,7 +156,7 @@ export default function OrderConfirmationClient({ initialOrderId = "" }) {
               </Link>
             ) : (
               <Link
-                href="/track-order"
+                href={id ? `/track-order?orderNumber=${shortId}` : "/track-order"}
                 className={buttonVariants({ variant: "outline", size: "lg" })}
               >
                 {t.trackOrder}

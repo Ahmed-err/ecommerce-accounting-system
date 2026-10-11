@@ -1,13 +1,16 @@
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
+
+// Block only private areas. /_next must stay crawlable so search engines can load CSS and JS;
+// sign-in pages stay crawlable so their noindex tag is seen.
 export default function robots() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_URL || "https://essamnasr.com";
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/about", "/contact", "/shop", "/products", "/login", "/register", "/terms", "/privacy"],
-        disallow: ["/admin", "/admin/*", "/api", "/api/*", "/account", "/account/*", "/_next", "/_next/*"],
+        allow: "/",
+        disallow: ["/admin", "/pos", "/api/", "/account", "/my-orders", "/orders/", "/settings", "/checkout", "/cart", "/order-confirmation", "/styleguide"],
       },
     ],
-    sitemap: `${base.replace(/\/$/, "")}/sitemap.xml`,
+    sitemap: `${getAbsoluteSiteUrl()}/sitemap.xml`,
   };
 }
