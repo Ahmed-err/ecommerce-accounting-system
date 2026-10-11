@@ -131,8 +131,8 @@ const dictionary = {
   "phoneOptional": "رقم هاتف آخر",
   "optional": "(اختياري)",
   "min6Chars": "٦ أحرف على الأقل",
-  "contactSalesTitle": "اتصل بالمبيعات",
-  "contactSalesDesc": "هل لديك أسئلة حول الطلبات بالجملة أو معدات كهربائية محددة؟ فريقنا هنا لمساعدتك في تزويد مشروعك بالطاقة.",
+  "contactSalesTitle": "تواصل معنا",
+  "contactSalesDesc": "سؤال عن منتج أو طلب؟ اتصل بنا أو راسلنا على واتساب، أو اترك رسالة وسنرد عليك.",
   "ourOffices": "مكاتبنا",
   "visitUs": "تفضل بزيارتنا",
   "addressLine1": "الخرطوم، شارع الحرية",
@@ -1367,7 +1367,22 @@ const dictionary = {
   "accountNotificationsEmpty": "لا توجد إشعارات بعد. ستصلك هنا تحديثات طلباتك.",
   "accountNotificationsMarkAll": "تحديد الكل كمقروء",
   "accountNotificationsLoading": "جارٍ التحميل…",
-  "accountViewOrder": "عرض الطلب"
+  "accountViewOrder": "عرض الطلب",
+  "contactPhoneLabel": "رقم هاتفك (اختياري)",
+  "contactFaqNoMatch": "لا توجد أسئلة مطابقة.",
+  "trackTitle": "تتبع طلبك",
+  "trackIntro": "اكتب رقم الطلب ورقم الهاتف الذي استخدمته عند الطلب.",
+  "trackOrderNumber": "رقم الطلب",
+  "trackOrderNumberHint": "8 أحرف وأرقام، تجده في صفحة تأكيد الطلب أو في الرسالة.",
+  "trackPhone": "رقم الهاتف",
+  "trackSubmit": "عرض حالة الطلب",
+  "trackErr_invalid": "تأكد من رقم الطلب (8 أحرف وأرقام) ورقم الهاتف.",
+  "trackErr_not_found": "لم نجد طلباً بهذا الرقم وهذا الهاتف.",
+  "trackErr_rate_limited": "محاولات كثيرة. حاول بعد قليل.",
+  "trackErr_system": "حدث خطأ. حاول مرة أخرى.",
+  "trackHelp": "سؤال عن طلبك؟",
+  "trackSignedInHint": "لديك حساب؟ كل طلباتك في",
+  "categoryMetaDesc": "تسوّق {name} من همّت، مع السعر والمواصفات لكل منتج."
 };
 
 export default dictionary;

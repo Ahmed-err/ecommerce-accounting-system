@@ -6,8 +6,8 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P2.7 Content, SEO, PWA
-- **Step:** 1 — audit
-- **Last done:** P2.6 done — #28 merged, deployed 2026-10-09; live check limited to logged-out redirects (no production customer login). Return window (P2.6 #14) moved to P3.3.
+- **Step:** 4 — PR #29 open, CI running; after merge run `scripts/apply/p2-7-legal.mjs` (returns policy text) and check live
+- **Last done:** P2.7 built (about, contact, legal, track order, SEO, share image, PWA); 294 unit tests pass; PR #29 opened 2026-10-11.
 - **Next:** P2.7 Content, SEO, PWA audit. Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
@@ -36,7 +36,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.4 | Cart & checkout | done | `rebuild/p2-4-checkout` | #26 |
 | P2.5 | Auth | done | `rebuild/p2-5-auth` | #27 |
 | P2.6 | Customer account | done | `rebuild/p2-6-account` | #28 |
-| P2.7 | Content, SEO, PWA | todo | | |
+| P2.7 | Content, SEO, PWA | audit | `rebuild/p2-7-content` | parts/P2.7.md |
 | P3.1 | Admin shell & dashboard | todo | | |
 | P3.2 | Inventory | todo | | |
 | P3.3 | Orders | todo | | carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |

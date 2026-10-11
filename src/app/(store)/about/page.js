@@ -4,6 +4,7 @@ import { translations } from "@/lib/translations";
 import { getAboutPageData } from "@/lib/store/about";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 3600;
 
@@ -13,11 +14,10 @@ export async function generateMetadata() {
   const t = translations[lang];
   const branding = await getStoreBranding();
   const b = getBrandingForLang(branding, lang);
-  const base = process.env.NEXT_PUBLIC_URL || "https://essamnasr.com";
   return {
     title: `${t.aboutMetaTitle} | ${b.brandName}`,
     description: t.aboutMetaDesc,
-    alternates: { canonical: `${base}/about` },
+    alternates: { canonical: `${getAbsoluteSiteUrl()}/about` },
   };
 }
 
@@ -30,7 +30,7 @@ export default async function AboutPage() {
   const name = lang === "ar" ? store.nameAr || store.nameEn : store.nameEn || store.nameAr;
   const slogan = lang === "ar" ? store.sloganAr || store.sloganEn : store.sloganEn || store.sloganAr;
   const address = lang === "ar" ? store.addressAr || store.addressEn : store.addressEn || store.addressAr;
-  const siteUrl = process.env.NEXT_PUBLIC_URL || "https://essamnasr.com";
+  const siteUrl = getAbsoluteSiteUrl();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -52,7 +52,7 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-background text-foreground">
-      <AboutPageClient store={store} stats={data.stats} features={data.features} team={data.team} />
+      <AboutPageClient store={store} features={data.features} team={data.team} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }} />
     </div>
   );

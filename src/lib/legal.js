@@ -5,6 +5,7 @@ import {
   DEFAULT_TERMS_EN,
   DEFAULT_PRIVACY_AR,
   DEFAULT_PRIVACY_EN,
+  DEFAULT_LEGAL_UPDATED_AT,
 } from "@/lib/legal-defaults";
 
 const FALLBACK = {
@@ -33,7 +34,7 @@ export async function getLegalPageForStore(type) {
   return {
     contentAr: sanitizeLegalHtml(fb.ar),
     contentEn: sanitizeLegalHtml(fb.en),
-    updatedAt: null,
+    updatedAt: DEFAULT_LEGAL_UPDATED_AT,
     source: "default",
   };
 }

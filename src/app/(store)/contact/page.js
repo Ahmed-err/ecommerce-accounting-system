@@ -4,6 +4,7 @@ import { translations } from "@/lib/translations";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { listActiveFaqs } from "@/lib/contact";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
+import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -14,6 +15,7 @@ export async function generateMetadata() {
   return {
     title: t.contactSalesTitle + " | " + b.brandName,
     description: t.contactSalesDesc,
+    alternates: { canonical: `${getAbsoluteSiteUrl()}/contact` },
   };
 }
 

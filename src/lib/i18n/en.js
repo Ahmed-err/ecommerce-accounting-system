@@ -131,8 +131,8 @@ const dictionary = {
   "phoneOptional": "Second phone",
   "optional": "(optional)",
   "min6Chars": "At least 6 characters",
-  "contactSalesTitle": "Contact Sales",
-  "contactSalesDesc": "Do you have questions about wholesale orders or specific electrical equipment? Our team is here to help power your project.",
+  "contactSalesTitle": "Contact us",
+  "contactSalesDesc": "A question about a product or an order? Call us, message us on WhatsApp, or leave a message and we'll reply.",
   "ourOffices": "Our Offices",
   "visitUs": "Visit Us",
   "addressLine1": "Khartoum, Al-Hurriyah Street",
@@ -1367,7 +1367,22 @@ const dictionary = {
   "accountNotificationsEmpty": "No notifications yet. Updates about your orders will appear here.",
   "accountNotificationsMarkAll": "Mark all as read",
   "accountNotificationsLoading": "Loading…",
-  "accountViewOrder": "View order"
+  "accountViewOrder": "View order",
+  "contactPhoneLabel": "Your phone (optional)",
+  "contactFaqNoMatch": "No matching questions.",
+  "trackTitle": "Track your order",
+  "trackIntro": "Enter the order number and the phone number you used when ordering.",
+  "trackOrderNumber": "Order number",
+  "trackOrderNumberHint": "8 letters and digits, shown on the order confirmation page or message.",
+  "trackPhone": "Phone number",
+  "trackSubmit": "Show order status",
+  "trackErr_invalid": "Check the order number (8 letters and digits) and the phone number.",
+  "trackErr_not_found": "We couldn't find an order with this number and phone.",
+  "trackErr_rate_limited": "Too many attempts. Try again shortly.",
+  "trackErr_system": "Something went wrong. Try again.",
+  "trackHelp": "A question about your order?",
+  "trackSignedInHint": "Have an account? All your orders are in",
+  "categoryMetaDesc": "Shop {name} at Himmat, with the price and specs for every product."
 };
 
 export default dictionary;
