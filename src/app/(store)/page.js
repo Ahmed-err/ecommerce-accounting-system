@@ -15,7 +15,6 @@ export function generateMetadata() {
 }
 import { cookies } from "next/headers";
 import { jsonLdHtml } from "@/lib/json-ld";
-import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import HomeHero from "@/components/home/HomeHero";
 
 const BrandsMarquee = dynamic(() => import("@/components/home/BrandsMarquee"));
