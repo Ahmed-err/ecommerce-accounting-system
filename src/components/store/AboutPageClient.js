@@ -196,6 +196,7 @@ export default function AboutPageClient({ store, features, team }) {
             </a>
           </Button>
         ) : null}
+        {dayKeys.some((d) => hours[d]) ? (
         <div className="mt-10">
           <h3 className="mb-4 font-bold text-foreground">{t.aboutHoursTitle}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -213,6 +214,7 @@ export default function AboutPageClient({ store, features, team }) {
             })}
           </ul>
         </div>
+        ) : null}
       </section>
 
       <section className="border-t border-border bg-amber-500/10 py-14 dark:bg-amber-500/5">

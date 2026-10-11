@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "غير متصل — همّت",
+  title: "غير متصل",
   robots: { index: false, follow: false },
 };
 

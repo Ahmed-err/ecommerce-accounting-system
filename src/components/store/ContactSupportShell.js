@@ -153,6 +153,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
               ) : null}
             </div>
           </div>
+          {DAYS.some((d) => hours[d]) ? (
           <div className="flex items-start gap-4">
             <Clock className="mt-1 h-5 w-5 shrink-0 text-accent-text" />
             <div>
@@ -171,6 +172,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
               </ul>
             </div>
           </div>
+          ) : null}
           <div className="flex flex-wrap gap-3 border-t border-border pt-4">
             {store.facebookUrl ? (
               <a href={store.facebookUrl} target="_blank" rel="noreferrer" className="text-sm text-accent-text hover:underline">
