@@ -1,3 +1,4 @@
+import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -6,9 +7,7 @@ import { getEmployees, getDepartments, getEmployeeHrData, getAllStaff } from "@/
 import EmployeesModuleClient from "@/components/employees/EmployeesModuleClient";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 
-export const metadata = {
-  title: "Employee Management | Admin Dashboard",
-};
+export const generateMetadata = adminMetadata("adminEmployees");
 
 export const dynamic = "force-dynamic";
 

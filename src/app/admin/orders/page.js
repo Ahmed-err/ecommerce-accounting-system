@@ -1,3 +1,4 @@
+import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { staffCanViewModule } from "@/lib/permissions-policy";
@@ -6,9 +7,7 @@ import { translations } from "@/lib/translations";
 import { getOrdersTabData } from "@/app/actions/orders";
 import OrdersModuleClient from "@/components/orders/OrdersModuleClient";
 
-export const metadata = {
-  title: "Orders Management | Admin Dashboard",
-};
+export const generateMetadata = adminMetadata("adminOrders");
 
 export const dynamic = "force-dynamic";
 

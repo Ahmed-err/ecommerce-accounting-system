@@ -1,12 +1,11 @@
+import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { staffCanViewModule } from "@/lib/permissions-policy";
 import { getAccountingTabData, getAccountingPermissions } from "@/app/actions/accounting";
 import AccountingModuleClient from "@/components/accounting/AccountingModuleClient";
 
-export const metadata = {
-  title: "Accounting | Admin Dashboard",
-};
+export const generateMetadata = adminMetadata("adminAccounting");
 
 export const dynamic = "force-dynamic";
 

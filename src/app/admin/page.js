@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { staffCanViewModule } from "@/lib/permissions-policy";
 import DashboardClient from "@/components/admin/DashboardClient";
 import { getDashboardData } from "@/lib/dashboard";
+import { adminMetadata } from "@/lib/admin-meta";
+
+export const generateMetadata = adminMetadata("adminDashboard");
 
 export const revalidate = 30;
 
