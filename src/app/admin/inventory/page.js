@@ -1,7 +1,8 @@
+import { adminMetadata } from "@/lib/admin-meta";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import {
   getProducts,
   getCategories,
@@ -20,16 +21,7 @@ import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const t = translations[lang] || translations.en;
-  const branding = await getStoreBranding();
-  const b = getBrandingForLang(branding, lang);
-  return {
-    title: `${t.adminInventoryTitle} | ${b.brandName}`,
-  };
-}
+export const generateMetadata = adminMetadata("adminInventoryTitle");
 
 export default async function InventoryPage({ searchParams }) {
   const params = await searchParams;
@@ -43,8 +35,8 @@ export default async function InventoryPage({ searchParams }) {
 
   const session = await auth();
   const role = session?.user?.role;
-  if (!session || !(await staffCanViewModule(role, "inventory"))) {
-    redirect("/admin");
+  if (!session || !canOpenArea(role, "inventory")) {
+    redirect(staffHome(role));
   }
   const canManage = role === "ADMIN" || role === "MANAGER";
   const isCashier = role === "CASHIER";

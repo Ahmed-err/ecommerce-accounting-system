@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { PERMISSION_MODULES, getDefaultPermissionFlags } from "../../src/lib/permission-defaults.js";
 
 const USERS = [
   { email: "admin@powerstore.com", password: "admin123", firstName: "Ahmed", lastName: "Admin", phone: "+249900000001", role: "ADMIN", salary: 450000, hireDate: "2024-01-01", department: "Management" },
@@ -19,11 +18,7 @@ export async function seedUsers(prisma) {
       data: { ...rest, password: await bcrypt.hash(password, 10), hireDate: hireDate ? new Date(hireDate) : undefined },
     });
   }
-  for (const role of ["ADMIN", "MANAGER", "CASHIER"]) {
-    for (const mod of PERMISSION_MODULES) {
-      await prisma.permission.create({ data: { role, module: mod, ...getDefaultPermissionFlags(role, mod) } });
-    }
-  }
-  console.log(`   ✓ ${USERS.length} users, role permissions`);
+  // Staff access is fixed in code (src/lib/staff-access.js); the Permission table is no longer read.
+  console.log(`   ✓ ${USERS.length} users`);
   return { admin: created["admin@powerstore.com"], customer: created["customer@example.com"] };
 }

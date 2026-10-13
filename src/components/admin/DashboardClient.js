@@ -35,6 +35,8 @@ import {
 } from "recharts";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { formatAuditActivityForDashboard } from "@/lib/audit-display";
+import { orderStatusLabel, orderRef } from "@/lib/order-labels";
+import { formatAmount } from "@/lib/format";
 
 const PIE_COLORS = ["#f59e0b", "#22c55e", "#3b82f6", "#ef4444", "#a855f7", "#14b8a6"];
 
@@ -53,6 +55,13 @@ function statusClass(status) {
   if (status === "CANCELLED") return "bg-red-500/15 text-red-800 dark:text-red-400";
   if (status === "PROCESSING") return "bg-violet-500/15 text-violet-800 dark:text-violet-400";
   return "bg-amber-500/15 text-amber-900 dark:text-amber-300";
+}
+
+const money = (v) => formatAmount(Math.round(Number(v) || 0));
+const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+
+function EmptyNote({ children }) {
+  return <p className="py-6 text-center text-sm text-muted-foreground">{children}</p>;
 }
 
 const KPI_ICONS = {
@@ -79,6 +88,22 @@ export default function DashboardClient({ data, filters }) {
     totalProducts: lang === "ar" ? "إجمالي المنتجات" : "Total Products",
     lowStock: lang === "ar" ? "مخزون منخفض" : "Low Stock Items",
   };
+  const rangeLabels = {
+    today: lang === "ar" ? "اليوم" : "Today",
+    week: lang === "ar" ? "آخر 7 أيام" : "Last 7 days",
+    month: lang === "ar" ? "هذا الشهر" : "This month",
+  };
+  const sourceLabel = (s) => (s === "POS" ? (lang === "ar" ? "نقطة البيع" : "POS") : lang === "ar" ? "المتجر" : "Store");
+  const locale = lang === "ar" ? "ar" : "en";
+  const bucketFmt =
+    filters.view === "weekly"
+      ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", numberingSystem: "latn" })
+      : new Intl.DateTimeFormat(locale, { month: "short", numberingSystem: "latn" });
+  const chart = data.chart.map((b) => ({ ...b, label: bucketFmt.format(new Date(b.start)) }));
+  const hasPos = chart.some((b) => b.pos > 0);
+  const categories = data.salesByCategory.map((c) => ({ ...c, label: (lang === "ar" && c.nameAr) || c.name }));
+  const storeName = sourceLabel("STORE");
+  const posName = sourceLabel("POS");
 
   return (
     <div
@@ -94,7 +119,7 @@ export default function DashboardClient({ data, filters }) {
           {["today", "week", "month"].map((r) => (
             <Link key={r} href={`/admin?range=${r}&view=${filters.view}`}>
               <Button size="sm" variant={filters.range === r ? "default" : "outline"} className={filters.range === r ? "bg-amber-500 text-black" : "border-border bg-card text-foreground hover:bg-muted"}>
-                {r}
+                {rangeLabels[r]}
               </Button>
             </Link>
           ))}
@@ -112,7 +137,7 @@ export default function DashboardClient({ data, filters }) {
       <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {data.kpis.map((k) => {
           const Icon = KPI_ICONS[k.id] || DollarSign;
-          const up = k.change >= 0;
+          const up = k.change != null && k.change >= 0;
           return (
             <motion.div key={k.id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
               <Link href={k.href}>
@@ -124,13 +149,16 @@ export default function DashboardClient({ data, filters }) {
                   <CardContent>
                     <div className="text-2xl font-bold text-foreground regular-nums">
                       {["totalOrders", "newCustomers", "totalProducts", "lowStock"].includes(k.id)
-                        ? Number(k.value).toLocaleString()
-                        : `${Number(k.value).toLocaleString()} ${t.currency}`}
+                        ? formatAmount(k.value)
+                        : `${money(k.value)} ${t.currency}`}
                     </div>
-                    <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                      {up ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
-                      <span>{k.change}%</span>
-                    </div>
+                    {k.change != null ? (
+                      <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+                        {up ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+                        <span dir="ltr">{k.change}%</span>
+                        <span className="text-muted-foreground">{lang === "ar" ? "عن الفترة السابقة" : "vs previous period"}</span>
+                      </div>
+                    ) : null}
                   </CardContent>
                 </Card>
               </Link>
@@ -144,9 +172,10 @@ export default function DashboardClient({ data, filters }) {
           <CardTitle className="text-foreground">{lang === "ar" ? "اتجاه الإيرادات" : "Revenue Trend"}</CardTitle>
           <CardDescription className="text-muted-foreground">{lang === "ar" ? "المتجر مقابل نقطة البيع" : "Store vs POS over time"}</CardDescription>
         </CardHeader>
-        <CardContent className="h-[330px]">
+        {/* Chart text is laid out LTR (RTL breaks recharts' label anchors); the axes are mirrored instead. */}
+        <CardContent className="h-[330px]" dir="ltr">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.chart}>
+            <LineChart data={chart} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
               <defs>
                 <linearGradient id="totalFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
@@ -154,12 +183,21 @@ export default function DashboardClient({ data, filters }) {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="label" stroke="var(--muted-foreground)" />
-              <YAxis stroke="var(--muted-foreground)" />
-              <Tooltip contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }} />
-              <Area type="monotone" dataKey="total" fill="url(#totalFill)" stroke="transparent" />
-              <Line type="monotone" dataKey="store" stroke="#3b82f6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="pos" stroke="#22c55e" strokeWidth={2} dot={false} />
+              <XAxis dataKey="label" reversed={isRTL} stroke="var(--muted-foreground)" tick={{ fontSize: 12 }} />
+              <YAxis
+                orientation={isRTL ? "right" : "left"}
+                width={48}
+                tickFormatter={(v) => compact.format(v)}
+                stroke="var(--muted-foreground)"
+                tick={{ fontSize: 12 }}
+              />
+              <Tooltip
+                formatter={(v, name) => [`${money(v)} ${t.currency}`, name]}
+                contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)" }}
+              />
+              <Area type="monotone" dataKey="total" fill="url(#totalFill)" stroke="transparent" legendType="none" tooltipType="none" />
+              <Line type="monotone" dataKey="store" name={storeName} stroke="#3b82f6" strokeWidth={2} dot={false} />
+              {hasPos ? <Line type="monotone" dataKey="pos" name={posName} stroke="#22c55e" strokeWidth={2} dot={false} /> : null}
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -171,17 +209,18 @@ export default function DashboardClient({ data, filters }) {
             <CardTitle className="text-foreground">{lang === "ar" ? "أحدث الطلبات" : "Recent Orders"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
+            {data.recentOrders.length === 0 ? <EmptyNote>{lang === "ar" ? "لا توجد طلبات بعد." : "No orders yet."}</EmptyNote> : null}
             {data.recentOrders.map((o) => (
               <Link href={`/admin/orders?search=${encodeURIComponent(o.id.slice(-8))}`} key={o.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 hover:bg-muted/60">
                 <div>
-                  <p className="font-semibold text-foreground">#{o.id.slice(-8).toUpperCase()}</p>
-                  <p className="text-xs text-muted-foreground">{o.customer} - {timeAgo(o.createdAt, lang)}</p>
+                  <p className="font-semibold text-foreground" dir="ltr">#{orderRef(o.id)}</p>
+                  <p className="text-xs text-muted-foreground">{o.customer || (lang === "ar" ? "زائر" : "Guest")} · {timeAgo(o.createdAt, lang)}</p>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
-                  <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{o.total.toLocaleString()} {t.currency}</div>
+                  <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{money(o.total)} {t.currency}</div>
                   <div className="mt-1 flex items-center gap-2">
-                    <Badge className={o.source === "POS" ? "bg-blue-500/15 text-blue-700 dark:text-blue-300" : "bg-violet-500/15 text-violet-700 dark:text-violet-300"}>{o.source}</Badge>
-                    <Badge className={statusClass(o.status)}>{o.status}</Badge>
+                    <Badge className={o.source === "POS" ? "bg-blue-500/15 text-blue-700 dark:text-blue-300" : "bg-violet-500/15 text-violet-700 dark:text-violet-300"}>{sourceLabel(o.source)}</Badge>
+                    <Badge className={statusClass(o.status)}>{orderStatusLabel(o.status, t)}</Badge>
                   </div>
                 </div>
               </Link>
@@ -195,15 +234,16 @@ export default function DashboardClient({ data, filters }) {
             <CardTitle className="text-foreground">{lang === "ar" ? "الأكثر مبيعاً" : "Top Selling Products"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {data.topProducts.length === 0 ? <EmptyNote>{lang === "ar" ? "لا مبيعات في هذه الفترة." : "No sales in this period."}</EmptyNote> : null}
             {data.topProducts.map((p) => (
               <div key={p.productId} className="flex items-center justify-between rounded-lg border border-border p-2">
                 <div className="flex items-center gap-2">
                   <span className="w-6 text-center text-xs font-bold text-accent-text">{p.rank}</span>
-                  <span className="text-sm text-foreground">{p.name}</span>
+                  <span className="text-sm text-foreground">{(lang === "ar" && p.nameAr) || p.name}</span>
                 </div>
                 <div className={isRTL ? "text-left" : "text-right"}>
                   <p className="text-xs text-muted-foreground">{p.unitsSold} {lang === "ar" ? "وحدة" : "units"}</p>
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400">{p.revenue.toLocaleString()} {t.currency}</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">{money(p.revenue)} {t.currency}</p>
                 </div>
               </div>
             ))}
@@ -217,15 +257,34 @@ export default function DashboardClient({ data, filters }) {
           <CardHeader>
             <CardTitle className="text-foreground">{lang === "ar" ? "المبيعات حسب الفئة" : "Sales by Category"}</CardTitle>
           </CardHeader>
-          <CardContent className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={data.salesByCategory} dataKey="revenue" nameKey="name" outerRadius={80}>
-                  {data.salesByCategory.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent className="space-y-3">
+            {data.salesByCategory.length === 0 ? (
+              <EmptyNote>{lang === "ar" ? "لا مبيعات في هذه الفترة." : "No sales in this period."}</EmptyNote>
+            ) : (
+              <>
+                <div className="h-[180px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={categories} dataKey="revenue" nameKey="label" outerRadius={75}>
+                        {categories.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={(v, name) => [`${money(v)} ${t.currency}`, name]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <ul className="space-y-1 text-xs">
+                  {categories.map((c, idx) => (
+                    <li key={c.id} className="flex items-center justify-between gap-2">
+                      <span className="flex min-w-0 items-center gap-2 text-foreground">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }} />
+                        <span className="truncate">{c.label}</span>
+                      </span>
+                      <span className="text-muted-foreground" dir="ltr">{c.percent}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card className="bg-card border-border rounded-2xl">
@@ -233,9 +292,10 @@ export default function DashboardClient({ data, filters }) {
             <CardTitle className="text-foreground">{lang === "ar" ? "توزيع حالات الطلب" : "Order Status Distribution"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
+            {data.statusDistribution.length === 0 ? <EmptyNote>{lang === "ar" ? "لا طلبات في هذه الفترة." : "No orders in this period."}</EmptyNote> : null}
             {data.statusDistribution.map((s) => (
               <div key={s.status} className="flex items-center justify-between rounded border border-border p-2 text-sm">
-                <span className="text-muted-foreground">{s.status}</span>
+                <span className="text-muted-foreground">{orderStatusLabel(s.status, t)}</span>
                 <span className="font-bold text-foreground">{s.count}</span>
               </div>
             ))}
@@ -258,6 +318,7 @@ export default function DashboardClient({ data, filters }) {
         <Card className="bg-card border-border rounded-2xl">
           <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "سجل النشاط" : "Recent Activity"}</CardTitle></CardHeader>
           <CardContent className="space-y-2">
+            {data.activity.length === 0 ? <EmptyNote>{lang === "ar" ? "لا يوجد نشاط مسجّل بعد." : "No activity yet."}</EmptyNote> : null}
             {data.activity.map((a) => {
               const fmt = formatAuditActivityForDashboard(a.action, a.details, lang);
               return (
@@ -292,16 +353,16 @@ export default function DashboardClient({ data, filters }) {
           <CardHeader><CardTitle className="text-foreground">{lang === "ar" ? "ملخص مالي" : "Financial Summary"}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "الإيراد" : "Revenue"}</span><span className="text-emerald-700 dark:text-emerald-400">{data.finance.revenue.toLocaleString()} {t.currency}</span></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المقبوضات (المحاسبة)" : "Money in (accounting)"}</span><span className="text-emerald-700 dark:text-emerald-400">{money(data.finance.revenue)} {t.currency}</span></div>
               <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-emerald-500" style={{ width: "100%" }} /></div>
             </div>
             <div>
-              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-600 dark:text-red-400">{data.finance.expenses.toLocaleString()} {t.currency}</span></div>
+              <div className="mb-1 flex items-center justify-between text-xs"><span className="text-muted-foreground">{lang === "ar" ? "المصاريف" : "Expenses"}</span><span className="text-red-600 dark:text-red-400">{money(data.finance.expenses)} {t.currency}</span></div>
               <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-red-500" style={{ width: `${Math.min(100, data.finance.revenue ? (data.finance.expenses / data.finance.revenue) * 100 : 0)}%` }} /></div>
             </div>
             <div className="rounded border border-border p-3">
-              <p className="text-xs text-muted-foreground">{lang === "ar" ? "صافي الربح" : "Net Profit"}</p>
-              <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>{data.finance.net.toLocaleString()} {t.currency}</p>
+              <p className="text-xs text-muted-foreground">{lang === "ar" ? "الصافي" : "Net"}</p>
+              <p className={`text-xl font-bold ${data.finance.net >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>{money(data.finance.net)} {t.currency}</p>
             </div>
             <Link href="/admin/accounting" className="inline-flex text-xs text-accent-text hover:text-accent-text dark:text-amber-400 dark:hover:text-amber-300">{lang === "ar" ? "تقرير كامل" : "Full report"}</Link>
           </CardContent>

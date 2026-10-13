@@ -1,4 +1,11 @@
+import { Prisma } from "@prisma/client";
 import { prisma as db } from "@/lib/prisma";
+import { rangeBounds, pctChange, summarizeSales, buildChart } from "@/lib/dashboard-math";
+
+// Sales figures come from orders (cancelled ones left out); money in/out comes from accounting
+// transactions and only feeds the finance summary.
+const POS = "POS Station";
+const SOURCE = Prisma.sql`CASE WHEN o."guestCity" = ${POS} THEN 'POS' ELSE 'STORE' END`;
 
 function num(v) {
   if (v == null) return 0;
@@ -6,40 +13,33 @@ function num(v) {
   return Number(v) || 0;
 }
 
-function pct(current, prev) {
-  if (!prev) return current > 0 ? 100 : 0;
-  return Number((((current - prev) / prev) * 100).toFixed(1));
+// Runs query thunks a few at a time so one dashboard load can't drain the connection pool.
+async function inBatches(thunks, size = 4) {
+  const out = [];
+  for (let i = 0; i < thunks.length; i += size) {
+    out.push(...(await Promise.all(thunks.slice(i, i + size).map((f) => f()))));
+  }
+  return out;
 }
 
-function bounds(range, from, to) {
-  const now = new Date();
-  if (range === "today") {
-    const s = new Date(now); s.setHours(0, 0, 0, 0);
-    return { start: s, end: now };
-  }
-  if (range === "week") {
-    const s = new Date(now); s.setDate(now.getDate() - 6); s.setHours(0, 0, 0, 0);
-    return { start: s, end: now };
-  }
-  if (range === "custom" && from && to) {
-    return { start: new Date(from), end: new Date(`${to}T23:59:59.999Z`) };
-  }
-  const s = new Date(now.getFullYear(), now.getMonth(), 1);
-  return { start: s, end: now };
-}
+const salesBySource = (start, end, endOp = "lte") =>
+  db.$queryRaw`
+    SELECT ${SOURCE} AS source, COALESCE(SUM(o."totalAmount"), 0)::float8 AS total, COUNT(*)::int AS count
+    FROM "Order" o
+    WHERE o.status <> 'CANCELLED' AND o."createdAt" >= ${start}
+      AND ${endOp === "lt" ? Prisma.sql`o."createdAt" < ${end}` : Prisma.sql`o."createdAt" <= ${end}`}
+    GROUP BY 1`;
 
 export async function getDashboardData({ range = "month", from, to, view = "monthly" } = {}) {
-  const { start, end } = bounds(range, from, to);
-  const prevStart = new Date(start);
-  const span = end.getTime() - start.getTime();
-  prevStart.setTime(start.getTime() - span);
-  const prevEnd = new Date(start);
+  const now = new Date();
+  const { start, end, prevStart, prevEnd } = rangeBounds(range, from, to, now);
+  const chartView = view === "weekly" ? "weekly" : "monthly";
+  const unit = chartView === "weekly" ? "week" : "month";
+  const chartFrom = buildChart([], chartView, now)[0].start;
 
   const [
-    txNow,
-    txPrev,
-    ordersNow,
-    ordersPrev,
+    salesNow,
+    salesPrev,
     customersNow,
     customersPrev,
     totalProducts,
@@ -48,152 +48,128 @@ export async function getDashboardData({ range = "month", from, to, view = "mont
     topProductsRaw,
     salesByCategoryRaw,
     statusDistRaw,
+    chartRaw,
     activities,
-    expensesNow,
-    expensesPrev,
-    totalReviews,
-    pendingReviews,
-    employeesAdded,
-  ] = await Promise.all([
-    db.transaction.aggregate({ where: { type: "INCOMING", createdAt: { gte: start, lte: end } }, _sum: { amount: true } }),
-    db.transaction.aggregate({ where: { type: "INCOMING", createdAt: { gte: prevStart, lt: prevEnd } }, _sum: { amount: true } }),
-    db.order.findMany({
-      where: { createdAt: { gte: start, lte: end } },
-      select: { id: true, totalAmount: true, createdAt: true, status: true, guestName: true, user: { select: { firstName: true, lastName: true } }, guestCity: true },
-    }),
-    db.order.aggregate({ where: { createdAt: { gte: prevStart, lt: prevEnd } }, _count: { _all: true }, _sum: { totalAmount: true } }),
-    db.user.count({ where: { role: "CUSTOMER", createdAt: { gte: start, lte: end } } }),
-    db.user.count({ where: { role: "CUSTOMER", createdAt: { gte: prevStart, lt: prevEnd } } }),
-    db.product.count({ where: { isActive: true } }),
-    db.product.findMany({ where: { isActive: true }, select: { stock: true, minStock: true } }),
-    db.order.findMany({
-      take: 10,
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { firstName: true, lastName: true } } },
-    }),
-    db.orderItem.groupBy({
-      by: ["productId"],
-      where: { order: { createdAt: { gte: start, lte: end } } },
-      _sum: { quantity: true, price: true },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 8,
-    }),
-    db.orderItem.groupBy({
-      by: ["productId"],
-      where: { order: { createdAt: { gte: start, lte: end } } },
-      _sum: { price: true, quantity: true },
-    }),
-    db.order.groupBy({
-      by: ["status"],
-      where: { createdAt: { gte: start, lte: end } },
-      _count: { _all: true },
-    }),
-    db.auditLog.findMany({ take: 15, orderBy: { createdAt: "desc" } }),
-    db.transaction.aggregate({ where: { type: "OUTGOING", createdAt: { gte: start, lte: end } }, _sum: { amount: true } }),
-    db.transaction.aggregate({ where: { type: "OUTGOING", createdAt: { gte: prevStart, lt: prevEnd } }, _sum: { amount: true } }),
-    db.review?.count?.().catch(() => 0),
-    db.review?.count?.({ where: { status: "PENDING" } }).catch(() => 0),
-    db.user.count({ where: { role: { in: ["ADMIN", "MANAGER", "CASHIER"] }, createdAt: { gte: start, lte: end } } }),
+    txIn,
+    txInPrev,
+    txOut,
+    txOutPrev,
+  ] = await inBatches([
+    () => salesBySource(start, end),
+    () => salesBySource(prevStart, prevEnd, "lt"),
+    () => db.user.count({ where: { role: "CUSTOMER", createdAt: { gte: start, lte: end } } }),
+    () => db.user.count({ where: { role: "CUSTOMER", createdAt: { gte: prevStart, lt: prevEnd } } }),
+    () => db.product.count({ where: { isActive: true } }),
+    () => db.$queryRaw`SELECT COUNT(*)::int AS n FROM "Product" WHERE "isActive" AND stock <= "minStock"`,
+    () =>
+      db.order.findMany({
+        take: 10,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          totalAmount: true,
+          status: true,
+          createdAt: true,
+          guestName: true,
+          guestCity: true,
+          user: { select: { firstName: true, lastName: true } },
+        },
+      }),
+    () => db.$queryRaw`
+      SELECT p.id, p.name, p."nameAr", p.images[1] AS image,
+             SUM(i.quantity)::int AS units, SUM(i.quantity * i.price)::float8 AS revenue
+      FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId" JOIN "Product" p ON p.id = i."productId"
+      WHERE o.status <> 'CANCELLED' AND o."createdAt" >= ${start} AND o."createdAt" <= ${end}
+      GROUP BY p.id ORDER BY units DESC, revenue DESC LIMIT 8`,
+    () => db.$queryRaw`
+      SELECT c.id, c.name, c."nameAr", SUM(i.quantity * i.price)::float8 AS revenue
+      FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId"
+        JOIN "Product" p ON p.id = i."productId" JOIN "Category" c ON c.id = p."categoryId"
+      WHERE o.status <> 'CANCELLED' AND o."createdAt" >= ${start} AND o."createdAt" <= ${end}
+      GROUP BY c.id ORDER BY revenue DESC`,
+    () =>
+      db.order.groupBy({
+        by: ["status"],
+        where: { createdAt: { gte: start, lte: end } },
+        _count: { _all: true },
+      }),
+    () => db.$queryRaw`
+      SELECT to_char(date_trunc(${unit}, o."createdAt"), 'YYYY-MM-DD') AS bucket, ${SOURCE} AS source,
+             SUM(o."totalAmount")::float8 AS total
+      FROM "Order" o
+      WHERE o.status <> 'CANCELLED' AND o."createdAt" >= ${chartFrom}
+      GROUP BY 1, 2`,
+    () => db.auditLog.findMany({ take: 15, orderBy: { createdAt: "desc" } }),
+    () => db.transaction.aggregate({ where: { type: "INCOMING", createdAt: { gte: start, lte: end } }, _sum: { amount: true } }),
+    () => db.transaction.aggregate({ where: { type: "INCOMING", createdAt: { gte: prevStart, lt: prevEnd } }, _sum: { amount: true } }),
+    () => db.transaction.aggregate({ where: { type: "OUTGOING", createdAt: { gte: start, lte: end } }, _sum: { amount: true } }),
+    () => db.transaction.aggregate({ where: { type: "OUTGOING", createdAt: { gte: prevStart, lt: prevEnd } }, _sum: { amount: true } }),
   ]);
 
-  const topProductIds = topProductsRaw.map((x) => x.productId);
-  const products = await db.product.findMany({
-    where: { id: { in: topProductIds } },
-    select: { id: true, name: true, images: true, category: { select: { id: true, name: true } } },
-  });
-  const pMap = Object.fromEntries(products.map((p) => [p.id, p]));
-  const topProducts = topProductsRaw.map((r, i) => ({
-    rank: i + 1,
-    productId: r.productId,
-    name: pMap[r.productId]?.name || "Unknown",
-    image: pMap[r.productId]?.images?.[0] || null,
-    unitsSold: Number(r._sum.quantity || 0),
-    revenue: num(r._sum.price) * Number(r._sum.quantity || 0),
-  }));
+  const sales = summarizeSales(salesNow);
+  const prev = summarizeSales(salesPrev);
 
-  const categoryMap = {};
-  for (const row of salesByCategoryRaw) {
-    const prod = pMap[row.productId];
-    const key = prod?.category?.id || "uncategorized";
-    categoryMap[key] = categoryMap[key] || { id: key, name: prod?.category?.name || "Other", revenue: 0 };
-    categoryMap[key].revenue += num(row._sum.price) * Number(row._sum.quantity || 0);
-  }
-  const salesByCategory = Object.values(categoryMap);
-  const totalCat = salesByCategory.reduce((s, c) => s + c.revenue, 0) || 1;
-  for (const c of salesByCategory) c.percent = Number(((c.revenue / totalCat) * 100).toFixed(1));
+  const chart = buildChart(
+    chartRaw.map((r) => {
+      const [y, m, d] = r.bucket.split("-").map(Number);
+      return { bucket: new Date(y, m - 1, d), source: r.source, total: r.total };
+    }),
+    chartView,
+    now,
+  ).map((b) => ({ start: b.start.toISOString(), store: b.store, pos: b.pos, total: b.total }));
 
-  const now = new Date();
-  const chart = [];
-  if (view === "weekly") {
-    for (let i = 11; i >= 0; i--) {
-      const ws = new Date(now);
-      ws.setDate(now.getDate() - i * 7);
-      ws.setHours(0, 0, 0, 0);
-      const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23, 59, 59, 999);
-      const ord = await db.order.aggregate({ where: { createdAt: { gte: ws, lte: we } }, _sum: { totalAmount: true } });
-      chart.push({
-        label: `${ws.getMonth() + 1}/${ws.getDate()}`,
-        store: recentOrders.filter((o) => o.createdAt >= ws && o.createdAt <= we && o.guestCity !== "POS Station").reduce((s, o) => s + num(o.totalAmount), 0),
-        pos: recentOrders.filter((o) => o.createdAt >= ws && o.createdAt <= we && o.guestCity === "POS Station").reduce((s, o) => s + num(o.totalAmount), 0),
-        total: num(ord._sum.totalAmount),
-      });
-    }
-  } else {
-    for (let i = 11; i >= 0; i--) {
-      const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
-      const monthOrders = await db.order.findMany({ where: { createdAt: { gte: ms, lte: me } }, select: { totalAmount: true, guestCity: true } });
-      const store = monthOrders.filter((o) => o.guestCity !== "POS Station").reduce((s, o) => s + num(o.totalAmount), 0);
-      const pos = monthOrders.filter((o) => o.guestCity === "POS Station").reduce((s, o) => s + num(o.totalAmount), 0);
-      chart.push({ label: ms.toLocaleString("en", { month: "short" }), store, pos, total: store + pos });
-    }
-  }
-
-  const totalRevenue = num(txNow._sum.amount);
-  const prevRevenue = num(txPrev._sum.amount);
-  const totalOrders = ordersNow.length;
-  const prevOrdersCount = Number(ordersPrev._count._all || 0);
-  const avgOrder = totalOrders ? totalRevenue / totalOrders : 0;
-  const prevAvg = prevOrdersCount ? num(ordersPrev._sum.totalAmount) / prevOrdersCount : 0;
-  const expenses = num(expensesNow._sum.amount);
-  const prevExpensesNum = num(expensesPrev._sum.amount);
-  const lowStockCount = lowStockRows.filter((p) => p.stock <= p.minStock).length;
+  const catTotal = salesByCategoryRaw.reduce((s, c) => s + c.revenue, 0) || 1;
+  const moneyIn = num(txIn._sum.amount);
+  const moneyInPrev = num(txInPrev._sum.amount);
+  const expenses = num(txOut._sum.amount);
+  const expensesPrev = num(txOutPrev._sum.amount);
+  const lowStockCount = lowStockRows[0]?.n ?? 0;
 
   return {
     kpis: [
-      { id: "totalRevenue", value: totalRevenue, change: pct(totalRevenue, prevRevenue), href: "/admin/accounting" },
-      { id: "storeRevenue", value: ordersNow.filter((o) => o.guestCity !== "POS Station").reduce((s, o) => s + num(o.totalAmount), 0), change: 0, href: "/admin/orders?source=store" },
-      { id: "posRevenue", value: ordersNow.filter((o) => o.guestCity === "POS Station").reduce((s, o) => s + num(o.totalAmount), 0), change: 0, href: "/admin/orders?source=pos" },
-      { id: "totalOrders", value: totalOrders, change: pct(totalOrders, prevOrdersCount), href: "/admin/orders" },
-      { id: "newCustomers", value: customersNow, change: pct(customersNow, customersPrev), href: "/admin/orders" },
-      { id: "avgOrderValue", value: avgOrder, change: pct(avgOrder, prevAvg), href: "/admin/orders" },
-      { id: "totalProducts", value: totalProducts, change: 0, href: "/admin/inventory" },
-      { id: "lowStock", value: lowStockCount, change: 0, href: "/admin/inventory?filter=low" },
+      { id: "totalRevenue", value: sales.revenue, change: pctChange(sales.revenue, prev.revenue), href: "/admin/orders" },
+      { id: "storeRevenue", value: sales.store, change: pctChange(sales.store, prev.store), href: "/admin/orders?source=store" },
+      { id: "posRevenue", value: sales.pos, change: pctChange(sales.pos, prev.pos), href: "/admin/orders?source=pos" },
+      { id: "totalOrders", value: sales.orders, change: pctChange(sales.orders, prev.orders), href: "/admin/orders" },
+      { id: "newCustomers", value: customersNow, change: pctChange(customersNow, customersPrev), href: "/admin/orders" },
+      { id: "avgOrderValue", value: sales.average, change: pctChange(sales.average, prev.average), href: "/admin/orders" },
+      { id: "totalProducts", value: totalProducts, change: null, href: "/admin/inventory" },
+      { id: "lowStock", value: lowStockCount, change: null, href: "/admin/inventory?filter=low" },
     ],
     chart,
     recentOrders: recentOrders.map((o) => ({
       id: o.id,
-      source: o.guestCity === "POS Station" ? "POS" : "STORE",
-      customer: o.user?.firstName ? `${o.user.firstName} ${o.user.lastName || ""}`.trim() : o.guestName || "Guest",
+      source: o.guestCity === POS ? "POS" : "STORE",
+      customer: o.user?.firstName ? `${o.user.firstName} ${o.user.lastName || ""}`.trim() : o.guestName || "",
       total: num(o.totalAmount),
       status: o.status,
       createdAt: o.createdAt.toISOString(),
     })),
-    topProducts,
-    salesByCategory,
+    topProducts: topProductsRaw.map((r, i) => ({
+      rank: i + 1,
+      productId: r.id,
+      name: r.name,
+      nameAr: r.nameAr,
+      image: r.image || null,
+      unitsSold: r.units,
+      revenue: r.revenue,
+    })),
+    salesByCategory: salesByCategoryRaw.map((c) => ({
+      id: c.id,
+      name: c.name,
+      nameAr: c.nameAr,
+      revenue: c.revenue,
+      percent: Number(((c.revenue / catTotal) * 100).toFixed(1)),
+    })),
     statusDistribution: statusDistRaw.map((s) => ({ status: s.status, count: s._count._all })),
     quick: { lowStockCount },
     activity: activities.map((a) => ({ id: a.id, action: a.action, details: a.details, createdAt: a.createdAt.toISOString() })),
     finance: {
-      revenue: totalRevenue,
+      revenue: moneyIn,
       expenses,
-      net: totalRevenue - expenses,
-      revenueChange: pct(totalRevenue, prevRevenue),
-      expensesChange: pct(expenses, prevExpensesNum),
-    },
-    extras: {
-      reviews: { total: totalReviews, pending: pendingReviews },
-      employeesAdded,
+      net: moneyIn - expenses,
+      revenueChange: pctChange(moneyIn, moneyInPrev),
+      expensesChange: pctChange(expenses, expensesPrev),
     },
   };
 }

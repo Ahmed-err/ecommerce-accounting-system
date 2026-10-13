@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import { getAdminReviewsAction } from "@/app/actions/reviews";
 import ReviewsManagerClient from "@/components/admin/ReviewsManagerClient";
 
@@ -11,8 +11,8 @@ export default async function AdminReviewsPage({ searchParams }) {
   if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
     redirect("/admin");
   }
-  if (!(await staffCanViewModule(session.user.role, "store"))) {
-    redirect("/admin");
+  if (!canOpenArea(session.user.role, "reviews")) {
+    redirect(staffHome(session?.user?.role));
   }
   const params = await searchParams;
   const data = await getAdminReviewsAction({
