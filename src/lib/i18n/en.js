@@ -549,6 +549,7 @@ const dictionary = {
   "adminEmployees": "Employees",
   "adminSettings": "Settings",
   "adminNotifications": "Notifications",
+  "adminCoupons": "Coupons",
   "adminLogout": "Logout",
   "adminBackupSaveSchedule": "Save backup schedule",
   "adminBackupScheduleHelp": "This only stores your schedule preference. To download an actual backup file, use the section below.",

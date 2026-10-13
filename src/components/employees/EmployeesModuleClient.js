@@ -20,8 +20,7 @@ import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
   bulkMarkAttendance, getAllStaff, deleteEmployee, quickFillAttendanceForDate } from "@/app/actions/employees";
-import { listRolePermissions, updateRolePermission, resetRolePermissionsToDefaults } from "@/app/actions/permissions";
-import { PERMISSION_MODULES, PERM_LABELS_EN, PERM_LABELS_AR } from "@/lib/permission-defaults";
+import StaffAccessTable from "@/components/admin/StaffAccessTable";
 
 const TABS = ["overview", "employees", "attendance", "salaries", "leaves", "roles", "reports"];
 
@@ -945,179 +944,8 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
   );
 }
 
-const MATRIX_ROLES = ["ADMIN", "MANAGER", "CASHIER"];
-
-const PERM_FIELDS = ["canView", "canCreate", "canEdit", "canDelete"];
-
-function RolesTab({ t, lang, isRTL }) {
-  const router = useRouter();
-  const [permRows, setPermRows] = useState([]);
-  const [permLoading, setPermLoading] = useState(true);
-  const [permError, setPermError] = useState("");
-  const [permBusyKey, setPermBusyKey] = useState("");
-  const [resetting, setResetting] = useState("");
-
-  const ROLES = useMemo(
-    () => [
-      { key: "ADMIN", name: lang === "ar" ? t.empRoleAdmin : "Admin", desc: lang === "ar" ? "وصول كامل لجميع الوحدات والتقارير المالية وإدارة الموظفين." : "Full access to all modules, financial reports, and employee management.", color: "purple" },
-      { key: "MANAGER", name: lang === "ar" ? t.empRoleManager : "Manager", desc: lang === "ar" ? "يُضبط بالجدول أدناه؛ يؤثر على عناصر القائمة والوصول للوحدات." : "Configured below; controls sidebar links and module access.", color: "blue" },
-      { key: "CASHIER", name: lang === "ar" ? t.empRoleCashier : "Cashier", desc: lang === "ar" ? "يُضبط بالجدول أدناه؛ وصول محدود حسب الصلاحيات." : "Configured below; limited access based on permissions.", color: "amber" },
-    ],
-    [lang, t]
-  );
-
-  const pLabels = lang === "ar" ? PERM_LABELS_AR : PERM_LABELS_EN;
-  const permHeaders = [t.empPermView, t.empPermCreate, t.empPermEdit, t.empPermDelete];
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setPermLoading(true);
-      setPermError("");
-      const res = await listRolePermissions();
-      if (cancelled) return;
-      if (res.success) setPermRows(res.permissions || []);
-      else setPermError(res.error || "Failed to load permissions");
-      setPermLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const byRoleModule = useMemo(() => {
-    const m = new Map();
-    for (const p of permRows) m.set(`${p.role}-${p.module}`, p);
-    return m;
-  }, [permRows]);
-
-  const handleToggle = async (record, field, nextVal) => {
-    if (!record || record.role === "ADMIN") return;
-    const prev = permRows;
-    setPermRows((rows) => rows.map((x) => (x.id === record.id ? { ...x, [field]: nextVal } : x)));
-    setPermBusyKey(`${record.id}-${field}`);
-    setPermError("");
-    const res = await updateRolePermission(record.id, { [field]: nextVal });
-    setPermBusyKey("");
-    if (!res.success) {
-      setPermRows(prev);
-      setPermError(res.error || "Update failed");
-      return;
-    }
-    router.refresh();
-  };
-
-  const handleReset = async (role) => {
-    setResetting(role);
-    setPermError("");
-    const res = await resetRolePermissionsToDefaults(role);
-    setResetting("");
-    if (!res.success) {
-      setPermError(res.error || "Reset failed");
-      return;
-    }
-    const reload = await listRolePermissions();
-    if (reload.success) setPermRows(reload.permissions || []);
-    router.refresh();
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {ROLES.map((role) => (
-          <div key={role.key} className="bg-card border border-border rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${role.color === "purple" ? "bg-purple-500/10 text-purple-400" : role.color === "blue" ? "bg-blue-500/10 text-blue-400" : "bg-amber-500/10 text-accent-text"}`}>
-                <Shield className="h-3 w-3" /> {role.name}
-              </div>
-              {role.key === "ADMIN" ? (
-                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">{t.empRolesAdminLocked}</span>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={!!resetting}
-                  className="h-7 text-[10px] border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-                  onClick={() => handleReset(role.key)}
-                >
-                  {resetting === role.key ? "…" : role.key === "MANAGER" ? t.empRolesResetManager : t.empRolesResetCashier}
-                </Button>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">{role.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">{t.empRolesHint}</p>
-      {permError ? <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{permError}</div> : null}
-
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground">{t.empRolesTitle}</h3>
-          {permLoading ? <span className="text-xs text-muted-foreground">{lang === "ar" ? "جاري التحميل…" : "Loading…"}</span> : null}
-        </div>
-        <div className="overflow-x-auto">
-          <table className={`w-full text-xs ${isRTL ? "text-right" : "text-left"}`}>
-            <thead className="bg-muted/60 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">{t.empPermModule}</th>
-                {MATRIX_ROLES.map((rk) => (
-                  <th key={rk} colSpan={4} className="px-4 py-3 text-center border-l border-border">
-                    {rk === "ADMIN" ? t.empRoleAdmin : rk === "MANAGER" ? t.empRoleManager : t.empRoleCashier}
-                  </th>
-                ))}
-              </tr>
-              <tr className="text-[10px] text-muted-foreground">
-                <th className="px-4 py-2" />
-                {MATRIX_ROLES.map((rk) =>
-                  permHeaders.map((ph) => (
-                    <th key={`${rk}-${ph}`} className="px-2 py-2 text-center font-normal">
-                      {ph}
-                    </th>
-                  ))
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {PERMISSION_MODULES.map((mod) => (
-                <tr key={mod} className="hover:bg-muted/40">
-                  <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">{pLabels[mod]}</td>
-                  {MATRIX_ROLES.map((rk) => {
-                    const rec = byRoleModule.get(`${rk}-${mod}`);
-                    return PERM_FIELDS.map((field) => {
-                      const checked = rec ? !!rec[field] : false;
-                      const disabled = !rec || rk === "ADMIN" || permLoading || `${rec?.id}-${field}` === permBusyKey;
-                      if (rk === "ADMIN") {
-                        return (
-                          <td key={`${rk}-${mod}-${field}`} className="px-2 py-3 text-center">
-                            {checked ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 mx-auto" aria-hidden /> : <X className="h-3.5 w-3.5 text-muted-foreground mx-auto" aria-hidden />}
-                          </td>
-                        );
-                      }
-                      return (
-                        <td key={`${rk}-${mod}-${field}`} className="px-2 py-2 text-center align-middle">
-                          <input
-                            type="checkbox"
-                            className="h-3.5 w-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                            checked={checked}
-                            disabled={disabled}
-                            onChange={(e) => handleToggle(rec, field, e.target.checked)}
-                            aria-label={`${rk} ${mod} ${field}`}
-                          />
-                        </td>
-                      );
-                    });
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+function RolesTab() {
+  return <StaffAccessTable />;
 }
 
 function ReportsTab({ data, t, lang, isRTL }) {
@@ -1323,7 +1151,7 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
               {activeTab === "attendance" && <AttendanceTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
               {activeTab === "salaries" && <SalariesTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
               {activeTab === "leaves" && <LeavesTab data={currentData} t={t} lang={lang} isRTL={isRTL} staff={staff} />}
-              {activeTab === "roles" && <RolesTab t={t} lang={lang} isRTL={isRTL} />}
+              {activeTab === "roles" && <RolesTab />}
               {activeTab === "reports" && <ReportsTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
             </>
           )}

@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 import { logger } from "@/lib/logger";
+import { canOpen, staffHome } from "@/lib/staff-access";
 
 const { auth } = NextAuth(authConfig);
 
@@ -27,55 +28,20 @@ export default auth((req) => {
 
   // Redirect already-logged-in users away from auth pages
   if (isAuthRoute) {
-    if (isLoggedIn) {
-       if (userRole === "CUSTOMER") return Response.redirect(new URL("/", nextUrl));
-       return Response.redirect(new URL("/admin", nextUrl));
-    }
+    if (isLoggedIn) return Response.redirect(new URL(staffHome(userRole), nextUrl));
     return null;
   }
 
-  // Protect /pos — only staff can access
-  if (isPosRoute) {
+  // Staff pages: sign-in first, then the role must be allowed to open this page.
+  if (isAdminRoute || isPosRoute) {
     if (!isLoggedIn) {
-      logger.warn("proxy_blocked", { requestId, path, reason: "unauthenticated_pos" });
+      logger.warn("proxy_blocked", { requestId, path, reason: "unauthenticated_staff" });
       return Response.redirect(loginUrl(nextUrl));
     }
-    if (!["ADMIN", "MANAGER", "CASHIER"].includes(userRole)) {
-      logger.warn("proxy_blocked", { requestId, path, reason: "forbidden_pos_role", userRole });
-      return Response.redirect(new URL("/", nextUrl));
+    if (!canOpen(userRole, path)) {
+      logger.warn("proxy_blocked", { requestId, path, reason: "role_not_allowed", userRole });
+      return Response.redirect(new URL(staffHome(userRole), nextUrl));
     }
-    return null;
-  }
-
-  // Protect /admin routes
-  if (isAdminRoute) {
-    if (!isLoggedIn) {
-      logger.warn("proxy_blocked", { requestId, path, reason: "unauthenticated_admin" });
-      return Response.redirect(loginUrl(nextUrl));
-    }
-
-    // Customers cannot access admin
-    if (userRole === "CUSTOMER") {
-       logger.warn("proxy_blocked", { requestId, path, reason: "customer_admin_access" });
-       return Response.redirect(new URL("/", nextUrl));
-    }
-
-    // Only ADMINs can access accounting and employees
-    if (nextUrl.pathname.startsWith("/admin/employees") || nextUrl.pathname.startsWith("/admin/accounting")) {
-       if (userRole !== "ADMIN") {
-          logger.warn("proxy_blocked", { requestId, path, reason: "admin_only_section", userRole });
-          return Response.redirect(new URL("/admin", nextUrl));
-       }
-    }
-
-    // Only ADMINs and MANAGERs can access inventory
-    if (nextUrl.pathname.startsWith("/admin/inventory")) {
-       if (!["ADMIN", "MANAGER"].includes(userRole)) {
-          logger.warn("proxy_blocked", { requestId, path, reason: "inventory_role_restricted", userRole });
-          return Response.redirect(new URL("/admin", nextUrl));
-       }
-    }
-
     return null;
   }
 

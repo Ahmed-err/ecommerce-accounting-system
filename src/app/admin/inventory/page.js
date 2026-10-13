@@ -2,7 +2,7 @@ import { adminMetadata } from "@/lib/admin-meta";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import {
   getProducts,
   getCategories,
@@ -35,8 +35,8 @@ export default async function InventoryPage({ searchParams }) {
 
   const session = await auth();
   const role = session?.user?.role;
-  if (!session || !(await staffCanViewModule(role, "inventory"))) {
-    redirect("/admin");
+  if (!session || !canOpenArea(role, "inventory")) {
+    redirect(staffHome(role));
   }
   const canManage = role === "ADMIN" || role === "MANAGER";
   const isCashier = role === "CASHIER";

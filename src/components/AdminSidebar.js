@@ -4,7 +4,6 @@ import BrandLockup from "@/components/brand/BrandLockup";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   Package,
@@ -22,55 +21,44 @@ import {
   TicketPercent,
 } from "lucide-react";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { STAFF_AREAS } from "@/lib/staff-access";
 
-function navItemVisible(item, userRole, permMap) {
-  if (!item.roles.includes(userRole)) return false;
-  if (userRole === "ADMIN") return true;
-  if (!item.permissionModule) return true;
-  const m = permMap?.[item.permissionModule];
-  return m?.canView === true;
-}
+const AREA_ICONS = {
+  dashboard: LayoutDashboard,
+  pos: Monitor,
+  orders: ShoppingCart,
+  reviews: MessageSquare,
+  inventory: Package,
+  suppliers: Truck,
+  contacts: Mail,
+  notifications: Bell,
+  coupons: TicketPercent,
+  employees: Users,
+  accounting: CreditCard,
+  settings: Settings,
+};
 
-export default function AdminSidebar({ onNavigate, unreadContactCount = 0, permissionNavMap = null }) {
+// `role` comes from the server session, so the menu is right on first paint.
+export default function AdminSidebar({ role, onNavigate, unreadContactCount = 0 }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const { lang, isRTL, brandName } = useLanguage();
+  const { isRTL } = useLanguage();
   const t = useT();
 
-  const userRole = session?.user?.role || "CASHIER";
-
-  const allItems = [
-    { name: t.adminDashboard, href: "/admin", icon: LayoutDashboard, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "store" },
-    { name: t.adminPos, href: "/pos", icon: Monitor, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "cashier" },
-    { name: t.adminOrders, href: "/admin/orders", icon: ShoppingCart, roles: ["ADMIN", "MANAGER", "CASHIER"], permissionModule: "orders" },
-    { name: t.adminReviews || "Reviews", href: "/admin/reviews", icon: MessageSquare, roles: ["ADMIN", "MANAGER"], permissionModule: "store" },
-    { name: t.adminInventory, href: "/admin/inventory", icon: Package, roles: ["ADMIN", "MANAGER"], permissionModule: "inventory" },
-    { name: t.adminSuppliers, href: "/admin/suppliers", icon: Truck, roles: ["ADMIN", "MANAGER"], permissionModule: "inventory" },
-    {
-      name: t.adminContacts,
-      href: "/admin/contacts",
-      icon: Mail,
-      roles: ["ADMIN", "MANAGER"],
-      permissionModule: "store",
-      badge: unreadContactCount,
-    },
-    { name: t.adminNotifications || "Notifications", href: "/admin/notifications", icon: Bell, roles: ["ADMIN", "MANAGER"], permissionModule: "store" },
-    { name: t.adminCoupons || "Coupons", href: "/admin/coupons", icon: TicketPercent, roles: ["ADMIN"] },
-    { name: t.adminEmployees, href: "/admin/employees", icon: Users, roles: ["ADMIN"] },
-    { name: t.adminAccounting, href: "/admin/accounting", icon: CreditCard, roles: ["ADMIN", "MANAGER"], permissionModule: "accounting" },
-    { name: t.adminSettings, href: "/admin/settings", icon: Settings, roles: ["ADMIN"] },
-  ];
-
-  const navItems = allItems.filter((item) => navItemVisible(item, userRole, permissionNavMap));
+  const navItems = STAFF_AREAS.filter((a) => a.roles.includes(role)).map((a) => ({
+    name: t[a.labelKey],
+    href: a.path,
+    icon: AREA_ICONS[a.key],
+    badge: a.key === "contacts" ? unreadContactCount : 0,
+  }));
 
   return (
     <div
       className={`flex h-full flex-col bg-card/95 backdrop-blur-xl ${isRTL ? "border-l" : "border-r"} border-border text-muted-foreground w-64 max-w-full overflow-x-hidden shadow-sm ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`}
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="p-8">
+      <div className="px-6 py-7">
         <h2 className="flex min-w-0 flex-col items-stretch gap-1 text-foreground">
-          <BrandLockup variant="compact" className="w-full" />
+          <BrandLockup variant="compact" wrapShop className="w-full" />
           <div className="min-w-0 flex-1">
             <div
               className={`mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}

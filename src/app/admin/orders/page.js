@@ -1,7 +1,7 @@
 import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
 import { getOrdersTabData } from "@/app/actions/orders";
@@ -32,8 +32,8 @@ export default async function AdminOrdersPage({ searchParams }) {
   if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
     redirect("/admin");
   }
-  if (!(await staffCanViewModule(session.user.role, "orders"))) {
-    redirect("/admin");
+  if (!canOpenArea(session.user.role, "orders")) {
+    redirect(staffHome(session?.user?.role));
   }
 
   const params = await searchParams;

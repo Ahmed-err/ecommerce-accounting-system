@@ -1,7 +1,7 @@
 import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import SuppliersModuleClient from "@/components/admin/SuppliersModuleClient";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +13,8 @@ export default async function AdminSuppliersPage() {
   if (!session?.user?.role || !["ADMIN", "MANAGER"].includes(session.user.role)) {
     redirect("/admin");
   }
-  if (!(await staffCanViewModule(session.user.role, "inventory"))) {
-    redirect("/admin");
+  if (!canOpenArea(session.user.role, "suppliers")) {
+    redirect(staffHome(session?.user?.role));
   }
   return <SuppliersModuleClient role={session.user.role} />;
 }

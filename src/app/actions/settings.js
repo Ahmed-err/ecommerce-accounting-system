@@ -6,7 +6,6 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
-import { ensurePermissionRows } from "@/lib/permissions-policy";
 
 function normalizeBankTransferProofWhatsappInput(raw) {
   const s = String(raw ?? "").trim();
@@ -66,8 +65,6 @@ export async function getAdminSettingsData() {
     orderBy: { createdAt: "desc" },
     take: 100,
   });
-  await ensurePermissionRows();
-  const permissions = await db.permission.findMany({ orderBy: [{ role: "asc" }, { module: "asc" }] });
   let legal = { terms: null, privacy: null };
   let homepage = { banners: [], offers: [] };
   try {
@@ -88,7 +85,7 @@ export async function getAdminSettingsData() {
   } catch {
     /* optional homepage tables */
   }
-  return { store, users, permissions, legal, homepage };
+  return { store, users, legal, homepage };
 }
 
 export async function getSettingsUsersPage(input = {}) {
@@ -120,32 +117,6 @@ export async function getSettingsUsersPage(input = {}) {
       take,
     }),
     db.user.count({ where }),
-  ]);
-
-  return { success: true, rows, total, page, take, pages: Math.max(1, Math.ceil(total / take)) };
-}
-
-export async function getSettingsRolesPage(input = {}) {
-  await ensureAdmin();
-  await ensurePermissionRows();
-  const page = Math.max(1, Number(input.page) || 1);
-  const take = Math.min(200, Math.max(5, Number(input.take) || 10));
-  const search = String(input.search || "").trim();
-  const role = String(input.role || "all").toUpperCase();
-
-  const where = {
-    ...(role !== "ALL" && role !== "all" ? { role } : {}),
-    ...(search ? { module: { contains: search, mode: "insensitive" } } : {}),
-  };
-
-  const [rows, total] = await Promise.all([
-    db.permission.findMany({
-      where,
-      orderBy: [{ role: "asc" }, { module: "asc" }],
-      skip: (page - 1) * take,
-      take,
-    }),
-    db.permission.count({ where }),
   ]);
 
   return { success: true, rows, total, page, take, pages: Math.max(1, Math.ceil(total / take)) };
