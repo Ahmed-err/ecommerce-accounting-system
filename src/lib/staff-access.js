@@ -27,7 +27,7 @@ export function isStaff(role) {
   return STAFF_ROLES.includes(role);
 }
 
-function areaFor(pathname) {
+export function areaFor(pathname) {
   const path = String(pathname || "").replace(/\/+$/, "") || "/";
   return STAFF_AREAS.find((a) => (a.exact ? path === a.path : path === a.path || path.startsWith(`${a.path}/`)));
 }

@@ -9,7 +9,7 @@ import NotificationBell from "@/components/admin/NotificationBell";
 import BrandLockup from "@/components/brand/BrandLockup";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { STAFF_AREAS } from "@/lib/staff-access";
+import { areaFor } from "@/lib/staff-access";
 
 import { useLanguage, useT } from "@/context/LanguageContext";
 
@@ -19,7 +19,7 @@ export default function AdminLayoutClient({ children, role, unreadContactCount =
   const { isRTL } = useLanguage();
   const t = useT();
   const pathname = usePathname();
-  const area = STAFF_AREAS.find((a) => (a.exact ? pathname === a.path : pathname === a.path || pathname?.startsWith(`${a.path}/`)));
+  const area = areaFor(pathname);
   const pageTitle = area ? t[area.labelKey] : "";
 
   useEffect(() => {
