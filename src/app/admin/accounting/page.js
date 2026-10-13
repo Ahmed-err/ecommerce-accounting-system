@@ -1,12 +1,11 @@
+import { adminMetadata } from "@/lib/admin-meta";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { staffCanViewModule } from "@/lib/permissions-policy";
+import { canOpenArea, staffHome } from "@/lib/staff-access";
 import { getAccountingTabData, getAccountingPermissions } from "@/app/actions/accounting";
 import AccountingModuleClient from "@/components/accounting/AccountingModuleClient";
 
-export const metadata = {
-  title: "Accounting | Admin Dashboard",
-};
+export const generateMetadata = adminMetadata("adminAccounting");
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +22,8 @@ export default async function AccountingPage({ searchParams }) {
   if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
     redirect("/admin");
   }
-  if (!(await staffCanViewModule(session.user.role, "accounting"))) {
-    redirect("/admin");
+  if (!canOpenArea(session.user.role, "accounting")) {
+    redirect(staffHome(session?.user?.role));
   }
 
   const perms = await getAccountingPermissions();

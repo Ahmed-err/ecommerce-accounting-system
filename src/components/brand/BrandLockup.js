@@ -8,7 +8,7 @@ export const BRAND_WORDMARK = { ar: "همّت", en: "Himmat" };
 const FALLBACK_SHOP = { ar: "عصام الدين نصر للأدوات الكهربائية", en: "Essam El-Din Nasr Electrical Tools" };
 
 // Himmat leads; the shop name (from store settings) and GM line are small labels.
-export default function BrandLockup({ variant = "compact", size, tone = "navy", className }) {
+export default function BrandLockup({ variant = "compact", size, tone = "navy", wrapShop = false, className }) {
   const { lang, brandName } = useLanguage();
   const l = lang === "en" ? "en" : "ar";
   const t = useT();
@@ -33,7 +33,7 @@ export default function BrandLockup({ variant = "compact", size, tone = "navy", 
             </span>
           )}
         </span>
-        <span className="truncate text-xs font-semibold text-muted-foreground">{shop}</span>
+        <span className={cn("text-xs font-semibold text-muted-foreground", wrapShop ? "line-clamp-2" : "truncate")}>{shop}</span>
         {full && <span className="text-[11px] text-muted-foreground">{t.brandGmLine}</span>}
       </span>
     </span>

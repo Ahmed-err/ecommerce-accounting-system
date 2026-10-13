@@ -8,12 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   clearTestDataAction,
-  getSettingsRolesPage,
   getSettingsUsersPage,
   updateSettings,
 } from "@/app/actions/settings";
-import { updateRolePermission } from "@/app/actions/permissions";
 import { useT } from "@/context/LanguageContext";
+import StaffAccessTable from "@/components/admin/StaffAccessTable";
 
 const TABS = ["store", "shipping", "homepage", "about", "payment", "pos", "notifications", "seo", "legal", "users", "backup", "system"];
 
@@ -84,7 +83,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [saving, setSaving] = useState(false);
   const [store, setStore] = useState(() => normalizeStoreFromServer(initialData.store));
   const [users, setUsers] = useState(initialData.users || []);
-  const [permissions, setPermissions] = useState(initialData.permissions || []);
   const [homepage, setHomepage] = useState({
     banners: initialData.homepage?.banners || [],
     offers: initialData.homepage?.offers || [],
@@ -95,13 +93,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
   const [usersPages, setUsersPages] = useState(1);
   const [usersTotal, setUsersTotal] = useState((initialData.users || []).length);
   const [usersLoading, setUsersLoading] = useState(false);
-  const [rolesSearch, setRolesSearch] = useState("");
-  const [rolesRoleFilter, setRolesRoleFilter] = useState("all");
-  const [rolesPage, setRolesPage] = useState(1);
-  const [rolesPages, setRolesPages] = useState(1);
-  const [rolesTotal, setRolesTotal] = useState((initialData.permissions || []).length);
-  const [rolesLoading, setRolesLoading] = useState(false);
-  const [permCellSaving, setPermCellSaving] = useState("");
   const [backupBusy, setBackupBusy] = useState(false);
   const [backupFormat, setBackupFormat] = useState("custom");
   const [clearBusy, setClearBusy] = useState(false);
@@ -133,7 +124,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
       privacyAr: initialData.legal?.privacy?.contentAr ?? "",
       privacyEn: initialData.legal?.privacy?.contentEn ?? "",
     });
-    setPermissions(initialData.permissions || []);
     setHomepage({
       banners: initialData.homepage?.banners || [],
       offers: initialData.homepage?.offers || [],
@@ -156,29 +146,10 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     setUsersLoading(false);
   }, [usersPage, usersSearch, usersRoleFilter]);
 
-  const loadRoles = useCallback(async () => {
-    setRolesLoading(true);
-    const res = await getSettingsRolesPage({
-      page: rolesPage,
-      take: 120,
-      search: rolesSearch,
-      role: rolesRoleFilter,
-    });
-    if (res?.success) {
-      setPermissions(res.rows || []);
-      setRolesPages(res.pages || 1);
-      setRolesTotal(res.total || 0);
-    }
-    setRolesLoading(false);
-  }, [rolesPage, rolesSearch, rolesRoleFilter]);
-
   useEffect(() => {
     if (activeTab === "users") loadUsers();
   }, [activeTab, loadUsers]);
 
-  useEffect(() => {
-    if (activeTab === "users") loadRoles();
-  }, [activeTab, loadRoles]);
 
   const tabLabel = useMemo(
     () => ({
@@ -204,28 +175,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     router.push(`${pathname}?${p.toString()}`);
   }
 
-  async function togglePermissionCell(p, field, value) {
-    if (p.role === "ADMIN") return;
-    const key = `${p.id}-${field}`;
-    setPermCellSaving(key);
-    const prevRow = { ...p };
-    setPermissions((prev) => prev.map((x) => (x.id === p.id ? { ...x, [field]: value } : x)));
-    try {
-      const res = await updateRolePermission(p.id, { [field]: value });
-      if (!res?.success) {
-        setPermissions((prev) => prev.map((x) => (x.id === p.id ? prevRow : x)));
-        toast.error(res?.error || (lang === "ar" ? "فشل التحديث" : "Update failed"));
-        return;
-      }
-      router.refresh();
-    } catch (e) {
-      setPermissions((prev) => prev.map((x) => (x.id === p.id ? prevRow : x)));
-      toast.error(e?.message || (lang === "ar" ? "فشل التحديث" : "Update failed"));
-    } finally {
-      setPermCellSaving("");
-    }
-  }
-
   function save(tab, payload) {
     setStatus("");
     setStatusType("success");
@@ -235,7 +184,6 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
         if (res?.success) {
           if (res.data?.store) setStore(normalizeStoreFromServer(res.data.store));
           if (res.data?.users) setUsers(res.data.users);
-          if (res.data?.permissions) setPermissions(res.data.permissions);
           if (res.data?.homepage) {
             setHomepage({
               banners: res.data.homepage?.banners || [],
@@ -1403,89 +1351,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
             </div>
           </div>
 
-          <div className="space-y-3 rounded-xl border p-3">
-            <div className="flex flex-wrap items-end gap-2">
-              <Input
-                value={rolesSearch}
-                onChange={(e) => {
-                  setRolesSearch(e.target.value);
-                  setRolesPage(1);
-                }}
-                placeholder={lang === "ar" ? "بحث بالموديول" : "Search module"}
-                className="max-w-sm"
-              />
-              <Select value={rolesRoleFilter} onValueChange={(v) => { setRolesRoleFilter(v); setRolesPage(1); }}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ALL</SelectItem>
-                  <SelectItem value="ADMIN">ADMIN</SelectItem>
-                  <SelectItem value="MANAGER">MANAGER</SelectItem>
-                  <SelectItem value="CASHIER">CASHIER</SelectItem>
-                  <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {lang === "ar"
-                ? "صف المسؤول للقراءة فقط. عدّل مدير المحل والمحاسب (والعميل إن وُجد) لتغيير الوصول. يُحدّث شريط التنقل تلقائياً بعد الحفظ."
-                : "Admin row is read-only. Edit Manager and Cashier (and Customer if listed) to change access. The sidebar updates after each save."}
-            </p>
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/40 text-xs">
-                    <th className="p-2 text-start">Role</th>
-                    <th className="p-2 text-start">Module</th>
-                    <th className="p-2 text-center">View</th>
-                    <th className="p-2 text-center">Create</th>
-                    <th className="p-2 text-center">Edit</th>
-                    <th className="p-2 text-center">Delete</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rolesLoading ? (
-                    <tr><td className="p-3 text-muted-foreground" colSpan={6}>{lang === "ar" ? "جاري التحميل..." : "Loading..."}</td></tr>
-                  ) : permissions.length === 0 ? (
-                    <tr><td className="p-3 text-muted-foreground" colSpan={6}>{lang === "ar" ? "لا توجد صلاحيات" : "No permissions found"}</td></tr>
-                  ) : (
-                    permissions.map((p) => (
-                      <tr key={p.id} className="border-b">
-                        <td className="p-2">{p.role}</td>
-                        <td className="p-2 font-mono text-xs">{p.module}</td>
-                        {(["canView", "canCreate", "canEdit", "canDelete"]).map((field) => (
-                          <td key={field} className="p-2 text-center align-middle">
-                            {p.role === "ADMIN" ? (
-                              <span className="text-muted-foreground">{p[field] ? "✓" : "—"}</span>
-                            ) : (
-                              <input
-                                type="checkbox"
-                                className="h-4 w-4 accent-primary cursor-pointer disabled:opacity-40"
-                                checked={!!p[field]}
-                                disabled={permCellSaving === `${p.id}-${field}`}
-                                onChange={(e) => togglePermissionCell(p, field, e.target.checked)}
-                                aria-label={`${p.role} ${p.module} ${field}`}
-                              />
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{rolesTotal} {lang === "ar" ? "نتيجة" : "results"}</span>
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" disabled={rolesPage <= 1} onClick={() => setRolesPage((p) => p - 1)}>
-                  {lang === "ar" ? "السابق" : "Prev"}
-                </Button>
-                <span>{rolesPage} / {rolesPages}</span>
-                <Button size="sm" variant="outline" disabled={rolesPage >= rolesPages} onClick={() => setRolesPage((p) => p + 1)}>
-                  {lang === "ar" ? "التالي" : "Next"}
-                </Button>
-              </div>
-            </div>
+          <div className="rounded-xl border p-3">
+            <StaffAccessTable />
           </div>
         </div>
       )}

@@ -6,14 +6,21 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/co
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import NotificationBell from "@/components/admin/NotificationBell";
+import BrandLockup from "@/components/brand/BrandLockup";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { areaFor } from "@/lib/staff-access";
 
 import { useLanguage, useT } from "@/context/LanguageContext";
 
-export default function AdminLayoutClient({ children, unreadContactCount = 0, permissionNavMap = null }) {
+export default function AdminLayoutClient({ children, role, unreadContactCount = 0 }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { isRTL, lang, brandName } = useLanguage();
+  const { isRTL } = useLanguage();
   const t = useT();
+  const pathname = usePathname();
+  const area = areaFor(pathname);
+  const pageTitle = area ? t[area.labelKey] : "";
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -26,7 +33,7 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0, pe
       dir={isRTL ? "rtl" : "ltr"}
     >
       <aside className="hidden h-full min-h-0 w-64 max-w-full shrink-0 overflow-y-auto md:block">
-        <AdminSidebar unreadContactCount={unreadContactCount} permissionNavMap={permissionNavMap} />
+        <AdminSidebar role={role} unreadContactCount={unreadContactCount} />
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-hidden">
@@ -50,8 +57,8 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0, pe
                     <SheetTitle>{t.adminNavMenu}</SheetTitle>
                   </SheetHeader>
                   <AdminSidebar
+                    role={role}
                     unreadContactCount={unreadContactCount}
-                    permissionNavMap={permissionNavMap}
                     onNavigate={() => setIsMobileOpen(false)}
                   />
                 </SheetContent>
@@ -68,15 +75,16 @@ export default function AdminLayoutClient({ children, unreadContactCount = 0, pe
               </Button>
             )}
           </div>
-          <h2 className="min-w-0 truncate text-center text-sm font-bold leading-tight text-foreground">
-            {brandName}
-          </h2>
+          <Link href="/admin" className="flex min-w-0 justify-center" aria-label={t.adminDashboard}>
+            <BrandLockup variant="compact" size={30} />
+          </Link>
           <div className="flex justify-end">
             <NotificationBell />
           </div>
         </header>
 
-        <div className="relative z-50 isolate hidden shrink-0 border-b border-border bg-card/80 px-6 py-3 backdrop-blur-xl md:flex md:items-center md:justify-end">
+        <div className="relative z-50 isolate hidden shrink-0 border-b border-border bg-card/80 px-6 py-3 backdrop-blur-xl md:flex md:items-center md:justify-between">
+          <p className="truncate text-sm font-bold text-foreground">{pageTitle}</p>
           <NotificationBell />
         </div>
 

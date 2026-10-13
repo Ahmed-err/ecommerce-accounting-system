@@ -2,25 +2,22 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AdminLayoutClient from "./AdminLayoutClient";
 import { getUnreadContactMessageCount } from "@/lib/contact";
-import { getNavPermissionMap } from "@/lib/permissions-policy";
+import { isStaff } from "@/lib/staff-access";
 
 export default async function AdminLayout({ children }) {
   const session = await auth();
 
-  // Server-side auth check - customers cannot access admin
-  if (!session || session.user.role === "CUSTOMER") {
+  // Server-side auth check - only staff reach admin
+  if (!isStaff(session?.user?.role)) {
     redirect("/");
   }
 
-  const [unreadContactCount, permissionNavMap] = await Promise.all([
-    getUnreadContactMessageCount(),
-    getNavPermissionMap(session.user.role),
-  ]);
+  const unreadContactCount = await getUnreadContactMessageCount();
 
   return (
     <AdminLayoutClient
+      role={session.user.role}
       unreadContactCount={unreadContactCount}
-      permissionNavMap={permissionNavMap}
     >
       {children}
     </AdminLayoutClient>
