@@ -121,4 +121,16 @@ describe("returns", () => {
     expect(checkReturnLines(o, [{ productId: "zzz", quantity: 1 }])).toEqual({ ok: false, code: "RETURN_INVALID_PRODUCT" });
     expect(checkReturnLines(o, [{ productId: "b", quantity: 0 }])).toEqual({ ok: false, code: "RETURN_NO_ITEMS" });
   });
+
+  it("refunds what was paid for the items: discount shared out, delivery kept", () => {
+    // 2 × 1000 listed, 10% discount, 1500 delivery → paid 1800 for the items.
+    const o = { totalAmount: 3300, shippingCost: 1500, items: [{ productId: "a", quantity: 2, price: 1000 }], returns: [] };
+    expect(checkReturnLines(o, [{ productId: "a", quantity: 1 }])).toMatchObject({ ok: true, refundAmount: 900 });
+    expect(checkReturnLines(o, [{ productId: "a", quantity: 2 }])).toMatchObject({ ok: true, refundAmount: 1800 });
+  });
+
+  it("never refunds more than the list price when nothing was discounted", () => {
+    const o = { totalAmount: 2000, shippingCost: 0, items: [{ productId: "a", quantity: 2, price: 1000 }], returns: [] };
+    expect(checkReturnLines(o, [{ productId: "a", quantity: 1 }])).toMatchObject({ refundAmount: 1000 });
+  });
 });

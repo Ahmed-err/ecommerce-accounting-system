@@ -19,7 +19,7 @@ export default async function POSPage() {
   const products = await db.product.findMany({
     where: { isActive: true },
     include: {
-      category: { select: { id: true, name: true } },
+      category: { select: { id: true, name: true, nameAr: true } },
     },
     orderBy: { createdAt: "desc" },
   });

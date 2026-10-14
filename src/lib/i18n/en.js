@@ -1425,6 +1425,7 @@ const dictionary = {
   "ordDeliveredLocked": "Delivered. Changes go through a return.",
   "ordReturnErrQty": "Quantity is more than what is left after earlier returns.",
   "ordReturnErrCancelled": "A cancelled order can't be returned.",
+  "ordReturnErrNotDelivered": "Only a delivered order can be returned. Cancel it instead.",
   "ordReturnErrProduct": "This product isn't in the order."
 };
 

@@ -1425,6 +1425,7 @@ const dictionary = {
   "ordDeliveredLocked": "الطلب مُسلَّم. أي تغيير يتم عبر المرتجعات.",
   "ordReturnErrQty": "الكمية أكبر من المتبقي بعد المرتجعات السابقة.",
   "ordReturnErrCancelled": "لا يمكن إرجاع طلب ملغى.",
+  "ordReturnErrNotDelivered": "يمكن إرجاع الطلب بعد تسليمه فقط. ألغِ الطلب بدلاً من ذلك.",
   "ordReturnErrProduct": "هذا المنتج ليس في الطلب."
 };
 

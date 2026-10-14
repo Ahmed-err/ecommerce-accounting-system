@@ -58,6 +58,7 @@ function mapReturnActionError(res, t) {
     RETURN_QTY_EXCEEDS: t.ordReturnErrQty,
     RETURN_INVALID_PRODUCT: t.ordReturnErrProduct,
     RETURN_ORDER_CANCELLED: t.ordReturnErrCancelled,
+    RETURN_NOT_DELIVERED: t.ordReturnErrNotDelivered,
     VALIDATION: t.ordReturnErrGeneric,
   };
   if (code && byCode[code]) return byCode[code];
