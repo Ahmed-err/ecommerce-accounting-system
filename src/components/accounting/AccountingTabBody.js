@@ -34,6 +34,7 @@ import { createTransaction, deleteTransaction, bulkDeleteTransactions, createLed
 import { toast } from "sonner";
 import { UploadButton } from "@/lib/uploader";
 import TransactionForm from "./TransactionForm";
+import { formatDate } from "@/lib/account-format";
 import {
   TrendingUp,
   TrendingDown,
@@ -61,36 +62,47 @@ function mapAccountingDeleteError(code, t) {
   }
 }
 
-function Money({ value, lang, t, signed }) {
+// Western digits in both languages, as in the rest of the admin. The sign and digits are kept
+// left-to-right so "−28,500" doesn't flip in Arabic.
+function Money({ value, t, signed, negative }) {
   const n = Number(value) || 0;
-  const str = Math.abs(n).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const prefix = signed ? (n >= 0 ? "+" : "−") : n < 0 ? "−" : "";
+  const str = Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const minus = negative ? n !== 0 : n < 0;
+  const prefix = signed ? (n >= 0 ? "+" : "−") : minus ? "−" : "";
   return (
-    <span dir="ltr" className="tabular-nums inline-block">
-      {prefix}
-      {str} {t.currency}
+    <span className="tabular-nums inline-block whitespace-nowrap">
+      <bdi dir="ltr">
+        {prefix}
+        {str}
+      </bdi>{" "}
+      {t.currency}
     </span>
   );
 }
+
+const fmtDate = (d, lang, withTime = false) => formatDate(d, lang, withTime);
+const catLabel = (c, t) => t[`accCat_${c}`] || c;
 
 function Delta({ type, pct, t, isRTL }) {
   const v = Number(pct) || 0;
   let positiveIsGood = true;
   if (type === "expenses") positiveIsGood = false;
+  const flat = Math.abs(v) < 0.05;
   const good = positiveIsGood ? v >= 0 : v <= 0;
   const Icon = v >= 0 ? ArrowUpRight : ArrowDownRight;
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight border",
-        good ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10" : "border-red-500/40 text-red-400 bg-red-500/10"
+        "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold border",
+        flat
+          ? "border-border text-muted-foreground bg-muted/40"
+          : good
+            ? "border-emerald-500/40 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10"
+            : "border-red-500/40 text-red-700 dark:text-red-400 bg-red-500/10"
       )}
     >
-      <Icon className="h-3 w-3" />
-      {Math.abs(v).toFixed(1)}% {t.accVsPrev}
+      {!flat && <Icon className="h-3 w-3" />}
+      <bdi dir="ltr">{Math.abs(v).toFixed(1)}%</bdi> {t.accVsPrev}
     </span>
   );
 }
@@ -143,7 +155,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
       pos: r.pos,
       other: r.other,
     }));
-    const pieData = pie || [];
+    const pieData = (pie || []).map((x) => ({ ...x, name: catLabel(x.name, t) }));
 
     return (
       <div className="space-y-6">
@@ -199,8 +211,8 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   <p
                     className={cn(
                       "mt-2 text-xl font-bold tabular-nums",
-                      card.key === "net" && card.value < 0 && "text-red-400",
-                      card.key === "net" && card.value >= 0 && "text-emerald-400",
+                      card.key === "net" && card.value < 0 && "text-red-700 dark:text-red-400",
+                      card.key === "net" && card.value >= 0 && "text-emerald-700 dark:text-emerald-400",
                       card.key !== "net" && "text-foreground"
                     )}
                   >
@@ -208,7 +220,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                   </p>
                 </div>
                 <div className={cn("rounded-xl p-2.5", card.color === "emerald" && "bg-emerald-500/10", card.color === "red" && "bg-red-500/10", card.color === "amber" && "bg-amber-500/10", card.color === "sky" && "bg-sky-500/10")}>
-                  <card.icon className={cn("h-5 w-5", card.color === "emerald" && "text-emerald-400", card.color === "red" && "text-red-400", card.color === "amber" && "text-accent-text", card.color === "sky" && "text-sky-400")} />
+                  <card.icon className={cn("h-5 w-5", card.color === "emerald" && "text-emerald-700 dark:text-emerald-400", card.color === "red" && "text-red-700 dark:text-red-400", card.color === "amber" && "text-accent-text", card.color === "sky" && "text-sky-700 dark:text-sky-400")} />
                 </div>
               </div>
               <div className={`mt-3 ${isRTL ? "text-right" : "text-left"}`}>
@@ -314,13 +326,13 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           rows={revenues?.rows}
           total={revenues?.total}
           cols={[
-            { key: "date", label: t.accountingColDate, render: (r) => new Date(r.date).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US") },
+            { key: "date", label: t.accountingColDate, render: (r) => fmtDate(r.date, lang) },
             { key: "source", label: t.accColSource, render: (r) => (r.source === "pos" ? t.accSourcePos : r.source === "store" ? t.accSourceStore : t.accSourceOther) },
             {
               key: "status",
               label: t.accColStatus,
               render: (r) => (
-                <Badge className="border border-emerald-500/30 bg-emerald-500/15 text-emerald-400">{r.status === "posted" ? t.accStatusPaid : r.status}</Badge>
+                <Badge className="border border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">{r.status === "posted" ? t.accStatusPaid : r.status}</Badge>
               ),
             },
             { key: "amount", label: t.accountingColAmount, render: (r) => <Money value={r.amount} lang={lang} t={t} />, num: true },
@@ -339,8 +351,8 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
           rows={expenses?.rows}
           total={expenses?.total}
           cols={[
-            { key: "date", label: t.accountingColDate, render: (r) => new Date(r.date).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US") },
-            { key: "category", label: t.accountingColCategory, render: (r) => (lang === "ar" ? t[r.category] || r.category : r.category) },
+            { key: "date", label: t.accountingColDate, render: (r) => fmtDate(r.date, lang) },
+            { key: "category", label: t.accountingColCategory, render: (r) => catLabel(r.category, t) },
             { key: "description", label: t.accountingColDesc, render: (r) => <span className="max-w-[180px] truncate">{r.description}</span> },
             { key: "paidBy", label: t.accColPaidBy, render: (r) => r.paidBy },
             { key: "amount", label: t.accountingColAmount, render: (r) => <Money value={r.amount} lang={lang} t={t} />, num: true },
@@ -382,7 +394,11 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
     return (
       <div className="space-y-6">
         <div className="rounded-2xl border border-border bg-card p-6 space-y-3 max-w-lg">
-          <PlLine label={t.accPlGrossRevenue} value={statement.grossRevenue} lang={lang} t={t} tone="in" />
+          <PlLine label={t.accPlSales} value={statement.sales ?? statement.grossRevenue} lang={lang} t={t} tone="in" />
+          {Number(statement.refunds) > 0 && (
+            <PlLine label={t.accPlRefunds} value={statement.refunds} lang={lang} t={t} tone="out" />
+          )}
+          <PlLine label={t.accPlGrossRevenue} value={statement.grossRevenue} lang={lang} t={t} tone="plain" />
           <PlLine label={t.accPlCogs} value={statement.cogs} lang={lang} t={t} tone="out" />
           <PlLine label={t.accPlGrossProfit} value={statement.grossProfit} lang={lang} t={t} tone="net" />
           <PlLine label={t.accPlOpEx} value={statement.operatingExpenses} lang={lang} t={t} tone="out" />
@@ -392,6 +408,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="mb-2 text-sm font-semibold">{t.accPlTrend}</h3>
+          {(trend || []).every((p) => !p.netProfit && !p.grossRevenue) ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">{t.accNoData}</p>
+          ) : (
           <div className="h-72 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trend || []}>
@@ -403,6 +422,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               </LineChart>
             </ResponsiveContainer>
           </div>
+          )}
         </div>
         <div className="accounting-no-print flex gap-2">
           <Button type="button" variant="outline" className="border-border" onClick={() => printElementById("accounting-tab-print")}>
@@ -468,9 +488,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
               )}
               {(rows || []).map((r) => (
                 <tr key={r.id}>
-                  <td className="px-4 py-2 whitespace-nowrap tabular-nums">{new Date(r.date).toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</td>
-                  <td className="px-4 py-2 text-emerald-400 tabular-nums">{r.in > 0 ? <Money value={r.in} lang={lang} t={t} /> : "—"}</td>
-                  <td className="px-4 py-2 text-red-400 tabular-nums">{r.out > 0 ? <Money value={r.out} lang={lang} t={t} /> : "—"}</td>
+                  <td className="px-4 py-2 whitespace-nowrap tabular-nums">{fmtDate(r.date, lang, true)}</td>
+                  <td className="px-4 py-2 text-emerald-700 dark:text-emerald-400 tabular-nums">{r.in > 0 ? <Money value={r.in} lang={lang} t={t} /> : "—"}</td>
+                  <td className="px-4 py-2 text-red-700 dark:text-red-400 tabular-nums">{r.out > 0 ? <Money value={r.out} lang={lang} t={t} /> : "—"}</td>
                   <td className="px-4 py-2 font-medium tabular-nums">
                     <Money value={r.balance} lang={lang} t={t} />
                   </td>
@@ -489,9 +509,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
 
     const statusBadge = (s) => {
       const map = {
-        PAID: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+        PAID: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
         PENDING: "bg-amber-500/15 text-accent-text border-amber-500/30",
-        OVERDUE: "bg-red-500/15 text-red-400 border-red-500/30",
+        OVERDUE: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
         CANCELLED: "bg-gray-500/15 text-muted-foreground border-gray-500/30",
       };
       const label =
@@ -546,16 +566,24 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                 {(ledger || []).map((inv) => (
                   <tr key={inv.id} className={inv.displayStatus === "OVERDUE" ? "bg-red-500/5" : ""}>
                     <td className="px-4 py-2 font-mono text-xs">{inv.invoiceNumber}</td>
-                    <td className="px-4 py-2">{inv.partyName}</td>
+                    <td className="px-4 py-2">
+                      <div className="font-medium">{inv.partyName}</div>
+                      {inv.partyPhone && (
+                        <a href={`tel:${inv.partyPhone}`} dir="ltr" className="block text-xs text-muted-foreground tabular-nums">
+                          {inv.partyPhone}
+                        </a>
+                      )}
+                      {inv.notes && <div className="text-xs text-muted-foreground whitespace-pre-line">{inv.notes}</div>}
+                    </td>
                     <td className="px-4 py-2">{inv.direction === "PAYABLE" ? t.accInvoicePayable : t.accInvoiceReceivable}</td>
                     <td className="px-4 py-2 tabular-nums">
                       <Money value={inv.amount} lang={lang} t={t} />
                     </td>
-                    <td className="px-4 py-2 text-muted-foreground">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
+                    <td className="px-4 py-2 text-muted-foreground">{inv.dueDate ? fmtDate(inv.dueDate, lang) : "—"}</td>
                     <td className="px-4 py-2">{statusBadge(inv.displayStatus)}</td>
                     <td className="px-4 py-2 accounting-no-print">
                       {inv.status === "PENDING" && (
-                        <Button size="sm" variant="outline" className="border-emerald-500/40 text-emerald-400" onClick={async () => {
+                        <Button size="sm" variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400" onClick={async () => {
                           const res = await markLedgerInvoicePaid({ id: inv.id });
                           if (res.success) toast.success(t.accStatusPaid);
                           else toast.error(res.error);
@@ -697,9 +725,9 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                       </td>
                     )}
                     <td className="px-4 py-2 whitespace-nowrap">{new Date(r.date).toLocaleDateString()}</td>
-                    <td className="px-4 py-2">{lang === "ar" ? t[r.category] || r.category : r.category}</td>
+                    <td className="px-4 py-2">{catLabel(r.category, t)}</td>
                     <td className="px-4 py-2 max-w-[200px] truncate">{r.description}</td>
-                    <td className="px-4 py-2 tabular-nums text-red-300">
+                    <td className="px-4 py-2 tabular-nums text-red-700 dark:text-red-300">
                       <Money value={r.amount} lang={lang} t={t} />
                     </td>
                     <td className="px-4 py-2">{r.paidBy}</td>
@@ -713,7 +741,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-red-400"
+                              className="text-red-700 dark:text-red-400"
                               onClick={async () => {
                                 if (!window.confirm(t.accountingDeleteConfirm)) return;
                                 const res = await deleteTransaction(r.id);
@@ -729,7 +757,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
                         </>
                       )}
                       {r.receiptUrl && (
-                        <a href={r.receiptUrl} target="_blank" rel="noreferrer" className="text-sky-400 text-xs underline">
+                        <a href={r.receiptUrl} target="_blank" rel="noreferrer" className="text-sky-700 dark:text-sky-400 text-xs underline">
                           {t.accReceipt}
                         </a>
                       )}
@@ -744,7 +772,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
             <div className="h-56 w-full" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pie || []} dataKey="value" nameKey="name" innerRadius={50} outerRadius={70} paddingAngle={2}>
+                  <Pie data={(pie || []).map((x) => ({ ...x, name: catLabel(x.name, t) }))} dataKey="value" nameKey="name" innerRadius={50} outerRadius={70} paddingAngle={2}>
                     {(pie || []).map((_, i) => (
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
@@ -885,29 +913,19 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
 
 function PlLine({ label, value, lang, t, tone }) {
   const n = Number(value) || 0;
+  const pos = "text-emerald-700 dark:text-emerald-400";
+  const neg = "text-red-700 dark:text-red-400";
   const color =
     tone === "in"
-      ? "text-emerald-400"
+      ? pos
       : tone === "out"
-        ? "text-red-300"
+        ? neg
         : tone === "net"
-          ? n >= 0
-            ? "text-emerald-400"
-            : "text-red-400"
+          ? n >= 0 ? pos : neg
           : tone === "emphasis"
-            ? n >= 0
-              ? "text-emerald-400 font-bold"
-              : "text-red-400 font-bold"
+            ? cn("font-bold", n >= 0 ? pos : neg)
             : "text-foreground";
-  const display =
-    tone === "out" ? (
-      <span dir="ltr" className="tabular-nums">
-        −
-        {Math.abs(n).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {t.currency}
-      </span>
-    ) : (
-      <Money value={n} lang={lang} t={t} />
-    );
+  const display = <Money value={n} t={t} negative={tone === "out"} />;
   return (
     <div className="flex justify-between gap-4 text-sm">
       <span className="text-muted-foreground">{label}</span>
@@ -920,7 +938,7 @@ function ReportRow({ label, value, lang, t, strong }) {
   return (
     <div className="flex justify-between border-b border-border py-2">
       <span className="text-muted-foreground">{label}</span>
-      <span className={cn("tabular-nums font-semibold", strong && (value >= 0 ? "text-emerald-400" : "text-red-400"))}>
+      <span className={cn("tabular-nums font-semibold", strong && (value >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"))}>
         <Money value={value} lang={lang} t={t} />
       </span>
     </div>
@@ -1024,7 +1042,7 @@ function ExpenseDialog({ open, onOpenChange, t, lang, isRTL, form, setForm, onSa
             <SelectContent className="bg-background border-border text-foreground">
               {EXPENSE_PRESETS.map((c) => (
                 <SelectItem key={c} value={c}>
-                  {lang === "ar" ? t[c] || c : c}
+                  {catLabel(c, t)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1083,6 +1101,7 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
       const res = await createLedgerInvoice({
         direction: form.direction,
         partyName: form.partyName,
+        partyPhone: form.partyPhone || null,
         amount: parseFloat(form.amount),
         dueDate: form.dueDate || null,
         notes: form.notes || null,
@@ -1090,7 +1109,7 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
       if (res.success) {
         toast.success(t.save);
         onSaved();
-        setForm({ direction: "PAYABLE", partyName: "", amount: "", dueDate: "", notes: "" });
+        setForm({ direction: "PAYABLE", partyName: "", partyPhone: "", amount: "", dueDate: "", notes: "" });
       } else toast.error(res.error);
     } finally {
       setLoading(false);
@@ -1114,6 +1133,7 @@ function InvoiceDialog({ open, onOpenChange, form, setForm, t, isRTL, onSaved })
             </SelectContent>
           </Select>
           <Input placeholder={t.accColParty} value={form.partyName} onChange={(e) => setForm((f) => ({ ...f, partyName: e.target.value }))} className="bg-background border-border" />
+          <Input placeholder={t.authPhone} type="tel" dir="ltr" value={form.partyPhone || ""} onChange={(e) => setForm((f) => ({ ...f, partyPhone: e.target.value }))} className="bg-background border-border" />
           <Input placeholder={t.accountingColAmount} type="number" step="0.01" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="bg-background border-border tabular-nums" dir="ltr" />
           <Input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} className="bg-background border-border" />
           <textarea placeholder={t.accNotes} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="w-full min-h-[80px] rounded-md bg-background border border-border px-3 py-2.5 text-sm" />

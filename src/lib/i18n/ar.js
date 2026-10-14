@@ -1426,7 +1426,24 @@ const dictionary = {
   "ordReturnErrQty": "الكمية أكبر من المتبقي بعد المرتجعات السابقة.",
   "ordReturnErrCancelled": "لا يمكن إرجاع طلب ملغى.",
   "ordReturnErrNotDelivered": "يمكن إرجاع الطلب بعد تسليمه فقط. ألغِ الطلب بدلاً من ذلك.",
-  "ordReturnErrProduct": "هذا المنتج ليس في الطلب."
+  "ordReturnErrProduct": "هذا المنتج ليس في الطلب.",
+  "accCat_Rent": "إيجار",
+  "accCat_Utilities": "كهرباء ومياه",
+  "accCat_Salaries": "رواتب",
+  "accCat_Shipping": "شحن وتوصيل",
+  "accCat_Maintenance": "صيانة",
+  "accCat_Marketing": "تسويق",
+  "accCat_Supplies": "مستلزمات",
+  "accCat_Taxes": "رسوم وضرائب",
+  "accCat_Other": "أخرى",
+  "accCat_Sales": "مبيعات",
+  "accCat_Refund": "مرتجعات",
+  "accCat_Sales Reversal": "إلغاء مبيعات",
+  "accCat_Supplier payment": "دفعات الموردين",
+  "accCat_Debt collected": "تحصيل ديون",
+  "accCat_Bills": "فواتير مدفوعة",
+  "accPlSales": "المبيعات",
+  "accPlRefunds": "المرتجعات",
 };
 
 export default dictionary;

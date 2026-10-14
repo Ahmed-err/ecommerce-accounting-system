@@ -1,9 +1,9 @@
 // POS totals, shared by the screen (display) and createPOSOrder (what is saved) so the
 // customer pays what the books show (A-27). Owner rules (2026-10-15): no tax; cashiers
-// discount at most 10%, managers and admins without a cap; zero-price items can't be sold;
-// pay later is off until P3.5 adds a debts list.
+// discount at most 10%, managers and admins without a cap; zero-price items can't be sold.
+// CREDIT (pay later, P3.5) needs the customer's name and phone and becomes a receivable.
 
-export const POS_PAYMENT_METHODS = ["CASH", "CARD", "BANK_TRANSFER"];
+export const POS_PAYMENT_METHODS = ["CASH", "CARD", "BANK_TRANSFER", "CREDIT"];
 export const CASHIER_MAX_DISCOUNT_PERCENT = 10;
 const UNCAPPED_ROLES = ["ADMIN", "MANAGER"];
 

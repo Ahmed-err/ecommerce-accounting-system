@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
 import { z } from "zod";
+import { bookSalaryPayment } from "@/lib/ledger";
 
 const attendanceSchema = z.object({
   userId: z.string().min(1),
@@ -571,10 +572,17 @@ export async function markSalaryPaid(id) {
     const existing = await db.salaryRecord.findUnique({ where: { id }, select: { status: true } });
     if (!existing) return { success: false, error: "Salary record not found." };
     if (existing.status === "PAID") return { success: false, error: "Already marked as paid." };
-    const record = await db.salaryRecord.update({
-      where: { id },
-      data: { status: "PAID", paidAt: new Date() },
+    const record = await db.$transaction(async (tx) => {
+      const res = await tx.salaryRecord.updateMany({
+        where: { id, status: { not: "PAID" } },
+        data: { status: "PAID", paidAt: new Date() },
+      });
+      if (res.count === 0) throw new Error("Already marked as paid.");
+      const paid = await tx.salaryRecord.findUnique({ where: { id }, include: { user: { select: { name: true } } } });
+      await bookSalaryPayment(tx, paid);
+      return paid;
     });
+    revalidatePath("/admin/accounting");
     await logAction("MARK_SALARY_PAID", { salaryId: id });
     revalidatePath("/admin/employees");
     return { success: true, record };

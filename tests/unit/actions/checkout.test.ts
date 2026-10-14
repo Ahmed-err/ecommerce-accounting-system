@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const tx = {
-  product: { findFirst: vi.fn(), findUnique: vi.fn(), updateMany: vi.fn() },
+  product: { findFirst: vi.fn(), findUnique: vi.fn(), updateMany: vi.fn(), update: vi.fn() },
+  stockMovement: { create: vi.fn() },
   order: { create: vi.fn() },
   transaction: { create: vi.fn() },
 };
@@ -49,5 +50,17 @@ describe("placeOrder", () => {
     await placeOrder(null, [{ id: "p1", name: "Drill", quantity: 2 }], guest);
 
     expect(tx.order.create.mock.calls[0][0].data.totalAmount).toBe(200 + 1500);
+  });
+
+  it("saves each item's cost and books no money until delivery", async () => {
+    tx.product.findFirst.mockResolvedValue({ id: "p1", name: "Drill", stock: 5, sellingPrice: 100, purchasePrice: 60 });
+    tx.product.update.mockResolvedValue({ id: "p1", name: "Drill", stock: 3, minStock: 0, purchasePrice: 60 });
+    tx.order.create.mockResolvedValue({ id: "order0000001", invoice: { id: "i1" } });
+    const { placeOrder } = await import("@/app/actions/catalog");
+
+    await placeOrder(null, [{ id: "p1", name: "Drill", quantity: 2 }], guest);
+
+    expect(tx.order.create.mock.calls[0][0].data.items.create[0]).toMatchObject({ quantity: 2, unitCost: 60 });
+    expect(tx.transaction.create).not.toHaveBeenCalled();
   });
 });

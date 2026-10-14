@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { z } from "zod";
+import { bookSupplierPayment } from "@/lib/ledger";
 import {
   getSuppliersKpiOverview,
   getTopSuppliersByVolume,
@@ -238,7 +239,7 @@ const createPurchaseSchema = z.object({
 
 export async function createPurchaseAction(raw) {
   try {
-    await ensure();
+    const user = await ensure();
     const parsed = createPurchaseSchema.safeParse(raw);
     if (!parsed.success) return { ok: false, error: "validation" };
     const { supplierId, items, receiveNow, paidAmount, ...rest } = parsed.data;
@@ -278,6 +279,7 @@ export async function createPurchaseAction(raw) {
           },
         },
       });
+      await bookSupplierPayment(tx, { purchase: p, amount: Math.min(paidAmount, total), by: user.name || user.email });
       if (receiveNow) {
         for (const line of lines) {
           await tx.product.update({
@@ -378,7 +380,7 @@ export async function markPurchaseReceivedAction(purchaseId) {
 
 export async function recordPurchasePaymentAction(purchaseId, raw) {
   try {
-    await ensure();
+    const user = await ensure();
     const schema = z.object({
       amount: z.coerce.number().min(0.01).max(1e12),
       method: z.string().max(80).optional().nullable(),
@@ -403,17 +405,23 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
 
     const next = Math.min(total, Math.round((paid + amount) * 100) / 100);
 
-    await db.purchase.update({
-      where: { id: purchaseId },
-      data: {
-        paidAmount: next,
-        paymentMethod: parsed.data.method || p.paymentMethod,
-        notes:
-          parsed.data.notes && p.notes
-            ? `${p.notes}\n[PAYMENT] ${parsed.data.notes}`
-            : parsed.data.notes || p.notes,
-      },
+    await db.$transaction(async (tx) => {
+      // Only if nobody else paid in the meantime, so the cash book gets one row per payment.
+      const res = await tx.purchase.updateMany({
+        where: { id: purchaseId, paidAmount: p.paidAmount },
+        data: {
+          paidAmount: next,
+          paymentMethod: parsed.data.method || p.paymentMethod,
+          notes:
+            parsed.data.notes && p.notes
+              ? `${p.notes}\n[PAYMENT] ${parsed.data.notes}`
+              : parsed.data.notes || p.notes,
+        },
+      });
+      if (res.count === 0) throw new Error("payment_changed");
+      await bookSupplierPayment(tx, { purchase: p, amount, method: parsed.data.method, by: user.name || user.email });
     });
+    revalidatePath("/admin/accounting");
     revalidatePath("/admin/suppliers");
     return { ok: true };
   } catch (e) {

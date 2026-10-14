@@ -1,4 +1,5 @@
 import { changeStock, StockError } from "@/lib/stock";
+import { bookOrderCash, reverseOrderCash } from "@/lib/ledger";
 
 // Order status rules and their stock/ledger effects, shared by staff status changes,
 // account closure and returns (A-23, A-25, A-26). Owner rules (2026-10-14): cashiers cancel
@@ -55,9 +56,9 @@ export class OrderStatusError extends Error {
 
 /**
  * Move an order to `to` inside a transaction. The status is updated only if it is still
- * `order.status`, so two clicks can't cancel (and restock) twice. Cancelling puts back the
- * stock not already returned and reverses the sale minus refunds; reinstating does the
- * opposite. Returns the stock changes for low-stock alerts.
+ * `order.status`, so two clicks can't cancel (and restock) twice. Delivering books the money;
+ * cancelling puts back the stock not already returned and reverses the money booked, less
+ * refunds; reinstating takes the stock again. Returns the stock changes for low-stock alerts.
  */
 export async function applyStatusChange(tx, { order, to, userId = null }) {
   const from = order.status;
@@ -66,6 +67,9 @@ export async function applyStatusChange(tx, { order, to, userId = null }) {
     data: { status: to, ...(to === "DELIVERED" ? { deliveredAt: new Date() } : {}) },
   });
   if (moved.count === 0) throw new OrderStatusError("status_changed");
+
+  // Money enters the cash book on delivery (owner, 2026-10-15).
+  if (to === "DELIVERED") await bookOrderCash(tx, order);
 
   const stockChanges = [];
   const cancelling = to === "CANCELLED";
@@ -92,28 +96,8 @@ export async function applyStatusChange(tx, { order, to, userId = null }) {
     }
   }
 
-  const amount = Math.max(0, num(order.totalAmount) - refunded);
-  if (amount > 0) {
-    await tx.transaction.create({
-      data: cancelling
-        ? {
-            type: "OUTGOING",
-            amount,
-            description: `Order Cancellation Reversal - ${ref(order.id)}`,
-            category: "Sales Reversal",
-            reference: order.id,
-            date: new Date(),
-          }
-        : {
-            type: "INCOMING",
-            amount,
-            description: `Order Reinstated - ${ref(order.id)}`,
-            category: "Sales",
-            reference: order.id,
-            date: new Date(),
-          },
-    });
-  }
+  // A reinstated order goes back to PENDING; its money is booked again when it is delivered.
+  if (cancelling) await reverseOrderCash(tx, order, refunded);
   return stockChanges;
 }
 
