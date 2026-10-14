@@ -190,6 +190,10 @@ export async function createOrderReturn(raw) {
     if (order.status === "CANCELLED") {
       return { success: false, error: "RETURN_ORDER_CANCELLED", errorCode: "RETURN_ORDER_CANCELLED" };
     }
+    // Only delivered goods come back; an undelivered order is cancelled instead.
+    if (order.status !== "DELIVERED") {
+      return { success: false, error: "RETURN_NOT_DELIVERED", errorCode: "RETURN_NOT_DELIVERED" };
+    }
 
     const checked = checkReturnLines(order, p.items);
     if (!checked.ok) return { success: false, error: checked.code, errorCode: checked.code };
@@ -268,7 +272,8 @@ export async function approveOrderReturn(returnId) {
       }
 
       // The refund is booked when the return is approved (owner, 2026-10-14).
-      const amount = Number(returnRecord.refundAmount);
+      // Returns opened before refunds followed the amount paid may hold a higher figure.
+      const amount = Math.min(Number(returnRecord.refundAmount), checked.refundAmount);
       if (amount > 0) {
         await tx.transaction.create({
           data: {
@@ -297,10 +302,12 @@ export async function approveOrderReturn(returnId) {
 export async function rejectOrderReturn(returnId, reason) {
   try {
     await ensureAdminOrManager();
-    await db.orderReturn.update({
-      where: { id: returnId },
+    // An approved return already moved stock and money; it can't be rejected afterwards.
+    const res = await db.orderReturn.updateMany({
+      where: { id: returnId, status: "PENDING" },
       data: { status: "REJECTED", notes: reason || null, processedAt: new Date() },
     });
+    if (res.count === 0) return { success: false, error: "Return is not pending" };
     await logAction("REJECT_RETURN", { returnId });
     revalidatePath("/admin/orders");
     return { success: true };
