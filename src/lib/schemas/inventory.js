@@ -34,6 +34,8 @@ export const productMutationSchema = z.object({
     z.coerce.number().min(0).max(100).optional().nullable()
   ),
   stock: z.coerce.number().int().min(0).max(1e9),
+  // Stock the edit form loaded; the save applies only the user's change (new − loaded).
+  stockLoaded: z.coerce.number().int().min(0).max(1e9).optional(),
   minStock: z.coerce.number().int().min(0).max(1e9),
   categoryId: z.string().min(1),
   supplierId: z.preprocess(emptyToUndef, z.string().min(1).optional().nullable()),
@@ -90,6 +92,10 @@ export const issueStockSchema = z.object({
 
 export const bulkIdsSchema = z.object({
   ids: z.array(z.string().min(1)).min(1).max(100),
+});
+
+export const bulkActiveSchema = bulkIdsSchema.extend({
+  isActive: z.boolean(),
 });
 
 export const bulkCategorySchema = bulkIdsSchema.extend({

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 
-function printHtmlDocument(html) {
+export function printHtmlDocument(html) {
   const iframe = document.createElement("iframe");
   iframe.setAttribute("title", "print");
   iframe.setAttribute("aria-hidden", "true");

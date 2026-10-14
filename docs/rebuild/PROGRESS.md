@@ -5,11 +5,13 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P3.1 Admin shell & dashboard
-- **Step:** 4 — test (CI on the P3.1 PR)
+- **Current part:** P3.2 Inventory (branch `rebuild/p3-2-inventory`)
+- **Step:** 5 — PR #31 green (e2e, screens incl. new admin-inventory shots, unit, quality); waiting for owner merge
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
+- **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
 - **Built (2026-10-13):** dashboard from orders (no cancelled) + grouped SQL chart + real period change, Arabic labels; one role map `src/lib/staff-access.js` for proxy/pages/sidebar (checked locally: admin, manager, cashier menus + cashier redirects); read-only access table replaces the permission matrix; Himmat lockup + page title in admin header. Local `/pos` load hung in dev (low memory); CI e2e `pos-cashier` decides.
-- **Next:** read P3.1 PR checks, merge, verify live, then P3.2. Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Done:** P3.1 — #30 merged, deployed 2026-10-13; live `/admin` and `/pos` send signed-out visitors to login.
+- **Next:** P3.2 audit. Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -38,8 +40,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.5 | Auth | done | `rebuild/p2-5-auth` | #27 |
 | P2.6 | Customer account | done | `rebuild/p2-6-account` | #28 |
 | P2.7 | Content, SEO, PWA | done | `rebuild/p2-7-content` | parts/P2.7.md |
-| P3.1 | Admin shell & dashboard | test | `rebuild/p3-1-admin-shell` | parts/P3.1.md |
-| P3.2 | Inventory | todo | | |
+| P3.1 | Admin shell & dashboard | done | #30 | parts/P3.1.md |
+| P3.2 | Inventory | review | #31 | parts/P3.2.md |
 | P3.3 | Orders | todo | | carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
 | P3.4 | POS | todo | | |
 | P3.5 | Accounting | todo | | |

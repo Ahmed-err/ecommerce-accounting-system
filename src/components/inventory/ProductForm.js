@@ -230,6 +230,8 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         purchasePrice: Number(formData.purchasePrice),
         sellingPrice: Number(formData.sellingPrice),
         stock: parseInt(formData.stock, 10),
+        // The server applies only the change from what was loaded, so sales made meanwhile are kept.
+        ...(isEditing ? { stockLoaded: Number(product.stock ?? 0) } : {}),
         minStock: parseInt(formData.minStock, 10),
         categoryId: formData.categoryId,
         supplierId: formData.supplierId || null,
@@ -250,7 +252,11 @@ export default function ProductForm({ isOpen, onClose, product, categories, supp
         onClose();
         router.refresh();
       } else {
-        setError(formatServerActionError(res.error) || t.inventorySaveError);
+        setError(
+          res.error === "insufficient_stock"
+            ? t.inventoryInsufficientStock
+            : formatServerActionError(res.error) || t.inventorySaveError
+        );
       }
     } catch (err) {
       setError(formatUploadError(err, t.inventorySaveError));

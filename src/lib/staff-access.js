@@ -13,7 +13,7 @@ export const STAFF_AREAS = [
   { key: "pos", path: "/pos", roles: ALL, labelKey: "adminPos" },
   { key: "orders", path: "/admin/orders", roles: ALL, labelKey: "adminOrders" },
   { key: "reviews", path: "/admin/reviews", roles: ADMIN_MANAGER, labelKey: "adminReviews" },
-  { key: "inventory", path: "/admin/inventory", roles: ADMIN_MANAGER, labelKey: "adminInventory" },
+  { key: "inventory", path: "/admin/inventory", roles: ALL, labelKey: "adminInventory" },
   { key: "suppliers", path: "/admin/suppliers", roles: ADMIN_MANAGER, labelKey: "adminSuppliers" },
   { key: "contacts", path: "/admin/contacts", roles: ADMIN_MANAGER, labelKey: "adminContacts" },
   { key: "notifications", path: "/admin/notifications", roles: ADMIN_MANAGER, labelKey: "adminNotifications" },
