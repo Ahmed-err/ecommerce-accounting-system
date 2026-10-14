@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma as db } from "@/lib/prisma";
+import { applyStatusChange } from "@/lib/order-workflow";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
@@ -397,10 +398,14 @@ export async function deleteMyAccount(data) {
     const anonId = `deleted_${userId.slice(-8)}`;
 
     await db.$transaction(async (tx) => {
-      await tx.order.updateMany({
+      // Cancel open orders properly: stock back and the sale reversed (A-23).
+      const pending = await tx.order.findMany({
         where: { userId, status: "PENDING" },
-        data: { status: "CANCELLED" },
+        include: { items: true },
       });
+      for (const order of pending) {
+        await applyStatusChange(tx, { order, to: "CANCELLED", userId });
+      }
 
       await tx.session.deleteMany({ where: { userId } });
 

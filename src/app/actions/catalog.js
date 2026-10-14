@@ -13,6 +13,7 @@ import { createAdminBroadcastNotification, createNotification } from "@/lib/noti
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
 import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
+import { applyStatusChange, canMoveStatus, OrderStatusError } from "@/lib/order-workflow";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
@@ -789,88 +790,21 @@ export async function getAllOrders({ search = "", status = "all", page = 1, limi
 export async function updateOrderStatus(orderId, newStatus) {
   try {
     await ensureStaff();
-    const staffId = (await auth())?.user?.id ?? null;
-    const stockChanges = [];
+    const user = (await auth())?.user;
     const order = await db.order.findUnique({
       where: { id: orderId },
       include: { items: true },
     });
 
     if (!order) return { success: false, error: "Order not found" };
-    const oldStatus = order.status;
+    if (order.status === newStatus) return { success: true };
+    if (!canMoveStatus(user?.role, order.status, newStatus)) {
+      return { success: false, error: "status_not_allowed" };
+    }
 
-    // No actual change
-    if (oldStatus === newStatus) return { success: true };
-
-    await db.$transaction(async (tx) => {
-      // 1. Update order status
-      await tx.order.update({
-        where: { id: orderId },
-        data: { status: newStatus },
-      });
-
-      // 2. Handle CANCELLATION (Coming FROM any status TO CANCELLED)
-      if (newStatus === "CANCELLED" && oldStatus !== "CANCELLED") {
-        // Put the stock back
-        for (const item of order.items) {
-          await changeStock(tx, {
-            productId: item.productId,
-            delta: item.quantity,
-            reason: "CANCEL",
-            userId: staffId,
-            notes: `#${order.id.slice(-8).toUpperCase()}`,
-          });
-        }
-
-        // Create reversing OUTGOING transaction
-        await tx.transaction.create({
-          data: {
-            type: "OUTGOING",
-            amount: order.totalAmount,
-            description: `Order Cancellation Reversal - #${order.id.slice(-8).toUpperCase()}`,
-            category: "Sales Reversal",
-            reference: order.id,
-            date: new Date(),
-          },
-        });
-      }
-
-      // 3. Handle REINSTATED (Moving AWAY from CANCELLED to anything else)
-      if (oldStatus === "CANCELLED" && newStatus !== "CANCELLED") {
-        // Take the stock again; refuse if it has run out meanwhile
-        for (const item of order.items) {
-          try {
-            stockChanges.push(
-              await changeStock(tx, {
-                productId: item.productId,
-                delta: -item.quantity,
-                reason: "SALE",
-                userId: staffId,
-                notes: `#${order.id.slice(-8).toUpperCase()}`,
-              })
-            );
-          } catch (e) {
-            if (!(e instanceof StockError)) throw e;
-            throw new Error(`Insufficient stock to reinstate this order. Please refresh and try again.`);
-          }
-        }
-
-        // Re-create INCOMING transaction
-        await tx.transaction.create({
-          data: {
-            type: "INCOMING",
-            amount: order.totalAmount,
-            description: `Order Reinstated - #${order.id.slice(-8).toUpperCase()}`,
-            category: "Sales",
-            reference: order.id,
-            date: new Date(),
-          },
-        });
-      }
-    }, {
-      // Transaction isolation level to prevent race conditions
-      isolationLevel: 'Serializable'
-    });
+    const stockChanges = await db.$transaction((tx) =>
+      applyStatusChange(tx, { order, to: newStatus, userId: user?.id ?? null })
+    );
 
     await notifyLowStock(stockChanges);
     revalidatePath("/admin/orders");
@@ -893,6 +827,7 @@ export async function updateOrderStatus(orderId, newStatus) {
     }
     return { success: true };
   } catch (error) {
+    if (error instanceof OrderStatusError) return { success: false, error: error.code };
     console.error("Failed to update order workflow:", error);
     const message =
       error instanceof Error

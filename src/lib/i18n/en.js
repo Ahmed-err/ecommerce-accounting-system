@@ -1412,7 +1412,20 @@ const dictionary = {
   "unitMeter": "m",
   "unitSet": "set",
   "unitPack": "pack",
-  "inventoryAllCategories": "All categories"
+  "inventoryAllCategories": "All categories",
+  "ordGuest": "Guest",
+  "ordShipping": "Shipping",
+  "ordDiscount": "Discount",
+  "ordCoupon": "Coupon",
+  "ordCustomerNotes": "Customer notes",
+  "ordCancelConfirm": "Cancel this order? Stock goes back and the sale is reversed in accounting.",
+  "ordStatusNotAllowed": "You can't make this change.",
+  "ordStatusChanged": "The order just changed. Refresh and try again.",
+  "ordInsufficientStock": "Not enough stock to reinstate this order.",
+  "ordDeliveredLocked": "Delivered. Changes go through a return.",
+  "ordReturnErrQty": "Quantity is more than what is left after earlier returns.",
+  "ordReturnErrCancelled": "A cancelled order can't be returned.",
+  "ordReturnErrProduct": "This product isn't in the order."
 };
 
 export default dictionary;

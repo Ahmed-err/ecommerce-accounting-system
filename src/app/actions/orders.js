@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
 import { changeStock } from "@/lib/stock";
+import { checkReturnLines, REFUND_METHODS } from "@/lib/order-workflow";
 import { z } from "zod";
 
 async function ensureStaff() {
@@ -34,13 +35,14 @@ async function ensureAdminOrManager() {
 const returnItemSchema = z.object({
   productId: z.string().min(1),
   quantity: z.coerce.number().int().positive(),
-  price: z.coerce.number().positive(),
+  // Ignored: the price always comes from the order line.
+  price: z.coerce.number().optional(),
 });
 
 const returnSchema = z.object({
   orderId: z.string().min(1, { message: "RETURN_ORDER_ID" }),
   reason: z.string().min(2, { message: "RETURN_REASON" }).max(2000),
-  refundMethod: z.enum(["CASH", "BANK_TRANSFER", "STORE_CREDIT"]),
+  refundMethod: z.enum(REFUND_METHODS),
   notes: z.string().max(2000).optional().nullable(),
   items: z.array(returnItemSchema).min(1, { message: "RETURN_NO_ITEMS" }),
 });
@@ -182,11 +184,16 @@ export async function createOrderReturn(raw) {
 
     const order = await db.order.findUnique({
       where: { id: p.orderId },
-      include: { items: { include: { product: true } } },
+      include: { items: true, returns: { include: { items: true } } },
     });
     if (!order) return { success: false, error: "Order not found" };
+    if (order.status === "CANCELLED") {
+      return { success: false, error: "RETURN_ORDER_CANCELLED", errorCode: "RETURN_ORDER_CANCELLED" };
+    }
 
-    const refundAmount = p.items.reduce((s, it) => s + it.quantity * it.price, 0);
+    const checked = checkReturnLines(order, p.items);
+    if (!checked.ok) return { success: false, error: checked.code, errorCode: checked.code };
+    const { lines, refundAmount } = checked;
 
     const returnRecord = await db.$transaction(async (tx) => {
       const ret = await tx.orderReturn.create({
@@ -199,7 +206,7 @@ export async function createOrderReturn(raw) {
           notes: p.notes || null,
           status: "PENDING",
           items: {
-            create: p.items.map((it) => ({
+            create: lines.map((it) => ({
               productId: it.productId,
               quantity: it.quantity,
               price: it.price,
@@ -225,42 +232,61 @@ export async function approveOrderReturn(returnId) {
 
     const returnRecord = await db.orderReturn.findUnique({
       where: { id: returnId },
-      include: { items: true, order: { include: { items: true } } },
+      include: { items: true, order: { include: { items: true, returns: { include: { items: true } } } } },
     });
     if (!returnRecord) return { success: false, error: "Return not found" };
     if (returnRecord.status !== "PENDING") {
       return { success: false, error: "Return is not pending" };
     }
-
-    const orderItemMap = new Map(
-      (returnRecord.order?.items || []).map((i) => [i.productId, i.quantity])
-    );
-    for (const ri of returnRecord.items) {
-      const orderedQty = orderItemMap.get(ri.productId) ?? 0;
-      if (ri.quantity > orderedQty) {
-        return { success: false, error: `Return quantity exceeds ordered quantity for product ${ri.productId}` };
-      }
+    const order = returnRecord.order;
+    if (order.status === "CANCELLED") {
+      return { success: false, error: "RETURN_ORDER_CANCELLED", errorCode: "RETURN_ORDER_CANCELLED" };
     }
+    // Only returns already approved count against this one (A-25).
+    const checked = checkReturnLines(
+      { ...order, returns: order.returns.filter((r) => r.status === "APPROVED") },
+      returnRecord.items
+    );
+    if (!checked.ok) return { success: false, error: checked.code, errorCode: checked.code };
 
+    const orderRef = `#${order.id.slice(-8).toUpperCase()}`;
     await db.$transaction(async (tx) => {
+      const claimed = await tx.orderReturn.updateMany({
+        where: { id: returnId, status: "PENDING" },
+        data: { status: "APPROVED", processedAt: new Date() },
+      });
+      if (claimed.count === 0) throw new Error("Return is not pending");
+
       for (const item of returnRecord.items) {
         await changeStock(tx, {
           productId: item.productId,
           delta: item.quantity,
           reason: "RETURN",
           userId: session.user.id,
-          notes: `#${returnRecord.orderId.slice(-8).toUpperCase()}`,
+          notes: orderRef,
         });
       }
 
-      await tx.orderReturn.update({
-        where: { id: returnId },
-        data: { status: "APPROVED", processedAt: new Date() },
-      });
+      // The refund is booked when the return is approved (owner, 2026-10-14).
+      const amount = Number(returnRecord.refundAmount);
+      if (amount > 0) {
+        await tx.transaction.create({
+          data: {
+            type: "OUTGOING",
+            amount,
+            description: `Refund ${returnRecord.returnNumber} - ${orderRef} (${returnRecord.refundMethod})`,
+            category: "Refund",
+            reference: order.id,
+            date: new Date(),
+          },
+        });
+      }
     });
 
     await logAction("APPROVE_RETURN", { returnId });
     revalidatePath("/admin/orders");
+    revalidatePath("/admin/accounting");
+    revalidatePath("/admin/inventory");
     return { success: true };
   } catch (error) {
     console.error("approveOrderReturn:", error);
