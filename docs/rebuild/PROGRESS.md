@@ -6,7 +6,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P3.4 POS (branch `rebuild/p3-4-pos`)
-- **Step:** 1 — audit
+- **Step:** 2 — audit + plan in parts/P3.4.md; waiting for owner answers (5 questions)
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
 - **Built (2026-10-14, P3.3):** `src/lib/order-workflow.js` status rules per role + cancel/reinstate effects (A-23/A-25/A-26); returns priced from the order and capped by earlier returns; approving books the refund; `Order.deliveredAt` migration (return window); store credit removed; sales = not cancelled everywhere; dead `order-management.js` (A-24) removed. Still `ar-EG` digits in accounting, employees, reviews (their parts).
 - **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
