@@ -190,13 +190,11 @@ export default function TransactionForm({ isOpen, onClose, transaction }) {
               onValueChange={(val) => setFormData((p) => ({ ...p, category: val }))}
             >
               <SelectTrigger className={`border-border bg-background text-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-                <SelectValue placeholder={t.accountingSelectCategory}>
-                  {formData.category || undefined}
-                </SelectValue>
+                <SelectValue placeholder={t.accountingSelectCategory} />
               </SelectTrigger>
               <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                 {PRESET_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat}>{t[`accCat_${cat}`] || cat}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

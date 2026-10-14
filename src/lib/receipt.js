@@ -24,7 +24,7 @@ export function resolvePaymentMethodLabel(methodId, lang) {
 export function getInvoiceLabels(isAr) {
   if (isAr) {
     return {
-      documentTitle: "فاتورة ضريبية",
+      documentTitle: "فاتورة",
       invoiceNo: "رقم الفاتورة",
       orderRef: "مرجع الطلب",
       date: "التاريخ",
@@ -54,7 +54,7 @@ export function getInvoiceLabels(isAr) {
     };
   }
   return {
-    documentTitle: "Tax invoice",
+    documentTitle: "Invoice",
     invoiceNo: "Invoice no.",
     orderRef: "Order ref.",
     date: "Date",

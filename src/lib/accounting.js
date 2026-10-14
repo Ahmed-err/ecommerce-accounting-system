@@ -280,10 +280,9 @@ export async function listLedgerInvoices({ status, direction, start, end }) {
   const now = new Date();
   const where = {
     ...(direction && direction !== "all" ? { direction } : {}),
+    // Unpaid debts and bills stay listed whatever the period.
     ...(start && end
-      ? {
-          createdAt: { gte: start, lte: end },
-        }
+      ? { OR: [{ status: "PENDING" }, { createdAt: { gte: start, lte: end } }] }
       : {}),
   };
 
