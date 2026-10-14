@@ -16,11 +16,12 @@ describe("staff-access", () => {
     }
   });
 
-  it("cashier: orders and POS only", () => {
+  it("cashier: orders, POS and inventory (receive only)", () => {
     expect(canOpen("CASHIER", "/admin/orders")).toBe(true);
     expect(canOpen("CASHIER", "/pos")).toBe(true);
     expect(canOpen("CASHIER", "/admin")).toBe(false);
-    expect(canOpen("CASHIER", "/admin/inventory")).toBe(false);
+    expect(canOpen("CASHIER", "/admin/inventory")).toBe(true);
+    expect(canOpen("CASHIER", "/admin/suppliers")).toBe(false);
   });
 
   it("matches whole path segments only", () => {

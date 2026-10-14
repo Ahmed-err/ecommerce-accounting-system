@@ -4,6 +4,7 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import { changeStock } from "@/lib/stock";
 import { z } from "zod";
 
 async function ensureStaff() {
@@ -220,7 +221,7 @@ export async function createOrderReturn(raw) {
 
 export async function approveOrderReturn(returnId) {
   try {
-    await ensureAdminOrManager();
+    const session = await ensureAdminOrManager();
 
     const returnRecord = await db.orderReturn.findUnique({
       where: { id: returnId },
@@ -243,11 +244,13 @@ export async function approveOrderReturn(returnId) {
 
     await db.$transaction(async (tx) => {
       for (const item of returnRecord.items) {
-        const result = await tx.product.updateMany({
-          where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
+        await changeStock(tx, {
+          productId: item.productId,
+          delta: item.quantity,
+          reason: "RETURN",
+          userId: session.user.id,
+          notes: `#${returnRecord.orderId.slice(-8).toUpperCase()}`,
         });
-        if (result.count === 0) throw new Error(`Product ${item.productId} not found`);
       }
 
       await tx.orderReturn.update({

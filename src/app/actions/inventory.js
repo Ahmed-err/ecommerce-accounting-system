@@ -20,11 +20,12 @@ import {
   receiveStockSchema,
   issueStockSchema,
   bulkIdsSchema,
+  bulkActiveSchema,
   bulkCategorySchema,
   categoryMutationSchema,
   categoryDeleteSchema,
 } from "@/lib/schemas/inventory";
-import { createAdminBroadcastNotification } from "@/lib/notifications";
+import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
 import { formatServerActionError } from "@/lib/utils";
 
 function toActionErrorString(error) {
@@ -199,7 +200,7 @@ export async function getStockMovementsAction(params) {
 
 export async function createProduct(data) {
   try {
-    await ensureManager();
+    const u = await ensureManager();
     const parsed = productMutationSchema.safeParse(data);
     if (!parsed.success) {
       return { success: false, error: parsed.error.flatten().fieldErrors };
@@ -207,7 +208,8 @@ export async function createProduct(data) {
     const d = parsed.data;
     const barcode =
       d.barcode && String(d.barcode).trim() ? String(d.barcode).trim() : null;
-    const product = await db.product.create({
+    const product = await db.$transaction(async (tx) => {
+      const created = await tx.product.create({
       data: {
         name: d.name,
         nameEn: d.nameEn || null,
@@ -226,7 +228,7 @@ export async function createProduct(data) {
         importedPrice: d.importedPrice ?? null,
         countryOfOrigin: d.countryOfOrigin || null,
         importTaxRate: d.importTaxRate ?? null,
-        stock: d.stock,
+        stock: 0,
         minStock: d.minStock,
         categoryId: d.categoryId,
         supplierId: d.supplierId || null,
@@ -236,6 +238,9 @@ export async function createProduct(data) {
         specs: d.specs ?? undefined,
         highlights: d.highlights ?? undefined,
       },
+      });
+      await changeStock(tx, { productId: created.id, delta: d.stock, reason: "OPENING", userId: u.id });
+      return created;
     });
     await logAction("CREATE_PRODUCT", { productId: product.id, name: d.name });
     revalidatePath("/admin/inventory");
@@ -249,7 +254,7 @@ export async function createProduct(data) {
 
 export async function updateProduct(id, data) {
   try {
-    await ensureManager();
+    const u = await ensureManager();
     const parsed = productMutationSchema.safeParse(data);
     if (!parsed.success) {
       return { success: false, error: parsed.error.flatten().fieldErrors };
@@ -257,7 +262,11 @@ export async function updateProduct(id, data) {
     const d = parsed.data;
     const barcode =
       d.barcode && String(d.barcode).trim() ? String(d.barcode).trim() : null;
-    const product = await db.product.update({
+    let stockChange = null;
+    const product = await db.$transaction(async (tx) => {
+      const current = await tx.product.findUnique({ where: { id }, select: { stock: true } });
+      if (!current) throw new Error("Product not found");
+      const updated = await tx.product.update({
       where: { id },
       data: {
         name: d.name,
@@ -277,7 +286,6 @@ export async function updateProduct(id, data) {
         importedPrice: d.importedPrice ?? null,
         countryOfOrigin: d.countryOfOrigin || null,
         importTaxRate: d.importTaxRate ?? null,
-        stock: d.stock,
         minStock: d.minStock,
         categoryId: d.categoryId,
         supplierId: d.supplierId || null,
@@ -287,12 +295,19 @@ export async function updateProduct(id, data) {
         specs: d.specs ?? undefined,
         highlights: d.highlights ?? undefined,
       },
+      });
+      // A sale while the form was open must not be undone: apply only what the user changed.
+      const delta = d.stock - (d.stockLoaded ?? current.stock);
+      stockChange = await changeStock(tx, { productId: id, delta, reason: "ADJUST", userId: u.id });
+      return stockChange ? { ...updated, stock: stockChange.stock } : updated;
     });
+    await notifyLowStock([stockChange]);
     await logAction("UPDATE_PRODUCT", { productId: id, name: d.name });
     revalidatePath("/admin/inventory");
     revalidateTag("homepage");
     return { success: true, product };
   } catch (error) {
+    if (error instanceof StockError) return { success: false, error: "insufficient_stock" };
     console.error("Failed to update product:", error);
     return { success: false, error: toActionErrorString(error) };
   }
@@ -325,6 +340,25 @@ export async function bulkDeleteProducts(ids) {
     return { success: true, count: deleted.length, skipped: skipped.length };
   } catch (error) {
     console.error("bulkDeleteProducts:", error);
+    return { success: false, error: toActionErrorString(error) };
+  }
+}
+
+// Hide or show products in the store. Products with sales history are hidden, never deleted (A-20).
+export async function setProductsActive(ids, isActive) {
+  try {
+    await ensureManager();
+    const parsed = bulkActiveSchema.safeParse({ ids, isActive });
+    if (!parsed.success) return { success: false, error: "invalid_input" };
+    const result = await db.product.updateMany({
+      where: { id: { in: parsed.data.ids } },
+      data: { isActive: parsed.data.isActive },
+    });
+    await logAction(parsed.data.isActive ? "SHOW_PRODUCTS" : "HIDE_PRODUCTS", { count: result.count });
+    revalidateStock();
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("setProductsActive:", error);
     return { success: false, error: toActionErrorString(error) };
   }
 }
@@ -465,73 +499,54 @@ export async function bulkSetCategory(ids, categoryId) {
 
 export async function updateStockQuantity(id, change) {
   try {
-    await ensureManager();
-    const current = await db.product.findUnique({ where: { id }, select: { stock: true } });
-    if (!current) return { success: false, error: "Product not found" };
-    if (current.stock + change < 0) {
-      return { success: false, error: "Stock cannot go below zero" };
-    }
-    const product = await db.product.update({
-      where: { id },
-      data: { stock: { increment: change } },
-    });
-    if (product.stock <= product.minStock) {
-      await createAdminBroadcastNotification({
-        type: "LOW_STOCK",
-        titleAr: "تنبيه مخزون منخفض",
-        titleEn: "Low stock alert",
-        bodyAr: `المنتج ${product.name} وصل إلى مخزون منخفض (${product.stock}).`,
-        bodyEn: `Product ${product.name} reached low stock (${product.stock}).`,
-        link: "/admin/inventory",
-      });
-    }
-    revalidatePath("/admin/inventory");
-    return { success: true, stock: product.stock };
+    const u = await ensureManager();
+    const result = await db.$transaction((tx) =>
+      changeStock(tx, { productId: id, delta: Number(change), reason: "ADJUST", userId: u.id })
+    );
+    await notifyLowStock([result]);
+    revalidateStock();
+    return { success: true, stock: result?.stock };
   } catch (error) {
+    if (error instanceof StockError) return { success: false, error: "insufficient_stock" };
     console.error("Failed to update stock:", error);
     return { success: false, error: toActionErrorString(error) };
   }
 }
 
+function schemaError(parsed) {
+  const f = parsed.error.flatten();
+  const fromFields = formatServerActionError(f.fieldErrors);
+  const fromForm = Array.isArray(f.formErrors) ? f.formErrors.filter(Boolean).join(" · ") : "";
+  return fromFields || fromForm || "Invalid input";
+}
+
+// Stock shows on the store's product pages and home sections.
+function revalidateStock() {
+  revalidatePath("/admin/inventory");
+  revalidatePath("/products", "layout");
+  revalidateTag("homepage");
+}
+
+// Cashiers may receive deliveries; taking stock out is for admins and managers (owner, 2026-10-14).
 export async function receiveStockAction(raw) {
   try {
-    await ensureStaff();
-    const u = await sessionUser();
-    if (!["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
-      return { success: false, error: "unauthorized" };
-    }
+    const u = await ensureStaff();
     const parsed = receiveStockSchema.safeParse(raw);
-    if (!parsed.success) {
-      const f = parsed.error.flatten();
-      const fromFields = formatServerActionError(f.fieldErrors);
-      const fromForm = Array.isArray(f.formErrors)
-        ? f.formErrors.filter(Boolean).join(" · ")
-        : "";
-      return {
-        success: false,
-        error: fromFields || fromForm || "Invalid input",
-      };
-    }
+    if (!parsed.success) return { success: false, error: schemaError(parsed) };
     const { productId, quantity, supplierId, unitCost, notes } = parsed.data;
-    await db.$transaction(async (tx) => {
-      const p = await tx.product.update({
-        where: { id: productId },
-        data: { stock: { increment: quantity } },
-      });
-      await tx.stockMovement.create({
-        data: {
-          type: "IN",
-          quantity,
-          productId,
-          userId: u.id,
-          supplierId: supplierId || null,
-          unitCost: unitCost != null ? unitCost : p.purchasePrice,
-          notes: notes || null,
-        },
-      });
-    });
+    await db.$transaction((tx) =>
+      changeStock(tx, {
+        productId,
+        delta: quantity,
+        reason: "RECEIVE",
+        userId: u.id,
+        supplierId: supplierId || null,
+        unitCost: unitCost ?? undefined,
+        notes: notes || null,
+      })
+    );
     await logAction("STOCK_RECEIVE", { productId, quantity });
-    revalidatePath("/admin/inventory");
+    revalidateStock();
     return { success: true };
   } catch (error) {
     console.error("receiveStockAction:", error);
@@ -541,71 +556,25 @@ export async function receiveStockAction(raw) {
 
 export async function issueStockAction(raw) {
   try {
-    await ensureStaff();
-    const u = await sessionUser();
-    if (!["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
-      return { success: false, error: "unauthorized" };
-    }
+    const u = await ensureManager();
     const parsed = issueStockSchema.safeParse(raw);
-    if (!parsed.success) {
-      const f = parsed.error.flatten();
-      const fromFields = formatServerActionError(f.fieldErrors);
-      const fromForm = Array.isArray(f.formErrors)
-        ? f.formErrors.filter(Boolean).join(" · ")
-        : "";
-      return {
-        success: false,
-        error: fromFields || fromForm || "Invalid input",
-      };
-    }
+    if (!parsed.success) return { success: false, error: schemaError(parsed) };
     const { productId, quantity, reason, notes } = parsed.data;
-    let newStock = null;
-    let productName = "";
-    let minStock = 0;
-    await db.$transaction(async (tx) => {
-      const cur = await tx.product.findUnique({
-        where: { id: productId },
-        select: { stock: true, name: true, minStock: true },
-      });
-      if (!cur) throw new Error("Product not found");
-      if (cur.stock < quantity) throw new Error("Insufficient stock");
-      const upd = await tx.product.updateMany({
-        where: { id: productId, stock: { gte: quantity } },
-        data: { stock: { decrement: quantity } },
-      });
-      if (upd.count === 0) throw new Error("Insufficient stock — please retry.");
-      const updated = await tx.product.findUnique({
-        where: { id: productId },
-        select: { stock: true },
-      });
-      newStock = updated.stock;
-      productName = cur.name;
-      minStock = cur.minStock;
-      await tx.stockMovement.create({
-        data: {
-          type: "OUT",
-          quantity,
-          productId,
-          userId: u.id,
-          reason: reason || null,
-          notes: notes || null,
-        },
-      });
-    });
+    const result = await db.$transaction((tx) =>
+      changeStock(tx, {
+        productId,
+        delta: -quantity,
+        reason: "ISSUE",
+        userId: u.id,
+        notes: [reason, notes].filter(Boolean).join(" · ") || null,
+      })
+    );
+    await notifyLowStock([result]);
     await logAction("STOCK_ISSUE", { productId, quantity });
-    if (newStock !== null && newStock <= minStock) {
-      await createAdminBroadcastNotification({
-        type: "LOW_STOCK",
-        titleAr: "تنبيه مخزون منخفض",
-        titleEn: "Low stock alert",
-        bodyAr: `المنتج ${productName} وصل إلى مخزون منخفض (${newStock}).`,
-        bodyEn: `Product ${productName} reached low stock (${newStock}).`,
-        link: "/admin/inventory",
-      });
-    }
-    revalidatePath("/admin/inventory");
+    revalidateStock();
     return { success: true };
   } catch (error) {
+    if (error instanceof StockError) return { success: false, error: "insufficient_stock" };
     console.error("issueStockAction:", error);
     return { success: false, error: toActionErrorString(error) };
   }

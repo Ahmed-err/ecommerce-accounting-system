@@ -12,6 +12,7 @@ import { buildCategoryTree, categoryWithChildren } from "@/lib/category-tree";
 import { createAdminBroadcastNotification, createNotification } from "@/lib/notifications";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { emitAlert } from "@/lib/monitoring";
+import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
@@ -342,6 +343,7 @@ export async function getFeaturedProducts(limit = 8) {
 export async function placeOrder(userId, cartItems, guestInfo = null) {
   // Declared outside try so the catch block can include it in the failure alert.
   let effectiveUserId = null;
+  const stockChanges = [];
   try {
     const clientIp = await getClientIP();
     const rateAllowed = await checkRateLimit(`checkout:${clientIp}`, 8, 15 * 60 * 1000, { failClosed: false });
@@ -579,13 +581,20 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
           },
         });
 
+        const orderRef = `#${newOrder.id.slice(-8).toUpperCase()}`;
         for (const vi of validatedItems) {
-          const upd = await tx.product.updateMany({
-            where: { id: vi.productId, stock: { gte: vi.quantity } },
-            data: { stock: { decrement: vi.quantity } },
-          });
-
-          if (upd.count === 0) {
+          try {
+            stockChanges.push(
+              await changeStock(tx, {
+                productId: vi.productId,
+                delta: -vi.quantity,
+                reason: "SALE",
+                userId: effectiveUserId,
+                notes: orderRef,
+              })
+            );
+          } catch (e) {
+            if (!(e instanceof StockError)) throw e;
             throw new Error(
               `Out of stock during checkout for ${vi.productName}. Please try again.`
             );
@@ -687,6 +696,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
       console.error("Invoice QR update after checkout:", e);
     }
 
+    await notifyLowStock(stockChanges);
     emitAlert("checkout_success", {
       orderId: order.id,
       paymentMethod: normalizedPaymentMethod,
@@ -779,6 +789,8 @@ export async function getAllOrders({ search = "", status = "all", page = 1, limi
 export async function updateOrderStatus(orderId, newStatus) {
   try {
     await ensureStaff();
+    const staffId = (await auth())?.user?.id ?? null;
+    const stockChanges = [];
     const order = await db.order.findUnique({
       where: { id: orderId },
       include: { items: true },
@@ -799,11 +811,14 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       // 2. Handle CANCELLATION (Coming FROM any status TO CANCELLED)
       if (newStatus === "CANCELLED" && oldStatus !== "CANCELLED") {
-        // Increment stock back
+        // Put the stock back
         for (const item of order.items) {
-          await tx.product.update({
-            where: { id: item.productId },
-            data: { stock: { increment: item.quantity } },
+          await changeStock(tx, {
+            productId: item.productId,
+            delta: item.quantity,
+            reason: "CANCEL",
+            userId: staffId,
+            notes: `#${order.id.slice(-8).toUpperCase()}`,
           });
         }
 
@@ -822,33 +837,21 @@ export async function updateOrderStatus(orderId, newStatus) {
 
       // 3. Handle REINSTATED (Moving AWAY from CANCELLED to anything else)
       if (oldStatus === "CANCELLED" && newStatus !== "CANCELLED") {
-        // Atomically check and decrement stock for each item
+        // Take the stock again; refuse if it has run out meanwhile
         for (const item of order.items) {
-          // Lock product row and check stock
-          const productRows = await tx.$queryRaw`
-            SELECT id, name, stock FROM "Product" 
-            WHERE id = ${item.productId} 
-            FOR UPDATE
-          `;
-          
-          if (!productRows || productRows.length === 0) {
-            throw new Error(`Product not found for order item.`);
-          }
-          
-          const product = productRows[0];
-          if (product.stock < item.quantity) {
-             throw new Error(`Insufficient stock to reinstate order for "${product.name}". Available: ${product.stock}, Required: ${item.quantity}`);
-          }
-          
-          // Atomic decrement
-          const result = await tx.$executeRaw`
-            UPDATE "Product" 
-            SET stock = stock - ${item.quantity} 
-            WHERE id = ${item.productId} AND stock >= ${item.quantity}
-          `;
-          
-          if (Number(result) === 0) {
-            throw new Error(`Stock changed during reinstatement. Please refresh and try again.`);
+          try {
+            stockChanges.push(
+              await changeStock(tx, {
+                productId: item.productId,
+                delta: -item.quantity,
+                reason: "SALE",
+                userId: staffId,
+                notes: `#${order.id.slice(-8).toUpperCase()}`,
+              })
+            );
+          } catch (e) {
+            if (!(e instanceof StockError)) throw e;
+            throw new Error(`Insufficient stock to reinstate this order. Please refresh and try again.`);
           }
         }
 
@@ -869,9 +872,11 @@ export async function updateOrderStatus(orderId, newStatus) {
       isolationLevel: 'Serializable'
     });
 
+    await notifyLowStock(stockChanges);
     revalidatePath("/admin/orders");
     revalidatePath("/admin/accounting");
     revalidatePath("/admin");
+    revalidatePath("/admin/inventory");
     if (order.userId) {
       const shortId = order.id.slice(-8).toUpperCase();
       const statusAr = ORDER_STATUS_LABELS_AR[newStatus] || newStatus;
