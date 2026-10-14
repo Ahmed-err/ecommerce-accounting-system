@@ -4,6 +4,7 @@ import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
+import { changeStock } from "@/lib/stock";
 
 async function ensureStaff() {
   const session = await auth();
@@ -101,12 +102,13 @@ export async function processRefund(orderId, refundData) {
       // 2. Return stock if requested
       if (returnStock && items.length > 0) {
         for (const item of items) {
-          if (item.quantity > 0) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data: { stock: { increment: item.quantity } },
-            });
-          }
+          await changeStock(tx, {
+            productId: item.productId,
+            delta: Math.max(0, Number(item.quantity) || 0),
+            reason: "REFUND",
+            userId: staff.id,
+            notes: `#${orderId.slice(-8).toUpperCase()}`,
+          });
         }
       }
 

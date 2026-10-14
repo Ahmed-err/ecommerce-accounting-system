@@ -27,6 +27,7 @@ vi.mock("@/lib/notifications", () => ({ createAdminBroadcastNotification: vi.fn(
 describe("actions/inventory", () => {
   it("createProduct success", async () => {
     db.product.create.mockResolvedValue({ id: "p1" });
+    db.product.update.mockResolvedValueOnce({ id: "p1", name: "P1", stock: 10, minStock: 2, purchasePrice: 10 });
     const { createProduct } = await import("@/app/actions/inventory");
     const out = await createProduct({
       name: "P1",
@@ -41,10 +42,66 @@ describe("actions/inventory", () => {
   });
 
   it("updateStock out prevents negative", async () => {
-    db.product.findUnique.mockResolvedValue({ stock: 1 });
+    vi.clearAllMocks();
+    db.product.update.mockRejectedValueOnce(Object.assign(new Error("nf"), { code: "P2025" }));
     const { updateStockQuantity } = await import("@/app/actions/inventory");
     const out = await updateStockQuantity("p1", -2);
+    expect(out).toEqual({ success: false, error: "insufficient_stock" });
+    expect(db.stockMovement.create).not.toHaveBeenCalled();
+  });
+
+  it("createProduct records the opening stock as a movement", async () => {
+    vi.clearAllMocks();
+    db.product.create.mockResolvedValue({ id: "p5" });
+    db.product.update.mockResolvedValue({ id: "p5", name: "P", stock: 4, minStock: 1, purchasePrice: 3 });
+    const { createProduct } = await import("@/app/actions/inventory");
+    await createProduct({ name: "P", sku: "S5", purchasePrice: 3, sellingPrice: 5, stock: 4, minStock: 1, categoryId: "c1" });
+    expect(db.product.create.mock.calls[0][0].data.stock).toBe(0);
+    expect(db.stockMovement.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "IN", quantity: 4, productId: "p5", reason: "OPENING" }),
+    });
+  });
+
+  it("updateProduct applies only the user's stock change, keeping sales made meanwhile", async () => {
+    vi.clearAllMocks();
+    // Form loaded 10, user typed 12; two were sold meanwhile so the DB has 8.
+    db.product.findUnique.mockResolvedValue({ stock: 8 });
+    db.product.update
+      .mockResolvedValueOnce({ id: "p1" })
+      .mockResolvedValueOnce({ id: "p1", name: "P", stock: 10, minStock: 1, purchasePrice: 3 });
+    const { updateProduct } = await import("@/app/actions/inventory");
+    const out = await updateProduct("p1", {
+      name: "P", sku: "S1", purchasePrice: 3, sellingPrice: 5, stock: 12, stockLoaded: 10, minStock: 1, categoryId: "c1",
+    });
+    expect(out.success).toBe(true);
+    expect(db.product.update.mock.calls[0][0].data).not.toHaveProperty("stock");
+    expect(db.product.update.mock.calls[1][0].data).toEqual({ stock: { increment: 2 } });
+    expect(db.stockMovement.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "IN", quantity: 2, reason: "ADJUST" }),
+    });
+  });
+
+  it("cashiers can receive stock but not issue it", async () => {
+    vi.clearAllMocks();
+    const { auth } = await import("@/auth");
+    (auth as any).mockResolvedValue({ user: { id: "c1", role: "CASHIER" } });
+    db.product.update.mockResolvedValue({ id: "p1", name: "P", stock: 5, minStock: 1, purchasePrice: 3 });
+    const { receiveStockAction, issueStockAction } = await import("@/app/actions/inventory");
+    expect(await receiveStockAction({ productId: "p1", quantity: 2 })).toEqual({ success: true });
+    const out = await issueStockAction({ productId: "p1", quantity: 1 });
     expect(out.success).toBe(false);
+    expect(db.stockMovement.create).toHaveBeenCalledTimes(1);
+    (auth as any).mockResolvedValue({ user: { id: "u1", role: "ADMIN" } });
+  });
+
+  it("setProductsActive hides products without deleting them", async () => {
+    vi.clearAllMocks();
+    db.product.updateMany.mockResolvedValue({ count: 2 });
+    const { setProductsActive } = await import("@/app/actions/inventory");
+    const out = await setProductsActive(["p1", "p2"], false);
+    expect(out).toEqual({ success: true, count: 2 });
+    expect(db.product.updateMany).toHaveBeenCalledWith({ where: { id: { in: ["p1", "p2"] } }, data: { isActive: false } });
+    expect(db.product.deleteMany).not.toHaveBeenCalled();
   });
 
   it("deleteProduct deletes a product that was never sold, bought or returned", async () => {
@@ -133,8 +190,9 @@ describe("actions/inventory", () => {
     await createProduct({ name: "Fridge", sku: "S9", purchasePrice: 1, sellingPrice: 2, stock: 1, minStock: 0, categoryId: "c1", brand: "LG" });
     expect(db.product.create.mock.calls.at(-1)[0].data.brand).toBe("LG");
     db.product.findUnique.mockResolvedValue({ id: "p9", stock: 1, sellingPrice: 2, purchasePrice: 1 });
+    db.product.update.mockReset();
     db.product.update.mockResolvedValue({ id: "p9" });
     await updateProduct("p9", { name: "Fridge", sku: "S9", purchasePrice: 1, sellingPrice: 2, stock: 1, minStock: 0, categoryId: "c1" });
-    expect(db.product.update.mock.calls.at(-1)?.[0].data).not.toHaveProperty("brand");
+    expect(db.product.update.mock.calls[0][0].data).not.toHaveProperty("brand");
   });
 });

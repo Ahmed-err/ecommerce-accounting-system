@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
 import { createAdminBroadcastNotification } from "@/lib/notifications";
 import { emitAlert } from "@/lib/monitoring";
+import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
 
 async function ensureStaff() {
   const session = await auth();
@@ -45,6 +46,7 @@ export async function getProductStock() {
 export async function createPOSOrder(cartItems, paymentDetails) {
   try {
     const staff = await ensureStaff();
+    const stockChanges = [];
 
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
       return { success: false, error: "Cart is empty." };
@@ -106,23 +108,21 @@ export async function createPOSOrder(cartItems, paymentDetails) {
       });
 
       for (const item of validatedItems) {
-        const upd = await tx.product.updateMany({
-          where: { id: item.id, stock: { gte: item.quantity } },
-          data: { stock: { decrement: item.quantity } },
-        });
-        if (upd.count === 0) {
+        try {
+          stockChanges.push(
+            await changeStock(tx, {
+              productId: item.id,
+              delta: -item.quantity,
+              reason: "POS",
+              userId: staff.id,
+              notes: `#${newOrder.id.slice(-8).toUpperCase()}`,
+            })
+          );
+        } catch (e) {
+          if (!(e instanceof StockError)) throw e;
           const p = productMap.get(item.id);
           throw new Error(`Stock changed for ${p?.name || item.id}. Please retry.`);
         }
-        await tx.stockMovement.create({
-          data: {
-            type: "OUT",
-            quantity: item.quantity,
-            productId: item.id,
-            userId: staff.id,
-            reason: "POS Sale",
-          },
-        });
       }
 
       const inv = await tx.invoice.create({
@@ -186,7 +186,9 @@ export async function createPOSOrder(cartItems, paymentDetails) {
       link: `/admin/orders`,
     });
 
+    await notifyLowStock(stockChanges);
     revalidatePath("/pos");
+    revalidatePath("/admin/inventory");
     emitAlert("pos_checkout_success", { orderId: order.newOrder.id, staffId: staff.id }).catch(() => {});
     return { success: true, orderId: order.newOrder.id, receipt: order.receipt };
   } catch (error) {
