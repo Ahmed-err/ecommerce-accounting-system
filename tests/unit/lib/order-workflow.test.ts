@@ -39,7 +39,7 @@ describe("canMoveStatus", () => {
   });
 });
 
-function makeTx({ count = 1, returns = [] as any[] } = {}) {
+function makeTx({ count = 1, returns = [] as any[], booked = [] as any[] } = {}) {
   return {
     order: { updateMany: vi.fn(async () => ({ count })) },
     orderReturn: { findMany: vi.fn(async () => returns) },
@@ -47,7 +47,7 @@ function makeTx({ count = 1, returns = [] as any[] } = {}) {
       update: vi.fn(async ({ data }: any) => ({ id: "p", name: "P", stock: 10, minStock: 0, purchasePrice: 1, ...data })),
     },
     stockMovement: { create: vi.fn() },
-    transaction: { create: vi.fn() },
+    transaction: { create: vi.fn(), findMany: vi.fn(async () => booked) },
   };
 }
 
@@ -68,8 +68,11 @@ describe("applyStatusChange", () => {
     expect(tx.product.update).not.toHaveBeenCalled();
   });
 
-  it("cancelling puts back only stock not already returned and reverses the sale minus refunds", async () => {
-    const tx = makeTx({ returns: [{ refundAmount: 100, items: [{ productId: "a", quantity: 1 }] }] });
+  it("cancelling puts back only stock not already returned and reverses the money booked minus refunds", async () => {
+    const tx = makeTx({
+      returns: [{ refundAmount: 100, items: [{ productId: "a", quantity: 1 }] }],
+      booked: [{ type: "INCOMING", category: "Sales", amount: 300 }],
+    });
     await applyStatusChange(tx, { order: { ...order, status: "PROCESSING" }, to: "CANCELLED", userId: "u1" });
     expect(tx.product.update).toHaveBeenCalledTimes(2);
     expect(tx.product.update.mock.calls[0][0].data).toEqual({ stock: { increment: 1 } });
@@ -79,18 +82,26 @@ describe("applyStatusChange", () => {
     });
   });
 
-  it("stamps the delivery date", async () => {
+  it("cancelling an order whose money was never booked writes nothing to the cash book", async () => {
     const tx = makeTx();
-    await applyStatusChange(tx, { order: { ...order, status: "SHIPPED" }, to: "DELIVERED" });
-    expect(tx.order.updateMany.mock.calls[0][0].data).toEqual({ status: "DELIVERED", deliveredAt: expect.any(Date) });
+    await applyStatusChange(tx, { order, to: "CANCELLED" });
     expect(tx.transaction.create).not.toHaveBeenCalled();
   });
 
-  it("reinstating takes the stock again and re-books the sale", async () => {
+  it("delivering stamps the date and books the money", async () => {
+    const tx = makeTx();
+    await applyStatusChange(tx, { order: { ...order, status: "SHIPPED" }, to: "DELIVERED" });
+    expect(tx.order.updateMany.mock.calls[0][0].data).toEqual({ status: "DELIVERED", deliveredAt: expect.any(Date) });
+    expect(tx.transaction.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "INCOMING", amount: 300, source: "ORDER", reference: order.id }),
+    });
+  });
+
+  it("reinstating takes the stock again; money waits for delivery", async () => {
     const tx = makeTx();
     await applyStatusChange(tx, { order: { ...order, status: "CANCELLED" }, to: "PENDING" });
     expect(tx.product.update.mock.calls[0][0].data).toEqual({ stock: { decrement: 2 } });
-    expect(tx.transaction.create).toHaveBeenCalledWith({ data: expect.objectContaining({ type: "INCOMING", amount: 300 }) });
+    expect(tx.transaction.create).not.toHaveBeenCalled();
   });
 });
 

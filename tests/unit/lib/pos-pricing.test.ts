@@ -90,9 +90,9 @@ describe("previewSale", () => {
 });
 
 describe("isPosPaymentMethod", () => {
-  it("accepts cash, card and bank transfer only", () => {
-    expect(["CASH", "CARD", "BANK_TRANSFER"].every(isPosPaymentMethod)).toBe(true);
-    expect(isPosPaymentMethod("CREDIT")).toBe(false);
+  it("accepts cash, card, bank transfer and pay later only", () => {
+    expect(["CASH", "CARD", "BANK_TRANSFER", "CREDIT"].every(isPosPaymentMethod)).toBe(true);
+    expect(isPosPaymentMethod("STORE_CREDIT")).toBe(false);
     expect(isPosPaymentMethod("anything")).toBe(false);
   });
 });

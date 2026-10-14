@@ -260,6 +260,9 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       cash: "نقداً",
       card: "بطاقة",
       bank: "بنكك",
+      credit: "آجل",
+      creditHint: "اكتب اسم العميل ورقم هاتفه. يُسجَّل المبلغ ديناً عليه حتى يُدفع.",
+      err_CREDIT_NEEDS_CUSTOMER: "البيع الآجل يحتاج اسم العميل ورقم هاتفه",
       customer: "العميل",
       completeCheckout: "تأكيد الدفع",
       processing: "جاري المعالجة...",
@@ -338,6 +341,9 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       cash: "Cash",
       card: "Card",
       bank: "Bankak",
+      credit: "Pay later",
+      creditHint: "Enter the customer's name and phone. The amount is recorded as owed until paid.",
+      err_CREDIT_NEEDS_CUSTOMER: "Pay later needs the customer's name and phone",
       customer: "Customer",
       completeCheckout: "Confirm payment",
       processing: "Processing...",
@@ -650,6 +656,9 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         setIsCheckoutOpen(false);
         setAmountTendered("");
         setDiscountValue(0);
+        setPaymentMethod("CASH");
+        setCustomerName(t.walkIn);
+        setCustomerPhone("");
         if (res.orderId) router.push(`/orders/${res.orderId}/invoice`);
         return;
       }
@@ -672,6 +681,9 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         setIsCheckoutOpen(false);
         setAmountTendered("");
         setDiscountValue(0);
+        setPaymentMethod("CASH");
+        setCustomerName(t.walkIn);
+        setCustomerPhone("");
         setCartOpen(false);
         setCheckoutSuccessOpen(true);
 
@@ -1059,17 +1071,21 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                  <DollarSign className="w-4 h-4 text-accent-text" />
                  <h4 className="text-xs font-black uppercase text-muted-foreground">{t.paymentMethod}</h4>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
                   { id: 'CASH', label: t.cash, icon: Banknote },
                   { id: 'CARD', label: t.card, icon: CreditCard },
                   { id: 'BANK_TRANSFER', label: t.bank, icon: Landmark },
+                  { id: 'CREDIT', label: t.credit, icon: User },
                 ].map(method => (
                   <button
                     type="button"
                     key={method.id}
                     aria-pressed={paymentMethod === method.id}
-                    onClick={() => setPaymentMethod(method.id)}
+                    onClick={() => {
+                      setPaymentMethod(method.id);
+                      if (method.id === "CREDIT" && customerName === t.walkIn) setCustomerName("");
+                    }}
                     className={cn(
                       "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 transition-all font-bold text-xs",
                       paymentMethod === method.id
@@ -1083,6 +1099,12 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 ))}
               </div>
             </div>
+
+            {paymentMethod === 'CREDIT' && (
+              <p className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                {t.creditHint}
+              </p>
+            )}
 
             {/* Cash Calculator */}
             {paymentMethod === 'CASH' && (
@@ -1129,7 +1151,12 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                
                <Button 
                  onClick={handleCheckout} 
-                 disabled={loading || !!discountError || (paymentMethod === 'CASH' && (parseFloat(amountTendered) || 0) < total)}
+                 disabled={
+                   loading ||
+                   !!discountError ||
+                   (paymentMethod === 'CASH' && (parseFloat(amountTendered) || 0) < total) ||
+                   (paymentMethod === 'CREDIT' && (customerName.trim().length < 2 || customerPhone.replace(/\D/g, "").length < 7))
+                 }
                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-xl shadow-xl shadow-emerald-500/20 gap-3"
                >
                  {loading ? <RotateCcw className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}

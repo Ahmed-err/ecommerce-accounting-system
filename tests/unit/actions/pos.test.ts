@@ -5,6 +5,7 @@ const tx = {
   order: { create: vi.fn() },
   invoice: { create: vi.fn() },
   transaction: { create: vi.fn() },
+  ledgerInvoice: { create: vi.fn() },
 };
 const db = { $transaction: vi.fn(async (fn: (t: typeof tx) => unknown) => fn(tx)) };
 const session = { user: { id: "u1", role: "CASHIER" } };
@@ -76,13 +77,57 @@ describe("createPOSOrder", () => {
     expect(tx.order.create.mock.calls[0][0].data).toMatchObject({ totalAmount: 1000, paymentMethod: "BANK_TRANSFER" });
   });
 
-  it("refuses pay-later and unknown payment methods", async () => {
+  it("refuses unknown payment methods", async () => {
     const { createPOSOrder } = await import("@/app/actions/pos");
 
-    const out = await createPOSOrder([{ id: "p1", quantity: 1 }], { paymentMethod: "CREDIT" });
+    const out = await createPOSOrder([{ id: "p1", quantity: 1 }], { paymentMethod: "STORE_CREDIT" });
 
     expect(out).toMatchObject({ success: false, code: "BAD_PAYMENT" });
     expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("pay later needs a real customer name and phone", async () => {
+    const { createPOSOrder } = await import("@/app/actions/pos");
+
+    const out = await createPOSOrder([{ id: "p1", quantity: 1 }], {
+      paymentMethod: "CREDIT",
+      customerName: "عميل مباشر",
+      customerPhone: "0912345678",
+    });
+
+    expect(out).toMatchObject({ success: false, code: "CREDIT_NEEDS_CUSTOMER" });
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("pay later records a receivable and no cash", async () => {
+    const { createPOSOrder } = await import("@/app/actions/pos");
+
+    const out = await createPOSOrder([{ id: "p1", quantity: 2 }], {
+      paymentMethod: "CREDIT",
+      customerName: "Ali Musa",
+      customerPhone: "0912345678",
+    });
+
+    expect(out.success).toBe(true);
+    expect(tx.transaction.create).not.toHaveBeenCalled();
+    expect(tx.ledgerInvoice.create.mock.calls[0][0].data).toMatchObject({
+      direction: "RECEIVABLE",
+      partyName: "Ali Musa",
+      partyPhone: "0912345678",
+      orderId: "order1234567",
+      amount: 2000,
+      status: "PENDING",
+    });
+  });
+
+  it("a paid sale books cash tagged as POS and saves item cost", async () => {
+    tx.product.findMany.mockResolvedValue([{ ...drill, purchasePrice: 600 }]);
+    const { createPOSOrder } = await import("@/app/actions/pos");
+
+    await createPOSOrder([{ id: "p1", quantity: 1 }], { paymentMethod: "CARD" });
+
+    expect(tx.order.create.mock.calls[0][0].data.items.create[0]).toMatchObject({ unitCost: 600 });
+    expect(tx.transaction.create.mock.calls[0][0].data).toMatchObject({ source: "POS", paymentMethod: "CARD" });
   });
 
   it("refuses a product without a price", async () => {

@@ -6,6 +6,7 @@ const db: any = {
   product: { updateMany: vi.fn(), update: vi.fn() },
   stockMovement: { create: vi.fn() },
   transaction: { create: vi.fn() },
+  ledgerInvoice: { findFirst: vi.fn(async () => null), update: vi.fn() },
 };
 db.$transaction = vi.fn(async (fn: any) => fn(db));
 
@@ -113,6 +114,32 @@ describe("actions/orders returns", () => {
     const { approveOrderReturn } = await import("@/app/actions/orders");
     await approveOrderReturn("r1");
     expect(db.transaction.create).toHaveBeenCalledWith({ data: expect.objectContaining({ amount: 180 }) });
+  });
+
+  it("a return on an unpaid pay-later sale reduces the debt instead of paying cash", async () => {
+    db.orderReturn.findUnique.mockResolvedValue(pendingReturn({ refundAmount: 200 }));
+    db.product.update.mockResolvedValue({ id: "p1", name: "P", stock: 5, minStock: 1, purchasePrice: 3 });
+    db.ledgerInvoice.findFirst.mockResolvedValueOnce({ id: "l1", amount: 500, notes: null });
+    const { approveOrderReturn } = await import("@/app/actions/orders");
+
+    expect((await approveOrderReturn("r1")).success).toBe(true);
+    expect(db.ledgerInvoice.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "l1" }, data: expect.objectContaining({ amount: 300 }) })
+    );
+    expect(db.transaction.create).not.toHaveBeenCalled();
+  });
+
+  it("pays cash only for the part of the refund above what is still owed", async () => {
+    db.orderReturn.findUnique.mockResolvedValue(pendingReturn({ refundAmount: 200 }));
+    db.product.update.mockResolvedValue({ id: "p1", name: "P", stock: 5, minStock: 1, purchasePrice: 3 });
+    db.ledgerInvoice.findFirst.mockResolvedValueOnce({ id: "l1", amount: 50, notes: null });
+    const { approveOrderReturn } = await import("@/app/actions/orders");
+
+    await approveOrderReturn("r1");
+    expect(db.ledgerInvoice.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ amount: 0, status: "PAID" }) })
+    );
+    expect(db.transaction.create).toHaveBeenCalledWith({ data: expect.objectContaining({ amount: 150 }) });
   });
 
   it("only a pending return can be rejected", async () => {

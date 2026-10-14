@@ -488,7 +488,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
         for (const [productId, quantity] of normalizedCart.entries()) {
           const prod = await tx.product.findFirst({
             where: { id: productId, isActive: true },
-            select: { id: true, name: true, stock: true, sellingPrice: true },
+            select: { id: true, name: true, stock: true, sellingPrice: true, purchasePrice: true },
           });
 
           if (!prod) {
@@ -522,6 +522,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
             productName: prod.name,
             quantity,
             price: prod.sellingPrice,
+            unitCost: prod.purchasePrice,
           });
 
           totalItemsAmount += unitPrice * quantity;
@@ -565,6 +566,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
                 productId: vi.productId,
                 quantity: vi.quantity,
                 price: vi.price,
+                unitCost: vi.unitCost ?? null,
               })),
             },
             invoice: {
@@ -602,22 +604,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
           }
         }
 
-        // Create INCOMING transaction
-        const proofText = guest?.transferScreenshotUrl
-          ? ` | Proof: ${guest.transferScreenshotUrl}`
-          : "";
-        await tx.transaction.create({
-          data: {
-            type: "INCOMING",
-            amount: grandTotal,
-            description: `Order #${newOrder.id.slice(-8).toUpperCase()} (Buyer: ${
-              guest?.name || effectiveUserId
-            }) - Via ${normalizedPaymentMethod}${proofText}`,
-            category: "Sales",
-            reference: newOrder.id,
-            date: new Date(),
-          },
-        });
+        // No cash-book row here: the money is booked when the order is delivered (P3.5, A-05).
 
         return {
           order: newOrder,

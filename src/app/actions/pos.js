@@ -44,6 +44,9 @@ export async function getProductStock() {
   }
 }
 
+// The screen fills the name box with "walk-in"; that isn't a debtor's name.
+const WALK_IN_NAMES = ["Walk-in Customer", "عميل مباشر"];
+
 // Error codes the screen translates (pos_error_<code>); anything else is shown as is.
 class PosSaleError extends Error {
   constructor(code, detail) {
@@ -65,12 +68,22 @@ export async function createPOSOrder(cartItems, paymentDetails = {}) {
     if (!Array.isArray(cartItems) || cartItems.length === 0) throw new PosSaleError("EMPTY");
     const { paymentMethod, discountType = "fixed", discountValue = 0 } = paymentDetails;
     if (!isPosPaymentMethod(paymentMethod)) throw new PosSaleError("BAD_PAYMENT");
+    // Pay later: we must know who owes the money (owner, 2026-10-15).
+    const payLater = paymentMethod === "CREDIT";
+    const customerName = String(paymentDetails.customerName || "").trim();
+    const customerPhone = String(paymentDetails.customerPhone || "").trim();
+    const namedCustomer = customerName.length >= 2 && !WALK_IN_NAMES.includes(customerName);
+    if (payLater && (!namedCustomer || customerPhone.replace(/\D/g, "").length < 7)) {
+      throw new PosSaleError("CREDIT_NEEDS_CUSTOMER");
+    }
 
     const order = await prisma.$transaction(async (tx) => {
       const productIds = cartItems.map(item => item.id);
       const dbProducts = await tx.product.findMany({
         where: { id: { in: productIds }, isActive: true },
-        select: { id: true, stock: true, sellingPrice: true, name: true, nameAr: true, nameEn: true, sku: true },
+        select: {
+          id: true, stock: true, sellingPrice: true, purchasePrice: true, name: true, nameAr: true, nameEn: true, sku: true,
+        },
       });
 
       const productMap = new Map(dbProducts.map(p => [p.id, p]));
@@ -86,7 +99,7 @@ export async function createPOSOrder(cartItems, paymentDetails = {}) {
           ? product.sellingPrice.toNumber()
           : Number(product.sellingPrice);
         if (!(price > 0)) throw new PosSaleError("ZERO_PRICE", product.nameAr || product.name);
-        validatedItems.push({ id: item.id, quantity: item.quantity, price });
+        validatedItems.push({ id: item.id, quantity: item.quantity, price, unitCost: product.purchasePrice ?? null });
       }
 
       const { discount: discountAmount, total: finalTotalAmount } = priceSale({
@@ -111,6 +124,7 @@ export async function createPOSOrder(cartItems, paymentDetails = {}) {
               productId: item.id,
               quantity: item.quantity,
               price: item.price,
+              unitCost: item.unitCost,
             })),
           },
         },
@@ -144,15 +158,34 @@ export async function createPOSOrder(cartItems, paymentDetails = {}) {
         }
       });
 
-      await tx.transaction.create({
-        data: {
-          type: "INCOMING",
-          amount: finalTotalAmount,
-          description: `POS Sale - Order ${newOrder.id}`,
-          category: "Sales",
-          reference: newOrder.id,
-        }
-      });
+      if (payLater) {
+        // No cash yet: the sale becomes a receivable, booked as cash when marked paid.
+        await tx.ledgerInvoice.create({
+          data: {
+            invoiceNumber: `DEBT-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`,
+            direction: "RECEIVABLE",
+            partyName: customerName,
+            partyPhone: customerPhone,
+            orderId: newOrder.id,
+            amount: finalTotalAmount,
+            notes: `POS #${newOrder.id.slice(-8).toUpperCase()}`,
+            status: "PENDING",
+          },
+        });
+      } else {
+        await tx.transaction.create({
+          data: {
+            type: "INCOMING",
+            amount: finalTotalAmount,
+            description: `POS Sale - Order ${newOrder.id}`,
+            category: "Sales",
+            reference: newOrder.id,
+            source: "POS",
+            sourceId: newOrder.id,
+            paymentMethod,
+          }
+        });
+      }
 
       const itemsForReceipt = validatedItems.map((item) => {
         const p = productMap.get(item.id);

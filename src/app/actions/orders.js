@@ -271,9 +271,27 @@ export async function approveOrderReturn(returnId) {
         });
       }
 
-      // The refund is booked when the return is approved (owner, 2026-10-14).
-      // Returns opened before refunds followed the amount paid may hold a higher figure.
-      const amount = Math.min(Number(returnRecord.refundAmount), checked.refundAmount);
+      // The refund is booked when the return is approved (owner, 2026-10-14). On an unpaid
+      // pay-later sale it first reduces what the customer owes; only the rest is paid out.
+      let amount = Math.min(Number(returnRecord.refundAmount), checked.refundAmount);
+      const debt = await tx.ledgerInvoice.findFirst({
+        where: { orderId: order.id, direction: "RECEIVABLE", status: "PENDING" },
+      });
+      if (debt && amount > 0) {
+        const owed = Number(debt.amount);
+        const covered = Math.min(owed, amount);
+        const left = Math.round((owed - covered) * 100) / 100;
+        const note = `Return ${returnRecord.returnNumber}: -${covered}`;
+        await tx.ledgerInvoice.update({
+          where: { id: debt.id },
+          data: {
+            amount: left,
+            notes: debt.notes ? `${debt.notes}\n${note}` : note,
+            ...(left <= 0 ? { status: "PAID", paidAt: new Date() } : {}),
+          },
+        });
+        amount = Math.round((amount - covered) * 100) / 100;
+      }
       if (amount > 0) {
         await tx.transaction.create({
           data: {
@@ -282,6 +300,9 @@ export async function approveOrderReturn(returnId) {
             description: `Refund ${returnRecord.returnNumber} - ${orderRef} (${returnRecord.refundMethod})`,
             category: "Refund",
             reference: order.id,
+            source: "REFUND",
+            sourceId: returnRecord.id,
+            paymentMethod: returnRecord.refundMethod,
             date: new Date(),
           },
         });

@@ -1426,7 +1426,24 @@ const dictionary = {
   "ordReturnErrQty": "Quantity is more than what is left after earlier returns.",
   "ordReturnErrCancelled": "A cancelled order can't be returned.",
   "ordReturnErrNotDelivered": "Only a delivered order can be returned. Cancel it instead.",
-  "ordReturnErrProduct": "This product isn't in the order."
+  "ordReturnErrProduct": "This product isn't in the order.",
+  "accCat_Rent": "Rent",
+  "accCat_Utilities": "Utilities",
+  "accCat_Salaries": "Salaries",
+  "accCat_Shipping": "Shipping",
+  "accCat_Maintenance": "Maintenance",
+  "accCat_Marketing": "Marketing",
+  "accCat_Supplies": "Supplies",
+  "accCat_Taxes": "Taxes",
+  "accCat_Other": "Other",
+  "accCat_Sales": "Sales",
+  "accCat_Refund": "Refund",
+  "accCat_Sales Reversal": "Sales Reversal",
+  "accCat_Supplier payment": "Supplier payment",
+  "accCat_Debt collected": "Debt collected",
+  "accCat_Bills": "Bills",
+  "accPlSales": "Sales",
+  "accPlRefunds": "Refunds",
 };
 
 export default dictionary;

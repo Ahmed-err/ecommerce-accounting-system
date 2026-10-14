@@ -5,16 +5,17 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P3.4 POS (branch `rebuild/p3-4-pos`)
-- **Step:** 5 — PR #33 green for the POS commits; review fixes pushed, CI re-running
+- **Current part:** P3.5 Accounting (branch `rebuild/p3-5-accounting`)
+- **Step:** 4 — built; PR open, CI next
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
 - **Built (2026-10-14, P3.3):** `src/lib/order-workflow.js` status rules per role + cancel/reinstate effects (A-23/A-25/A-26); returns priced from the order and capped by earlier returns; approving books the refund; `Order.deliveredAt` migration (return window); store credit removed; sales = not cancelled everywhere; dead `order-management.js` (A-24) removed. Still `ar-EG` digits in accounting, employees, reviews (their parts).
 - **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
 - **Built (2026-10-13):** dashboard from orders (no cancelled) + grouped SQL chart + real period change, Arabic labels; one role map `src/lib/staff-access.js` for proxy/pages/sidebar (checked locally: admin, manager, cashier menus + cashier redirects); read-only access table replaces the permission matrix; Himmat lockup + page title in admin header. Local `/pos` load hung in dev (low memory); CI e2e `pos-cashier` decides.
+- **Done:** P3.4 — #33 merged, deployed 2026-10-15; live `/pos` sends signed-out visitors to login, store pages 200. Signed-in checks not done live.
 - **Done:** P3.3 — #32 merged, deployed 2026-10-15 (`deliveredAt` migration ran); live `/admin/orders` sends signed-out visitors to login, `/account/orders` redirects to login, store pages 200. Signed-in checks not done live.
 - **Done:** P3.2 — #31 merged, deployed 2026-10-14; live `/admin/inventory` sends signed-out visitors to login, store pages 200. Signed-in checks not done live. Production counts for the audit were not read (permission blocked).
 - **Review of P3.1–P3.3 (2026-10-15, in PR #33):** returns refunded the list price, not what was paid (coupon/POS discount); staff could open returns on undelivered orders; an approved return could be rejected, which freed its items for a second refund; cashier receipts could set a unit cost; stock search ignored Arabic names. All fixed with tests. Carried to P3.5/P3.7: managers can call the read-only accounting (`ensureAccountingView`) and employee list actions, although those pages are admin-only.
-- **Next:** merge #33 (owner says "merge"), then P3.5 Accounting. Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Next:** P3.5 Accounting audit (carries: pay-later + debts list, "فاتورة ضريبية" title and `STORE_VAT_NUMBER` on invoices, manager read access to accounting actions). Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -46,8 +47,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P3.1 | Admin shell & dashboard | done | #30 | parts/P3.1.md |
 | P3.2 | Inventory | done | #31 | parts/P3.2.md |
 | P3.3 | Orders | done | #32 | parts/P3.3.md |
-| P3.4 | POS | audit | `rebuild/p3-4-pos` | |
-| P3.5 | Accounting | todo | | |
+| P3.4 | POS | done | #33 | parts/P3.4.md; also P3.1–P3.3 review fixes |
+| P3.5 | Accounting | build | `rebuild/p3-5-accounting` | parts/P3.5.md |
 | P3.6 | Suppliers & purchases | todo | | |
 | P3.7 | Employees & HR | todo | | |
 | P3.8 | Engagement admin | todo | | |
@@ -70,3 +71,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-05 — P1.3 merged (#21); 45 photos cleaned and applied. Claude may now merge PRs and run reviewed `scripts/apply/*` (user permission rules in `.claude/settings.local.json`; secrets in git-ignored `.env.photos`).
 - 2026-10-14 — P3.2 Inventory merged (#31): stock movements for every change, hide/restore, SQL summary, Select labels app-wide, cashier receive view.
 - 2026-10-15 — P3.3 Orders merged (#32): status rules per role, returns priced from the order and capped, refunds booked on approval, `deliveredAt` return window, sales exclude cancelled.
+- 2026-10-15 — P3.4 POS merged (#33): server-set totals, no tax, 10% cashier discount cap, cash/card/Bankak, phone cart sheet; plus review fixes for P3.2/P3.3 (refund = amount paid, returns only on delivered orders, approved returns can't be rejected).
