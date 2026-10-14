@@ -7,6 +7,7 @@ import { logAction } from "@/lib/audit";
 import { createAdminBroadcastNotification } from "@/lib/notifications";
 import { emitAlert } from "@/lib/monitoring";
 import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
+import { isPosPaymentMethod, priceSale, PosPricingError } from "@/lib/pos-pricing";
 
 async function ensureStaff() {
   const session = await auth();
@@ -43,56 +44,64 @@ export async function getProductStock() {
   }
 }
 
-export async function createPOSOrder(cartItems, paymentDetails) {
+// Error codes the screen translates (pos_error_<code>); anything else is shown as is.
+class PosSaleError extends Error {
+  constructor(code, detail) {
+    super(code);
+    this.code = code;
+    this.detail = detail;
+  }
+}
+
+/**
+ * `cartItems`: [{ id, quantity }]. `paymentDetails`: { paymentMethod, discountType, discountValue,
+ * customerName, customerPhone }. Prices, discount and total are worked out here from the DB.
+ */
+export async function createPOSOrder(cartItems, paymentDetails = {}) {
   try {
     const staff = await ensureStaff();
     const stockChanges = [];
 
-    if (!Array.isArray(cartItems) || cartItems.length === 0) {
-      return { success: false, error: "Cart is empty." };
-    }
+    if (!Array.isArray(cartItems) || cartItems.length === 0) throw new PosSaleError("EMPTY");
+    const { paymentMethod, discountType = "fixed", discountValue = 0 } = paymentDetails;
+    if (!isPosPaymentMethod(paymentMethod)) throw new PosSaleError("BAD_PAYMENT");
 
     const order = await prisma.$transaction(async (tx) => {
       const productIds = cartItems.map(item => item.id);
       const dbProducts = await tx.product.findMany({
         where: { id: { in: productIds }, isActive: true },
-        select: { id: true, stock: true, sellingPrice: true, name: true, sku: true },
+        select: { id: true, stock: true, sellingPrice: true, name: true, nameAr: true, nameEn: true, sku: true },
       });
 
       const productMap = new Map(dbProducts.map(p => [p.id, p]));
-
-      let totalAmount = 0;
       const validatedItems = [];
 
       for (const item of cartItems) {
         const product = productMap.get(item.id);
-        if (!product) {
-          throw new Error(`Product ${item.id} is unavailable or not found.`);
-        }
-        if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
-          throw new Error(`Invalid quantity for ${product.name}.`);
-        }
-        if (product.stock < item.quantity) {
-          throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
+        if (!product) throw new PosSaleError("UNAVAILABLE", item.id);
+        if (Number.isInteger(item.quantity) && product.stock < item.quantity) {
+          throw new PosSaleError("NO_STOCK", product.nameAr || product.name);
         }
         const price = typeof product.sellingPrice?.toNumber === "function"
           ? product.sellingPrice.toNumber()
           : Number(product.sellingPrice);
-        totalAmount += price * item.quantity;
+        if (!(price > 0)) throw new PosSaleError("ZERO_PRICE", product.nameAr || product.name);
         validatedItems.push({ id: item.id, quantity: item.quantity, price });
       }
 
-      const discountAmount = paymentDetails.discountAmount || 0;
-      if (discountAmount < 0 || discountAmount > totalAmount) {
-        throw new Error("Invalid discount amount.");
-      }
-      const finalTotalAmount = totalAmount - discountAmount;
+      const { discount: discountAmount, total: finalTotalAmount } = priceSale({
+        lines: validatedItems,
+        role: staff.role,
+        discountType,
+        discountValue,
+      });
 
       const newOrder = await tx.order.create({
         data: {
           status: "DELIVERED",
+          deliveredAt: new Date(),
           totalAmount: finalTotalAmount,
-          paymentMethod: paymentDetails.paymentMethod,
+          paymentMethod,
           guestName: paymentDetails.customerName || "Walk-in Customer",
           guestPhone: paymentDetails.customerPhone || "-",
           guestCity: "POS Station",
@@ -121,7 +130,7 @@ export async function createPOSOrder(cartItems, paymentDetails) {
         } catch (e) {
           if (!(e instanceof StockError)) throw e;
           const p = productMap.get(item.id);
-          throw new Error(`Stock changed for ${p?.name || item.id}. Please retry.`);
+          throw new PosSaleError("NO_STOCK", p?.nameAr || p?.name || item.id);
         }
       }
 
@@ -130,8 +139,8 @@ export async function createPOSOrder(cartItems, paymentDetails) {
           invoiceNumber: `POS-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           orderId: newOrder.id,
           totalAmount: finalTotalAmount,
-          taxAmount: paymentDetails.taxAmount || 0,
-          discountAmount: discountAmount,
+          taxAmount: 0,
+          discountAmount,
         }
       });
 
@@ -165,12 +174,12 @@ export async function createPOSOrder(cartItems, paymentDetails) {
           orderId: newOrder.id,
           createdAt: newOrder.createdAt.toISOString(),
           invoiceNumber: inv.invoiceNumber,
-          paymentMethod: paymentDetails.paymentMethod,
+          paymentMethod,
           guestName: paymentDetails.customerName || "",
           guestPhone: paymentDetails.customerPhone || "",
           totalAmount: finalTotalAmount,
-          taxAmount: paymentDetails.taxAmount || 0,
-          discountAmount: paymentDetails.discountAmount || 0,
+          taxAmount: 0,
+          discountAmount,
           items: itemsForReceipt,
         },
       };
@@ -192,14 +201,12 @@ export async function createPOSOrder(cartItems, paymentDetails) {
     emitAlert("pos_checkout_success", { orderId: order.newOrder.id, staffId: staff.id }).catch(() => {});
     return { success: true, orderId: order.newOrder.id, receipt: order.receipt };
   } catch (error) {
-    console.error("POS Order Error:", error);
-    const message =
-      error instanceof Error
-        ? error.message
-        : typeof error === "string"
-          ? error
-          : "POS order failed.";
+    const known = error instanceof PosSaleError || error instanceof PosPricingError;
+    if (!known) console.error("POS Order Error:", error);
+    const message = error instanceof Error ? error.message : "POS order failed.";
     emitAlert("pos_checkout_failure", { error: message || "pos_order_error" }).catch(() => {});
-    return { success: false, error: message || "POS order failed." };
+    return known
+      ? { success: false, code: error.code, detail: error.detail ?? null, error: message }
+      : { success: false, error: message || "POS order failed." };
   }
 }
