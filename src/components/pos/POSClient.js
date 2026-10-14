@@ -5,20 +5,23 @@ import {
   Search, ShoppingCart, Trash2, Plus, Minus,
   CreditCard, Banknote, Printer, ArrowLeft,
   Package, X, CheckCircle, AlertTriangle,
-  Zap, Tag, RotateCcw,
+  Tag, RotateCcw, Landmark, ChevronUp,
   User, Percent, Wallet, DollarSign,
-  XCircle, LayoutGrid, Download, FileText, Languages,
+  XCircle, Download, FileText, Languages,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage, useT } from "@/context/LanguageContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { createPOSOrder, getProductStock } from "@/app/actions/pos";
 import { buildReceiptData } from "@/lib/receipt";
+import { CASHIER_MAX_DISCOUNT_PERCENT, previewSale } from "@/lib/pos-pricing";
+import { translateCategory } from "@/lib/i18n/translate-category";
+import BrandLockup from "@/components/brand/BrandLockup";
 import PrinterStatus from "@/components/pos/PrinterStatus";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,10 +36,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+// Western digits in both languages, as in the rest of the admin.
+const fmt = (n) => Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+const displayName = (p, isArabic) => (isArabic ? p.nameAr || p.name : p.nameEn || p.name);
+const sellable = (p) => p.isActive !== false && p.stock > 0 && Number(p.sellingPrice) > 0;
+
 // ─── ProductCard ──────────────────────────────────────────────────────────────
-function ProductCard({ product, onAdd, t }) {
-  const outOfStock = product.stock === 0;
+function ProductCard({ product, onAdd, t, isArabic }) {
+  const noPrice = !(Number(product.sellingPrice) > 0);
+  const outOfStock = product.stock <= 0 || noPrice;
   const isLowStock = !outOfStock && product.stock <= product.minStock;
+  const name = displayName(product, isArabic);
   
   return (
     <motion.button
@@ -45,9 +55,9 @@ function ProductCard({ product, onAdd, t }) {
       onClick={() => !outOfStock && onAdd(product)}
       disabled={outOfStock}
       className={cn(
-        "group relative flex flex-col bg-card/80 backdrop-blur-sm border border-border rounded-2xl overflow-hidden text-left transition-all duration-200 h-full",
+        "group relative flex flex-col bg-card/80 backdrop-blur-sm border border-border rounded-2xl overflow-hidden text-start transition-all duration-200 h-full",
         outOfStock
-          ? "border-red-900/20 opacity-60 grayscale cursor-not-allowed"
+          ? "opacity-60 grayscale cursor-not-allowed"
           : "hover:border-amber-500/40 hover:shadow-2xl cursor-pointer"
       )}
     >
@@ -55,7 +65,7 @@ function ProductCard({ product, onAdd, t }) {
         {product.images?.[0] ? (
           <Image 
             src={product.images[0]} 
-            alt={product.name} 
+            alt={name} 
             fill 
             unoptimized 
             className="object-contain p-1.5 transition-transform duration-500 group-hover:scale-105"
@@ -70,7 +80,7 @@ function ProductCard({ product, onAdd, t }) {
         <div className="absolute top-2 start-2 flex flex-col gap-1 z-10">
           {outOfStock ? (
             <Badge className="bg-red-600/90 text-white border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
-              {t.outOfStock}
+              {noPrice ? t.noPrice : t.outOfStock}
             </Badge>
           ) : isLowStock ? (
             <Badge variant="warning" className="bg-amber-500 text-black border-0 font-black tracking-tighter text-[9px] uppercase backdrop-blur-sm">
@@ -91,25 +101,22 @@ function ProductCard({ product, onAdd, t }) {
 
       <div className="p-3 flex flex-col gap-1.5 flex-1 min-w-0">
         <div className="flex justify-between items-start gap-1">
-          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2 flex-1">{product.name}</h3>
+          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2 flex-1">{name}</h3>
           <span className="text-[10px] font-mono font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded leading-none">
             {product.sku || (t.noSku)}
           </span>
         </div>
         
         <div className="mt-auto flex items-end justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-black text-muted-foreground tracking-wider mb-0.5">{t.price}</span>
-            <span className="text-sm font-black text-accent-text flex items-baseline gap-0.5">
-              {product.sellingPrice.toLocaleString()} <span className="text-[10px] font-bold text-accent-text uppercase">{t.currency}</span>
-            </span>
-          </div>
-          <div className="text-right">
+          <span className="text-sm font-black text-accent-text flex items-baseline gap-0.5 tabular-nums">
+            {noPrice ? "—" : fmt(product.sellingPrice)} <span className="text-[10px] font-bold text-accent-text">{t.currency}</span>
+          </span>
+          <div className="text-end">
             <span className={cn(
               "text-[10px] font-black tracking-tight",
               isLowStock ? "text-accent-text" : "text-muted-foreground"
             )}>
-              {product.stock} {t.left}
+              {fmt(product.stock)} {t.left}
             </span>
           </div>
         </div>
@@ -130,21 +137,21 @@ function CartItem({ item, onUpdateQty, onRemove, t, isArabic }) {
     >
       <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 border border-border shadow-inner">
         {item.images?.[0]
-          ? <Image src={item.images[0]} alt={item.name} fill unoptimized className="object-contain p-1" />
+          ? <Image src={item.images[0]} alt={displayName(item, isArabic)} fill unoptimized className="object-contain p-1" />
           : <Package className="w-6 h-6 text-muted-foreground/40 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         }
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className="text-[13px] font-bold text-foreground truncate group-hover:text-accent-text transition-colors uppercase tracking-tight">{item.name}</h4>
+        <h4 className="text-[13px] font-bold text-foreground truncate group-hover:text-accent-text transition-colors">{displayName(item, isArabic)}</h4>
         <div className="flex items-center gap-1.5 text-xs">
-          <span className="font-bold text-muted-foreground tabular-nums">{item.sellingPrice.toLocaleString()} {t.currency} × {item.quantity}</span>
+          <span className="font-bold text-muted-foreground tabular-nums">{fmt(item.sellingPrice)} × {item.quantity}</span>
           <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-          <span className="font-black text-accent-text tabular-nums">{(item.sellingPrice * item.quantity).toLocaleString()} {t.currency}</span>
+          <span className="font-black text-accent-text tabular-nums">{fmt(item.sellingPrice * item.quantity)} {t.currency}</span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 items-end shrink-0 ml-auto">
+      <div className="flex flex-col gap-1 items-end shrink-0 ms-auto">
         <div className="flex items-center bg-muted/90 rounded-lg p-0.5 border border-border shadow-lg">
           <button
             type="button"
@@ -165,8 +172,10 @@ function CartItem({ item, onUpdateQty, onRemove, t, isArabic }) {
       </div>
       
       <button
+        type="button"
         onClick={() => onRemove(item.id)}
-        className="absolute -top-1.5 -end-1.5 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 shadow-xl"
+        aria-label={t.remove}
+        className="absolute -top-1.5 -end-1.5 w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 transition-all shadow-xl"
       >
         <X className="w-3 h-3" />
       </button>
@@ -210,7 +219,23 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   const translations = {
     ar: {
       low: "منخفض",
-      outOfStock: "نفذ",
+      outOfStock: "نفد",
+      noPrice: "بدون سعر",
+      remove: "حذف",
+      pay: "دفع",
+      kbSearch: "بحث",
+      kbClose: "إغلاق",
+      viewCart: "السلة",
+      discountLimit: `أقصى خصم للكاشير ${CASHIER_MAX_DISCOUNT_PERCENT}% — اطلب من المدير`,
+      discountBad: "قيمة الخصم غير صحيحة",
+      err_EMPTY: "السلة فارغة",
+      err_BAD_PAYMENT: "اختر طريقة دفع",
+      err_UNAVAILABLE: "منتج في السلة لم يعد متاحاً. حدّث الصفحة.",
+      err_NO_STOCK: "الكمية غير متوفرة: {name}",
+      err_ZERO_PRICE: "لا يمكن بيع منتج بدون سعر: {name}",
+      err_BAD_QTY: "كمية غير صحيحة",
+      err_BAD_DISCOUNT: "قيمة الخصم غير صحيحة",
+      err_DISCOUNT_LIMIT: `أقصى خصم للكاشير ${CASHIER_MAX_DISCOUNT_PERCENT}% — اطلب من المدير`,
       left: "متبقي",
       noSku: "بدون باركود",
       maxReached: "تم الوصول للحد الأقصى للمخزون",
@@ -225,19 +250,16 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       clear: "تفريغ",
       cartEmpty: "السلة فارغة",
       subtotal: "الإجمالي الفرعي",
-      vat: "الضريبة (15%)",
       discount: "خصم",
       total: "الإجمالي النهائي",
-      payAndPrint: "دفع وطباعة (F10)",
       currency: "ج.س",
-      price: "السعر",
       checkoutTitle: "إتمام عملية الدفع",
       amountTendered: "المبلغ المقبوض",
-      change: "المبلغ المتبقي",
+      change: "الباقي للعميل",
       paymentMethod: "طريقة الدفع",
       cash: "نقداً",
-      card: "بطاقة بنكية",
-      credit: "آجل",
+      card: "بطاقة",
+      bank: "بنكك",
       customer: "العميل",
       completeCheckout: "تأكيد الدفع",
       processing: "جاري المعالجة...",
@@ -274,8 +296,24 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       printFailed: "فشلت الطباعة",
     },
     en: {
-      low: "LOW",
-      outOfStock: "OUT",
+      low: "Low",
+      outOfStock: "Out of stock",
+      noPrice: "No price",
+      remove: "Remove",
+      pay: "Pay",
+      kbSearch: "Search",
+      kbClose: "Close",
+      viewCart: "Cart",
+      discountLimit: `Cashier discount limit is ${CASHIER_MAX_DISCOUNT_PERCENT}% — ask a manager`,
+      discountBad: "Invalid discount",
+      err_EMPTY: "The cart is empty",
+      err_BAD_PAYMENT: "Choose a payment method",
+      err_UNAVAILABLE: "A product in the cart is no longer available. Refresh the page.",
+      err_NO_STOCK: "Not enough stock: {name}",
+      err_ZERO_PRICE: "Can't sell a product without a price: {name}",
+      err_BAD_QTY: "Invalid quantity",
+      err_BAD_DISCOUNT: "Invalid discount",
+      err_DISCOUNT_LIMIT: `Cashier discount limit is ${CASHIER_MAX_DISCOUNT_PERCENT}% — ask a manager`,
       left: "left",
       noSku: "No SKU",
       maxReached: "Max stock reached",
@@ -286,31 +324,28 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       searchPlaceholder: "Scan (F2) or search...",
       all: "All",
       noProducts: "No results",
-      cartTitle: "Current Transaction",
+      cartTitle: "Current sale",
       clear: "Clear",
-      cartEmpty: "Cart Empty",
+      cartEmpty: "Cart is empty",
       subtotal: "Subtotal",
-      vat: "VAT (15%)",
       discount: "Discount",
-      total: "Grand Total",
-      payAndPrint: "PAY & PRINT (F10)",
+      total: "Total",
       currency: "SDG",
-      price: "Price",
-      checkoutTitle: "Complete Transaction",
+      checkoutTitle: "Payment",
       amountTendered: "Amount Tendered",
       change: "Change",
       paymentMethod: "Payment Method",
       cash: "Cash",
       card: "Card",
-      credit: "Credit",
+      bank: "Bankak",
       customer: "Customer",
-      completeCheckout: "Confirm Checkout",
+      completeCheckout: "Confirm payment",
       processing: "Processing...",
       error: "Error",
       success: "Success",
       sync: "Syncing",
       refresh: "Refresh",
-      lastSync: "Last Sync",
+      lastSync: "Last sync",
       discountFixed: "SDG",
       discountPercent: "%",
       printReceipt: "Print receipt",
@@ -341,6 +376,8 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   };
 
   const t = translations[lang] || translations.en;
+  const dict = useT();
+  const role = session?.user?.role;
 
   const printMessages = useMemo(
     () => ({
@@ -383,6 +420,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   const [discountValue, setDiscountValue] = useState(0);
   const [discountType, setDiscountType] = useState("fixed"); // 'fixed' or 'percent'
   const [checkoutError, setCheckoutError] = useState("");
+  const [cartOpen, setCartOpen] = useState(false); // phone only
   const [printerSettings, setPrinterSettings] = useState(() => mergePrinter(initialPrinterSettings));
   const [checkoutSuccessOpen, setCheckoutSuccessOpen] = useState(false);
   const [lastReceipt, setLastReceipt] = useState(null);
@@ -393,13 +431,18 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   const barcodeTimeout = useRef(null);
 
   // Totals
-  const subtotal = useMemo(() => cart.reduce((acc, i) => acc + i.sellingPrice * i.quantity, 0), [cart]);
-  const vat = subtotal * 0.15;
-  const calculatedDiscount = useMemo(() => {
-    if (discountType === "percent") return subtotal * (discountValue / 100);
-    return parseFloat(discountValue) || 0;
-  }, [subtotal, discountValue, discountType]);
-  const total = Math.max(0, subtotal + vat - calculatedDiscount);
+  // Same rules as the server (no tax, cashier discount cap); the server recalculates on save.
+  const { subtotal, total, error: discountError } = useMemo(
+    () =>
+      previewSale({
+        lines: cart.map((i) => ({ price: i.sellingPrice, quantity: i.quantity })),
+        role,
+        discountType,
+        discountValue,
+      }),
+    [cart, role, discountType, discountValue]
+  );
+  const itemCount = cart.reduce((a, b) => a + b.quantity, 0);
   const changeAmount = useMemo(() => {
     const tendered = parseFloat(amountTendered) || 0;
     return tendered > total ? tendered - total : 0;
@@ -420,7 +463,15 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               return { ...p, stock: u.stock, sellingPrice: u.sellingPrice, isActive: u.isActive };
             })
         );
-        setCart((cartPrev) => cartPrev.filter((i) => byId.has(i.id)));
+        setCart((cartPrev) =>
+          cartPrev
+            .filter((i) => byId.has(i.id))
+            .map((i) => {
+              const u = byId.get(i.id);
+              return { ...i, stock: u.stock, sellingPrice: u.sellingPrice, quantity: Math.min(i.quantity, u.stock) };
+            })
+            .filter(sellable)
+        );
         setLastSync(new Date());
       }
     } catch (err) {
@@ -434,24 +485,33 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
     setMounted(true);
     setLastSync(new Date());
     
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem("pos_cart");
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (err) {
-        console.error("Failed to load cart:", err);
-      }
+    // Restore the saved cart against current prices and stock.
+    try {
+      const saved = JSON.parse(localStorage.getItem("pos_cart") || "[]");
+      const byId = new Map(initialProducts.map((p) => [p.id, p]));
+      setCart(
+        (Array.isArray(saved) ? saved : [])
+          .filter((i) => byId.has(i?.id))
+          .map((i) => {
+            const p = byId.get(i.id);
+            return { ...p, quantity: Math.min(Number(i.quantity) || 1, p.stock) };
+          })
+          .filter(sellable)
+      );
+    } catch (err) {
+      console.error("Failed to load cart:", err);
     }
 
     const interval = setInterval(syncStock, 60000); // Auto-sync every minute
     return () => clearInterval(interval);
-  }, [syncStock]);
+  }, [syncStock, initialProducts]);
 
   // Save cart to localStorage
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem("pos_cart", JSON.stringify(cart));
+      try {
+        localStorage.setItem("pos_cart", JSON.stringify(cart.map(({ id, quantity }) => ({ id, quantity }))));
+      } catch {}
     }
   }, [cart, mounted]);
 
@@ -461,6 +521,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
 
   // State Mutators
   const addToCart = useCallback((product) => {
+    if (!sellable(product)) return;
     setCart(prev => {
       const existing = prev.find(i => i.id === product.id);
       if (existing) {
@@ -483,8 +544,11 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           barcodeTimeout.current = setTimeout(() => { barcodeBuffer.current = ""; }, 100);
         } else if (e.key === "Enter" && barcodeBuffer.current.length > 3) {
           const sku = barcodeBuffer.current;
-          const found = products.find((p) => (p.sku || "").toLowerCase() === sku.toLowerCase());
-          if (found && found.isActive !== false && found.stock > 0) {
+          const code = sku.toLowerCase();
+          const found = products.find(
+            (p) => (p.sku || "").toLowerCase() === code || (p.barcode || "").toLowerCase() === code
+          );
+          if (found && sellable(found)) {
             addToCart(found);
             barcodeBuffer.current = "";
           }
@@ -498,13 +562,14 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         e.preventDefault();
         if (checkoutSuccessOpen) setCheckoutSuccessOpen(false);
         else if (isCheckoutOpen) setIsCheckoutOpen(false);
+        else if (cartOpen) setCartOpen(false);
         else setSearchTerm("");
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [products, cart.length, isCheckoutOpen, checkoutSuccessOpen, addToCart]);
+  }, [products, cart.length, isCheckoutOpen, checkoutSuccessOpen, cartOpen, addToCart]);
 
   const updateQuantity = useCallback((productId, delta) => {
     setCart(prev => prev.map(i => {
@@ -521,9 +586,11 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   // Filter Logic
   const categories = useMemo(() => {
     const cats = { "ALL": t.all };
-    products.forEach(p => { if (p.category) cats[p.category.id] = p.category.name; });
+    products.forEach(p => {
+      if (p.category) cats[p.category.id] = translateCategory(p.category.name, dict, p.category.nameAr);
+    });
     return cats;
-  }, [products, t.all]);
+  }, [products, t.all, dict]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -532,8 +599,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       const term = searchTerm.toLowerCase();
       const matchesSearch =
         !searchTerm ||
-        p.name.toLowerCase().includes(term) ||
-        (p.sku || "").toLowerCase().includes(term);
+        [p.name, p.nameAr, p.nameEn, p.sku, p.barcode].some((v) => (v || "").toLowerCase().includes(term));
       return matchesCat && matchesSearch;
     });
   }, [products, searchTerm, activeCategory]);
@@ -568,13 +634,13 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
     const tenderedNum = paymentMethod === "CASH" ? parseFloat(amountTendered) || 0 : null;
     const changeAtCheckout = paymentMethod === "CASH" ? changeAmount : null;
     try {
-      const payloadItems = cart.map(i => ({ id: i.id, quantity: i.quantity, price: i.price }));
+      const payloadItems = cart.map(i => ({ id: i.id, quantity: i.quantity }));
       const payloadDetails = {
-        paymentMethod: paymentMethod === 'CASH' ? 'CASH' : (paymentMethod === 'CARD' ? 'CARD' : 'CREDIT'),
+        paymentMethod,
         customerName,
         customerPhone,
-        discountAmount: calculatedDiscount,
-        taxAmount: vat,
+        discountType,
+        discountValue,
       };
 
       const res = await createPOSOrder(payloadItems, payloadDetails);
@@ -606,6 +672,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         setIsCheckoutOpen(false);
         setAmountTendered("");
         setDiscountValue(0);
+        setCartOpen(false);
         setCheckoutSuccessOpen(true);
 
         if (store.autoPrint) {
@@ -619,7 +686,8 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           });
         }
       } else {
-        setCheckoutError(res.error || t.error);
+        const msg = res.code && t[`err_${res.code}`];
+        setCheckoutError(msg ? msg.replace("{name}", res.detail || "") : res.error || t.error);
       }
     } catch (err) {
       setCheckoutError(err.message || t.error);
@@ -631,44 +699,32 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
   return (
     <div className={cn("flex flex-col h-screen bg-background text-foreground overflow-hidden", isRTL ? "rtl" : "ltr")}>
       {/* ── Header ── */}
-      <header className="h-16 shrink-0 flex items-center justify-between px-4 sm:px-6 bg-card/70 backdrop-blur-xl border-b border-border z-30">
-        <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+      <header className="h-16 shrink-0 flex items-center justify-between gap-2 px-3 sm:px-6 bg-card/70 backdrop-blur-xl border-b border-border z-30">
+        <div className="flex items-center gap-2 sm:gap-6 min-w-0">
           <Link href="/admin" className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors shrink-0">
             <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border group-hover:bg-amber-500 group-hover:text-black transition-all">
               <ArrowLeft className="w-4 h-4" />
             </div>
             <span className="text-sm font-bold uppercase tracking-widest hidden sm:block">{t.back}</span>
           </Link>
-          <div className="w-px h-6 bg-border shrink-0" />
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="w-5 h-5 text-black" />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-black text-lg tracking-tighter">
-                {isArabic ? (
-                  <>
-                    عصام الدين <span className="text-accent-text">نصر</span>
-                  </>
-                ) : (
-                  <>
-                    ESSAM EL-DIN <span className="text-accent-text">NASR</span>
-                  </>
-                )}
-              </span>
-              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em]">{t.posTerminal}</span>
-            </div>
+          <div className="w-px h-6 bg-border shrink-0 hidden sm:block" />
+          <div className="flex items-center gap-2 min-w-0">
+            <BrandLockup variant="mark" size={32} className="sm:hidden" />
+            <BrandLockup className="hidden sm:inline-flex" />
+            <span className="hidden md:inline rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-bold text-muted-foreground">
+              {t.posTerminal}
+            </span>
           </div>
         </div>
 
         {/* Global Toolbar */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <div
             className="flex items-center gap-0.5 rounded-xl border border-border bg-muted/50 p-0.5"
             role="group"
             aria-label={isArabic ? "اللغة" : "Language"}
           >
-            <Languages className="h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70" aria-hidden />
+            <Languages className="hidden sm:block h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70" aria-hidden />
             <button
               type="button"
               onClick={() => setLang("ar")}
@@ -716,13 +772,10 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           )}
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/80 border border-border text-[10px] font-black uppercase text-muted-foreground">
              <div className={cn("w-1.5 h-1.5 rounded-full", refreshing ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
-             {t.lastSync}: {mounted && lastSync ? lastSync.toLocaleTimeString([]) : "--:--:--"}
+             {t.lastSync}: <span dir="ltr" className="tabular-nums">{mounted && lastSync ? lastSync.toLocaleTimeString("en-GB") : "--:--:--"}</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={syncStock} disabled={refreshing} className="rounded-xl border border-border hover:bg-muted text-muted-foreground">
+          <Button variant="ghost" size="icon" onClick={syncStock} disabled={refreshing} aria-label={t.refresh} title={t.refresh} className="rounded-xl border border-border hover:bg-muted text-muted-foreground">
              <RotateCcw className={cn("w-4 h-4", refreshing && "animate-spin text-accent-text")} />
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-xl border border-border hover:bg-muted text-muted-foreground lg:hidden">
-             <LayoutGrid className="w-4 h-4" />
           </Button>
         </div>
       </header>
@@ -734,7 +787,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         <main className="flex-1 min-h-0 flex flex-col min-w-0 bg-muted/30">
           
           {/* Search & Tabs */}
-          <div className="p-4 sm:p-6 pb-0 space-y-6">
+          <div className="p-3 sm:p-6 pb-0 space-y-3 sm:space-y-5">
             <div className="relative group max-w-2xl">
               <div className="absolute inset-y-0 start-4 flex items-center pointer-events-none">
                 <Search className={cn("w-5 h-5 transition-colors", searchTerm ? "text-accent-text" : "text-muted-foreground")} />
@@ -746,7 +799,20 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 placeholder={t.searchPlaceholder}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-card border border-border focus:border-amber-500/50 rounded-2xl py-4 ps-12 pe-4 text-sm text-foreground placeholder:text-muted-foreground outline-none shadow-sm transition-all font-medium"
+                onKeyDown={(e) => {
+                  // Scanners type into the focused search box and end with Enter.
+                  if (e.key !== "Enter" || !searchTerm.trim()) return;
+                  const code = searchTerm.trim().toLowerCase();
+                  const exact = products.find(
+                    (p) => (p.sku || "").toLowerCase() === code || (p.barcode || "").toLowerCase() === code
+                  );
+                  const hit = exact || (filteredProducts.length === 1 ? filteredProducts[0] : null);
+                  if (hit && sellable(hit)) {
+                    e.preventDefault();
+                    addToCart(hit);
+                  }
+                }}
+                className="w-full bg-card border border-border focus:border-amber-500/50 rounded-2xl py-3 sm:py-4 ps-12 pe-4 text-sm text-foreground placeholder:text-muted-foreground outline-none shadow-sm transition-all font-medium"
               />
               <div className="absolute end-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 <span className="hidden md:flex text-[10px] font-black text-muted-foreground border border-border rounded px-1.5 py-0.5 uppercase">F2</span>
@@ -759,12 +825,12 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
             </div>
 
             <Tabs defaultValue="ALL" className="w-full" onValueChange={setActiveCategory}>
-              <TabsList className="bg-transparent h-auto p-0 flex-wrap gap-2 justify-start overflow-visible">
+              <TabsList className="bg-transparent h-auto p-0 w-full flex-nowrap lg:flex-wrap gap-2 justify-start overflow-x-auto lg:overflow-visible pb-1 no-scrollbar">
                 {Object.entries(categories).map(([id, name]) => (
                   <TabsTrigger 
                     key={id} 
                     value={id} 
-                    className="h-10 px-5 rounded-xl border border-border data-[state=active]:bg-amber-500 data-[state=active]:text-black font-black text-xs uppercase tracking-tight transition-all data-[state=inactive]:hover:bg-muted data-[state=inactive]:text-muted-foreground"
+                    className="h-9 sm:h-10 px-4 sm:px-5 shrink-0 flex-none rounded-xl border border-border data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold text-xs transition-all data-[state=inactive]:hover:bg-muted data-[state=inactive]:text-muted-foreground"
                   >
                     {name}
                   </TabsTrigger>
@@ -774,7 +840,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           </div>
 
           {/* Grid Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 mt-2 relative">
+          <div className="flex-1 overflow-y-auto p-3 pb-24 sm:p-6 lg:pb-6 mt-1 relative">
             <AnimatePresence mode="popLayout">
               {filteredProducts.length > 0 ? (
                 <motion.div 
@@ -782,7 +848,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-6 gap-3 sm:gap-4"
                 >
                   {filteredProducts.map(p => (
-                    <ProductCard key={p.id} product={p} onAdd={addToCart} t={t} />
+                    <ProductCard key={p.id} product={p} onAdd={addToCart} t={t} isArabic={isArabic} />
                   ))}
                 </motion.div>
               ) : (
@@ -792,7 +858,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                   className="h-full flex flex-col items-center justify-center text-center text-muted-foreground opacity-40 select-none"
                 >
                   <Search className="w-16 h-16 mb-4" />
-                  <p className="text-xl font-bold uppercase tracking-widest">{t.noProducts}</p>
+                  <p className="text-xl font-bold">{t.noProducts}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -800,17 +866,38 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
 
           {/* Shortcuts Bar (Desktop only) */}
           <footer className="hidden lg:flex h-10 shrink-0 bg-card/80 border-t border-border items-center px-6 gap-6 overflow-hidden">
-             <div className="flex items-center gap-4 text-[9px] font-black text-muted-foreground/70 uppercase tracking-[0.15em]">
-                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">F2</kbd> {t.searchPlaceholder.split(' ')[2]}</div>
-                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">F10</kbd> {t.payAndPrint.split(' ')[0]}</div>
-                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">ESC</kbd> {t.clear}</div>
+             <div className="flex items-center gap-4 text-[11px] font-bold text-muted-foreground">
+                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">F2</kbd> {t.kbSearch}</div>
+                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">F10</kbd> {t.pay}</div>
+                <div className="flex items-center gap-1.5"><kbd className="bg-muted text-muted-foreground px-1 py-0.5 rounded border border-border">ESC</kbd> {t.kbClose}</div>
                 <div className="flex items-center gap-1.5"><div className="w-3 h-3 border-2 border-dashed border-border rounded-sm" /> {t.scanBarcode}</div>
              </div>
           </footer>
         </main>
 
         {/* RHS: Transaction Desk */}
-        <aside className="h-[46vh] w-full border-t border-border lg:h-auto lg:w-[400px] xl:w-[440px] lg:border-t-0 lg:border-s flex flex-col shrink-0 bg-card/80 backdrop-blur-3xl shadow-none lg:shadow-xl dark:lg:shadow-[-40px_0_60px_-15px_rgba(0,0,0,0.45)] z-40">
+        {/* Phone: cart bar; the cart opens as a sheet */}
+        {cart.length > 0 && !cartOpen && (
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="lg:hidden fixed inset-x-3 bottom-3 z-40 flex items-center justify-between gap-3 rounded-2xl bg-amber-500 px-4 py-3 text-black shadow-2xl"
+          >
+            <span className="flex items-center gap-2 font-bold">
+              <ShoppingCart className="w-5 h-5" />
+              {t.viewCart} · <span className="tabular-nums">{fmt(itemCount)}</span>
+            </span>
+            <span className="flex items-center gap-1 font-black tabular-nums">
+              {fmt(total)} {t.currency}
+              <ChevronUp className="w-4 h-4" />
+            </span>
+          </button>
+        )}
+
+        <aside className={cn(
+          "w-full flex-col bg-card lg:bg-card/80 lg:backdrop-blur-3xl lg:flex lg:static lg:h-auto lg:w-[400px] xl:w-[440px] lg:border-s border-border shrink-0 shadow-none lg:shadow-xl dark:lg:shadow-[-40px_0_60px_-15px_rgba(0,0,0,0.45)]",
+          cartOpen ? "flex fixed inset-x-0 bottom-0 top-16 z-50 border-t" : "hidden"
+        )}>
           
           <div className="h-14 shrink-0 px-6 flex items-center justify-between border-b border-border bg-muted/50">
             <div className="flex items-center gap-2.5">
@@ -822,17 +909,22 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                     animate={{ scale: 1 }} 
                     className="absolute -top-2 -end-2 bg-foreground text-background text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-lg"
                   >
-                    {cart.reduce((a,b) => a + b.quantity, 0)}
+                    {itemCount}
                   </motion.span>
                 )}
               </div>
-              <span className="text-[13px] font-black uppercase tracking-widest text-foreground">{t.cartTitle}</span>
+              <span className="text-sm font-black text-foreground">{t.cartTitle}</span>
             </div>
-            {cart.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={() => setCart([])} className="h-8 text-[10px] font-black uppercase text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg">
-                <Trash2 className="w-3.5 h-3.5 me-1" /> {t.clear}
+            <div className="flex items-center gap-1">
+              {cart.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => { setCart([]); setCartOpen(false); }} className="h-8 text-xs font-bold text-muted-foreground hover:text-red-600 hover:bg-red-500/10 rounded-lg">
+                  <Trash2 className="w-3.5 h-3.5 me-1" /> {t.clear}
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={() => setCartOpen(false)} aria-label={t.close} className="lg:hidden h-8 w-8 rounded-lg">
+                <X className="w-4 h-4" />
               </Button>
-            )}
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 custom-scrollbar">
@@ -851,21 +943,17 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center text-center opacity-10 grayscale py-20 pointer-events-none">
                   <ShoppingCart className="w-20 h-20 mb-4" />
-                  <p className="font-black text-sm uppercase tracking-widest">{t.cartEmpty}</p>
+                  <p className="font-black text-sm">{t.cartEmpty}</p>
                 </div>
               )}
             </AnimatePresence>
           </div>
 
-          <div className="shrink-0 p-6 bg-muted/40 border-t border-border space-y-5">
+          <div className="shrink-0 p-4 sm:p-6 bg-muted/40 border-t border-border space-y-4 sm:space-y-5">
             <div className="space-y-2 text-[13px] font-medium text-muted-foreground">
               <div className="flex justify-between items-center">
                 <span>{t.subtotal}</span>
-                <span className="text-foreground font-bold tabular-nums">{subtotal.toLocaleString()} {t.currency}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>{t.vat}</span>
-                <span className="text-foreground font-bold tabular-nums">{vat.toLocaleString()} {t.currency}</span>
+                <span className="text-foreground font-bold tabular-nums">{fmt(subtotal)} {t.currency}</span>
               </div>
               
               {/* Quick Discount in Cart */}
@@ -876,6 +964,10 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                    </div>
                    <input 
                      type="number"
+                     min="0"
+                     inputMode="decimal"
+                     aria-label={t.discount}
+                     aria-invalid={!!discountError}
                      placeholder={t.discount}
                      className="w-full bg-card border border-border rounded-lg py-2 ps-9 pe-3 text-xs text-foreground focus:border-amber-500/30 outline-none font-bold"
                      value={discountValue || ""}
@@ -895,21 +987,27 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                     >{t.discountFixed}</button>
                  </div>
               </div>
+              {discountError && (
+                <p role="alert" className="text-xs font-bold text-red-700 dark:text-red-400">
+                  {discountError === "DISCOUNT_LIMIT" ? t.discountLimit : t.discountBad}
+                </p>
+              )}
 
               <div className="flex justify-between font-black text-2xl pt-4 border-t border-border text-foreground tracking-tighter">
-                <span className="uppercase text-lg pt-1">{t.total}</span>
-                <span className="text-accent-text tabular-nums">{total.toLocaleString()} {t.currency}</span>
+                <span className="text-lg pt-1">{t.total}</span>
+                <span className="text-accent-text tabular-nums">{fmt(total)} {t.currency}</span>
               </div>
             </div>
 
             <Button
               size="lg"
-              disabled={cart.length === 0}
+              disabled={cart.length === 0 || !!discountError}
               onClick={() => setIsCheckoutOpen(true)}
-              className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-black font-black text-base rounded-2xl shadow-2xl active:scale-[0.98] transition-all gap-3 uppercase flex items-center justify-center"
+              className="w-full h-14 sm:h-16 bg-amber-500 hover:bg-amber-600 text-black font-black text-base rounded-2xl shadow-2xl active:scale-[0.98] transition-all gap-3 flex items-center justify-center"
             >
-              <Printer className="w-6 h-6" />
-              {t.payAndPrint.split(' ')[0]}
+              <Wallet className="w-6 h-6" />
+              {t.pay}
+              <kbd className="hidden lg:inline rounded border border-black/20 px-1.5 text-[10px] font-bold">F10</kbd>
             </Button>
           </div>
         </aside>
@@ -919,7 +1017,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="max-w-md bg-card border-border text-card-foreground p-0 flex flex-col h-auto !gap-0">
           <DialogHeader className="p-4 bg-muted/50 border-b border-border shrink-0">
-            <DialogTitle className="text-xl font-black uppercase tracking-widest text-accent-text flex items-center gap-3">
+            <DialogTitle className="text-xl font-black text-accent-text flex items-center gap-3">
               <Wallet className="w-6 h-6" />
               {t.checkoutTitle}
             </DialogTitle>
@@ -927,7 +1025,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           
           <div className="p-4 space-y-4 flex-1 overflow-y-auto min-h-0 custom-scrollbar">
             {checkoutError && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+              <div role="alert" className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-700 dark:text-red-400 text-sm font-bold animate-in fade-in slide-in-from-top-2">
                 <AlertTriangle className="w-5 h-5 shrink-0" />
                 {checkoutError}
               </div>
@@ -963,17 +1061,19 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'CASH', label: t.cash, icon: Banknote, active: "bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-xl shadow-emerald-500/5" },
-                  { id: 'CARD', label: t.card, icon: CreditCard, active: "bg-blue-500/10 border-blue-500 text-blue-400 shadow-xl shadow-blue-500/5" },
-                  { id: 'CREDIT', label: t.credit, icon: RotateCcw, active: "bg-amber-500/10 border-amber-500 text-accent-text shadow-xl" }
+                  { id: 'CASH', label: t.cash, icon: Banknote },
+                  { id: 'CARD', label: t.card, icon: CreditCard },
+                  { id: 'BANK_TRANSFER', label: t.bank, icon: Landmark },
                 ].map(method => (
                   <button
+                    type="button"
                     key={method.id}
+                    aria-pressed={paymentMethod === method.id}
                     onClick={() => setPaymentMethod(method.id)}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                      "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 transition-all font-bold text-xs",
                       paymentMethod === method.id
-                        ? method.active
+                        ? "bg-amber-500/10 border-amber-500 text-foreground"
                         : "bg-muted/50 border-border text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -992,11 +1092,14 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 className="space-y-4 pt-4 border-t border-border"
               >
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase text-muted-foreground">{t.amountTendered}</label>
+                  <label htmlFor="pos-tendered" className="text-xs font-black text-muted-foreground">{t.amountTendered}</label>
                   <div className="relative">
                     <DollarSign className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-text" />
                     <Input 
+                      id="pos-tendered"
                       type="number" 
+                      min="0"
+                      inputMode="decimal"
                       autoFocus
                       className="bg-background border-border h-12 ps-12 text-xl font-black tabular-nums focus-visible:ring-amber-500/30"
                       value={amountTendered}
@@ -1007,8 +1110,8 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">{t.change}</span>
-                    <span className="text-2xl font-black text-foreground tabular-nums">{changeAmount.toLocaleString()} <span className="text-sm">{t.currency}</span></span>
+                    <span className="text-xs font-black text-emerald-700 dark:text-emerald-400">{t.change}</span>
+                    <span className="text-2xl font-black text-foreground tabular-nums">{fmt(changeAmount)} <span className="text-sm">{t.currency}</span></span>
                   </div>
                   <XCircle 
                     className={cn("w-10 h-10 transition-opacity", parseFloat(amountTendered) < total ? "text-red-500 opacity-100" : "opacity-0")} 
@@ -1020,14 +1123,14 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
 
           <div className="p-4 bg-muted/50 border-t border-border space-y-3 shrink-0">
                <div className="flex justify-between items-baseline p-4 rounded-xl bg-muted/40 border border-border">
-                  <span className="text-sm font-bold text-muted-foreground uppercase">{t.total}</span>
-                  <span className="text-2xl font-black text-accent-text tabular-nums tracking-tighter">{total.toLocaleString()} <span className="text-sm font-bold uppercase">{t.currency}</span></span>
+                  <span className="text-sm font-bold text-muted-foreground">{t.total}</span>
+                  <span className="text-2xl font-black text-accent-text tabular-nums tracking-tighter">{fmt(total)} <span className="text-sm font-bold">{t.currency}</span></span>
                </div>
                
                <Button 
                  onClick={handleCheckout} 
-                 disabled={loading || (paymentMethod === 'CASH' && (parseFloat(amountTendered) || 0) < total)}
-                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-xl shadow-xl shadow-emerald-500/20 gap-3 uppercase"
+                 disabled={loading || !!discountError || (paymentMethod === 'CASH' && (parseFloat(amountTendered) || 0) < total)}
+                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-xl shadow-xl shadow-emerald-500/20 gap-3"
                >
                  {loading ? <RotateCcw className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                  {loading ? t.processing : t.completeCheckout}
@@ -1039,7 +1142,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       <Dialog open={checkoutSuccessOpen} onOpenChange={setCheckoutSuccessOpen}>
         <DialogContent className="max-w-md bg-card border-border text-card-foreground">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-tight text-emerald-400">
+            <DialogTitle className="flex items-center gap-2 text-xl font-black text-emerald-700 dark:text-emerald-400">
               <CheckCircle className="w-6 h-6" />
               {t.checkoutDoneTitle}
             </DialogTitle>
@@ -1059,9 +1162,9 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               onClick={handlePrintLastReceipt}
             >
               {printLoading ? (
-                <RotateCcw className="w-4 h-4 animate-spin mr-2" />
+                <RotateCcw className="w-4 h-4 animate-spin me-2" />
               ) : (
-                <Printer className="w-4 h-4 mr-2" />
+                <Printer className="w-4 h-4 me-2" />
               )}
               {t.printReceipt}
             </Button>
@@ -1072,7 +1175,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
               disabled={!lastReceipt}
               onClick={handleDownloadReceiptPdf}
             >
-              <Download className="w-4 h-4 mr-2" />
+              <Download className="w-4 h-4 me-2" />
               {t.downloadPdf}
             </Button>
             <Button
@@ -1085,7 +1188,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                 router.push(`/orders/${lastOrderId}/invoice`);
               }}
             >
-              <FileText className="w-4 h-4 mr-2" />
+              <FileText className="w-4 h-4 me-2" />
               {t.openInvoice}
             </Button>
             <Button
@@ -1103,6 +1206,8 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       {/* ── Custom Scrollbar Styles ── */}
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .no-scrollbar { scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: var(--border);
