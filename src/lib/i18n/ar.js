@@ -1412,7 +1412,20 @@ const dictionary = {
   "unitMeter": "متر",
   "unitSet": "طقم",
   "unitPack": "عبوة",
-  "inventoryAllCategories": "كل الأقسام"
+  "inventoryAllCategories": "كل الأقسام",
+  "ordGuest": "زائر",
+  "ordShipping": "التوصيل",
+  "ordDiscount": "الخصم",
+  "ordCoupon": "الكوبون",
+  "ordCustomerNotes": "ملاحظات العميل",
+  "ordCancelConfirm": "إلغاء هذا الطلب؟ ستعود الكمية للمخزون ويُعكس البيع في الحسابات.",
+  "ordStatusNotAllowed": "لا تملك صلاحية هذا التغيير.",
+  "ordStatusChanged": "تغيّرت حالة الطلب للتو. حدّث الصفحة وحاول مرة أخرى.",
+  "ordInsufficientStock": "الكمية المتوفرة لا تكفي لإعادة هذا الطلب.",
+  "ordDeliveredLocked": "الطلب مُسلَّم. أي تغيير يتم عبر المرتجعات.",
+  "ordReturnErrQty": "الكمية أكبر من المتبقي بعد المرتجعات السابقة.",
+  "ordReturnErrCancelled": "لا يمكن إرجاع طلب ملغى.",
+  "ordReturnErrProduct": "هذا المنتج ليس في الطلب."
 };
 
 export default dictionary;

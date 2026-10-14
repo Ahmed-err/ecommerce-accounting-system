@@ -23,14 +23,27 @@ import {
   getOrdersTabData, createOrderReturn, approveOrderReturn, rejectOrderReturn,
   updateOrderStatusAction, getOrderItems,
 } from "@/app/actions/orders";
+import { toast } from "sonner";
+import { allowedStatusMoves } from "@/lib/order-workflow";
+import { orderRef, paymentMethodLabel } from "@/lib/order-labels";
 
 const TABS_CONFIG_KEYS = ["all", "store", "pos", "returns", "reports"];
 
-const COMMON_PAYMENT_METHODS = ["CASH_ON_DELIVERY", "ONLINE_GATEWAY", "CASH", "CARD", "CREDIT"];
+const COMMON_PAYMENT_METHODS = ["CASH_ON_DELIVERY", "BANK_TRANSFER", "CASH", "CARD"];
 
-function formatPaymentMethodLabel(code) {
-  if (!code || code === "all") return "";
-  return String(code).replace(/_/g, " ");
+const STATUS_ERRORS = {
+  status_not_allowed: "ordStatusNotAllowed",
+  status_changed: "ordStatusChanged",
+  insufficient_stock: "ordInsufficientStock",
+};
+
+function productName(product, lang) {
+  if (!product) return "";
+  return (lang === "ar" ? product.nameAr : product.nameEn) || product.name;
+}
+
+function customerName(order, t) {
+  return order.guestName || (order.user ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() : "") || t.ordGuest;
 }
 
 function mapReturnActionError(res, t) {
@@ -42,6 +55,9 @@ function mapReturnActionError(res, t) {
     RETURN_ORDER_ID: t.ordReturnErrOrderId,
     RETURN_REFUND_METHOD: t.ordReturnErrGeneric,
     RETURN_LINE_INVALID: t.ordReturnErrLineInvalid,
+    RETURN_QTY_EXCEEDS: t.ordReturnErrQty,
+    RETURN_INVALID_PRODUCT: t.ordReturnErrProduct,
+    RETURN_ORDER_CANCELLED: t.ordReturnErrCancelled,
     VALIDATION: t.ordReturnErrGeneric,
   };
   if (code && byCode[code]) return byCode[code];
@@ -52,30 +68,30 @@ function mapReturnActionError(res, t) {
 
 const STATUS_CONFIG = {
   PENDING: { color: "bg-amber-500/10 text-accent-text border-amber-500/20", icon: Clock, label: "ordStatusPending" },
-  CONFIRMED: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: Check, label: "ordStatusProcessing" },
-  PROCESSING: { color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: Package, label: "ordStatusProcessing" },
-  SHIPPED: { color: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", icon: Truck, label: "ordStatusShipped" },
-  DELIVERED: { color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: CheckCircle2, label: "ordStatusDelivered" },
-  CANCELLED: { color: "bg-red-500/10 text-red-400 border-red-500/20", icon: XCircle, label: "ordStatusCancelled" },
+  CONFIRMED: { color: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20", icon: Check, label: "ordStatusProcessing" },
+  PROCESSING: { color: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20", icon: Package, label: "ordStatusProcessing" },
+  SHIPPED: { color: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20", icon: Truck, label: "ordStatusShipped" },
+  DELIVERED: { color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", icon: CheckCircle2, label: "ordStatusDelivered" },
+  CANCELLED: { color: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20", icon: XCircle, label: "ordStatusCancelled" },
 };
 
 const RETURN_STATUS_CONFIG = {
   PENDING: "bg-amber-500/10 text-accent-text",
-  APPROVED: "bg-emerald-500/10 text-emerald-400",
-  REFUNDED: "bg-blue-500/10 text-blue-400",
-  REJECTED: "bg-red-500/10 text-red-400",
+  APPROVED: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  REFUNDED: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+  REJECTED: "bg-red-500/10 text-red-700 dark:text-red-400",
 };
 
 const PIE_COLORS = ["#f59e0b", "#3b82f6", "#6366f1", "#10b981", "#ef4444", "#8b5cf6"];
 
 function fmt(n, lang) {
   if (n == null) return "—";
-  return Number(n).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 2 });
+  return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
 function fmtDate(d, lang) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+  return new Date(d).toLocaleDateString(lang === "ar" ? "ar-SD-u-nu-latn" : "en-GB", {
     year: "numeric", month: "short", day: "numeric",
   });
 }
@@ -85,7 +101,7 @@ function StatusBadge({ status, t }) {
   const Icon = cfg.icon;
   const label = t[cfg.label] || status;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${cfg.color}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-0.5 rounded-full text-xs font-semibold border ${cfg.color}`}>
       <Icon className="h-2.5 w-2.5" />{label}
     </span>
   );
@@ -94,7 +110,7 @@ function StatusBadge({ status, t }) {
 function SourceBadge({ order, t }) {
   const isPos = order.guestCity === "POS Station";
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${isPos ? "bg-purple-500/10 text-purple-400" : "bg-blue-500/10 text-blue-400"}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${isPos ? "bg-purple-500/10 text-purple-700 dark:text-purple-400" : "bg-blue-500/10 text-blue-700 dark:text-blue-400"}`}>
       {isPos ? <Monitor className="h-2.5 w-2.5" /> : <Store className="h-2.5 w-2.5" />}
       {isPos ? t.ordSourcePos : t.ordSourceStore}
     </span>
@@ -133,7 +149,7 @@ function Dialog({ open, onClose, title, children, isRTL, wide }) {
   );
 }
 
-function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL }) {
+function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL, role }) {
   const [status, setStatus] = useState(order?.status || "PENDING");
   const [saving, setSaving] = useState(false);
 
@@ -141,13 +157,23 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
 
   if (!open || !order) return null;
 
-  const customer = order.guestName || (order.user ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() : "Guest");
+  const customer = customerName(order, t);
   const isPos = order.guestCity === "POS Station";
+  const moves = allowedStatusMoves(role, status);
+  const subtotal = (order.items || []).reduce((sum, it) => sum + Number(it.price) * it.quantity, 0);
+  const shipping = Number(order.shippingCost || 0);
+  const discount = Math.max(0, Math.round((subtotal + shipping - Number(order.totalAmount)) * 100) / 100);
 
   const handleStatusChange = async (newStatus) => {
+    if (newStatus === "CANCELLED" && !window.confirm(t.ordCancelConfirm)) return;
     setSaving(true);
     const res = await updateOrderStatusAction(order.id, newStatus);
-    if (res.success) { setStatus(newStatus); onStatusChange(order.id, newStatus); }
+    if (res.success) {
+      setStatus(newStatus);
+      onStatusChange(order.id, newStatus);
+    } else {
+      toast.error(t[STATUS_ERRORS[res.error]] || res.error || t.ordReturnErrGeneric);
+    }
     setSaving(false);
   };
 
@@ -165,7 +191,7 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
         <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
           <div>
             <p className="text-xs text-muted-foreground">{t.ordDetailTitle}</p>
-            <p className="text-foreground font-bold font-mono">#{order.id.slice(-8).toUpperCase()}</p>
+            <p className="text-foreground font-bold font-mono" dir="ltr">#{orderRef(order.id)}</p>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
@@ -180,10 +206,11 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
           <div className="bg-muted/40 rounded-xl p-4 space-y-2 text-sm">
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{t.ordDetailCustomer}</h4>
             <div className="flex justify-between"><span className="text-muted-foreground">{t.fullName}:</span><span className="font-medium text-foreground">{customer}</span></div>
-            {order.guestPhone && <div className="flex justify-between"><span className="text-muted-foreground">{lang === "ar" ? "الهاتف" : "Phone"}:</span><span className="font-medium text-foreground dir-ltr">{order.guestPhone}</span></div>}
+            {order.guestPhone && <div className="flex justify-between"><span className="text-muted-foreground">{lang === "ar" ? "الهاتف" : "Phone"}:</span><span className="font-medium text-foreground" dir="ltr">{order.guestPhone}</span></div>}
             {order.guestEmail && <div className="flex justify-between"><span className="text-muted-foreground">{t.email}:</span><span className="font-medium text-foreground">{order.guestEmail}</span></div>}
-            {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-muted-foreground">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-foreground text-right">{order.guestCity}, {order.guestAddress}</span></div>}
-            <div className="flex justify-between"><span className="text-muted-foreground">{t.ordColPayment}:</span><span className="font-medium text-accent-text">{order.paymentMethod?.replace(/_/g, " ")}</span></div>
+            {!isPos && order.guestAddress && <div className="flex justify-between gap-4"><span className="text-muted-foreground">{lang === "ar" ? "العنوان" : "Address"}:</span><span className="font-medium text-foreground text-end">{order.guestCity}، {order.guestAddress}</span></div>}
+            {order.customerNotes && <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t.ordCustomerNotes}:</span><span className="font-medium text-foreground text-end whitespace-pre-line">{order.customerNotes}</span></div>}
+            <div className="flex justify-between"><span className="text-muted-foreground">{t.ordColPayment}:</span><span className="font-medium text-accent-text">{paymentMethodLabel(order.paymentMethod, t)}</span></div>
           </div>
 
           {order.paymentProofUrl && (
@@ -237,16 +264,21 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-foreground truncate">{item.product?.name}</p>
+                    <p className="text-xs font-semibold text-foreground truncate">{productName(item.product, lang)}</p>
                     <p className="text-[10px] text-muted-foreground">SKU: {item.product?.sku}</p>
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="text-end shrink-0">
                     <p className="text-xs font-bold text-foreground tabular-nums">{fmt(item.price, lang)} {t.currency}</p>
                     <p className="text-[10px] text-muted-foreground">×{item.quantity}</p>
                   </div>
                 </div>
               ))}
             </div>
+            <dl className="mt-3 space-y-1.5 px-1 text-xs">
+              <div className="flex justify-between"><dt className="text-muted-foreground">{t.subtotal}</dt><dd className="tabular-nums text-foreground">{fmt(subtotal, lang)} {t.currency}</dd></div>
+              {shipping > 0 && <div className="flex justify-between"><dt className="text-muted-foreground">{t.ordShipping}</dt><dd className="tabular-nums text-foreground">{fmt(shipping, lang)} {t.currency}</dd></div>}
+              {discount > 0 && <div className="flex justify-between"><dt className="text-muted-foreground">{t.ordDiscount}{order.couponCode ? ` (${t.ordCoupon}: ${order.couponCode})` : ""}</dt><dd className="tabular-nums text-foreground">−{fmt(discount, lang)} {t.currency}</dd></div>}
+            </dl>
             <div className="mt-3 bg-amber-500/10 rounded-xl p-3 flex justify-between items-center border border-amber-500/20">
               <span className="text-xs font-bold text-accent-text">{t.grandTotal}</span>
               <span className="font-bold text-accent-text tabular-nums">{fmt(order.totalAmount, lang)} {t.currency}</span>
@@ -255,14 +287,18 @@ function OrderDetailSheet({ order, open, onClose, onStatusChange, t, lang, isRTL
 
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{t.ordUpdateStatus}</h4>
-            <div className="flex flex-wrap gap-2">
-              {["PENDING","PROCESSING","SHIPPED","DELIVERED","CANCELLED"].map((s) => (
-                <button key={s} onClick={() => handleStatusChange(s)} disabled={saving || status === s}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${status === s ? "bg-amber-500 text-black" : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"} disabled:opacity-50`}>
-                  {t[STATUS_CONFIG[s]?.label] || s}
-                </button>
-              ))}
-            </div>
+            {moves.length ? (
+              <div className="flex flex-wrap gap-2">
+                {moves.map((s) => (
+                  <button key={s} type="button" onClick={() => handleStatusChange(s)} disabled={saving}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 ${s === "CANCELLED" ? "bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300" : "bg-muted text-foreground hover:bg-muted/80"}`}>
+                    {t[STATUS_CONFIG[s]?.label] || s}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">{status === "DELIVERED" ? t.ordDeliveredLocked : t.ordStatusNotAllowed}</p>
+            )}
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -297,7 +333,36 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Phone: one card per order instead of a wide table. */}
+      <ul className="divide-y divide-border md:hidden">
+        {orders.length === 0 && (
+          <li className="px-4 py-14 text-center text-muted-foreground">
+            <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-20" />
+            <p>{t.ordNoOrders}</p>
+          </li>
+        )}
+        {orders.map((order) => (
+          <li key={order.id}>
+            <button type="button" onClick={() => onRowClick(order)} className="w-full px-4 py-3 text-start hover:bg-muted/40">
+              <div className="flex items-center justify-between gap-2">
+                <span dir="ltr" className="font-mono text-xs text-accent-text">#{orderRef(order.id)}</span>
+                <StatusBadge status={order.status} t={t} />
+              </div>
+              <div className="mt-1.5 flex items-center justify-between gap-2 text-sm">
+                <span className="truncate font-medium text-foreground">{customerName(order, t)}</span>
+                <span className="whitespace-nowrap font-bold tabular-nums text-foreground">
+                  {fmt(order.totalAmount, lang)} <span className="font-normal text-muted-foreground">{t.currency}</span>
+                </span>
+              </div>
+              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="tabular-nums">{fmtDate(order.createdAt, lang)}</span>
+                {showSource && <SourceBadge order={order} t={t} />}
+              </div>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto md:block">
         <table className={`w-full min-w-[700px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
           <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
@@ -319,19 +384,19 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
               </td></tr>
             )}
             {orders.map((order) => {
-              const customer = order.guestName || (order.user ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() : "—");
+              const customer = customerName(order, t);
               return (
                 <tr key={order.id} onClick={() => onRowClick(order)} className="hover:bg-muted/40 cursor-pointer transition-colors group">
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs text-accent-text bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
-                      #{order.id.slice(-8).toUpperCase()}
+                    <span dir="ltr" className="font-mono text-xs text-accent-text bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                      #{orderRef(order.id)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap tabular-nums">{fmtDate(order.createdAt, lang)}</td>
                   {showSource && <td className="px-4 py-3"><SourceBadge order={order} t={t} /></td>}
                   <td className="px-4 py-3">
                     <p className="font-medium text-foreground text-xs">{customer}</p>
-                    {order.guestPhone && <p className="text-[10px] text-muted-foreground dir-ltr">{order.guestPhone}</p>}
+                    {order.guestPhone && <p className="text-xs text-muted-foreground" dir="ltr">{order.guestPhone}</p>}
                   </td>
                   <td className="px-4 py-3 text-center tabular-nums text-muted-foreground">{order.items?.length || 0}</td>
                   <td className="px-4 py-3 font-bold text-foreground tabular-nums">{fmt(order.totalAmount, lang)} <span className="text-muted-foreground font-normal">{t.currency}</span></td>
@@ -347,7 +412,7 @@ function OrdersTable({ orders, total, page, onPageChange, onRowClick, isRTL, t, 
                         onClick={(e) => copyOrderId(e, order.id)}
                       >
                         {copiedId === order.id ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
+                          <Check className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
                         ) : (
                           <Copy className="h-3.5 w-3.5" />
                         )}
@@ -435,7 +500,7 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
             <SelectItem value="all">{lang === "ar" ? "كل طرق الدفع" : "All payment methods"}</SelectItem>
             {COMMON_PAYMENT_METHODS.map((code) => (
               <SelectItem key={code} value={code}>
-                {formatPaymentMethodLabel(code)}
+                {paymentMethodLabel(code, t)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -450,7 +515,7 @@ function FilterBar({ t, lang, isRTL, onSearch, onFilter, values, showSource = tr
   );
 }
 
-function AllOrdersTab({ data, t, lang, isRTL, onStatusChange, initialQuery = {} }) {
+function AllOrdersTab({ data, t, lang, isRTL, role, onStatusChange, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
   const [filters, setFilters] = useState({
     search: initialQuery.search || "",
@@ -493,22 +558,22 @@ function AllOrdersTab({ data, t, lang, isRTL, onStatusChange, initialQuery = {} 
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: t.ordKpiTotal, value: kpis.total || 0, icon: ShoppingCart, color: "bg-blue-500/10 text-blue-400", delay: 0 },
+          { label: t.ordKpiTotal, value: kpis.total || 0, icon: ShoppingCart, color: "bg-blue-500/10 text-blue-700 dark:text-blue-400", delay: 0 },
           { label: t.ordKpiPending, value: kpis.pending || 0, icon: Clock, color: "bg-amber-500/10 text-accent-text", delay: 0.05 },
-          { label: t.ordKpiDelivered, value: kpis.delivered || 0, icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-400", delay: 0.1 },
-          { label: t.ordKpiToday, value: kpis.todayCount || 0, icon: Package, color: "bg-purple-500/10 text-purple-400", delay: 0.15, sub: `${fmt(kpis.todayRevenue, lang)} ${t.currency}` },
+          { label: t.ordKpiDelivered, value: kpis.delivered || 0, icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", delay: 0.1 },
+          { label: t.ordKpiToday, value: kpis.todayCount || 0, icon: Package, color: "bg-purple-500/10 text-purple-700 dark:text-purple-400", delay: 0.15, sub: `${fmt(kpis.todayRevenue, lang)} ${t.currency}` },
         ].map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
       <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={handleSearch} onFilter={handleFilter} values={filters} showSource showPayment />
       <OrdersTable orders={orders} total={total} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} isLoading={loading} />
       <AnimatePresence>
-        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
+        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} role={role} />}
       </AnimatePresence>
     </div>
   );
 }
 
-function StoreOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
+function StoreOrdersTab({ data, t, lang, isRTL, role, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
   const [filters, setFilters] = useState({
     search: initialQuery.search || "",
@@ -542,13 +607,13 @@ function StoreOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
       <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} showPayment />
       <OrdersTable orders={tabData?.orders || []} total={tabData?.total || 0} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} showSource={false} isLoading={loading} />
       <AnimatePresence>
-        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
+        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} role={role} />}
       </AnimatePresence>
     </div>
   );
 }
 
-function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
+function PosOrdersTab({ data, t, lang, isRTL, role, initialQuery = {} }) {
   const [tabData, setTabData] = useState(data);
   const [filters, setFilters] = useState({
     search: initialQuery.search || "",
@@ -587,7 +652,7 @@ function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
             <div><p className="text-xs text-muted-foreground">{t.ordPosTotal}</p><p className="text-2xl font-bold text-foreground tabular-nums">{summary.total}</p></div>
             <div><p className="text-xs text-muted-foreground">{t.ordPosRevenue}</p><p className="text-2xl font-bold text-accent-text tabular-nums">{fmt(summary.revenue, lang)} {t.currency}</p></div>
             {Object.entries(summary.byMethod || {}).map(([method, val]) => (
-              <div key={method}><p className="text-xs text-muted-foreground">{method.replace(/_/g, " ")}</p><p className="text-lg font-bold text-blue-400 tabular-nums">{fmt(val, lang)}</p></div>
+              <div key={method}><p className="text-xs text-muted-foreground">{paymentMethodLabel(method, t)}</p><p className="text-lg font-bold text-blue-700 dark:text-blue-400 tabular-nums">{fmt(val, lang)}</p></div>
             ))}
           </div>
         </div>
@@ -595,7 +660,7 @@ function PosOrdersTab({ data, t, lang, isRTL, initialQuery = {} }) {
       <FilterBar t={t} lang={lang} isRTL={isRTL} onSearch={(v) => handleFilter("search", v)} onFilter={handleFilter} values={filters} showSource={false} showPayment />
       <OrdersTable orders={tabData?.orders || []} total={tabData?.total || 0} page={page} onPageChange={handlePage} onRowClick={setSelectedOrder} isRTL={isRTL} t={t} lang={lang} showSource={false} isLoading={loading} />
       <AnimatePresence>
-        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} />}
+        {selectedOrder && <OrderDetailSheet order={selectedOrder} open={!!selectedOrder} onClose={() => setSelectedOrder(null)} onStatusChange={handleStatusChange} t={t} lang={lang} isRTL={isRTL} role={role} />}
       </AnimatePresence>
     </div>
   );
@@ -766,8 +831,8 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
                 <td className="px-4 py-3">
                   {r.status === "PENDING" && canApproveReturns && (
                     <div className="flex gap-1">
-                      <Button size="sm" onClick={() => handleApprove(r.id)} className="h-7 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"><Check className="h-3 w-3 mr-1" />{t.empApprove}</Button>
-                      <Button size="sm" onClick={() => handleReject(r.id)} className="h-7 text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><X className="h-3 w-3 mr-1" />{t.empReject}</Button>
+                      <Button size="sm" onClick={() => handleApprove(r.id)} className="h-7 text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"><Check className="h-3 w-3 mr-1" />{t.empApprove}</Button>
+                      <Button size="sm" onClick={() => handleReject(r.id)} className="h-7 text-xs bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20"><X className="h-3 w-3 mr-1" />{t.empReject}</Button>
                     </div>
                   )}
                 </td>
@@ -779,7 +844,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t.ordAddReturn} isRTL={isRTL} wide>
         {err && (
-          <div className="mb-3 text-sm text-red-200 bg-red-500/15 border border-red-500/25 rounded-lg px-3 py-2.5" role="alert">
+          <div className="mb-3 text-sm text-red-800 dark:text-red-200 bg-red-500/15 border border-red-500/25 rounded-lg px-3 py-2.5" role="alert">
             {err}
           </div>
         )}
@@ -811,12 +876,12 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">{t.ordReturnOrderIdHint}</p>
             {loadErr && (
-              <p className="text-xs text-red-400 mt-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2" role="status">
+              <p className="text-xs text-red-700 dark:text-red-400 mt-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2" role="status">
                 {loadErr}
               </p>
             )}
             {loadOk && !loadErr && (
-              <p className="text-xs text-emerald-400/90 mt-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2" role="status">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2" role="status">
                 {t.ordReturnLoadedOk}
               </p>
             )}
@@ -869,7 +934,6 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
               <SelectContent className="bg-popover border-border text-popover-foreground" dir={isRTL ? "rtl" : "ltr"}>
                 <SelectItem value="CASH">{lang === "ar" ? "نقداً" : "Cash"}</SelectItem>
                 <SelectItem value="BANK_TRANSFER">{lang === "ar" ? "تحويل بنكي" : "Bank Transfer"}</SelectItem>
-                <SelectItem value="STORE_CREDIT">{lang === "ar" ? "رصيد المتجر" : "Store Credit"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1053,9 +1117,9 @@ export default function OrdersModuleClient({ initialData, initialTab, initialLis
           {isPending && <div className="py-16 text-center text-muted-foreground animate-pulse">{lang === "ar" ? "جاري التحميل..." : "Loading..."}</div>}
           {!isPending && (
             <>
-              {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
-              {activeTab === "store" && <StoreOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
-              {activeTab === "pos" && <PosOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} initialQuery={listQuery} />}
+              {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
+              {activeTab === "store" && <StoreOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
+              {activeTab === "pos" && <PosOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
               {activeTab === "returns" && <ReturnsTab data={currentData} t={t} lang={lang} isRTL={isRTL} canApproveReturns={canApproveReturns} />}
               {activeTab === "reports" && <ReportsTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
             </>
