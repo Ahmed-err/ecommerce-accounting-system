@@ -8,6 +8,7 @@ import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { getUserOrderById } from "@/lib/user-orders";
 import { orderRef, paymentMethodLabel } from "@/lib/order-labels";
 import { formatDate, formatMoney } from "@/lib/account-format";
+import { returnWindowOpen } from "@/lib/order-workflow";
 import AccountOrderActions from "@/components/account/AccountOrderActions";
 import OrderStatusBadge from "@/components/account/OrderStatusBadge";
 import ProductImage from "@/components/media/ProductImage";
@@ -15,7 +16,6 @@ import ProductImage from "@/components/media/ProductImage";
 export const dynamic = "force-dynamic";
 
 // Counted from the last order update until orders record when they were delivered (P3.3).
-const RETURN_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
 async function getLang() {
   const lang = (await cookies()).get("lang")?.value || "ar";
@@ -38,7 +38,7 @@ export default async function AccountOrderDetailPage({ params }) {
   const order = await getUserOrderById(session.user.id, id);
   if (!order) notFound();
 
-  const returnOpen = order.status === "DELIVERED" && Date.now() - new Date(order.updatedAt).getTime() <= RETURN_WINDOW_MS;
+  const returnOpen = returnWindowOpen(order);
   const subtotal = order.items.reduce((s, it) => s + it.price * it.quantity, 0);
   const discount = order.invoice?.discountAmount || 0;
   const tax = order.invoice?.taxAmount || 0;

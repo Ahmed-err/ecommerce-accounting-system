@@ -336,6 +336,8 @@ model Order {
   totalAmount Decimal     @db.Decimal(12, 2)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  /// Set when the order becomes DELIVERED; the customer return window counts from it.
+  deliveredAt DateTime?
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id])

@@ -44,7 +44,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
   const [returnBusy, setReturnBusy] = useState(false);
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
-  const [refundMethod, setRefundMethod] = useState("STORE_CREDIT");
+  const [refundMethod, setRefundMethod] = useState("CASH");
 
   const [pick, setPick] = useState({});
 
@@ -60,7 +60,7 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
     setPick(buildDefaultPick());
     setReason("");
     setNotes("");
-    setRefundMethod("STORE_CREDIT");
+    setRefundMethod("CASH");
     setReturnOpenDlg(true);
   };
 
@@ -226,7 +226,6 @@ export default function AccountOrderActions({ orderId, status, returnOpen, lines
                   onChange={(e) => setRefundMethod(e.target.value)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="STORE_CREDIT">{t.accountReturnRefundCredit}</option>
                   <option value="BANK_TRANSFER">{t.accountReturnRefundBank}</option>
                   <option value="CASH">{t.accountReturnRefundCash}</option>
                 </select>

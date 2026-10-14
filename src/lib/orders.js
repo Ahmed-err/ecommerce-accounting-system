@@ -161,6 +161,7 @@ export async function getOrderById(id) {
   });
 }
 
+// Sales everywhere = orders not cancelled, the same rule as the dashboard (P3.1).
 export async function getOrderStatusKpis() {
   const now = new Date();
   const todayStart = new Date(now);
@@ -177,11 +178,11 @@ export async function getOrderStatusKpis() {
       db.order.count({ where: { status: "CANCELLED" } }),
       db.order.count({ where: { createdAt: { gte: todayStart } } }),
       db.order.aggregate({
-        where: { createdAt: { gte: todayStart }, status: "DELIVERED" },
+        where: { createdAt: { gte: todayStart }, status: { not: "CANCELLED" } },
         _sum: { totalAmount: true },
       }),
       db.order.aggregate({
-        where: { createdAt: { gte: monthStart }, status: "DELIVERED" },
+        where: { createdAt: { gte: monthStart }, status: { not: "CANCELLED" } },
         _sum: { totalAmount: true },
       }),
     ]);
@@ -206,7 +207,7 @@ export async function getPosDailySummary(date) {
   end.setHours(23, 59, 59, 999);
 
   const orders = await db.order.findMany({
-    where: { guestCity: "POS Station", createdAt: { gte: start, lte: end } },
+    where: { guestCity: "POS Station", status: { not: "CANCELLED" }, createdAt: { gte: start, lte: end } },
     select: { id: true, totalAmount: true, paymentMethod: true, status: true },
   });
 
@@ -258,7 +259,7 @@ export async function getOrderReports({ dateFrom, dateTo } = {}) {
     }),
     db.order.groupBy({
       by: ["guestCity"],
-      where: { status: "DELIVERED", createdAt: { gte: start, lte: end } },
+      where: { status: { not: "CANCELLED" }, createdAt: { gte: start, lte: end } },
       _sum: { totalAmount: true },
       _count: { id: true },
     }),
