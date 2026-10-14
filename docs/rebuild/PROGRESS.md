@@ -5,8 +5,8 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P3.2 (not started)
-- **Step:** 1 — audit
+- **Current part:** P3.2 Inventory (branch `rebuild/p3-2-inventory`)
+- **Step:** 2 — plan written in `parts/P3.2.md`, waiting for owner answers (4 questions)
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
 - **Built (2026-10-13):** dashboard from orders (no cancelled) + grouped SQL chart + real period change, Arabic labels; one role map `src/lib/staff-access.js` for proxy/pages/sidebar (checked locally: admin, manager, cashier menus + cashier redirects); read-only access table replaces the permission matrix; Himmat lockup + page title in admin header. Local `/pos` load hung in dev (low memory); CI e2e `pos-cashier` decides.
 - **Done:** P3.1 — #30 merged, deployed 2026-10-13; live `/admin` and `/pos` send signed-out visitors to login.
@@ -40,7 +40,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.6 | Customer account | done | `rebuild/p2-6-account` | #28 |
 | P2.7 | Content, SEO, PWA | done | `rebuild/p2-7-content` | parts/P2.7.md |
 | P3.1 | Admin shell & dashboard | done | #30 | parts/P3.1.md |
-| P3.2 | Inventory | todo | | |
+| P3.2 | Inventory | audit | `rebuild/p3-2-inventory` | parts/P3.2.md |
 | P3.3 | Orders | todo | | carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
 | P3.4 | POS | todo | | |
 | P3.5 | Accounting | todo | | |
