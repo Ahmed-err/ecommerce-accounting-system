@@ -89,13 +89,14 @@ export async function reverseOrderCash(tx, order, refunded = 0) {
 }
 
 /** Money paid to a supplier (at purchase or later). Cash only: stock is costed when it sells. */
-export function bookSupplierPayment(tx, { purchase, amount, method = null }) {
+export function bookSupplierPayment(tx, { purchase, amount, method = null, by = null }) {
   if (!(num(amount) > 0)) return null;
   return tx.transaction.create({
     data: {
       type: "OUTGOING",
       amount: round2(num(amount)),
-      description: `Supplier payment - ${purchase.purchaseNumber}`,
+      // Managers can record these, so the row says who did.
+      description: `Supplier payment - ${purchase.purchaseNumber}${by ? ` (by ${by})` : ""}`,
       category: "Supplier payment",
       reference: purchase.purchaseNumber,
       source: "SUPPLIER",

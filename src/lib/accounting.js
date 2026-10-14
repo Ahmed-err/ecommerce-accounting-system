@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/prisma";
-import { isSystemTransaction } from "@/lib/ledger";
+import { isProfitExpense, isSystemTransaction } from "@/lib/ledger";
+import { loadProfit } from "@/lib/profit";
 
 export function n(v) {
   if (v == null) return 0;
@@ -21,18 +22,6 @@ export function revenueSourceFromTransaction(tx) {
 }
 
 const SALES_REVERSAL = "Sales Reversal";
-
-export function isOperatingOutgoing(tx) {
-  if (tx.type !== "OUTGOING") return false;
-  const c = (tx.category || "").trim();
-  return c !== SALES_REVERSAL;
-}
-
-export function isPurchaseOutgoing(tx) {
-  if (tx.type !== "OUTGOING") return false;
-  const c = (tx.category || "").toLowerCase();
-  return /inventory|purchase|supplier|stock|supplies/.test(c);
-}
 
 /** Rows written by the app (orders, POS, refunds, payments); they can't be edited by hand. */
 export const isSystemGeneratedTransaction = isSystemTransaction;
@@ -83,48 +72,6 @@ function pctChange(cur, prev) {
   return ((cur - prev) / Math.abs(prev)) * 100;
 }
 
-export async function aggregateIncomingOutgoing({ start, end }) {
-  const [incoming, outgoing] = await Promise.all([
-    db.transaction.aggregate({
-      where: {
-        type: "INCOMING",
-        date: { gte: start, lte: end },
-      },
-      _sum: { amount: true },
-    }),
-    db.transaction.aggregate({
-      where: {
-        type: "OUTGOING",
-        date: { gte: start, lte: end },
-        NOT: { category: SALES_REVERSAL },
-      },
-      _sum: { amount: true },
-    }),
-  ]);
-  return {
-    revenue: n(incoming._sum.amount),
-    expenses: n(outgoing._sum.amount),
-  };
-}
-
-export async function getOpeningNetBalance(beforeDate) {
-  const [incoming, outgoing] = await Promise.all([
-    db.transaction.aggregate({
-      where: { type: "INCOMING", date: { lt: beforeDate } },
-      _sum: { amount: true },
-    }),
-    db.transaction.aggregate({
-      where: {
-        type: "OUTGOING",
-        date: { lt: beforeDate },
-        NOT: { category: SALES_REVERSAL },
-      },
-      _sum: { amount: true },
-    }),
-  ]);
-  return n(incoming._sum.amount) - n(outgoing._sum.amount);
-}
-
 /** Cumulative cash before date: all incoming minus all outgoing (incl. reversals). */
 export async function getOpeningCashBalance(beforeDate) {
   const [incoming, outgoing] = await Promise.all([
@@ -142,14 +89,17 @@ export async function getOpeningCashBalance(beforeDate) {
 
 export async function getDashboardKpis({ start, end }) {
   const prev = prevPeriodSameLength(start, end);
-  const [cur, prevAgg, openingCash, prevCashOpen] = await Promise.all([
-    aggregateIncomingOutgoing({ start, end }),
-    aggregateIncomingOutgoing(prev),
+  // Profit side from orders (lib/profit.js); cash side from the cash book.
+  const [curPl, prevPl, openingCash, prevCashOpen] = await Promise.all([
+    loadProfit(db, { start, end }),
+    loadProfit(db, prev),
     getOpeningCashBalance(start),
     getOpeningCashBalance(prev.start),
   ]);
-  const net = cur.revenue - cur.expenses;
-  const prevNet = prevAgg.revenue - prevAgg.expenses;
+  const cur = { revenue: curPl.grossRevenue, expenses: curPl.cogs + curPl.operatingExpenses };
+  const prevAgg = { revenue: prevPl.grossRevenue, expenses: prevPl.cogs + prevPl.operatingExpenses };
+  const net = curPl.netProfit;
+  const prevNet = prevPl.netProfit;
 
   const [periodCashIn, periodCashOut, prevPeriodIn, prevPeriodOut] = await Promise.all([
     db.transaction.aggregate({
@@ -201,42 +151,37 @@ export async function getDashboardKpis({ start, end }) {
 }
 
 export async function getRevenueStoreVsPosMonthly({ start, end }) {
-  const rows = await db.transaction.findMany({
-    where: {
-      type: "INCOMING",
-      date: { gte: start, lte: end },
-    },
-    select: { description: true, amount: true, date: true, category: true },
+  // Sales by month from orders (not cancelled), split by where they were made.
+  const rows = await db.order.findMany({
+    where: { status: { not: "CANCELLED" }, createdAt: { gte: start, lte: end } },
+    select: { totalAmount: true, createdAt: true, guestCity: true },
   });
 
   const buckets = new Map();
   for (const r of rows) {
-    const d = new Date(r.date);
+    const d = new Date(r.createdAt);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     if (!buckets.has(key)) buckets.set(key, { month: key, store: 0, pos: 0, other: 0 });
     const b = buckets.get(key);
-    const src = revenueSourceFromTransaction(r);
-    const amt = n(r.amount);
-    if (src === "pos") b.pos += amt;
-    else if (src === "store") b.store += amt;
-    else b.other += amt;
+    if (r.guestCity === "POS Station") b.pos += n(r.totalAmount);
+    else b.store += n(r.totalAmount);
   }
 
   return Array.from(buckets.values()).sort((a, b) => a.month.localeCompare(b.month));
 }
 
 export async function getExpenseCategoryBreakdown({ start, end }) {
-  const rows = await db.transaction.groupBy({
-    by: ["category"],
-    where: {
-      type: "OUTGOING",
-      date: { gte: start, lte: end },
-      NOT: { category: SALES_REVERSAL },
-    },
-    _sum: { amount: true },
+  // Running costs and salaries only, as counted in profit.
+  const rows = await db.transaction.findMany({
+    where: { type: "OUTGOING", date: { gte: start, lte: end } },
+    select: { type: true, source: true, category: true, amount: true },
   });
-  return rows
-    .map((r) => ({ name: r.category || "Other", value: n(r._sum.amount) }))
+  const byCat = new Map();
+  for (const r of rows.filter(isProfitExpense)) {
+    const k = r.category || "Other";
+    byCat.set(k, (byCat.get(k) || 0) + n(r.amount));
+  }
+  return Array.from(byCat, ([name, value]) => ({ name, value }))
     .filter((x) => x.value > 0)
     .sort((a, b) => b.value - a.value);
 }
@@ -466,7 +411,8 @@ function inferPaymentFromDescription(desc) {
   return "";
 }
 
-export async function getExpenseRows({ start, end, category, paymentMethod }) {
+/** Money out. `profitOnly` keeps the running costs and salaries counted in profit (expenses tab). */
+export async function getExpenseRows({ start, end, category, paymentMethod, profitOnly = false }) {
   const rows = await db.transaction.findMany({
     where: {
       type: "OUTGOING",
@@ -477,7 +423,7 @@ export async function getExpenseRows({ start, end, category, paymentMethod }) {
     take: 500,
   });
 
-  let filtered = rows.map((r) => ({
+  let filtered = (profitOnly ? rows.filter(isProfitExpense) : rows).map((r) => ({
     id: r.id,
     date: r.date,
     category: r.category,
@@ -502,62 +448,9 @@ export async function getExpenseRows({ start, end, category, paymentMethod }) {
   return { rows: filtered, total };
 }
 
+/** Profit statement for the period (see lib/profit.js). */
 export async function getCogsForOrdersInRange({ start, end }) {
-  const orders = await db.order.findMany({
-    where: {
-      status: "DELIVERED",
-      createdAt: { gte: start, lte: end },
-    },
-    select: {
-      id: true,
-      status: true,
-      items: {
-        select: {
-          quantity: true,
-          product: { select: { purchasePrice: true } },
-        },
-      },
-    },
-  });
-
-  let cogs = 0;
-  for (const o of orders) {
-    const line = o.items.reduce((s, it) => s + it.quantity * n(it.product.purchasePrice), 0);
-    cogs += line;
-  }
-
-  const salesIncoming = await db.transaction.aggregate({
-    where: {
-      type: "INCOMING",
-      date: { gte: start, lte: end },
-      OR: [{ category: { equals: "Sales", mode: "insensitive" } }, { description: { startsWith: "POS Sale" } }],
-    },
-    _sum: { amount: true },
-  });
-
-  const grossRevenue = n(salesIncoming._sum.amount);
-
-  const operatingOutgoing = await db.transaction.aggregate({
-    where: {
-      type: "OUTGOING",
-      date: { gte: start, lte: end },
-      NOT: { category: SALES_REVERSAL },
-    },
-    _sum: { amount: true },
-  });
-
-  const operatingExpenses = n(operatingOutgoing._sum.amount);
-  const grossProfit = grossRevenue - cogs;
-  const netProfit = grossProfit - operatingExpenses;
-
-  return {
-    grossRevenue,
-    cogs,
-    grossProfit,
-    operatingExpenses,
-    netProfit,
-    ordersCount: orders.length,
-  };
+  return loadProfit(db, { start, end });
 }
 
 export async function getPlTrend({ start, end, granularity }) {

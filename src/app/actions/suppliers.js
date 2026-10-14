@@ -239,7 +239,7 @@ const createPurchaseSchema = z.object({
 
 export async function createPurchaseAction(raw) {
   try {
-    await ensure();
+    const user = await ensure();
     const parsed = createPurchaseSchema.safeParse(raw);
     if (!parsed.success) return { ok: false, error: "validation" };
     const { supplierId, items, receiveNow, paidAmount, ...rest } = parsed.data;
@@ -279,7 +279,7 @@ export async function createPurchaseAction(raw) {
           },
         },
       });
-      await bookSupplierPayment(tx, { purchase: p, amount: Math.min(paidAmount, total) });
+      await bookSupplierPayment(tx, { purchase: p, amount: Math.min(paidAmount, total), by: user.name || user.email });
       if (receiveNow) {
         for (const line of lines) {
           await tx.product.update({
@@ -380,7 +380,7 @@ export async function markPurchaseReceivedAction(purchaseId) {
 
 export async function recordPurchasePaymentAction(purchaseId, raw) {
   try {
-    await ensure();
+    const user = await ensure();
     const schema = z.object({
       amount: z.coerce.number().min(0.01).max(1e12),
       method: z.string().max(80).optional().nullable(),
@@ -419,7 +419,7 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
         },
       });
       if (res.count === 0) throw new Error("payment_changed");
-      await bookSupplierPayment(tx, { purchase: p, amount, method: parsed.data.method });
+      await bookSupplierPayment(tx, { purchase: p, amount, method: parsed.data.method, by: user.name || user.email });
     });
     revalidatePath("/admin/accounting");
     revalidatePath("/admin/suppliers");

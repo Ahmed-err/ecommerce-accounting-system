@@ -58,39 +58,6 @@ export async function getAccountingPermissions() {
   }
 }
 
-export async function getSummary() {
-  try {
-    await ensureAccountingView();
-    const [incoming, outgoing, recentTransactions] = await Promise.all([
-      db.transaction.aggregate({
-        where: { type: "INCOMING" },
-        _sum: { amount: true },
-      }),
-      db.transaction.aggregate({
-        where: { type: "OUTGOING" },
-        _sum: { amount: true },
-      }),
-      db.transaction.findMany({
-        take: 5,
-        orderBy: { date: "desc" },
-      }),
-    ]);
-
-    const totalIn = Number(incoming._sum.amount || 0);
-    const totalOut = Number(outgoing._sum.amount || 0);
-
-    return {
-      totalIn,
-      totalOut,
-      netProfit: totalIn - totalOut,
-      recentTransactions,
-    };
-  } catch (error) {
-    console.error("Failed to get accounting summary:", error);
-    return { totalIn: 0, totalOut: 0, netProfit: 0, recentTransactions: [] };
-  }
-}
-
 export async function getTransactions({
   search = "",
   type = "all",
@@ -432,6 +399,7 @@ export async function getAccountingTabData(tab, query = {}) {
             end,
             category: query.category || "all",
             paymentMethod: query.paymentMethod || "all",
+            profitOnly: true,
           }),
           getExpenseCategoryBreakdown({ start, end }),
         ]);
