@@ -40,7 +40,6 @@ export default async function InventoryPage({ searchParams }) {
   }
   const canManage = role === "ADMIN" || role === "MANAGER";
   const isCashier = role === "CASHIER";
-  const canStockOps = canManage || isCashier;
 
   const [productsResult, categories, suppliers, summary, movData] = await Promise.all([
     getProducts({ search, categoryId, supplierId, status, origin, sort, page }),
@@ -79,7 +78,7 @@ export default async function InventoryPage({ searchParams }) {
 
       {summary.outOfStock > 0 && (
         <div
-          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-800 dark:text-red-200"
           role="alert"
         >
           {t.inventoryOutStockBanner}
@@ -92,7 +91,7 @@ export default async function InventoryPage({ searchParams }) {
         totalProducts={summary.totalProducts}
         lowStock={summary.lowStock}
         outOfStock={summary.outOfStock}
-        totalInventoryCostValue={summary.totalInventoryCostValue}
+        totalInventoryCostValue={isCashier ? null : summary.totalInventoryCostValue}
         localProductsCount={summary.localProductsCount}
         importedProductsCount={summary.importedProductsCount}
         currency={t.currency}
@@ -110,6 +109,7 @@ export default async function InventoryPage({ searchParams }) {
         />
       </Suspense>
 
+      {canManage && (
       <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-muted/50" />}>
         <InventoryChartsClient
           receiptValueByMonth={summary.receiptValueByMonth}
@@ -118,12 +118,14 @@ export default async function InventoryPage({ searchParams }) {
           originAnalysis={summary.originAnalysis}
         />
       </Suspense>
+      )}
 
       <InventoryStockSection
         suppliers={suppliers}
         initialMovements={movData.movements}
         initialMovementsTotal={movData.total}
-        canStockOps={canStockOps}
+        canStockOps
+        canIssue={canManage}
       />
     </div>
   );

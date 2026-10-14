@@ -6,7 +6,28 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
-const Select = SelectPrimitive.Root
+// Base UI shows the raw value in <SelectValue /> unless the root gets `items`. Build that
+// map from the inline <SelectItem>s so triggers show the label ("الكل", not "all").
+function collectItems(children, out) {
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return;
+    if (child.type === SelectItem) {
+      if (child.props.value != null) out[String(child.props.value)] = child.props.children;
+      return;
+    }
+    if (child.props?.children) collectItems(child.props.children, out);
+  });
+  return out;
+}
+
+function Select({ items, children, ...props }) {
+  const derived = items ?? collectItems(children, {});
+  return (
+    <SelectPrimitive.Root items={Object.keys(derived).length ? derived : undefined} {...props}>
+      {children}
+    </SelectPrimitive.Root>
+  );
+}
 
 function SelectGroup({
   className,
@@ -27,7 +48,7 @@ function SelectValue({
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
-      className={cn("flex flex-1 text-left", className)}
+      className={cn("flex flex-1 text-start", className)}
       {...props} />
   );
 }

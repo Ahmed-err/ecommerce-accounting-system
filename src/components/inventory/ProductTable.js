@@ -28,21 +28,22 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Layers,
   Package,
   ChevronUp,
   ChevronDown,
   Printer,
   Download,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import ProductForm from "./ProductForm";
-import InventoryBarcode from "./InventoryBarcode";
 import InventoryReportActions from "./InventoryReportActions";
 import {
   deleteProduct,
   updateStockQuantity,
   bulkDeleteProducts,
   bulkSetCategory,
+  setProductsActive,
   updateProductOriginAction,
   createCategory,
   updateCategory,
@@ -53,6 +54,7 @@ import { cn, formatServerActionError } from "@/lib/utils";
 import { INVENTORY_PAGE_SIZE } from "@/lib/constants";
 import { parentError, sortForSelect } from "@/lib/category-tree";
 import { toast } from "sonner";
+import { unitLabel } from "@/lib/store/unit-label";
 
 const SORT_PAIRS = {
   name: ["name_asc", "name_desc"],
@@ -98,10 +100,10 @@ function stockStatus(p) {
 
 function originBadgeClass(origin) {
   return cn(
-    "inline-flex max-w-full items-center rounded-md border px-2.5 py-1 text-[11px] font-bold uppercase leading-snug tracking-wide sm:text-xs",
+    "inline-flex w-fit items-center rounded-md border px-2 py-0.5 text-xs font-semibold",
     origin === "IMPORTED"
-      ? "border-sky-400/45 bg-sky-500/20 text-sky-700 dark:text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]"
-      : "border-emerald-400/45 bg-emerald-500/20 text-emerald-700 dark:text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+      ? "border-sky-400/45 bg-sky-500/15 text-sky-800 dark:text-sky-200"
+      : "border-emerald-400/45 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
   );
 }
 
@@ -238,6 +240,18 @@ export default function ProductTable({
     pushParams((p) => p.set("page", String(newPage)));
   };
 
+  const setActive = async (ids, isActive) => {
+    if (!canManage || !ids.length) return;
+    const res = await setProductsActive(ids, isActive);
+    if (!res.success) {
+      toast.error(formatServerActionError(res.error) || t.genericError);
+      return;
+    }
+    toast.success(isActive ? t.inventoryShownDone : t.inventoryHiddenDone);
+    setSelected(new Set());
+    router.refresh();
+  };
+
   const handleDelete = async (id) => {
     if (!canManage) return;
     const deleteWarning =
@@ -260,7 +274,7 @@ export default function ProductTable({
     if (!canManage) return;
     const res = await updateStockQuantity(id, change);
     if (!res.success) {
-      toast.error(formatServerActionError(res.error) || t.genericError);
+      toast.error(res.error === "insufficient_stock" ? t.inventoryInsufficientStock : formatServerActionError(res.error) || t.genericError);
     } else {
       toast.success(lang === "ar" ? "تم التحديث" : "Updated");
       router.refresh();
@@ -460,6 +474,7 @@ export default function ProductTable({
     const res = await bulkDeleteProducts(Array.from(selected));
     if (res.success) {
       if (res.skipped) {
+        // Products with sales history stay on record; offer to hide them instead.
         toast.warning(
           t.inventoryBulkDeleteSkipped.replace("{count}", res.count).replace("{skipped}", res.skipped)
         );
@@ -486,7 +501,7 @@ export default function ProductTable({
     }
   };
 
-  const colCount = (canManage ? 1 : 0) + 11 + (isCashier ? 0 : 2);
+  const colCount = (canManage ? 1 : 0) + 10 + (isCashier ? 0 : 2);
 
   return (
     <div
@@ -555,6 +570,7 @@ export default function ProductTable({
                 <SelectItem value="in">{t.adminInventoryInStockFilter}</SelectItem>
                 <SelectItem value="low">{t.inventoryStatusLow}</SelectItem>
                 <SelectItem value="out">{t.inventoryStatusOut}</SelectItem>
+                <SelectItem value="hidden">{t.inventoryStatusHidden}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -705,6 +721,16 @@ export default function ProductTable({
               <Trash2 className={cn("h-4 w-4 shrink-0 opacity-95", isRTL ? "ms-1.5" : "me-1.5")} />
               {t.inventoryBulkDelete}
             </Button>
+            <Button
+              size="sm"
+              type="button"
+              variant="outline"
+              className="h-9 border-2 border-border bg-card font-bold text-foreground shadow-sm hover:bg-muted"
+              onClick={() => setActive(Array.from(selected), false)}
+            >
+              <EyeOff className={cn("h-4 w-4 shrink-0", isRTL ? "ms-1.5" : "me-1.5")} />
+              {t.inventoryBulkHide}
+            </Button>
             <Select value={bulkCategoryId || "x"} onValueChange={(v) => setBulkCategoryId(v === "x" ? "" : v)}>
               <SelectTrigger
                 className="h-9 min-w-[10rem] max-w-[14rem] border-2 border-border bg-card text-sm font-semibold text-foreground shadow-sm"
@@ -773,8 +799,7 @@ export default function ProductTable({
                   isRTL={isRTL}
                 />
               </th>
-              <th className="min-w-[11rem] px-4 py-3">{t.inventoryOriginLabel}</th>
-              <th className="px-4 py-3">{t.inventoryColBarcode}</th>
+              <th className="px-4 py-3">{t.inventoryOriginLabel}</th>
               <th className="px-4 py-3">{t.categoriesTab}</th>
               <th className="px-4 py-3">
                 <SortHeader
@@ -860,7 +885,7 @@ export default function ProductTable({
                         />
                       </td>
                     )}
-                    <td className="flex min-w-[220px] items-center gap-3 px-4 py-3">
+                    <td className="flex min-w-[220px] max-w-[22rem] items-center gap-3 px-4 py-3">
                       <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-border bg-muted group-hover:border-amber-500/30">
                         {p.images?.[0] ? (
                           <Image
@@ -884,49 +909,18 @@ export default function ProductTable({
                         <div className="truncate font-bold text-foreground group-hover:text-accent-text">
                           {displayName(p, lang)}
                         </div>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                          <span
-                            className={originBadgeClass(p.origin)}
-                            title={
-                              p.origin === "IMPORTED"
-                                ? t.inventoryOriginImported
-                                : t.inventoryOriginLocal
-                            }
-                          >
-                            {p.origin === "IMPORTED"
-                              ? t.inventoryOriginImportedBadge
-                              : t.inventoryOriginLocalBadge}
-                          </span>
-                        </div>
-                        <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
-                          <Layers className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{p.name !== displayName(p, lang) ? p.name : ""}</span>
-                        </div>
+                        {p.name !== displayName(p, lang) ? (
+                          <div className="mt-0.5 truncate text-xs text-muted-foreground" dir="auto">{p.name}</div>
+                        ) : null}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                      {p.sku}
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground" dir="ltr">
+                      <div className="whitespace-nowrap uppercase">{p.sku}</div>
+                      {p.barcode ? <div className="mt-1 whitespace-nowrap opacity-80">{p.barcode}</div> : null}
                     </td>
-                    <td className="min-w-[11rem] align-top px-4 py-3">
-                      <div className="flex flex-col gap-2">
-                        <span
-                          className={originBadgeClass(p.origin)}
-                          title={
-                            p.countryOfOrigin
-                              ? `${t.inventoryCountryOfOrigin}: ${p.countryOfOrigin}`
-                              : p.origin === "IMPORTED"
-                                ? t.inventoryOriginImported
-                                : t.inventoryOriginLocal
-                          }
-                        >
-                          {p.origin === "IMPORTED"
-                            ? t.inventoryOriginImportedBadge
-                            : t.inventoryOriginLocalBadge}
-                        </span>
-                        {p.origin === "IMPORTED" && p.countryOfOrigin ? (
-                          <span className="text-[10px] text-muted-foreground">{p.countryOfOrigin}</span>
-                        ) : null}
-                        {canManage && (
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1">
+                        {canManage ? (
                           <Select
                             value={p.origin || "LOCAL"}
                             onValueChange={async (val) => {
@@ -945,19 +939,32 @@ export default function ProductTable({
                               } else router.refresh();
                             }}
                           >
-                            <SelectTrigger className="h-8 w-full min-w-[8.5rem] max-w-[11rem] border-border bg-background text-[11px] text-foreground">
+                            <SelectTrigger
+                              className={cn("h-8 w-[7.5rem]", originBadgeClass(p.origin))}
+                              dir={isRTL ? "rtl" : "ltr"}
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="border-border bg-popover text-popover-foreground">
-                              <SelectItem value="LOCAL">{t.inventoryOriginLocal}</SelectItem>
-                              <SelectItem value="IMPORTED">{t.inventoryOriginImported}</SelectItem>
+                              <SelectItem value="LOCAL">{t.inventoryOriginLocalBadge}</SelectItem>
+                              <SelectItem value="IMPORTED">{t.inventoryOriginImportedBadge}</SelectItem>
                             </SelectContent>
                           </Select>
+                        ) : (
+                          <span className={originBadgeClass(p.origin)}>
+                            {p.origin === "IMPORTED"
+                              ? t.inventoryOriginImportedBadge
+                              : t.inventoryOriginLocalBadge}
+                          </span>
                         )}
+                        {p.countryOfOrigin ? (
+                          <span className="text-xs text-muted-foreground">{p.countryOfOrigin}</span>
+                        ) : null}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.barcode || "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.category?.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {(lang === "ar" && p.category?.nameAr) || p.category?.name}
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <span
@@ -972,7 +979,7 @@ export default function ProductTable({
                           {rowLow && <AlertTriangle className="ms-1 inline h-3 w-3 animate-pulse" />}
                         </span>
                         {canManage && (
-                          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                          <div className="flex gap-1 opacity-60 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -997,13 +1004,13 @@ export default function ProductTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.unit || "pcs"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">{unitLabel(p.unit, t)}</td>
                     {!isCashier && (
                       <>
-                        <td className="regular-nums px-4 py-3 text-muted-foreground">
+                        <td className="regular-nums whitespace-nowrap px-4 py-3 text-muted-foreground">
                           {p.purchasePrice != null ? `${Number(p.purchasePrice).toLocaleString()} ${t.currency}` : "—"}
                         </td>
-                        <td className="regular-nums px-4 py-3 font-medium text-foreground">
+                        <td className="regular-nums whitespace-nowrap px-4 py-3 font-medium text-foreground">
                           {p.sellingPrice != null ? `${Number(p.sellingPrice).toLocaleString()} ${t.currency}` : "—"}
                         </td>
                       </>
@@ -1013,7 +1020,7 @@ export default function ProductTable({
                       <div className={cn("flex flex-col gap-1.5", isRTL ? "items-end" : "items-start")}>
                         <span
                           className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+                            "whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold",
                             st === "ok" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
                             rowLow && "bg-amber-500/15 text-amber-700 dark:text-amber-300",
                             st === "out" && "bg-red-500/15 text-red-700 dark:text-red-400"
@@ -1025,18 +1032,13 @@ export default function ProductTable({
                         </span>
                         {p.isActive === false ? (
                           <span
-                            className="rounded-full bg-zinc-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-zinc-400"
+                            className="whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground"
                             title={t.inventoryInactiveBadge}
                           >
                             {t.inventoryInactiveBadge}
                           </span>
                         ) : null}
                       </div>
-                      {p.barcode || p.sku ? (
-                        <div className="mt-2 max-w-[140px] rounded border border-border bg-card p-1 [&_svg]:max-h-12">
-                          <InventoryBarcode value={p.barcode || p.sku} />
-                        </div>
-                      ) : null}
                     </td>
                     <td className={cn("px-4 py-3", isRTL ? "text-left" : "text-right")}>
                       <div className={cn("flex flex-wrap gap-1", isRTL ? "justify-start" : "justify-end")}>
@@ -1056,7 +1058,18 @@ export default function ProductTable({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              onClick={() => setActive([p.id], p.isActive === false)}
+                              title={p.isActive === false ? t.inventoryShow : t.inventoryHide}
+                              aria-label={p.isActive === false ? t.inventoryShow : t.inventoryHide}
+                            >
+                              {p.isActive === false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               onClick={() => openEdit(p)}
+                              aria-label={t.edit}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>

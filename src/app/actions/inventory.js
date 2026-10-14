@@ -190,8 +190,10 @@ export async function getInventorySummaryAction() {
 
 export async function getStockMovementsAction(params) {
   try {
-    await ensureStaff();
-    return await listStockMovements(params || {});
+    const u = await ensureStaff();
+    const out = await listStockMovements(params || {});
+    if (u.role !== "CASHIER") return out;
+    return { ...out, movements: out.movements.map((m) => ({ ...m, unitCost: null })) };
   } catch (error) {
     console.error("Failed to fetch stock movements:", error);
     return { movements: [], total: 0 };

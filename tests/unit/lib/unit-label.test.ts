@@ -6,6 +6,10 @@ describe("unitLabel", () => {
   it("reads the default piece units as one Arabic word", () => {
     for (const u of [undefined, "", "pcs", "PCS", " piece "]) expect(unitLabel(u, ar)).toBe("القطعة");
   });
+  it("translates the common English units", () => {
+    expect(unitLabel("roll", ar)).toBe("لفة");
+    expect(unitLabel("Box", ar)).toBe("كرتونة");
+  });
   it("keeps any other unit as entered", () => {
     expect(unitLabel("متر", ar)).toBe("متر");
   });

@@ -46,7 +46,7 @@ export default function InventoryStatsClient({
       href: `${base}?status=out`,
       color: outOfStock > 0 ? "red" : "emerald",
     },
-    {
+    totalInventoryCostValue != null && {
       label: t.adminInventoryValueCost,
       value: `${Math.round(totalInventoryCostValue).toLocaleString()} ${currency}`,
       icon: DollarSign,
@@ -67,7 +67,7 @@ export default function InventoryStatsClient({
       href: `${base}?origin=IMPORTED`,
       color: "imported",
     },
-  ];
+  ].filter(Boolean);
 
   const colorMap = {
     blue: { bg: "bg-blue-500/10", icon: "text-blue-500" },
@@ -114,7 +114,7 @@ export default function InventoryStatsClient({
               <p className="mb-1 text-xs font-medium text-muted-foreground">
                 {stat.label}
               </p>
-              <p className="regular-nums text-xl font-bold text-foreground">
+              <p className="regular-nums whitespace-nowrap text-xl font-bold text-foreground">
                 {stat.value}
               </p>
             </div>

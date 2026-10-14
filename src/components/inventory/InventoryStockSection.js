@@ -33,6 +33,7 @@ export default function InventoryStockSection({
   initialMovements = [],
   initialMovementsTotal = 0,
   canStockOps = true,
+  canIssue = false,
 }) {
   const { lang, isRTL } = useLanguage();
   const t = useT();
@@ -44,12 +45,6 @@ export default function InventoryStockSection({
   const [mPage, setMPage] = useState(1);
   const [mType, setMType] = useState("");
   const [loading, setLoading] = useState(false);
-  const skipNextFetch = useRef(true);
-
-  useEffect(() => {
-    setMovements(initialMovements);
-    setMTotal(initialMovementsTotal);
-  }, [initialMovements, initialMovementsTotal]);
 
   const reloadMovements = useCallback(
     async (page, typeFilter) => {
@@ -72,13 +67,15 @@ export default function InventoryStockSection({
     [t]
   );
 
+  // Page 1 of all types comes from the server; fetch only when the user pages or filters.
   useEffect(() => {
-    if (skipNextFetch.current) {
-      skipNextFetch.current = false;
+    if (mPage === 1 && !mType) {
+      setMovements(initialMovements);
+      setMTotal(initialMovementsTotal);
       return;
     }
     reloadMovements(mPage, mType);
-  }, [mPage, mType, reloadMovements]);
+  }, [mPage, mType, reloadMovements, initialMovements, initialMovementsTotal]);
 
   const mPages = Math.ceil(mTotal / 15) || 1;
 
@@ -107,6 +104,7 @@ export default function InventoryStockSection({
               <ArrowDownCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               {t.inventoryReceiveStock}
             </Button>
+            {canIssue && (
             <Button
               type="button"
               variant="outline"
@@ -116,6 +114,7 @@ export default function InventoryStockSection({
               <ArrowUpCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               {t.inventoryIssueStock}
             </Button>
+            )}
           </div>
         )}
       </div>
@@ -148,7 +147,7 @@ export default function InventoryStockSection({
             {loading && movements.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">
-                  …
+                  {t.inventoryStockLoading}
                 </td>
               </tr>
             ) : movements.length === 0 ? (
@@ -176,13 +175,16 @@ export default function InventoryStockSection({
                     </span>
                   </td>
                   <td className="px-3 py-2">
-                    <div className="font-medium text-foreground">{m.product?.name}</div>
+                    <div className="font-medium text-foreground">
+                      {(lang === "ar" && m.product?.nameAr) || m.product?.name}
+                    </div>
                     <div className="font-mono text-[10px] text-muted-foreground">{m.product?.sku}</div>
                   </td>
                   <td className="regular-nums px-3 py-2 font-semibold text-foreground">{m.quantity}</td>
                   <td className="max-w-[200px] truncate px-3 py-2 text-xs text-muted-foreground">
-                    {[m.reason, m.notes, m.user?.name || m.user?.email].filter(Boolean).join(" · ") ||
-                      "—"}
+                    {[m.reason && (t[`stockReason${m.reason}`] || m.reason), m.notes, m.user?.name || m.user?.email]
+                      .filter(Boolean)
+                      .join(" · ") || "—"}
                   </td>
                 </tr>
               ))
@@ -435,7 +437,7 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
       onOpenChange(false);
       onDone();
     } else {
-      toast.error(formatServerActionError(res.error) || t.genericError);
+      toast.error(res.error === "insufficient_stock" ? t.inventoryInsufficientStock : formatServerActionError(res.error) || t.genericError);
     }
   };
 
