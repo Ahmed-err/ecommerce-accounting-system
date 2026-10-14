@@ -501,7 +501,7 @@ export default function ProductTable({
     }
   };
 
-  const colCount = (canManage ? 1 : 0) + 10 + (isCashier ? 0 : 2);
+  const colCount = (canManage ? 1 : 0) + 6 + (isCashier ? 0 : 2);
 
   return (
     <div
@@ -810,7 +810,6 @@ export default function ProductTable({
                   isRTL={isRTL}
                 />
               </th>
-              <th className="px-4 py-3">{t.inventoryColUnit}</th>
               {!isCashier && (
                 <>
                   <th className="px-4 py-3">
@@ -833,16 +832,6 @@ export default function ProductTable({
                   </th>
                 </>
               )}
-              <th className="px-4 py-3">
-                <SortHeader
-                  label={t.inventoryColMinStock}
-                  colKey="minStock"
-                  currentSort={currentSort}
-                  onToggle={toggleSort}
-                  isRTL={isRTL}
-                />
-              </th>
-              <th className="px-4 py-3">{t.inventoryColStatus}</th>
               <th className={cn("px-4 py-3", isRTL ? "text-left" : "text-right")}>{t.actions}</th>
             </tr>
           </thead>
@@ -975,9 +964,33 @@ export default function ProductTable({
                             st === "ok" && "text-emerald-700 dark:text-emerald-400"
                           )}
                         >
-                          {p.stock}
-                          {rowLow && <AlertTriangle className="ms-1 inline h-3 w-3 animate-pulse" />}
+                          {p.stock}{" "}
+                          <span className="text-xs font-medium text-muted-foreground">{unitLabel(p.unit, t)}</span>
+                          {rowLow && <AlertTriangle className="ms-1 inline h-3 w-3" />}
                         </span>
+                        <span className="text-xs text-muted-foreground">
+                          {t.inventoryColMinStock}: <span className="regular-nums">{p.minStock}</span>
+                        </span>
+                        {st !== "ok" || p.isActive === false ? (
+                          <div className="flex flex-wrap gap-1">
+                            {st !== "ok" ? (
+                              <span
+                                className={cn(
+                                  "w-fit whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold",
+                                  rowLow && "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+                                  st === "out" && "bg-red-500/15 text-red-700 dark:text-red-400"
+                                )}
+                              >
+                                {rowLow ? t.inventoryStatusBadgeLow : t.inventoryStatusBadgeOut}
+                              </span>
+                            ) : null}
+                            {p.isActive === false ? (
+                              <span className="w-fit whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                                {t.inventoryInactiveBadge}
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : null}
                         {canManage && (
                           <div className="flex gap-1 opacity-60 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                             <button
@@ -1004,7 +1017,6 @@ export default function ProductTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">{unitLabel(p.unit, t)}</td>
                     {!isCashier && (
                       <>
                         <td className="regular-nums whitespace-nowrap px-4 py-3 text-muted-foreground">
@@ -1015,32 +1027,7 @@ export default function ProductTable({
                         </td>
                       </>
                     )}
-                    <td className="regular-nums px-4 py-3 text-muted-foreground">{p.minStock}</td>
-                    <td className="px-4 py-3">
-                      <div className={cn("flex flex-col gap-1.5", isRTL ? "items-end" : "items-start")}>
-                        <span
-                          className={cn(
-                            "whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold",
-                            st === "ok" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-                            rowLow && "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-                            st === "out" && "bg-red-500/15 text-red-700 dark:text-red-400"
-                          )}
-                        >
-                          {st === "ok" && t.inventoryStatusBadgeOk}
-                          {rowLow && t.inventoryStatusBadgeLow}
-                          {st === "out" && t.inventoryStatusBadgeOut}
-                        </span>
-                        {p.isActive === false ? (
-                          <span
-                            className="whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground"
-                            title={t.inventoryInactiveBadge}
-                          >
-                            {t.inventoryInactiveBadge}
-                          </span>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td className={cn("px-4 py-3", isRTL ? "text-left" : "text-right")}>
+                    <td className={cn("px-3 py-3", isRTL ? "text-left" : "text-right")}>
                       <div className={cn("flex flex-wrap gap-1", isRTL ? "justify-start" : "justify-end")}>
                         <Button
                           type="button"
