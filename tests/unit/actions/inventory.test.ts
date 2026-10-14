@@ -87,7 +87,9 @@ describe("actions/inventory", () => {
     (auth as any).mockResolvedValue({ user: { id: "c1", role: "CASHIER" } });
     db.product.update.mockResolvedValue({ id: "p1", name: "P", stock: 5, minStock: 1, purchasePrice: 3 });
     const { receiveStockAction, issueStockAction } = await import("@/app/actions/inventory");
-    expect(await receiveStockAction({ productId: "p1", quantity: 2 })).toEqual({ success: true });
+    expect(await receiveStockAction({ productId: "p1", quantity: 2, unitCost: 999 })).toEqual({ success: true });
+    // A cashier's typed cost is ignored; the product's cost is recorded.
+    expect(db.stockMovement.create).toHaveBeenCalledWith({ data: expect.objectContaining({ unitCost: 3 }) });
     const out = await issueStockAction({ productId: "p1", quantity: 1 });
     expect(out.success).toBe(false);
     expect(db.stockMovement.create).toHaveBeenCalledTimes(1);

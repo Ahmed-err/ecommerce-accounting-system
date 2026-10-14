@@ -125,7 +125,20 @@ export function returnWindowOpen(order, now = Date.now()) {
 }
 
 /**
- * Check requested return lines against the order. Prices always come from the order line;
+ * Share of the list price the customer actually paid for the items: a coupon or POS discount is
+ * spread over every line, delivery is not refunded. 1 when the order has no total loaded.
+ */
+function paidShare(order) {
+  if (order.totalAmount == null) return 1;
+  const listed = order.items.reduce((s, it) => s + it.quantity * num(it.price), 0);
+  if (listed <= 0) return 1;
+  const paidForItems = num(order.totalAmount) - num(order.shippingCost);
+  return Math.min(1, Math.max(0, paidForItems / listed));
+}
+
+/**
+ * Check requested return lines against the order. Prices always come from the order line
+ * (refund scaled by what was paid, see paidShare);
  * quantities are capped at ordered minus already returned (pending and approved returns).
  * `order.items` and `order.returns[].items` must be loaded.
  */
@@ -146,6 +159,7 @@ export function checkReturnLines(order, lines) {
     out.push({ productId: req.productId, quantity: qty, price: num(line.price) });
   }
   if (!out.length) return { ok: false, code: "RETURN_NO_ITEMS" };
-  const refundAmount = Math.round(out.reduce((s, it) => s + it.quantity * it.price, 0) * 100) / 100;
+  const listed = out.reduce((s, it) => s + it.quantity * it.price, 0);
+  const refundAmount = Math.round(listed * paidShare(order) * 100) / 100;
   return { ok: true, lines: out, refundAmount };
 }

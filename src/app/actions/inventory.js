@@ -543,7 +543,8 @@ export async function receiveStockAction(raw) {
         reason: "RECEIVE",
         userId: u.id,
         supplierId: supplierId || null,
-        unitCost: unitCost ?? undefined,
+        // Cashiers don't see costs, so they don't set them either; the product's cost is used.
+        unitCost: u.role === "CASHIER" ? undefined : (unitCost ?? undefined),
         notes: notes || null,
       })
     );
@@ -663,6 +664,7 @@ export async function searchProductsForStock({ search = "", limit = 80 }) {
         ? {
             OR: [
               { name: { contains: q, mode: "insensitive" } },
+              { nameAr: { contains: q, mode: "insensitive" } },
               { sku: { contains: q, mode: "insensitive" } },
               { barcode: { contains: q, mode: "insensitive" } },
             ],
@@ -671,7 +673,7 @@ export async function searchProductsForStock({ search = "", limit = 80 }) {
     };
     return await db.product.findMany({
       where,
-      select: { id: true, name: true, sku: true, stock: true },
+      select: { id: true, name: true, nameAr: true, sku: true, stock: true },
       orderBy: { name: "asc" },
       take: Math.min(Number(limit) || 80, 150),
     });

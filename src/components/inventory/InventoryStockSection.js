@@ -321,7 +321,7 @@ function StockDialogReceive({ open, onOpenChange, suppliers, onDone }) {
               <SelectContent className="z-[100] max-h-56 border-border bg-popover text-popover-foreground">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.sku}) — {p.stock}
+                    {(lang === "ar" && p.nameAr) || p.name} ({p.sku}) — {p.stock}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -472,7 +472,7 @@ function StockDialogIssue({ open, onOpenChange, onDone }) {
               <SelectContent className="z-[100] max-h-56 border-border bg-popover text-popover-foreground">
                 {options.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.sku}) — {p.stock}
+                    {(lang === "ar" && p.nameAr) || p.name} ({p.sku}) — {p.stock}
                   </SelectItem>
                 ))}
               </SelectContent>
