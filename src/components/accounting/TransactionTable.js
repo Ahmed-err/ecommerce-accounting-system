@@ -11,7 +11,7 @@ import { deleteTransaction } from "@/app/actions/accounting";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { isSystemGeneratedTransaction } from "@/lib/accounting";
+import { isSystemTransaction } from "@/lib/ledger";
 
 const CATEGORIES = [
   "Sales", "Salaries", "Rent", "Supplies", "Utilities",
@@ -36,7 +36,7 @@ export default function TransactionTable({ initialTransactions, total, searchPar
 
   function canDeleteTransaction(tx) {
     if (!tx || !role) return false;
-    if (isSystemGeneratedTransaction(tx)) return false;
+    if (isSystemTransaction(tx)) return false;
     if (role === "ADMIN") return true;
     if (role === "MANAGER") return tx.type === "OUTGOING";
     return false;

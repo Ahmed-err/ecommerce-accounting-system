@@ -19,36 +19,21 @@ import {
   getPlTrend,
   getCashFlowSeries,
   getReportMonthlySummary,
-  isSystemGeneratedTransaction,
 } from "@/lib/accounting";
+import { bookDebtPayment, isEditableTransaction } from "@/lib/ledger";
 import {
   transactionMutationSchema,
   ledgerInvoiceCreateSchema,
   ledgerInvoiceIdSchema,
 } from "@/lib/schemas/accounting";
 
+// Accounting is admin-only, like the page (owner, 2026-10-15; A-13).
 async function ensureAccountingView() {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+  if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized: Accounting access denied.");
   }
   return session;
-}
-
-async function ensureAccountingAdmin() {
-  const session = await ensureAccountingView();
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized: Admin only.");
-  }
-  return session;
-}
-
-function canRoleDeleteTransaction(role, tx) {
-  if (!tx) return false;
-  if (isSystemGeneratedTransaction(tx)) return false;
-  if (role === "ADMIN") return true;
-  if (role === "MANAGER") return tx.type === "OUTGOING";
-  return false;
 }
 
 function parseDateInput(v) {
@@ -60,15 +45,12 @@ function parseDateInput(v) {
 export async function getAccountingPermissions() {
   try {
     const session = await ensureAccountingView();
-    const canDelete =
-      session.user.role === "ADMIN" ||
-      (session.user.role === "MANAGER");
     return {
       ok: true,
       role: session.user.role,
-      canDelete,
-      canBulkDelete: canDelete,
-      canMarkLedgerPaid: session.user.role === "ADMIN",
+      canDelete: true,
+      canBulkDelete: true,
+      canMarkLedgerPaid: true,
       canExportAll: true,
     };
   } catch {
@@ -170,10 +152,7 @@ export async function getCategories() {
 
 export async function createTransaction(data) {
   try {
-    const session = await ensureAccountingView();
-    if (session.user.role === "MANAGER" && data?.type === "INCOMING") {
-      return { success: false, error: "Unauthorized: Managers cannot add income entries." };
-    }
+    await ensureAccountingView();
     const parsed = transactionMutationSchema.safeParse(data);
     if (!parsed.success) {
       const msg = parsed.error.issues[0]?.message || "validation_failed";
@@ -209,13 +188,11 @@ export async function createTransaction(data) {
 
 export async function updateTransaction(id, data) {
   try {
-    const session = await ensureAccountingView();
+    await ensureAccountingView();
     const existing = await db.transaction.findUnique({ where: { id } });
-    if (existing && isSystemGeneratedTransaction(existing)) {
+    if (!existing) return { success: false, error: "not_found" };
+    if (!isEditableTransaction(existing)) {
       return { success: false, error: "locked_system_transaction" };
-    }
-    if (session.user.role === "MANAGER" && data?.type === "INCOMING") {
-      return { success: false, error: "Unauthorized" };
     }
     const parsed = transactionMutationSchema.safeParse(data);
     if (!parsed.success) {
@@ -249,19 +226,13 @@ export async function updateTransaction(id, data) {
 
 export async function deleteTransaction(id) {
   try {
-    const session = await ensureAccountingView();
+    await ensureAccountingView();
     const existing = await db.transaction.findUnique({ where: { id } });
     if (!existing) {
       return { success: false, error: "not_found" };
     }
-    if (!canRoleDeleteTransaction(session.user.role, existing)) {
-      if (isSystemGeneratedTransaction(existing)) {
-        return { success: false, error: "locked_system_transaction" };
-      }
-      if (session.user.role === "MANAGER" && existing.type === "INCOMING") {
-        return { success: false, error: "manager_cannot_delete_income" };
-      }
-      return { success: false, error: "Unauthorized" };
+    if (!isEditableTransaction(existing)) {
+      return { success: false, error: "locked_system_transaction" };
     }
     await db.transaction.delete({ where: { id } });
 
@@ -277,12 +248,12 @@ export async function deleteTransaction(id) {
 
 export async function bulkDeleteTransactions(ids) {
   try {
-    const session = await ensureAccountingView();
+    await ensureAccountingView();
     if (!Array.isArray(ids) || ids.length === 0) {
       return { success: false, error: "no_ids" };
     }
     const rows = await db.transaction.findMany({ where: { id: { in: ids } } });
-    const deletable = rows.filter((r) => canRoleDeleteTransaction(session.user.role, r)).map((r) => r.id);
+    const deletable = rows.filter(isEditableTransaction).map((r) => r.id);
     if (deletable.length === 0) {
       return { success: false, error: "nothing_deletable" };
     }
@@ -313,6 +284,7 @@ export async function createLedgerInvoice(raw) {
         invoiceNumber: nextLedgerNumber(),
         direction: p.direction,
         partyName: p.partyName,
+        partyPhone: p.partyPhone || null,
         amount: p.amount,
         dueDate: p.dueDate ? parseDateInput(p.dueDate) : null,
         notes: p.notes || null,
@@ -334,9 +306,16 @@ export async function markLedgerInvoicePaid(raw) {
     const parsed = ledgerInvoiceIdSchema.safeParse(raw);
     if (!parsed.success) return { success: false, error: "validation_failed" };
     const now = new Date();
-    const invoice = await db.ledgerInvoice.update({
-      where: { id: parsed.data.id },
-      data: { status: "PAID", paidAt: now },
+    // Paid once only; the cash book gets the money in the same step.
+    const invoice = await db.$transaction(async (tx) => {
+      const res = await tx.ledgerInvoice.updateMany({
+        where: { id: parsed.data.id, status: "PENDING" },
+        data: { status: "PAID", paidAt: now },
+      });
+      if (res.count === 0) throw new Error("already_paid");
+      const paid = await tx.ledgerInvoice.findUnique({ where: { id: parsed.data.id } });
+      await bookDebtPayment(tx, paid);
+      return paid;
     });
     await logAction("MARK_LEDGER_PAID", { id: invoice.id });
     revalidatePath("/admin/accounting");

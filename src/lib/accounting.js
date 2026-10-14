@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/prisma";
+import { isSystemTransaction } from "@/lib/ledger";
 
 export function n(v) {
   if (v == null) return 0;
@@ -33,14 +34,8 @@ export function isPurchaseOutgoing(tx) {
   return /inventory|purchase|supplier|stock|supplies/.test(c);
 }
 
-export function isSystemGeneratedTransaction(tx) {
-  const d = (tx.description || "").trim();
-  if (/^POS Sale\b/i.test(d)) return true;
-  if (/^Order #/i.test(d)) return true;
-  if (/^Order Cancellation/i.test(d)) return true;
-  if (/^Order Reinstated/i.test(d)) return true;
-  return false;
-}
+/** Rows written by the app (orders, POS, refunds, payments); they can't be edited by hand. */
+export const isSystemGeneratedTransaction = isSystemTransaction;
 
 export function resolveRange(preset, customFrom, customTo) {
   const now = new Date();

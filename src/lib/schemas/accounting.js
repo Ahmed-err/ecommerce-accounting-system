@@ -18,6 +18,7 @@ export const manualExpenseSchema = transactionMutationSchema.extend({
 export const ledgerInvoiceCreateSchema = z.object({
   direction: z.enum(["PAYABLE", "RECEIVABLE"]),
   partyName: z.string().trim().min(1, "party_required").max(200, "party_long"),
+  partyPhone: z.string().trim().max(40).optional().nullable(),
   amount: z.coerce.number().positive("amount_invalid"),
   dueDate: z.union([z.coerce.date(), z.string()]).optional().nullable(),
   notes: z.string().trim().max(4000).optional().nullable(),

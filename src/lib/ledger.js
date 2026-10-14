@@ -87,3 +87,56 @@ export async function reverseOrderCash(tx, order, refunded = 0) {
     },
   });
 }
+
+/** Money paid to a supplier (at purchase or later). Cash only: stock is costed when it sells. */
+export function bookSupplierPayment(tx, { purchase, amount, method = null }) {
+  if (!(num(amount) > 0)) return null;
+  return tx.transaction.create({
+    data: {
+      type: "OUTGOING",
+      amount: round2(num(amount)),
+      description: `Supplier payment - ${purchase.purchaseNumber}`,
+      category: "Supplier payment",
+      reference: purchase.purchaseNumber,
+      source: "SUPPLIER",
+      sourceId: purchase.id,
+      paymentMethod: method || purchase.paymentMethod || null,
+      date: new Date(),
+    },
+  });
+}
+
+/** A salary paid out; counts as an expense in profit. */
+export function bookSalaryPayment(tx, record) {
+  if (!(num(record.netSalary) > 0)) return null;
+  const period = `${record.year}-${String(record.month).padStart(2, "0")}`;
+  return tx.transaction.create({
+    data: {
+      type: "OUTGOING",
+      amount: round2(num(record.netSalary)),
+      description: `Salary ${period}${record.user?.name ? ` - ${record.user.name}` : ""}`,
+      category: "Salaries",
+      reference: period,
+      source: "SALARY",
+      sourceId: record.id,
+      date: new Date(),
+    },
+  });
+}
+
+/** A receivable collected or a payable paid (LedgerInvoice marked paid). */
+export function bookDebtPayment(tx, invoice) {
+  const incoming = invoice.direction === "RECEIVABLE";
+  return tx.transaction.create({
+    data: {
+      type: incoming ? "INCOMING" : "OUTGOING",
+      amount: round2(num(invoice.amount)),
+      description: `${incoming ? "Debt collected" : "Bill paid"} - ${invoice.invoiceNumber} (${invoice.partyName})`,
+      category: incoming ? "Debt collected" : "Bills",
+      reference: invoice.orderId || invoice.invoiceNumber,
+      source: "DEBT",
+      sourceId: invoice.id,
+      date: new Date(),
+    },
+  });
+}
