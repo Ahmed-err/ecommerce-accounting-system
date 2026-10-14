@@ -1411,7 +1411,8 @@ const dictionary = {
   "unitBox": "box",
   "unitMeter": "m",
   "unitSet": "set",
-  "unitPack": "pack"
+  "unitPack": "pack",
+  "inventoryAllCategories": "All categories"
 };
 
 export default dictionary;

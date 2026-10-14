@@ -1411,7 +1411,8 @@ const dictionary = {
   "unitBox": "كرتونة",
   "unitMeter": "متر",
   "unitSet": "طقم",
-  "unitPack": "عبوة"
+  "unitPack": "عبوة",
+  "inventoryAllCategories": "كل الأقسام"
 };
 
 export default dictionary;

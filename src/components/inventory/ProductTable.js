@@ -585,7 +585,7 @@ export default function ProductTable({
                 <SelectValue placeholder={t.categoriesTab} />
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground rounded-xl">
-                <SelectItem value="all">{t.inventoryStatusAll}</SelectItem>
+                <SelectItem value="all">{t.inventoryAllCategories}</SelectItem>
                 {sortForSelect(categoriesState).map((c) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     {c.depth ? "— " : ""}{c.name}
