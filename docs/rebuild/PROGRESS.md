@@ -6,7 +6,7 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 ## Now
 
 - **Current part:** P3.3 Orders (branch `rebuild/p3-3-orders`)
-- **Step:** 4 — test: PR open, CI decides (answers in `parts/P3.3.md`)
+- **Step:** 5 — PR #32 green (e2e, screens, unit, quality); waiting for owner merge (adds `Order.deliveredAt` migration on deploy)
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
 - **Built (2026-10-14, P3.3):** `src/lib/order-workflow.js` status rules per role + cancel/reinstate effects (A-23/A-25/A-26); returns priced from the order and capped by earlier returns; approving books the refund; `Order.deliveredAt` migration (return window); store credit removed; sales = not cancelled everywhere; dead `order-management.js` (A-24) removed. Still `ar-EG` digits in accounting, employees, reviews (their parts).
 - **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
@@ -43,7 +43,7 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.7 | Content, SEO, PWA | done | `rebuild/p2-7-content` | parts/P2.7.md |
 | P3.1 | Admin shell & dashboard | done | #30 | parts/P3.1.md |
 | P3.2 | Inventory | done | #31 | parts/P3.2.md |
-| P3.3 | Orders | test | `rebuild/p3-3-orders` | parts/P3.3.md; carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
+| P3.3 | Orders | review | #32 | parts/P3.3.md; carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
 | P3.4 | POS | todo | | |
 | P3.5 | Accounting | todo | | |
 | P3.6 | Suppliers & purchases | todo | | |
