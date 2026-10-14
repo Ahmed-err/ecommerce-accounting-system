@@ -5,13 +5,14 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P3.2 Inventory (branch `rebuild/p3-2-inventory`)
-- **Step:** 5 — PR #31 green (e2e, screens incl. new admin-inventory shots, unit, quality); waiting for owner merge
+- **Current part:** P3.3 Orders (branch `rebuild/p3-3-orders`)
+- **Step:** 5 — PR #32 green (e2e, screens, unit, quality); waiting for owner merge (adds `Order.deliveredAt` migration on deploy)
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
+- **Built (2026-10-14, P3.3):** `src/lib/order-workflow.js` status rules per role + cancel/reinstate effects (A-23/A-25/A-26); returns priced from the order and capped by earlier returns; approving books the refund; `Order.deliveredAt` migration (return window); store credit removed; sales = not cancelled everywhere; dead `order-management.js` (A-24) removed. Still `ar-EG` digits in accounting, employees, reviews (their parts).
 - **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
 - **Built (2026-10-13):** dashboard from orders (no cancelled) + grouped SQL chart + real period change, Arabic labels; one role map `src/lib/staff-access.js` for proxy/pages/sidebar (checked locally: admin, manager, cashier menus + cashier redirects); read-only access table replaces the permission matrix; Himmat lockup + page title in admin header. Local `/pos` load hung in dev (low memory); CI e2e `pos-cashier` decides.
-- **Done:** P3.1 — #30 merged, deployed 2026-10-13; live `/admin` and `/pos` send signed-out visitors to login.
-- **Next:** P3.2 audit. Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
+- **Done:** P3.2 — #31 merged, deployed 2026-10-14; live `/admin/inventory` sends signed-out visitors to login, store pages 200. Signed-in checks not done live. Production counts for the audit were not read (permission blocked).
+- **Next:** P3.3 audit (owns A-24/A-25/A-26 and the `deliveredAt` carry-over). Owner (optional): log in as a customer on the live site and open an order + its invoice to confirm P2.6. Owner: **set up email sending (SMTP on Vercel) — reminder requested 2026-10-08, password-reset emails need it**; (optional) fix zone name "جبرةشمال" in admin; Owner: confirm trust-badge claims (free delivery, warranty, 24/7); 23 photos in `docs/rebuild/data/p1-3-photos-to-replace.csv` (17 missing; Hafab cooker + Unionaire AC originals likely deleted from Cloudinary); fill 106 zero prices; rotate the Neon DB password.
 - **Decisions (user, 2026-10-03):** refine, don't redesign; must not look AI-made. Name: **Himmat / همّت** leads; shop name + "المدير العام: رياض همت" as small labels. Defaults Arabic + light. Footer credit "تطوير: Sarmadax" → sarmadax.com.
 
 ## Open decisions
@@ -41,8 +42,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P2.6 | Customer account | done | `rebuild/p2-6-account` | #28 |
 | P2.7 | Content, SEO, PWA | done | `rebuild/p2-7-content` | parts/P2.7.md |
 | P3.1 | Admin shell & dashboard | done | #30 | parts/P3.1.md |
-| P3.2 | Inventory | review | #31 | parts/P3.2.md |
-| P3.3 | Orders | todo | | carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
+| P3.2 | Inventory | done | #31 | parts/P3.2.md |
+| P3.3 | Orders | review | #32 | parts/P3.3.md; carry-over: return window from delivery date (needs `deliveredAt` migration), see parts/P2.6.md #14 |
 | P3.4 | POS | todo | | |
 | P3.5 | Accounting | todo | | |
 | P3.6 | Suppliers & purchases | todo | | |
@@ -65,3 +66,4 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 - 2026-10-05 — P1.1 merged (#18) + cost hotfix (#17); tree applied on production; site briefly 500 after a Vercel env change (`NEXT_PUBLIC_URL` required) → validateEnv now accepts either site URL name.
 - 2026-10-05 — P1.2 merged (#20) and content applied on production; brand field live.
 - 2026-10-05 — P1.3 merged (#21); 45 photos cleaned and applied. Claude may now merge PRs and run reviewed `scripts/apply/*` (user permission rules in `.claude/settings.local.json`; secrets in git-ignored `.env.photos`).
+- 2026-10-14 — P3.2 Inventory merged (#31): stock movements for every change, hide/restore, SQL summary, Select labels app-wide, cashier receive view.

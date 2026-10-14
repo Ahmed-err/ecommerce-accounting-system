@@ -55,7 +55,7 @@ export default function InventoryChartsClient({
   const { lang, isRTL } = useLanguage();
   const t = useT();
   const fmt = (n) =>
-    Number(n || 0).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 2 });
+    Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
 
   const receiptData = receiptValueByMonth.map((r) => ({
     name: fmtMonth(r.month, lang),
