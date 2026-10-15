@@ -83,6 +83,14 @@ describe("purchases", () => {
     expect((await cancelPurchaseAction("pu1")).ok).toBe(false);
     expect(db.purchase.updateMany).not.toHaveBeenCalled();
   });
+
+  it("a cancelled purchase takes no more payments", async () => {
+    db.purchase.findUnique.mockResolvedValue({ ...pending, deliveryStatus: "CANCELLED" });
+    const { recordPurchasePaymentAction } = await import("@/app/actions/suppliers");
+    expect(await recordPurchasePaymentAction("pu1", { amount: 100 })).toEqual({ ok: false, error: "cancelled" });
+    expect(db.purchase.updateMany).not.toHaveBeenCalled();
+    expect(db.transaction.create).not.toHaveBeenCalled();
+  });
 });
 
 describe("suppliers", () => {

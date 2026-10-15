@@ -361,6 +361,7 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
 
     const p = await db.purchase.findUnique({ where: { id: purchaseId } });
     if (!p) return { ok: false, error: "not_found" };
+    if (p.deliveryStatus === "CANCELLED") return { ok: false, error: "cancelled" };
     const total = Math.round(Number(p.totalAmount) * 100) / 100;
     const paid = Math.round(Number(p.paidAmount) * 100) / 100;
     const remaining = Math.round((total - paid) * 100) / 100;
@@ -378,7 +379,7 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
     await db.$transaction(async (tx) => {
       // Only if nobody else paid in the meantime, so the cash book gets one row per payment.
       const res = await tx.purchase.updateMany({
-        where: { id: purchaseId, paidAmount: p.paidAmount },
+        where: { id: purchaseId, paidAmount: p.paidAmount, deliveryStatus: { not: "CANCELLED" } },
         data: {
           paidAmount: next,
           paymentMethod: parsed.data.method || p.paymentMethod,
