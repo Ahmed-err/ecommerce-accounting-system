@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { z } from "zod";
 import { bookSupplierPayment } from "@/lib/ledger";
+import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
 import {
   getSuppliersKpiOverview,
   getTopSuppliersByVolume,
@@ -29,6 +30,30 @@ async function ensure() {
     throw new Error("Unauthorized");
   }
   return s.user;
+}
+
+/**
+ * Put a purchase's lines into stock through the stock log, and make each product's cost the
+ * price just paid (owner, 2026-10-15: latest purchase price). Returns the stock changes.
+ */
+async function receiveLines(tx, purchase, userId) {
+  const changes = [];
+  for (const line of purchase.items) {
+    changes.push(
+      await changeStock(tx, {
+        productId: line.productId,
+        delta: line.quantity,
+        reason: "PURCHASE",
+        userId,
+        supplierId: purchase.supplierId,
+        purchaseId: purchase.id,
+        unitCost: Number(line.unitCost),
+        notes: `PO ${purchase.purchaseNumber}`,
+      })
+    );
+    await tx.product.update({ where: { id: line.productId }, data: { purchasePrice: line.unitCost } });
+  }
+  return changes;
 }
 
 export async function loadSuppliersOverviewAction() {
@@ -94,7 +119,8 @@ export async function loadPurchaseDetailAction(id) {
   try {
     await ensure();
     const data = await getPurchaseDetailAdmin(id);
-    return { ok: true, data };
+    // Decimals become strings so the result can cross to the browser.
+    return { ok: true, data: data ? JSON.parse(JSON.stringify(data)) : null };
   } catch (e) {
     return { ok: false, error: e.message };
   }
@@ -186,30 +212,15 @@ export async function updateSupplierAction(id, raw) {
   }
 }
 
-export async function deleteSupplierAction(id, options = {}) {
+/** Only a supplier with no purchases can be deleted; others are deactivated instead (A-36). */
+export async function deleteSupplierAction(id) {
   try {
-    const user = await ensure();
-    const force = options?.force === true;
-    if (await supplierHasPurchases(id) && !force) {
+    await ensure();
+    if (await supplierHasPurchases(id)) {
       return { ok: false, error: "has_purchases" };
     }
-    if (force && user.role !== "ADMIN") {
-      return { ok: false, error: "unauthorized_force" };
-    }
     await db.$transaction(async (tx) => {
-      if (force) {
-        await tx.product.updateMany({
-          where: { supplierId: id },
-          data: { supplierId: null },
-        });
-        await tx.stockMovement.updateMany({
-          where: { supplierId: id },
-          data: { supplierId: null },
-        });
-        await tx.purchase.deleteMany({
-          where: { supplierId: id },
-        });
-      }
+      await tx.product.updateMany({ where: { supplierId: id }, data: { supplierId: null } });
       await tx.supplier.delete({ where: { id } });
     });
     revalidatePath("/admin/suppliers");
@@ -280,26 +291,7 @@ export async function createPurchaseAction(raw) {
         },
       });
       await bookSupplierPayment(tx, { purchase: p, amount: Math.min(paidAmount, total), by: user.name || user.email });
-      if (receiveNow) {
-        for (const line of lines) {
-          await tx.product.update({
-            where: { id: line.productId },
-            data: { stock: { increment: line.quantity } },
-          });
-          await tx.stockMovement.create({
-            data: {
-              type: "IN",
-              quantity: line.quantity,
-              productId: line.productId,
-              supplierId,
-              purchaseId: p.id,
-              unitCost: line.unitCost,
-              reason: "PURCHASE",
-              notes: `PO ${purchaseNumber}`,
-            },
-          });
-        }
-      }
+      if (receiveNow) await receiveLines(tx, { ...p, items: lines }, user.id);
     });
 
     revalidatePath("/admin/suppliers");
@@ -313,12 +305,12 @@ export async function createPurchaseAction(raw) {
 
 export async function markPurchaseReceivedAction(purchaseId) {
   try {
-    await ensure();
+    const user = await ensure();
     if (!purchaseId || typeof purchaseId !== "string") {
       return { ok: false, error: "validation" };
     }
 
-    await db.$transaction(async (tx) => {
+    const changes = await db.$transaction(async (tx) => {
       const p = await tx.purchase.findUnique({
         where: { id: purchaseId },
         include: { items: true },
@@ -326,46 +318,24 @@ export async function markPurchaseReceivedAction(purchaseId) {
       if (!p) {
         throw Object.assign(new Error("not_found"), { code: "NOT_FOUND" });
       }
+      if (p.deliveryStatus === "RECEIVED" || p.deliveryStatus === "CANCELLED") return [];
 
-      if (p.deliveryStatus === "RECEIVED") {
-        return;
-      }
+      // Claim it first so two clicks can't receive twice.
+      const claimed = await tx.purchase.updateMany({
+        where: { id: purchaseId, deliveryStatus: p.deliveryStatus },
+        data: { deliveryStatus: "RECEIVED" },
+      });
+      if (claimed.count === 0) return [];
 
+      // Older purchases may already have their stock in (received before the status was set).
       const moved = await tx.stockMovement.count({
         where: { purchaseId, type: "IN", reason: "PURCHASE" },
       });
-      if (moved > 0) {
-        await tx.purchase.update({
-          where: { id: purchaseId },
-          data: { deliveryStatus: "RECEIVED" },
-        });
-        return;
-      }
-
-      for (const line of p.items) {
-        await tx.product.update({
-          where: { id: line.productId },
-          data: { stock: { increment: line.quantity } },
-        });
-        await tx.stockMovement.create({
-          data: {
-            type: "IN",
-            quantity: line.quantity,
-            productId: line.productId,
-            supplierId: p.supplierId,
-            purchaseId: p.id,
-            unitCost: line.unitCost,
-            reason: "PURCHASE",
-            notes: `PO ${p.purchaseNumber}`,
-          },
-        });
-      }
-      await tx.purchase.update({
-        where: { id: purchaseId },
-        data: { deliveryStatus: "RECEIVED" },
-      });
+      if (moved > 0) return [];
+      return receiveLines(tx, p, user.id);
     });
 
+    await notifyLowStock(changes);
     revalidatePath("/admin/suppliers");
     revalidatePath("/admin/inventory");
     return { ok: true };
@@ -391,6 +361,7 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
 
     const p = await db.purchase.findUnique({ where: { id: purchaseId } });
     if (!p) return { ok: false, error: "not_found" };
+    if (p.deliveryStatus === "CANCELLED") return { ok: false, error: "cancelled" };
     const total = Math.round(Number(p.totalAmount) * 100) / 100;
     const paid = Math.round(Number(p.paidAmount) * 100) / 100;
     const remaining = Math.round((total - paid) * 100) / 100;
@@ -408,7 +379,7 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
     await db.$transaction(async (tx) => {
       // Only if nobody else paid in the meantime, so the cash book gets one row per payment.
       const res = await tx.purchase.updateMany({
-        where: { id: purchaseId, paidAmount: p.paidAmount },
+        where: { id: purchaseId, paidAmount: p.paidAmount, deliveryStatus: { not: "CANCELLED" } },
         data: {
           paidAmount: next,
           paymentMethod: parsed.data.method || p.paymentMethod,
@@ -429,61 +400,93 @@ export async function recordPurchasePaymentAction(purchaseId, raw) {
   }
 }
 
-export async function deletePurchaseAction(purchaseId, options = {}) {
+/** Delete a purchase entered by mistake: only while nothing was received or paid. */
+export async function deletePurchaseAction(purchaseId) {
   try {
-    const user = await ensure();
-    const force = options?.force === true;
-    if (force && user.role !== "ADMIN") {
-      return { ok: false, error: "unauthorized_force" };
-    }
-
-    const p = await db.purchase.findUnique({
-      where: { id: purchaseId },
-      include: { items: true },
-    });
+    await ensure();
+    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
     if (!p) return { ok: false, error: "not_found" };
-    if (!force && p.deliveryStatus !== "PENDING") {
-      return { ok: false, error: "blocked" };
+    const received = p.deliveryStatus === "RECEIVED" || p.deliveryStatus === "CANCELLED";
+    const moved = received ? 1 : await db.stockMovement.count({ where: { purchaseId } });
+    if (received || moved > 0 || Number(p.paidAmount) > 0.005) {
+      return { ok: false, error: "use_cancel" };
     }
-    if (!force && Number(p.paidAmount) > 0.005) {
-      return { ok: false, error: "has_payment" };
-    }
-    const movements = await db.stockMovement.findMany({
-      where: { purchaseId, type: "IN", reason: "PURCHASE" },
-      select: { id: true, productId: true, quantity: true },
-    });
-    if (!force && movements.length > 0) {
-      return { ok: false, error: "has_movements" };
-    }
-
-    await db.$transaction(async (tx) => {
-      if (force && movements.length > 0) {
-        const movedByProduct = movements.reduce((acc, m) => {
-          acc[m.productId] = (acc[m.productId] || 0) + Number(m.quantity || 0);
-          return acc;
-        }, {});
-        for (const [productId, movedQty] of Object.entries(movedByProduct)) {
-          if (movedQty <= 0) continue;
-          const updated = await tx.product.updateMany({
-            where: { id: productId, stock: { gte: movedQty } },
-            data: { stock: { decrement: movedQty } },
-          });
-          if (updated.count === 0) {
-            throw Object.assign(new Error("stock_conflict"), { code: "STOCK_CONFLICT" });
-          }
-        }
-        await tx.stockMovement.deleteMany({ where: { purchaseId } });
-      }
-
-      await tx.purchase.delete({ where: { id: purchaseId } });
-    });
+    await db.purchase.delete({ where: { id: purchaseId } });
     revalidatePath("/admin/suppliers");
-    revalidatePath("/admin/inventory");
     return { ok: true };
   } catch (e) {
-    if (e?.code === "STOCK_CONFLICT" || e?.message === "stock_conflict") {
-      return { ok: false, error: "stock_conflict" };
-    }
+    return { ok: false, error: e.message };
+  }
+}
+
+/**
+ * Cancel a purchase that was received or paid (admin): received stock goes back out through the
+ * stock log (history kept) and anything paid is booked back as a supplier refund. Replaces the
+ * old force-delete, which erased stock history and left payments in the cash book.
+ */
+export async function cancelPurchaseAction(purchaseId) {
+  try {
+    const user = await ensure();
+    if (user.role !== "ADMIN") return { ok: false, error: "unauthorized" };
+
+    const changes = await db.$transaction(async (tx) => {
+      const p = await tx.purchase.findUnique({ where: { id: purchaseId }, include: { items: true } });
+      if (!p) throw Object.assign(new Error("not_found"), { code: "NOT_FOUND" });
+      const claimed = await tx.purchase.updateMany({
+        where: { id: purchaseId, deliveryStatus: { not: "CANCELLED" } },
+        data: { deliveryStatus: "CANCELLED" },
+      });
+      if (claimed.count === 0) throw new Error("already_cancelled");
+
+      const out = [];
+      const received = await tx.stockMovement.count({ where: { purchaseId, type: "IN", reason: "PURCHASE" } });
+      if (received > 0) {
+        for (const line of p.items) {
+          try {
+            out.push(
+              await changeStock(tx, {
+                productId: line.productId,
+                delta: -line.quantity,
+                reason: "PURCHASE_CANCEL",
+                userId: user.id,
+                supplierId: p.supplierId,
+                purchaseId: p.id,
+                notes: `PO ${p.purchaseNumber}`,
+              })
+            );
+          } catch (e) {
+            if (e instanceof StockError) throw Object.assign(new Error("stock_conflict"), { code: "STOCK_CONFLICT" });
+            throw e;
+          }
+        }
+      }
+
+      const paid = Math.round(Number(p.paidAmount) * 100) / 100;
+      if (paid > 0) {
+        await tx.transaction.create({
+          data: {
+            type: "INCOMING",
+            amount: paid,
+            description: `Supplier refund - ${p.purchaseNumber} cancelled (by ${user.name || user.email})`,
+            category: "Supplier refund",
+            reference: p.purchaseNumber,
+            source: "SUPPLIER",
+            sourceId: p.id,
+            date: new Date(),
+          },
+        });
+      }
+      return out;
+    });
+
+    await notifyLowStock(changes);
+    revalidatePath("/admin/suppliers");
+    revalidatePath("/admin/inventory");
+    revalidatePath("/admin/accounting");
+    return { ok: true };
+  } catch (e) {
+    if (e?.code === "STOCK_CONFLICT") return { ok: false, error: "stock_conflict" };
+    if (e?.code === "NOT_FOUND") return { ok: false, error: "not_found" };
     return { ok: false, error: e.message };
   }
 }
@@ -511,69 +514,6 @@ export async function updatePurchaseMetaAction(purchaseId, raw) {
     revalidatePath("/admin/suppliers");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e.message };
-  }
-}
-
-export async function setPurchaseDeliveryStatusAction(purchaseId, status) {
-  try {
-    await ensure();
-    if (!["PENDING", "PARTIAL"].includes(status)) return { ok: false, error: "validation" };
-    const p = await db.purchase.findUnique({ where: { id: purchaseId } });
-    if (!p) return { ok: false, error: "not_found" };
-    if (p.deliveryStatus === "RECEIVED") return { ok: false, error: "blocked" };
-    await db.purchase.update({
-      where: { id: purchaseId },
-      data: { deliveryStatus: status },
-    });
-    revalidatePath("/admin/suppliers");
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, error: e.message };
-  }
-}
-
-async function buildPurchasePdfBuffer(purchase) {
-  const PDFDocument = (await import("pdfkit")).default;
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50 });
-    const chunks = [];
-    doc.on("data", (c) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-
-    doc.fontSize(18).text(`Purchase Order ${purchase.purchaseNumber}`, { underline: true });
-    doc.moveDown();
-    doc.fontSize(11).text(`Supplier: ${purchase.supplier?.name || ""}`);
-    doc.text(`Date: ${purchase.createdAt?.toISOString?.().slice(0, 10) || ""}`);
-    doc.text(`Invoice ref: ${purchase.invoiceRef || "—"}`);
-    doc.moveDown();
-    doc.fontSize(12).text("Items", { underline: true });
-    purchase.items?.forEach((it, i) => {
-      if (doc.y > doc.page.height - 120) {
-        doc.addPage();
-      }
-      doc.fontSize(10).text(
-        `${i + 1}. ${it.product?.name || it.productId} × ${it.quantity} @ ${Number(it.unitCost).toLocaleString()} = ${Number(it.lineTotal).toLocaleString()}`
-      );
-    });
-    doc.moveDown();
-    doc.fontSize(12).text(`Total: ${Number(purchase.totalAmount).toLocaleString()}`);
-    doc.text(`Paid: ${Number(purchase.paidAmount).toLocaleString()}`);
-    doc.end();
-  });
-}
-
-export async function exportPurchasePdfAction(purchaseId) {
-  try {
-    await ensure();
-    const p = await getPurchaseDetailAdmin(purchaseId);
-    if (!p) return { ok: false, error: "not_found" };
-    const buf = await buildPurchasePdfBuffer(p);
-    const safeName = String(p.purchaseNumber || "purchase").replace(/[/\\?%*:|"<>]/g, "-");
-    return { ok: true, base64: buf.toString("base64"), filename: `${safeName}.pdf` };
-  } catch (e) {
-    console.error(e);
     return { ok: false, error: e.message };
   }
 }

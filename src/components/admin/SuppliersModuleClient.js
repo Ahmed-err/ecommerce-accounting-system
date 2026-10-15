@@ -33,8 +33,10 @@ import {
   markPurchaseReceivedAction,
   recordPurchasePaymentAction,
   deletePurchaseAction,
-  exportPurchasePdfAction,
+  cancelPurchaseAction,
 } from "@/app/actions/suppliers";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { formatDate } from "@/lib/account-format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -46,16 +48,26 @@ import { Plus, Pencil, Trash2, Download, Truck, CreditCard, FileText, RefreshCw 
 
 const TAB_KEYS = ["overview", "suppliers", "purchases", "reports"];
 
+// Western digits in both languages, as in the rest of the admin.
+const fmt = (v) => Number(v || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
 function purchaseRowUi(r) {
   const total = Number(r.totalAmount);
   const paid = Number(r.paidAmount);
+  const cancelled = r.deliveryStatus === "CANCELLED";
+  const waiting = r.deliveryStatus === "PENDING" || r.deliveryStatus === "PARTIAL";
   const fullyPaid = total > 0 && paid >= total - 0.005;
-  const canDelete = r.deliveryStatus === "PENDING" && paid <= 0.005;
-  const canPay = total > 0 && !fullyPaid;
-  const canReceive = r.deliveryStatus !== "RECEIVED";
+  // Delete only what was entered by mistake; anything received or paid is cancelled instead.
+  const canDelete = waiting && paid <= 0.005;
+  const canCancel = !cancelled && !canDelete;
+  const canPay = !cancelled && total > 0 && !fullyPaid;
+  const canReceive = waiting;
   const remaining = Math.max(0, Math.round((total - paid) * 100) / 100);
-  return { fullyPaid, canDelete, canPay, canReceive, remaining, total, paid };
+  return { fullyPaid, canDelete, canCancel, canPay, canReceive, remaining, total, paid, cancelled };
 }
+
+const PAY_LABEL = { PAID: "suppliersPayPaid", PARTIAL: "suppliersPayPartial", UNPAID: "suppliersPayUnpaid", OVERDUE: "suppliersPayOverdue", CANCELLED: "suppliersStatusCancelled" };
+const DELIVERY_LABEL = { PENDING: "suppliersStatusWaiting", PARTIAL: "suppliersStatusWaiting", RECEIVED: "suppliersStatusReceived", CANCELLED: "suppliersStatusCancelled" };
 
 function purchaseActionToastError(t, res) {
   const code = typeof res?.error === "string" ? res.error : "";
@@ -64,7 +76,7 @@ function purchaseActionToastError(t, res) {
     res?.remaining != null &&
     Number.isFinite(Number(res.remaining))
   ) {
-    return `${t.suppliersPurchasePayOver} (${t.suppliersPurchaseRemaining}: ${Number(res.remaining).toLocaleString()})`;
+    return `${t.suppliersPurchasePayOver} (${t.suppliersPurchaseRemaining}: ${fmt(res.remaining)})`;
   }
   const map = {
     not_found: t.errGeneric,
@@ -73,8 +85,9 @@ function purchaseActionToastError(t, res) {
     blocked: t.suppliersPoDeleteBlocked,
     has_movements: t.suppliersPoDeleteHasMoves,
     has_payment: t.suppliersPoDeleteHasPayment,
-    unauthorized_force: t.errGeneric,
-    stock_conflict: t.errGeneric,
+    use_cancel: t.suppliersPoUseCancel,
+    stock_conflict: t.suppliersPoCancelStockConflict,
+    cancelled: t.suppliersPurchaseCancelledNoPay,
     fully_paid: t.suppliersPurchaseFullyPaid,
     amount_over_remaining: t.suppliersPurchasePayOver,
     invalid_total: t.errGeneric,
@@ -185,7 +198,7 @@ function OverviewTab({ data, loading, onRefresh }) {
               { label: t.suppliersKpiTotalSuppliers, value: kpis.totalSuppliers },
               { label: t.suppliersKpiActiveSuppliers, value: kpis.activeSuppliers },
               { label: t.suppliersKpiPurchasesMonth, value: kpis.purchasesThisMonthCount },
-              { label: t.suppliersKpiSpentMonth, value: kpis.purchasesThisMonthTotal.toLocaleString() },
+              { label: t.suppliersKpiSpentMonth, value: fmt(kpis.purchasesThisMonthTotal) },
               { label: t.suppliersKpiPendingDelivery, value: kpis.pendingDeliveries },
               { label: t.suppliersKpiOverduePay, value: kpis.overduePayments },
             ].map((c, i) => (
@@ -205,6 +218,9 @@ function OverviewTab({ data, loading, onRefresh }) {
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="rounded-2xl border border-border bg-card p-4">
               <h3 className="mb-4 text-sm font-bold text-foreground">{t.suppliersChartTopSuppliers}</h3>
+              {(top || []).length === 0 ? (
+                <p className="py-16 text-center text-sm text-muted-foreground">{t.accNoData}</p>
+              ) : (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={top}>
@@ -216,9 +232,13 @@ function OverviewTab({ data, loading, onRefresh }) {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              )}
             </div>
             <div className="rounded-2xl border border-border bg-card p-4">
               <h3 className="mb-4 text-sm font-bold text-foreground">{t.suppliersChartSpendTrend}</h3>
+              {(trend || []).length === 0 ? (
+                <p className="py-16 text-center text-sm text-muted-foreground">{t.accNoData}</p>
+              ) : (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={trend}>
@@ -230,6 +250,7 @@ function OverviewTab({ data, loading, onRefresh }) {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+              )}
             </div>
           </div>
 
@@ -252,9 +273,9 @@ function OverviewTab({ data, loading, onRefresh }) {
                     <tr key={r.id} className="border-b border-border">
                       <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
                       <td className="p-2">{r.supplierName}</td>
-                      <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
+                      <td className="p-2">{formatDate(r.createdAt, lang)}</td>
                       <td className="p-2">{r.itemCount}</td>
-                      <td className="p-2">{r.totalAmount.toLocaleString()}</td>
+                      <td className="p-2">{fmt(r.totalAmount)}</td>
                       <td className="p-2">
                         <Badge variant="outline" className="border-border text-[10px]">
                           {r.deliveryStatus}
@@ -275,6 +296,7 @@ function OverviewTab({ data, loading, onRefresh }) {
 function SuppliersTab({ t, isRTL, role = "" }) {
   const isAdmin = String(role || "").toUpperCase() === "ADMIN";
   const { lang } = useLanguage();
+  const [confirm, confirmDialog] = useConfirm();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [cat, setCat] = useState("");
@@ -353,30 +375,13 @@ function SuppliersTab({ t, isRTL, role = "" }) {
   };
 
   const del = async (id) => {
-    if (!confirm(t.suppliersConfirmDelete)) return;
-    let r = await deleteSupplierAction(id);
-    if (r?.error === "has_purchases") {
-      if (!isAdmin) {
-        toast.error(t.suppliersDeleteBlocked);
-        return;
-      }
-      const forceConfirm =
-        lang === "ar"
-          ? "هذا المورد لديه سجل مشتريات. هل تريد الحذف الإجباري؟ سيتم حذف أوامر الشراء وفصل المورد من المنتجات المرتبطة."
-          : "This supplier has purchase history. Force delete? This will remove purchase orders and detach this supplier from linked products.";
-      if (!confirm(forceConfirm)) {
-        toast.error(t.suppliersDeleteBlocked);
-        return;
-      }
-      r = await deleteSupplierAction(id, { force: true });
-    }
+    if (!(await confirm({ title: t.suppliersConfirmDelete, action: t.delete, danger: true }))) return;
+    const r = await deleteSupplierAction(id);
     if (r.ok) {
       toast.success(t.toastDeleted);
       load();
     } else if (r.error === "has_purchases") toast.error(t.suppliersDeleteBlocked);
-    else if (r.error === "unauthorized_force") {
-      toast.error(lang === "ar" ? "الحذف الإجباري متاح للمدير العام فقط" : "Force delete is available to admins only.");
-    } else toast.error(t.errGeneric);
+    else toast.error(t.errGeneric);
   };
 
   const openSheet = async (id) => {
@@ -392,6 +397,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
 
   return (
     <div className="space-y-4">
+      {confirmDialog}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/70 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersSearch}
@@ -447,8 +453,8 @@ function SuppliersTab({ t, isRTL, role = "" }) {
                 </td>
                 <td className="p-3">{s.email}</td>
                 <td className="p-3">{s.category}</td>
-                <td className="p-3">{s.totalPurchases.toLocaleString()}</td>
-                <td className="p-3">{s.outstanding.toLocaleString()}</td>
+                <td className="p-3">{fmt(s.totalPurchases)}</td>
+                <td className="p-3">{fmt(s.outstanding)}</td>
                 <td className="p-3">
                   <Badge className={s.isActive ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
                     {s.isActive ? t.active : t.inactive}
@@ -462,7 +468,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-accent-text" onClick={() => openEdit(s)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-400" onClick={() => del(s.id)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-700 dark:text-red-400" onClick={() => del(s.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -553,16 +559,16 @@ function SuppliersTab({ t, isRTL, role = "" }) {
           {sheetData && (
             <div className="mt-4 space-y-3 px-6 pb-8 text-sm text-muted-foreground">
               <p>
-                {t.suppliersOutstanding}: {sheetData.stats.outstanding.toLocaleString()}
+                {t.suppliersOutstanding}: {fmt(sheetData.stats.outstanding)}
               </p>
               <p>
-                {t.suppliersTotalSpent}: {sheetData.stats.totalPurchases.toLocaleString()}
+                {t.suppliersTotalSpent}: {fmt(sheetData.stats.totalPurchases)}
               </p>
               <h4 className="font-bold text-foreground">{t.suppliersPurchaseHistory}</h4>
               <ul className="max-h-60 space-y-2 overflow-y-auto text-xs">
                 {sheetData.supplier.purchases.map((p) => (
                   <li key={p.id} className="rounded border border-border p-2">
-                    {p.purchaseNumber} · {new Date(p.createdAt).toLocaleDateString()} · {Number(p.totalAmount).toLocaleString()}
+                    {p.purchaseNumber} · {formatDate(p.createdAt, lang)} · {fmt(Number(p.totalAmount))}
                   </li>
                 ))}
               </ul>
@@ -577,6 +583,7 @@ function SuppliersTab({ t, isRTL, role = "" }) {
 function PurchasesTab({ t, isRTL, role = "" }) {
   const isAdmin = String(role || "").toUpperCase() === "ADMIN";
   const { lang } = useLanguage();
+  const [confirm, confirmDialog] = useConfirm();
   const [q, setQ] = useState("");
   const dq = useDebounced(q, 300);
   const [rows, setRows] = useState([]);
@@ -665,22 +672,40 @@ function PurchasesTab({ t, isRTL, role = "" }) {
     }
   };
 
+  // Printable purchase order (HTML, so Arabic prints correctly; "Save as PDF" from the dialog).
   const pdf = async (id) => {
-    const r = await exportPurchasePdfAction(id);
-    if (r.ok) {
-      const bin = atob(r.base64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const blob = new Blob([bytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = r.filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
+    const r = await loadPurchaseDetailAction(id);
+    if (!r.ok || !r.data) {
       toast.error(purchaseActionToastError(t, r));
+      return;
     }
+    const p = r.data;
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const name = (pr) => (lang === "ar" ? pr?.nameAr || pr?.name : pr?.name) || "";
+    const rows = (p.items || [])
+      .map(
+        (it, i) =>
+          `<tr><td>${i + 1}</td><td>${esc(name(it.product))}</td><td>${esc(it.product?.sku)}</td><td>${fmt(it.quantity)}</td><td>${fmt(it.unitCost)}</td><td>${fmt(it.lineTotal)}</td></tr>`
+      )
+      .join("");
+    const html = `<!doctype html><html dir="${isRTL ? "rtl" : "ltr"}" lang="${lang}"><head><meta charset="utf-8"><title>${esc(p.purchaseNumber)}</title>
+<style>body{font-family:system-ui,"Segoe UI",Tahoma,sans-serif;margin:32px;color:#111}h1{font-size:20px;margin:0 0 4px}p{margin:2px 0;color:#444}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}th,td{border:1px solid #ccc;padding:6px 8px;text-align:start}th{background:#f3f4f6}
+.tot{margin-top:12px;font-weight:600}</style></head><body>
+<h1>${esc(t.suppliersPoTitle)} ${esc(p.purchaseNumber)}</h1>
+<p>${esc(t.suppliersColSupplier)}: ${esc(p.supplier?.name)}</p>
+<p>${esc(t.suppliersColDate)}: ${esc(formatDate(p.createdAt, lang))}</p>
+${p.invoiceRef ? `<p>${esc(t.suppliersInvoiceRef)}: ${esc(p.invoiceRef)}</p>` : ""}
+<table><thead><tr><th>#</th><th>${esc(t.suppliersColProduct)}</th><th>SKU</th><th>${esc(t.suppliersColQty)}</th><th>${esc(t.suppliersColUnitCost)}</th><th>${esc(t.suppliersColTotal)}</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="tot">${esc(t.suppliersColTotal)}: ${fmt(p.totalAmount)} ${esc(t.currency)} · ${esc(t.suppliersColPaid)}: ${fmt(p.paidAmount)} ${esc(t.currency)}</p>
+<script>window.onload=()=>window.print()</script></body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) {
+      toast.error(t.errGeneric);
+      return;
+    }
+    w.document.write(html);
+    w.document.close();
   };
 
   const openPayDialog = (row) => {
@@ -718,6 +743,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
 
   return (
     <div className="space-y-4">
+      {confirmDialog}
       <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card/70 p-3 sm:p-4">
         <Input
           placeholder={t.suppliersPurchaseSearch}
@@ -731,9 +757,10 @@ function PurchasesTab({ t, isRTL, role = "" }) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-border">
-        <table className="w-full text-sm text-muted-foreground">
-          <thead>
+      {/* Phone: each purchase is a labelled card; wider screens keep the table. */}
+      <div className="rounded-2xl border border-border sm:overflow-x-auto">
+        <table className="block w-full text-sm text-muted-foreground sm:table">
+          <thead className="hidden sm:table-header-group">
             <tr className="border-b border-border bg-muted/60 text-xs uppercase text-muted-foreground">
               <th className="p-2">{t.suppliersColPo}</th>
               <th className="p-2">{t.suppliersColDate}</th>
@@ -746,31 +773,37 @@ function PurchasesTab({ t, isRTL, role = "" }) {
               <th className="p-2">{t.suppliersColActions}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="block divide-y divide-border sm:table-row-group sm:divide-y-0">
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={9} className="block p-8 text-center text-muted-foreground sm:table-cell">{t.suppliersNoPurchases}</td>
+              </tr>
+            )}
             {rows.map((r) => {
               const u = purchaseRowUi(r);
               return (
-              <tr key={r.id} className="border-b border-border">
-                <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
-                <td className="p-2">{new Date(r.createdAt).toLocaleDateString()}</td>
-                <td className="p-2">{r.supplierName}</td>
-                <td className="p-2">{r.itemCount}</td>
-                <td className="p-2">{r.totalAmount.toLocaleString()}</td>
-                <td className="p-2">{r.paidAmount.toLocaleString()}</td>
-                <td className="p-2">
+              <tr key={r.id} className="block p-3 sm:table-row sm:border-b sm:border-border sm:p-0">
+                <td data-label={t.suppliersColPo} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none font-mono text-xs">{r.purchaseNumber}</td>
+                <td data-label={t.suppliersColDate} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{formatDate(r.createdAt, lang)}</td>
+                <td data-label={t.suppliersColSupplier} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{r.supplierName}</td>
+                <td data-label={t.suppliersColItems} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{r.itemCount}</td>
+                <td data-label={t.suppliersColTotal} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{fmt(r.totalAmount)}</td>
+                <td data-label={t.suppliersColPaid} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{fmt(r.paidAmount)}</td>
+                <td data-label={t.suppliersColPayStatus} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">
                   <Badge
                     className={cn(
                       r.payment.key === "PAID" && "bg-emerald-600 text-white",
                       r.payment.key === "PARTIAL" && "bg-amber-600",
                       r.payment.key === "UNPAID" && "bg-muted text-muted-foreground",
-                      r.payment.key === "OVERDUE" && "bg-red-600 text-white"
+                      r.payment.key === "OVERDUE" && "bg-red-600 text-white",
+                      r.payment.key === "CANCELLED" && "bg-muted text-muted-foreground line-through"
                     )}
                   >
-                    {r.payment.key}
+                    {t[PAY_LABEL[r.payment.key]] || r.payment.key}
                   </Badge>
                 </td>
-                <td className="p-2">{r.deliveryStatus}</td>
-                <td className="p-2">
+                <td data-label={t.suppliersColDelivery} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{t[DELIVERY_LABEL[r.deliveryStatus]] || r.deliveryStatus}</td>
+                <td data-label={t.suppliersColActions} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">
                   <div className={cn("flex flex-wrap gap-1", isRTL && "flex-row-reverse")}>
                     <Button
                       type="button"
@@ -798,7 +831,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-emerald-400"
+                        className="h-8 w-8 text-emerald-700 dark:text-emerald-400"
                         title={t.suppliersTooltipReceive}
                         onClick={async () => {
                           const x = await markPurchaseReceivedAction(r.id);
@@ -817,54 +850,32 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                       type="button"
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-red-400 disabled:opacity-30"
-                      disabled={!u.canDelete && !isAdmin}
-                      title={
-                        u.canDelete || isAdmin
-                          ? t.suppliersTooltipDelete
-                          : t.suppliersPoDeleteBlocked
-                      }
+                      className="h-8 w-8 text-red-700 dark:text-red-400 disabled:opacity-30"
+                      disabled={!u.canDelete && !(isAdmin && u.canCancel)}
+                      title={u.canDelete ? t.suppliersTooltipDelete : u.canCancel ? t.suppliersPoCancel : t.suppliersPoDeleteBlocked}
                       onClick={async () => {
-                        const normalDelete = u.canDelete;
-                        if (!normalDelete && !isAdmin) return;
-                        if (!confirm(t.suppliersConfirmDeletePo)) return;
-                        let x = await deletePurchaseAction(r.id);
-                        if (!x.ok && x.error === "blocked" && isAdmin) {
-                          const forceMsg =
-                            lang === "ar"
-                              ? "هذا أمر شراء مستلم أو مرتبط بحركات مخزون. حذفه بالقوة سيعكس حركة المخزون تلقائيا. متابعة؟"
-                              : "This purchase is received or linked to stock movements. Force delete will rollback stock movement automatically. Continue?";
-                          if (!confirm(forceMsg)) return;
-                          x = await deletePurchaseAction(r.id, { force: true });
-                        } else if (!x.ok && x.error === "has_payment" && isAdmin) {
-                          const forceMsg =
-                            lang === "ar"
-                              ? "هذا الأمر يحتوي على دفعات مسجلة. حذفه بالقوة سيزيله نهائيا. متابعة؟"
-                              : "This purchase has recorded payments. Force delete will permanently remove it. Continue?";
-                          if (!confirm(forceMsg)) return;
-                          x = await deletePurchaseAction(r.id, { force: true });
-                        } else if (!x.ok && x.error === "has_movements" && isAdmin) {
-                          const forceMsg =
-                            lang === "ar"
-                              ? "هذا الأمر يحتوي على حركات مخزون. حذفه بالقوة سيعكس المخزون ويحذف الحركات المرتبطة. متابعة؟"
-                              : "This purchase has stock movements. Force delete will roll back stock and remove related movements. Continue?";
-                          if (!confirm(forceMsg)) return;
-                          x = await deletePurchaseAction(r.id, { force: true });
+                        if (u.canDelete) {
+                          if (!(await confirm({ title: t.suppliersConfirmDeletePo, action: t.delete, danger: true }))) return;
+                          const x = await deletePurchaseAction(r.id);
+                          if (x.ok) {
+                            toast.success(t.toastDeleted);
+                            load();
+                          } else toast.error(purchaseActionToastError(t, x));
+                          return;
                         }
+                        if (!isAdmin || !u.canCancel) return;
+                        const ok = await confirm({
+                          title: t.suppliersPoCancelTitle,
+                          body: t.suppliersPoCancelBody,
+                          action: t.suppliersPoCancel,
+                          danger: true,
+                        });
+                        if (!ok) return;
+                        const x = await cancelPurchaseAction(r.id);
                         if (x.ok) {
-                          toast.success(t.toastDeleted);
+                          toast.success(t.toastSaved);
                           load();
-                        } else {
-                          if (x.error === "stock_conflict") {
-                            toast.error(
-                              lang === "ar"
-                                ? "تعذر الحذف القسري لأن المخزون الحالي أقل من الكمية المستلمة سابقا. عدّل المخزون أو قم بإرجاع المنتجات أولا."
-                                : "Force delete failed because current stock is lower than previously received quantity. Adjust stock first."
-                            );
-                          } else {
-                            toast.error(purchaseActionToastError(t, x));
-                          }
-                        }
+                        } else toast.error(purchaseActionToastError(t, x));
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -919,7 +930,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                   >
                     {opts.products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name}
+                        {(lang === "ar" && p.nameAr) || p.name}{p.sku ? ` (${p.sku})` : ""}
                       </option>
                     ))}
                   </select>
@@ -958,7 +969,7 @@ function PurchasesTab({ t, isRTL, role = "" }) {
                 + {t.suppliersAddLine}
               </Button>
               <p className="font-bold text-amber-700 dark:text-amber-400">
-                {t.suppliersTotal}: {totalPreview.toLocaleString()}
+                {t.suppliersTotal}: {fmt(totalPreview)}
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
@@ -1024,11 +1035,11 @@ function PurchasesTab({ t, isRTL, role = "" }) {
               <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
                 <p className="font-mono text-foreground">{activePayRow.purchaseNumber}</p>
                 <p className="mt-1">
-                  {t.suppliersColTotal}: {Number(activePayRow.totalAmount).toLocaleString()} · {t.suppliersColPaid}:{" "}
-                  {Number(activePayRow.paidAmount).toLocaleString()}
+                  {t.suppliersColTotal}: {fmt(Number(activePayRow.totalAmount))} · {t.suppliersColPaid}:{" "}
+                  {fmt(Number(activePayRow.paidAmount))}
                 </p>
                 <p className="mt-1 font-semibold text-amber-700 dark:text-amber-400">
-                  {t.suppliersPurchaseRemaining}: {purchaseRowUi(activePayRow).remaining.toLocaleString()}
+                  {t.suppliersPurchaseRemaining}: {fmt(purchaseRowUi(activePayRow).remaining)}
                 </p>
               </div>
             ) : null}
@@ -1190,7 +1201,7 @@ function ReportsTab({ t, isRTL }) {
                     <td className="p-2 font-mono text-xs">{o.purchaseNumber}</td>
                     <td className="p-2">{o.supplierName}</td>
                     <td className="p-2">{o.dueDate ? new Date(o.dueDate).toLocaleDateString() : "—"}</td>
-                    <td className="p-2">{o.outstanding.toLocaleString()}</td>
+                    <td className="p-2">{fmt(o.outstanding)}</td>
                   </tr>
                 ))}
               </tbody>

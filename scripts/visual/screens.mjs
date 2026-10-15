@@ -10,7 +10,7 @@ fs.mkdirSync(out, { recursive: true });
 
 const pages = { home: "/", products: "/products", cart: "/cart", login: "/login", styleguide: "/styleguide" };
 // Staff pages, captured after signing in as the seeded admin (seed data only, never production).
-const staffPages = { admin: "/admin", "admin-orders": "/admin/orders", "admin-reviews": "/admin/reviews", "admin-inventory": "/admin/inventory", pos: "/pos", "admin-accounting": "/admin/accounting", "admin-accounting-pl": "/admin/accounting?tab=pl", "admin-accounting-invoices": "/admin/accounting?tab=invoices" };
+const staffPages = { admin: "/admin", "admin-orders": "/admin/orders", "admin-reviews": "/admin/reviews", "admin-inventory": "/admin/inventory", pos: "/pos", "admin-accounting": "/admin/accounting", "admin-accounting-pl": "/admin/accounting?tab=pl", "admin-accounting-invoices": "/admin/accounting?tab=invoices", "admin-suppliers": "/admin/suppliers", "admin-purchases": "/admin/suppliers?tab=purchases" };
 const ADMIN = { email: "admin@powerstore.com", password: "admin123" };
 
 async function signIn(page) {

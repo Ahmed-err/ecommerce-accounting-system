@@ -1,18 +1,23 @@
 import { prisma as db } from "@/lib/prisma";
 
+// Cancelled purchases (P3.6) don't count as spending or as money owed.
+const ACTIVE = { deliveryStatus: { not: "CANCELLED" } };
+
 function n(d) {
   return d != null ? Number(d) : 0;
 }
 
 export function purchasePaymentMeta(p) {
   const total = n(p.totalAmount);
+  if (p.deliveryStatus === "CANCELLED") return { key: "CANCELLED", paid: n(p.paidAmount), total };
   const paid = n(p.paidAmount);
   const due = p.dueDate ? new Date(p.dueDate) : null;
   const now = new Date();
   if (total <= 0) return { key: "UNPAID", paid, total };
   if (paid >= total - 0.005) return { key: "PAID", paid, total };
-  if (paid > 0) return { key: "PARTIAL", paid, total };
+  // Any unpaid balance past the due date is overdue, part-paid or not.
   if (due && due < now) return { key: "OVERDUE", paid, total };
+  if (paid > 0) return { key: "PARTIAL", paid, total };
   return { key: "UNPAID", paid, total };
 }
 
@@ -38,17 +43,18 @@ export async function getSuppliersKpiOverview() {
     db.supplier.count(),
     db.supplier.count({ where: { isActive: true } }),
     db.purchase.findMany({
-      where: { createdAt: { gte: startMonth } },
+      where: { ...ACTIVE, createdAt: { gte: startMonth } },
       select: { id: true, totalAmount: true, paidAmount: true, dueDate: true },
     }),
     db.purchase.aggregate({
-      where: { createdAt: { gte: startMonth } },
+      where: { ...ACTIVE, createdAt: { gte: startMonth } },
       _sum: { totalAmount: true },
     }),
     db.purchase.count({
       where: { deliveryStatus: { in: ["PENDING", "PARTIAL"] } },
     }),
     db.purchase.findMany({
+      where: ACTIVE,
       select: {
         totalAmount: true,
         paidAmount: true,
@@ -77,6 +83,7 @@ export async function getSuppliersKpiOverview() {
 export async function getTopSuppliersByVolume(limit = 5) {
   const rows = await db.purchase.groupBy({
     by: ["supplierId"],
+    where: ACTIVE,
     _sum: { totalAmount: true },
     _count: { id: true },
   });
@@ -121,7 +128,7 @@ export async function getMonthlySpendingTrend(months = 6) {
     SELECT date_trunc('month', "createdAt") AS m,
            SUM("totalAmount")::float AS total
     FROM "Purchase"
-    WHERE "createdAt" >= ${start}
+    WHERE "createdAt" >= ${start} AND "deliveryStatus" <> 'CANCELLED'
     GROUP BY 1
     ORDER BY 1 ASC
   `;
@@ -133,7 +140,7 @@ export async function getMonthlySpendingTrend(months = 6) {
 
 export async function getSupplierPurchaseStats(supplierId) {
   const agg = await db.purchase.aggregate({
-    where: { supplierId },
+    where: { ...ACTIVE, supplierId },
     _sum: { totalAmount: true, paidAmount: true },
     _count: { id: true },
   });
@@ -243,7 +250,12 @@ export async function listPurchasesAdmin({
 }) {
   const where = {
     ...(supplierId ? { supplierId } : {}),
-    ...(delivery !== "all" ? { deliveryStatus: delivery } : {}),
+    // Older "partial" rows count as waiting (owner, 2026-10-15).
+    ...(delivery === "PENDING"
+      ? { deliveryStatus: { in: ["PENDING", "PARTIAL"] } }
+      : delivery !== "all"
+        ? { deliveryStatus: delivery }
+        : {}),
     ...(from || to
       ? {
           createdAt: {
@@ -303,7 +315,7 @@ export async function getPurchaseDetailAdmin(id) {
     where: { id },
     include: {
       supplier: true,
-      items: { include: { product: { select: { id: true, name: true, sku: true, stock: true } } } },
+      items: { include: { product: { select: { id: true, name: true, nameAr: true, sku: true, stock: true } } } },
     },
   });
 }
@@ -314,7 +326,7 @@ export async function reportMonthlyPurchasesSummary(from, to) {
            SUM("totalAmount")::float AS total,
            COUNT(*)::int AS cnt
     FROM "Purchase"
-    WHERE "createdAt" >= ${from} AND "createdAt" <= ${to}
+    WHERE "createdAt" >= ${from} AND "createdAt" <= ${to} AND "deliveryStatus" <> 'CANCELLED'
     GROUP BY 1
     ORDER BY 1 ASC
   `;
@@ -328,7 +340,7 @@ export async function reportMonthlyPurchasesSummary(from, to) {
 export async function reportSpendingBySupplier(from, to) {
   const rows = await db.purchase.groupBy({
     by: ["supplierId"],
-    where: { createdAt: { gte: from, lte: to } },
+    where: { ...ACTIVE, createdAt: { gte: from, lte: to } },
     _sum: { totalAmount: true },
   });
   const ids = rows.map((r) => r.supplierId);
@@ -349,7 +361,7 @@ export async function reportSpendingByCategory(from, to) {
     JOIN "Purchase" p ON p.id = pi."purchaseId"
     JOIN "Product" pr ON pr.id = pi."productId"
     JOIN "Category" c ON c.id = pr."categoryId"
-    WHERE p."createdAt" >= ${from} AND p."createdAt" <= ${to}
+    WHERE p."createdAt" >= ${from} AND p."createdAt" <= ${to} AND p."deliveryStatus" <> 'CANCELLED'
     GROUP BY c.name
     ORDER BY total DESC
   `;
@@ -358,7 +370,7 @@ export async function reportSpendingByCategory(from, to) {
 
 export async function reportOutstandingPayments() {
   const rows = await db.purchase.findMany({
-    where: {},
+    where: ACTIVE,
     orderBy: { dueDate: "asc" },
     include: { supplier: { select: { name: true } } },
   });
@@ -389,9 +401,8 @@ export async function reportOutstandingPayments() {
 export async function listProductsForPurchaseSelect() {
   return db.product.findMany({
     where: { isActive: true },
-    select: { id: true, name: true, sku: true, stock: true, purchasePrice: true },
+    select: { id: true, name: true, nameAr: true, sku: true, stock: true, purchasePrice: true },
     orderBy: { name: "asc" },
-    take: 500,
   });
 }
 
