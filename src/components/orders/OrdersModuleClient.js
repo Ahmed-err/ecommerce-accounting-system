@@ -24,7 +24,7 @@ import {
   updateOrderStatusAction, getOrderItems,
 } from "@/app/actions/orders";
 import { toast } from "sonner";
-import { allowedStatusMoves } from "@/lib/order-workflow";
+import { allowedStatusMoves } from "@/lib/order-status-rules";
 import { orderRef, paymentMethodLabel } from "@/lib/order-labels";
 
 const TABS_CONFIG_KEYS = ["all", "store", "pos", "returns", "reports"];

@@ -1,32 +1,13 @@
 import { changeStock, StockError } from "@/lib/stock";
 import { bookOrderCash, reverseOrderCash } from "@/lib/ledger";
 
-// Order status rules and their stock/ledger effects, shared by staff status changes,
-// account closure and returns (A-23, A-25, A-26). Owner rules (2026-10-14): cashiers cancel
-// only pending orders; admins and managers cancel anything not yet delivered and may
-// reinstate a cancelled order. A delivered order changes only through a return.
+// Stock and ledger effects of order status changes, shared by staff status changes, account
+// closure and returns (A-23, A-25, A-26). Who may make a move: order-status-rules.js.
 
-export const ORDER_FLOW = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"];
-const MANAGERS = ["ADMIN", "MANAGER"];
+export { ORDER_FLOW, canMoveStatus, allowedStatusMoves } from "@/lib/order-status-rules";
+
 export const RETURN_WINDOW_DAYS = 14;
 export const REFUND_METHODS = ["CASH", "BANK_TRANSFER"];
-
-export function canMoveStatus(role, from, to) {
-  if (!["ADMIN", "MANAGER", "CASHIER"].includes(role) || from === to) return false;
-  const isManager = MANAGERS.includes(role);
-  if (from === "DELIVERED") return false;
-  if (from === "CANCELLED") return isManager && to === "PENDING";
-  if (to === "CANCELLED") return from === "PENDING" || isManager;
-  const a = ORDER_FLOW.indexOf(from);
-  const b = ORDER_FLOW.indexOf(to);
-  if (a < 0 || b < 0) return false;
-  // Forward for everyone; managers may also step back to fix a mistake.
-  return b > a || isManager;
-}
-
-export function allowedStatusMoves(role, from) {
-  return [...ORDER_FLOW, "CANCELLED"].filter((to) => canMoveStatus(role, from, to));
-}
 
 const ref = (id) => `#${String(id).slice(-8).toUpperCase()}`;
 const num = (v) => (typeof v?.toNumber === "function" ? v.toNumber() : Number(v || 0));
