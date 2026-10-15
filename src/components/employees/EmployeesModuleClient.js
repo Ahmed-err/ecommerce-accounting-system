@@ -19,8 +19,10 @@ import { useLanguage, useT } from "@/context/LanguageContext";
 import { formatAuditActivityForDashboard } from "@/lib/audit-display";
 import { getEmployeeHrData, createAttendance, updateAttendance, deleteAttendance,
   createSalaryRecord, markSalaryPaid, createLeaveRequest, reviewLeaveRequest,
-  bulkMarkAttendance, getAllStaff, deleteEmployee, quickFillAttendanceForDate } from "@/app/actions/employees";
+  getAllStaff, quickFillAttendanceForDate, prepareMonthSalaries } from "@/app/actions/employees";
 import StaffAccessTable from "@/components/admin/StaffAccessTable";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { shopClockOf, shopToday } from "@/lib/shop-time";
 
 const TABS = ["overview", "employees", "attendance", "salaries", "leaves", "roles", "reports"];
 
@@ -32,30 +34,26 @@ const MONTHS = [
   ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
 ];
 
-function fmt(n, lang) {
+// Western digits in both languages, like the rest of the admin.
+function fmt(n) {
   if (n == null) return "—";
-  return Number(n).toLocaleString(lang === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 2 });
+  return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
+// Attendance and leave rows are calendar dates stored in UTC, so they are shown in UTC.
 function fmtDate(d, lang) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
-    year: "numeric", month: "short", day: "numeric",
+  return new Date(d).toLocaleDateString(lang === "ar" ? "ar-SD-u-nu-latn" : "en-GB", {
+    year: "numeric", month: "short", day: "numeric", timeZone: "UTC",
   });
 }
 
+// Clock times are on the shop's clock, wherever the browser is.
 function fmtTime(d) {
-  if (!d) return "—";
-  return new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return d ? shopClockOf(d) : "—";
 }
 
-function timeInputFromDate(d) {
-  if (!d) return "";
-  const x = new Date(d);
-  const h = String(x.getHours()).padStart(2, "0");
-  const m = String(x.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
-}
+const timeInputFromDate = shopClockOf;
 
 function attendanceSaveError(res, t) {
   if (!res?.error) return "Error";
@@ -71,6 +69,18 @@ function attendanceSaveError(res, t) {
   return key ? t[key] : res.error;
 }
 
+function hrError(res, t) {
+  const key = {
+    SALARY_PAID: "empSalaryErrPaid",
+    NEGATIVE_NET: "empSalaryErrNegative",
+    LEAVE_DATES: "empLeaveErrDates",
+    LEAVE_OVERLAP: "empLeaveErrOverlap",
+    LEAVE_REVIEWED: "empLeaveErrReviewed",
+    INVALID_EMPLOYEE: "empAttendanceErrInvalidEmployee",
+  }[res?.errorCode];
+  return key ? t[key] : t.errGeneric;
+}
+
 function diffHours(cin, cout) {
   if (!cin || !cout) return "—";
   const diff = (new Date(cout) - new Date(cin)) / 3600000;
@@ -82,7 +92,7 @@ function Badge({ color, children }) {
     green: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
     amber: "bg-amber-500/10 text-accent-text border-amber-500/20",
     red: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
-    blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    blue: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
     gray: "bg-muted text-muted-foreground border-border",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
@@ -140,7 +150,7 @@ function Dialog({ open, onClose, title, children, isRTL }) {
 
 function MonthYearPicker({ month, year, onMonth, onYear, lang, isRTL }) {
   const months = lang === "ar" ? MONTHS[1] : MONTHS[0];
-  const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from({ length: 6 }, (_, i) => Number(shopToday().slice(0, 4)) - i);
   return (
     <div className="flex gap-2">
       <Select value={String(month)} onValueChange={(v) => onMonth(Number(v))}>
@@ -168,7 +178,7 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
   const { kpis = {}, attendance30d = [], deptBreakdown = [], roleBreakdown = [], activity = [], upcomingLeaves = [] } = data;
 
   const kpiCards = [
-    { label: t.empKpiTotal, value: kpis.total || 0, icon: Users, color: "bg-blue-500/10 text-blue-400" },
+    { label: t.empKpiTotal, value: kpis.total || 0, icon: Users, color: "bg-blue-500/10 text-blue-700 dark:text-blue-400" },
     { label: t.empKpiActive, value: kpis.active || 0, icon: CheckCircle, color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
     { label: t.empKpiOnLeave, value: kpis.onLeaveToday || 0, icon: Clock, color: "bg-amber-500/10 text-accent-text" },
     { label: t.empKpiMissingSheet, value: kpis.missingAttendanceToday ?? 0, icon: XCircle, color: "bg-red-500/10 text-red-700 dark:text-red-400" },
@@ -268,11 +278,11 @@ function OverviewTab({ data, t, lang, isRTL, staff, onAddExpense }) {
 }
 
 function AttendanceTab({ data, t, lang, isRTL, staff }) {
-  const now = new Date();
+  const [thisYear, thisMonth] = shopToday().split("-").map(Number);
   const pad2 = (n) => String(n).padStart(2, "0");
-  const todayStr = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const [year, setYear] = useState(now.getFullYear());
+  const todayStr = shopToday();
+  const [month, setMonth] = useState(thisMonth);
+  const [year, setYear] = useState(thisYear);
   const [tabData, setTabData] = useState(data);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -286,6 +296,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
   const [quickOnlyMissing, setQuickOnlyMissing] = useState(true);
   const [quickLoading, setQuickLoading] = useState(false);
   const [quickMsg, setQuickMsg] = useState(null);
+  const [confirm, confirmDialog] = useConfirm();
 
   const load = useCallback(async (m, y) => {
     setLoading(true);
@@ -324,7 +335,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm(lang === "ar" ? "حذف؟" : "Delete?")) return;
+    if (!(await confirm({ title: t.empDeleteAttendanceConfirm, action: t.delete, danger: true }))) return;
     await deleteAttendance(id);
     load(month, year);
   };
@@ -342,8 +353,8 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
   };
 
   const runQuickFill = async (mode) => {
-    if (!quickOnlyMissing && !confirm(t.empQuickOverwriteConfirm)) return;
-    if (mode === "ABSENT" && !confirm(t.empQuickConfirmAbsent)) return;
+    if (!quickOnlyMissing && !(await confirm({ title: t.empQuickOverwriteConfirm, danger: true }))) return;
+    if (mode === "ABSENT" && !(await confirm({ title: t.empQuickConfirmAbsent }))) return;
     setQuickLoading(true);
     setQuickMsg(null);
     const res = await quickFillAttendanceForDate({
@@ -385,6 +396,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <MonthYearPicker month={month} year={year} onMonth={(m) => { setMonth(m); load(m, year); }} onYear={(y) => { setYear(y); load(month, y); }} lang={lang} isRTL={isRTL} />
         <Button onClick={openAdd} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
@@ -485,9 +497,9 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
 
       {alert3.length > 0 && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+          <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-red-400">{t.empAlert3Absences}</p>
+            <p className="text-sm font-semibold text-red-700 dark:text-red-400">{t.empAlert3Absences}</p>
             <p className="text-xs text-red-300 mt-1">{alert3.map((e) => e.name).join(", ")}</p>
           </div>
         </div>
@@ -567,7 +579,7 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={editRec ? (lang === "ar" ? "تعديل الحضور" : "Edit Attendance") : t.empAddAttendance} isRTL={isRTL}>
-        {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
+        {err && <p className="mb-3 text-sm text-red-700 dark:text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
@@ -627,15 +639,17 @@ function AttendanceTab({ data, t, lang, isRTL, staff }) {
 }
 
 function SalariesTab({ data, t, lang, isRTL, staff }) {
-  const now = new Date();
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const [year, setYear] = useState(now.getFullYear());
+  const [thisYear, thisMonth] = shopToday().split("-").map(Number);
+  const [month, setMonth] = useState(thisMonth);
+  const [year, setYear] = useState(thisYear);
   const [tabData, setTabData] = useState(data);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ userId: "", month: now.getMonth() + 1, year: now.getFullYear(), baseSalary: "", bonuses: "0", deductions: "0", notes: "" });
+  const [form, setForm] = useState({ userId: "", month: thisMonth, year: thisYear, baseSalary: "", bonuses: "0", deductions: "0", notes: "" });
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const [confirm, confirmDialog] = useConfirm();
 
   const load = useCallback(async (m, y) => {
     setLoading(true);
@@ -651,17 +665,38 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
     setSaving(true); setErr("");
     const res = await createSalaryRecord(form);
     if (res.success) { setDialogOpen(false); load(month, year); }
-    else setErr(res.error || "Error");
+    else setErr(hrError(res, t));
     setSaving(false);
   };
 
-  const handleMarkPaid = async (id) => {
-    const res = await markSalaryPaid(id);
+  const handleMarkPaid = async (r) => {
+    const amount = `${fmt(r.netSalary)} ${t.currency}`;
+    if (!(await confirm({ title: t.empPayConfirmTitle, body: t.empPayConfirmBody.replace("{amount}", amount), action: t.empMarkPaid }))) return;
+    const res = await markSalaryPaid(r.id);
+    setNotice(res.success ? null : { ok: false, text: res.error || t.errGeneric });
+    if (res.success) load(month, year);
+  };
+
+  const handlePrepare = async () => {
+    const res = await prepareMonthSalaries({ month, year });
+    setNotice(
+      res.success
+        ? { ok: true, text: t.empPrepareMonthDone.replace("{created}", res.created).replace("{skipped}", res.skipped).replace("{noSalary}", res.noSalary) }
+        : { ok: false, text: t.errGeneric }
+    );
     if (res.success) load(month, year);
   };
 
   const openAdd = () => {
     setForm({ userId: "", month, year, baseSalary: "", bonuses: "0", deductions: "0", notes: "" });
+    setErr(""); setDialogOpen(true);
+  };
+
+  const openEdit = (r) => {
+    setForm({
+      userId: r.userId, month: r.month, year: r.year, baseSalary: String(Number(r.baseSalary)),
+      bonuses: String(Number(r.bonuses)), deductions: String(Number(r.deductions)), notes: r.notes || "",
+    });
     setErr(""); setDialogOpen(true);
   };
 
@@ -682,20 +717,31 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <MonthYearPicker month={month} year={year} onMonth={(m) => { setMonth(m); load(m, year); }} onYear={(y) => { setYear(y); load(month, y); }} lang={lang} isRTL={isRTL} />
-        <Button onClick={openAdd} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-          <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} /> {t.empAddSalary}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={handlePrepare}>
+            <ClipboardList className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} /> {t.empPrepareMonth}
+          </Button>
+          <Button onClick={openAdd} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+            <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} /> {t.empAddSalary}
+          </Button>
+        </div>
       </div>
+      {notice && (
+        <p role="status" className={`rounded-lg border px-3 py-2 text-sm ${notice.ok ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-400" : "border-red-500/30 text-red-700 dark:text-red-400"}`}>
+          {notice.text}
+        </p>
+      )}
 
       {totals.totalNet > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
-            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
-            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
-            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-accent-text" },
+            { label: t.empColBase, value: fmt(totals.totalBase), color: "text-blue-700 dark:text-blue-400" },
+            { label: t.empColBonuses, value: fmt(totals.totalBonuses), color: "text-emerald-600 dark:text-emerald-400" },
+            { label: t.empColDeductions, value: fmt(totals.totalDeductions), color: "text-red-600 dark:text-red-400" },
+            { label: t.empColNet, value: fmt(totals.totalNet), color: "text-accent-text" },
           ].map((item) => (
             <div key={item.label} className="bg-card border border-border rounded-xl p-4">
               <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -726,16 +772,21 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
               {records.map((r) => (
                 <tr key={r.id} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
-                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums text-emerald-400">+{fmt(r.bonuses, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums text-red-400">-{fmt(r.deductions, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary, lang)} {t.currency}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary)}</td>
+                  <td className="px-4 py-3 tabular-nums text-emerald-700 dark:text-emerald-400">+{fmt(r.bonuses)}</td>
+                  <td className="px-4 py-3 tabular-nums text-red-700 dark:text-red-400">-{fmt(r.deductions)}</td>
+                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary)} {t.currency}</td>
                   <td className="px-4 py-3">{statusBadge(r.status)}</td>
                   <td className="px-4 py-3">
                     {r.status !== "PAID" && (
-                      <Button size="sm" onClick={() => handleMarkPaid(r.id)} className="h-7 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20">
-                        <Check className="h-3 w-3 mr-1" /> {t.empMarkPaid}
-                      </Button>
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="ghost" onClick={() => openEdit(r)} className="h-7 text-xs" aria-label={t.edit}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" onClick={() => handleMarkPaid(r)} className="h-7 text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20">
+                          <Check className="h-3 w-3 me-1" /> {t.empMarkPaid}
+                        </Button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -746,7 +797,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t.empAddSalary} isRTL={isRTL}>
-        {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
+        {err && <p className="mb-3 text-sm text-red-700 dark:text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
@@ -788,7 +839,7 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
           </div>
           <div className="bg-amber-500/10 rounded-lg p-3 flex justify-between items-center">
             <span className="text-xs text-accent-text">{t.empColNet}</span>
-            <span className="font-bold text-accent-text tabular-nums">{fmt(net, lang)} {t.currency}</span>
+            <span className="font-bold text-accent-text tabular-nums">{fmt(net)} {t.currency}</span>
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
@@ -801,15 +852,17 @@ function SalariesTab({ data, t, lang, isRTL, staff }) {
 }
 
 function LeavesTab({ data, t, lang, isRTL, staff }) {
-  const now = new Date();
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const [year, setYear] = useState(now.getFullYear());
+  const [thisYear, thisMonth] = shopToday().split("-").map(Number);
+  const [month, setMonth] = useState(thisMonth);
+  const [year, setYear] = useState(thisYear);
   const [tabData, setTabData] = useState(data);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ userId: "", type: "ANNUAL", fromDate: "", toDate: "", reason: "" });
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+  const [reviewErr, setReviewErr] = useState("");
+  const [confirm, confirmDialog] = useConfirm();
 
   const load = useCallback(async (m, y) => {
     setLoading(true);
@@ -824,13 +877,18 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
     setSaving(true); setErr("");
     const res = await createLeaveRequest(form);
     if (res.success) { setDialogOpen(false); load(month, year); }
-    else setErr(res.error || "Error");
+    else setErr(hrError(res, t));
     setSaving(false);
   };
 
   const handleReview = async (id, action) => {
-    const notes = action === "reject" ? prompt(lang === "ar" ? "سبب الرفض:" : "Rejection reason:") : "";
-    const res = await reviewLeaveRequest(id, action, notes || "");
+    let notes = "";
+    if (action === "reject") {
+      notes = await confirm({ title: t.empRejectTitle, input: t.empRejectReason, action: t.empReject, danger: true });
+      if (notes === null) return;
+    }
+    const res = await reviewLeaveRequest(id, action, notes);
+    setReviewErr(res.success ? "" : hrError(res, t));
     if (res.success) load(month, year);
   };
 
@@ -848,6 +906,8 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
+      {reviewErr && <p role="alert" className="rounded-lg border border-red-500/30 px-3 py-2 text-sm text-red-700 dark:text-red-400">{reviewErr}</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <MonthYearPicker month={month} year={year} onMonth={(m) => { setMonth(m); load(m, year); }} onYear={(y) => { setYear(y); load(month, y); }} lang={lang} isRTL={isRTL} />
         <Button onClick={() => { setForm({ userId: "", type: "ANNUAL", fromDate: "", toDate: "", reason: "" }); setErr(""); setDialogOpen(true); }} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
@@ -884,8 +944,8 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
                   <td className="px-4 py-3">
                     {l.status === "PENDING" && (
                       <div className="flex gap-1">
-                        <Button size="sm" onClick={() => handleReview(l.id, "approve")} className="h-7 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"><Check className="h-3 w-3 mr-1" />{t.empApprove}</Button>
-                        <Button size="sm" onClick={() => handleReview(l.id, "reject")} className="h-7 text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><X className="h-3 w-3 mr-1" />{t.empReject}</Button>
+                        <Button size="sm" onClick={() => handleReview(l.id, "approve")} className="h-7 text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"><Check className="h-3 w-3 mr-1" />{t.empApprove}</Button>
+                        <Button size="sm" onClick={() => handleReview(l.id, "reject")} className="h-7 text-xs bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20"><X className="h-3 w-3 mr-1" />{t.empReject}</Button>
                       </div>
                     )}
                   </td>
@@ -897,7 +957,7 @@ function LeavesTab({ data, t, lang, isRTL, staff }) {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t.empAddLeave} isRTL={isRTL}>
-        {err && <p className="mb-3 text-sm text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
+        {err && <p className="mb-3 text-sm text-red-700 dark:text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>}
         <div className="space-y-4">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">{t.empColEmployee}</label>
@@ -990,8 +1050,8 @@ function ReportsTab({ data, t, lang, isRTL }) {
             <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">{t.empColEmployee}</th>
-                <th className="px-4 py-3 text-emerald-400">{t.empStatusPresent}</th>
-                <th className="px-4 py-3 text-red-400">{t.empStatusAbsent}</th>
+                <th className="px-4 py-3 text-emerald-700 dark:text-emerald-400">{t.empStatusPresent}</th>
+                <th className="px-4 py-3 text-red-700 dark:text-red-400">{t.empStatusAbsent}</th>
                 <th className="px-4 py-3 text-accent-text">{t.empStatusLate}</th>
                 <th className="px-4 py-3">{t.empStatusHalfDay}</th>
                 <th className="px-4 py-3">{lang === "ar" ? "معدل الحضور %" : "Attendance Rate %"}</th>
@@ -1004,8 +1064,8 @@ function ReportsTab({ data, t, lang, isRTL }) {
                 return (
                   <tr key={e.userId} className="hover:bg-muted/40">
                     <td className="px-4 py-3 font-medium text-foreground">{e.name}</td>
-                    <td className="px-4 py-3 text-emerald-400 tabular-nums">{e.present}</td>
-                    <td className="px-4 py-3 text-red-400 tabular-nums">{e.absent}</td>
+                    <td className="px-4 py-3 text-emerald-700 dark:text-emerald-400 tabular-nums">{e.present}</td>
+                    <td className="px-4 py-3 text-red-700 dark:text-red-400 tabular-nums">{e.absent}</td>
                     <td className="px-4 py-3 text-accent-text tabular-nums">{e.late}</td>
                     <td className="px-4 py-3 text-muted-foreground tabular-nums">{e.halfDay}</td>
                     <td className="px-4 py-3 tabular-nums">
@@ -1030,10 +1090,10 @@ function ReportsTab({ data, t, lang, isRTL }) {
         </div>
         <div className="p-5 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           {[
-            { label: t.empColBase, value: fmt(totals.totalBase, lang), color: "text-blue-400" },
-            { label: t.empColBonuses, value: fmt(totals.totalBonuses, lang), color: "text-emerald-600 dark:text-emerald-400" },
-            { label: t.empColDeductions, value: fmt(totals.totalDeductions, lang), color: "text-red-600 dark:text-red-400" },
-            { label: t.empColNet, value: fmt(totals.totalNet, lang), color: "text-accent-text" },
+            { label: t.empColBase, value: fmt(totals.totalBase), color: "text-blue-700 dark:text-blue-400" },
+            { label: t.empColBonuses, value: fmt(totals.totalBonuses), color: "text-emerald-600 dark:text-emerald-400" },
+            { label: t.empColDeductions, value: fmt(totals.totalDeductions), color: "text-red-600 dark:text-red-400" },
+            { label: t.empColNet, value: fmt(totals.totalNet), color: "text-accent-text" },
           ].map((item) => (
             <div key={item.label} className="bg-muted/40 rounded-xl p-4">
               <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -1058,10 +1118,10 @@ function ReportsTab({ data, t, lang, isRTL }) {
               {records.map((r) => (
                 <tr key={r.id} className="hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium text-foreground">{r.user?.firstName} {r.user?.lastName}</td>
-                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums text-emerald-400">{fmt(r.bonuses, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums text-red-400">{fmt(r.deductions, lang)}</td>
-                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary, lang)} {t.currency}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{fmt(r.baseSalary)}</td>
+                  <td className="px-4 py-3 tabular-nums text-emerald-700 dark:text-emerald-400">{fmt(r.bonuses)}</td>
+                  <td className="px-4 py-3 tabular-nums text-red-700 dark:text-red-400">{fmt(r.deductions)}</td>
+                  <td className="px-4 py-3 tabular-nums font-bold text-accent-text">{fmt(r.netSalary)} {t.currency}</td>
                   <td className="px-4 py-3"><Badge color={r.status === "PAID" ? "green" : r.status === "PENDING" ? "amber" : "blue"}>{r.status === "PAID" ? t.empSalaryPaid : r.status === "PENDING" ? t.empSalaryPending : t.empSalaryProcessing}</Badge></td>
                 </tr>
               ))}
@@ -1124,19 +1184,19 @@ export default function EmployeesModuleClient({ initialData, initialTab, initial
 
   return (
     <div className={`space-y-6 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div className="overflow-x-auto">
-        <div className="flex gap-1 bg-card/60 border border-border rounded-xl p-1 w-fit min-w-full sm:min-w-0">
-          {TABS_CONFIG.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-            </button>
-          ))}
-        </div>
+      {/* Wraps on phone so every tab stays visible. */}
+      <div className="flex flex-wrap gap-1 bg-card/60 border border-border rounded-xl p-1 sm:w-fit">
+        {TABS_CONFIG.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            aria-current={activeTab === key ? "page" : undefined}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${activeTab === key ? "bg-amber-500 text-black" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        ))}
       </div>
 
       <AnimatePresence mode="wait">
