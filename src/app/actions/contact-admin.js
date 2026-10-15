@@ -12,6 +12,10 @@ import {
 import { sendContactReplyEmail } from "@/lib/senders";
 import { z } from "zod";
 
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 async function ensure() {
   const s = await auth();
   if (!s?.user?.id || !["ADMIN", "MANAGER"].includes(s.user.role)) {
@@ -52,13 +56,13 @@ export async function replyContactMessageAction(id, raw) {
     const row = await getContactMessageById(id);
     if (!row) return { ok: false, error: "not_found" };
 
-    const html = `<p>${parsed.data.reply.replace(/\n/g, "<br/>")}</p>`;
+    const html = `<p>${escapeHtml(parsed.data.reply).replace(/\n/g, "<br/>")}</p>`;
     const sent = await sendContactReplyEmail(row.email, row.subject, html);
-    if (!sent) console.warn("reply email failed for", row.email);
+    if (!sent) console.warn("reply email not sent for message", id);
 
-    await replyToContactMessage(id, parsed.data.reply);
+    await replyToContactMessage(id, parsed.data.reply, sent);
     revalidatePath("/admin/contacts");
-    return { ok: true };
+    return { ok: true, emailSent: sent };
   } catch (e) {
     return { ok: false, error: e.message };
   }

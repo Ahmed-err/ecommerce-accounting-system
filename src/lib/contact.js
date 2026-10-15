@@ -66,10 +66,11 @@ export async function markContactMessageRead(id) {
   });
 }
 
-export async function replyToContactMessage(id, adminReply) {
+/** Saves the reply; the message counts as replied only once the email actually went out. */
+export async function replyToContactMessage(id, adminReply, emailSent) {
   return db.contactMessage.update({
     where: { id },
-    data: { adminReply, status: "REPLIED" },
+    data: { adminReply, ...(emailSent ? { status: "REPLIED" } : {}) },
   });
 }
 

@@ -19,14 +19,6 @@ const submitSchema = z.object({
   guestEmail: z.string().email().max(255).optional().nullable(),
 });
 
-async function ensureAdmin() {
-  const session = await auth();
-  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
-    throw new Error("Unauthorized");
-  }
-  return session.user;
-}
-
 export async function getProductReviewsAction(args) {
   const { productId, page, limit, sort, rating } = args || {};
   const [summary, list] = await Promise.all([
@@ -138,71 +130,82 @@ export async function toggleHelpfulAction(reviewId) {
   }
 }
 
+const REVIEWS_PAGE = 20;
+
+async function isModerator() {
+  const session = await auth();
+  return ["ADMIN", "MANAGER"].includes(session?.user?.role);
+}
+
+/** Product pages (addressed by id) show approved reviews; refresh the ones these reviews belong to. */
+async function refreshProductPages(ids) {
+  const rows = await db.review.findMany({ where: { id: { in: ids } }, select: { productId: true } });
+  for (const id of new Set(rows.map((r) => r.productId))) revalidatePath(`/products/${id}`);
+  revalidatePath("/admin/reviews");
+}
+
 export async function getAdminReviewsAction(filters = {}) {
-  await ensureAdmin();
-  const {
-    status = "all",
-    rating = "all",
-    search = "",
-    page = 1,
-  } = filters;
+  if (!(await isModerator())) return { ok: false, rows: [], total: 0 };
+  const { status = "all", rating = "all", search = "", page = 1 } = filters;
+  const q = String(search || "").trim().slice(0, 100);
+  const has = (field) => ({ [field]: { contains: q, mode: "insensitive" } });
   const where = {
-    ...(status !== "all" ? { status } : {}),
-    ...(rating !== "all" ? { rating: Number(rating) } : {}),
-    ...(search
+    ...(["PENDING", "APPROVED", "REJECTED"].includes(status) ? { status } : {}),
+    ...(rating !== "all" && Number(rating) >= 1 && Number(rating) <= 5 ? { rating: Number(rating) } : {}),
+    ...(q
       ? {
           OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { guestName: { contains: search, mode: "insensitive" } },
-            { product: { name: { contains: search, mode: "insensitive" } } },
+            has("title"),
+            has("body"),
+            has("guestName"),
+            { user: { OR: [has("name"), has("firstName"), has("lastName")] } },
+            { product: { OR: [has("name"), has("nameAr")] } },
           ],
         }
       : {}),
   };
-  const take = 20;
-  const skip = (Math.max(1, Number(page)) - 1) * take;
+  const current = Math.max(1, Number(page) || 1);
   const [rows, total, stats] = await Promise.all([
     db.review.findMany({
       where,
       include: {
-        product: { select: { id: true, name: true, images: true } },
+        product: { select: { id: true, name: true, nameAr: true, images: true } },
         user: { select: { id: true, firstName: true, lastName: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
-      skip,
-      take,
+      skip: (current - 1) * REVIEWS_PAGE,
+      take: REVIEWS_PAGE,
     }),
     db.review.count({ where }),
     getAdminReviewStats(),
   ]);
-  return { ok: true, rows, total, stats };
+  return { ok: true, rows, total, stats, page: current, pages: Math.max(1, Math.ceil(total / REVIEWS_PAGE)) };
 }
 
 export async function adminSetReviewStatusAction({ ids, status }) {
-  await ensureAdmin();
+  if (!(await isModerator())) return { success: false, error: "unauthorized" };
   if (!Array.isArray(ids) || ids.length === 0) return { success: false, error: "No reviews selected" };
   if (!["APPROVED", "REJECTED", "PENDING"].includes(status)) return { success: false, error: "Bad status" };
-  await db.review.updateMany({
-    where: { id: { in: ids } },
-    data: { status },
-  });
-  revalidatePath("/admin/reviews");
+  await db.review.updateMany({ where: { id: { in: ids } }, data: { status } });
+  await refreshProductPages(ids);
   return { success: true };
 }
 
 export async function adminReplyReviewAction({ id, reply }) {
-  await ensureAdmin();
+  if (!(await isModerator())) return { success: false, error: "unauthorized" };
   const content = sanitizeText(reply, 2000);
   if (!content) return { success: false, error: "Reply cannot be empty" };
   await db.review.update({ where: { id }, data: { adminReply: content } });
-  revalidatePath("/admin/reviews");
+  await refreshProductPages([id]);
   return { success: true };
 }
 
 export async function adminDeleteReviewsAction(ids) {
-  await ensureAdmin();
+  if (!(await isModerator())) return { success: false, error: "unauthorized" };
   if (!Array.isArray(ids) || ids.length === 0) return { success: false, error: "No reviews selected" };
+  const rows = await db.review.findMany({ where: { id: { in: ids } }, select: { productId: true } });
   await db.review.deleteMany({ where: { id: { in: ids } } });
+  for (const id of new Set(rows.map((r) => r.productId))) revalidatePath(`/products/${id}`);
   revalidatePath("/admin/reviews");
   return { success: true };
 }

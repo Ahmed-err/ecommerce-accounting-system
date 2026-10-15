@@ -25,10 +25,6 @@ export default function NotificationBell({ customerOnly = false }) {
   const [rows, setRows] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const sseFailCountRef = useRef(0);
-  const lastSeenRef = useRef(null);
-  const reconnectTimerRef = useRef(null);
-  const sourceRef = useRef(null);
   const rootRef = useRef(null);
   const mountedRef = useRef(true);
 
@@ -46,9 +42,6 @@ export default function NotificationBell({ customerOnly = false }) {
       const list = Array.isArray(json.rows) ? json.rows : [];
       setRows(list);
       setUnread(Number.isFinite(json.unread) ? json.unread : 0);
-      if (list[0]?.createdAt) {
-        lastSeenRef.current = list[0].createdAt;
-      }
     } catch {
       /* network — ignore, polling will retry */
     } finally {
@@ -68,7 +61,6 @@ export default function NotificationBell({ customerOnly = false }) {
     setLoaded(false);
     setRows([]);
     setUnread(0);
-    lastSeenRef.current = null;
     fetchList();
   }, [fetchList]);
 
@@ -77,103 +69,13 @@ export default function NotificationBell({ customerOnly = false }) {
     if (open) fetchList();
   }, [open, fetchList]);
 
-  // SSE live updates. Reconnects on error with exponential backoff.
-  useEffect(() => {
-    let canceled = false;
-
-    const closeSource = () => {
-      try {
-        sourceRef.current?.close();
-      } catch {}
-      sourceRef.current = null;
-    };
-
-    const startSse = () => {
-      if (canceled) return;
-      closeSource();
-      const params = new URLSearchParams();
-      if (lastSeenRef.current) params.set("lastSeen", lastSeenRef.current);
-      if (customerOnly) params.set("customerOnly", "1");
-      const qs = params.toString();
-      const url = `/api/notifications/stream${qs ? `?${qs}` : ""}`;
-      let es;
-      try {
-        es = new EventSource(url);
-      } catch {
-        scheduleReconnect();
-        return;
-      }
-      sourceRef.current = es;
-
-      const applyPayload = (payload) => {
-        if (!mountedRef.current) return;
-        const incoming = Array.isArray(payload?.rows) ? payload.rows : [];
-        if (incoming.length) {
-          setRows((prev) => {
-            const map = new Map(prev.map((r) => [r.id, r]));
-            for (const n of incoming) map.set(n.id, n);
-            return Array.from(map.values())
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .slice(0, 20);
-          });
-          const newest = incoming[incoming.length - 1]?.createdAt;
-          if (newest) lastSeenRef.current = newest;
-        }
-        if (Number.isFinite(payload?.unread)) {
-          setUnread(payload.unread);
-        }
-      };
-
-      es.addEventListener("notifications", (event) => {
-        try {
-          applyPayload(JSON.parse(event.data || "{}"));
-          sseFailCountRef.current = 0;
-        } catch {}
-      });
-
-      es.addEventListener("unread", (event) => {
-        try {
-          const payload = JSON.parse(event.data || "{}");
-          if (Number.isFinite(payload?.unread) && mountedRef.current) {
-            setUnread(payload.unread);
-          }
-          sseFailCountRef.current = 0;
-        } catch {}
-      });
-
-      es.addEventListener("error", () => {
-        // Server-sent semantic error; will be followed by close.
-      });
-
-      es.onerror = () => {
-        closeSource();
-        scheduleReconnect();
-      };
-    };
-
-    const scheduleReconnect = () => {
-      if (canceled) return;
-      sseFailCountRef.current += 1;
-      const delay = Math.min(2000 * sseFailCountRef.current, 30000);
-      reconnectTimerRef.current = setTimeout(() => {
-        if (!canceled) startSse();
-      }, delay);
-    };
-
-    startSse();
-    return () => {
-      canceled = true;
-      closeSource();
-      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
-    };
-  }, [scopeQuery, customerOnly]);
-
-  // Fallback polling — every 30s when visible, plus on tab/network return.
+  // Polling only while the tab is visible (staff every 30 s, customers every 2 min), plus on
+  // tab/network return. A held-open stream kept the database awake for every signed-in visitor.
   useEffect(() => {
     const poll = setInterval(() => {
       if (document.visibilityState !== "visible") return;
       fetchList();
-    }, 30000);
+    }, customerOnly ? 120000 : 30000);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") fetchList();
@@ -190,7 +92,7 @@ export default function NotificationBell({ customerOnly = false }) {
       window.removeEventListener("online", onOnline);
       window.removeEventListener("focus", onVisible);
     };
-  }, [fetchList]);
+  }, [fetchList, customerOnly]);
 
   // Outside click / escape handling.
   useEffect(() => {
