@@ -866,8 +866,11 @@ enum ReviewStatus {
 
 enum PurchaseDeliveryStatus {
   PENDING
+  /// No longer set (owner, 2026-10-15); older rows read as PENDING.
   PARTIAL
   RECEIVED
+  /// Cancelled after receiving or paying: stock taken back, payments refunded (P3.6).
+  CANCELLED
 }
 
 enum ContactMessageStatus {
