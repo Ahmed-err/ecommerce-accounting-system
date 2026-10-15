@@ -553,6 +553,8 @@ const dictionary = {
   "adminNotifications": "الإشعارات",
   "adminCoupons": "الكوبونات",
   "adminLogout": "تسجيل الخروج",
+  "adminBackupRestoreTitle": "نقاط الاستعادة التلقائية",
+  "adminBackupRestoreDesc": "تحتفظ قاعدة البيانات (Neon) بنقاط استعادة تلقائية، ويمكن إرجاع المتجر إلى لحظة سابقة من لوحة Neon. التنزيل أدناه نسخة إضافية تحفظها لديك.",
   "adminBackupSaveSchedule": "حفظ جدول النسخ",
   "adminBackupScheduleHelp": "يُحفظ تفضيل الجدول فقط. لتنزيل ملف نسخة فعلي استخدم القسم أدناه.",
   "adminBackupDownloadTitle": "تنزيل نسخة من قاعدة البيانات",

@@ -55,16 +55,10 @@ const updateStoreSchema = z.object({
   tab: z.string(),
   payload: z.any(),
 });
-const backupScheduleValues = new Set(["OFF", "DAILY", "WEEKLY", "MONTHLY"]);
 
 export async function getAdminSettingsData() {
   await ensureAdmin();
   const store = await getOrCreateStoreSettings();
-  const users = await db.user.findMany({
-    select: { id: true, firstName: true, lastName: true, email: true, role: true, isActive: true, updatedAt: true },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
   let legal = { terms: null, privacy: null };
   let homepage = { banners: [], offers: [] };
   try {
@@ -85,41 +79,7 @@ export async function getAdminSettingsData() {
   } catch {
     /* optional homepage tables */
   }
-  return { store, users, legal, homepage };
-}
-
-export async function getSettingsUsersPage(input = {}) {
-  await ensureAdmin();
-  const page = Math.max(1, Number(input.page) || 1);
-  const take = Math.min(100, Math.max(5, Number(input.take) || 10));
-  const search = String(input.search || "").trim();
-  const role = String(input.role || "all").toUpperCase();
-
-  const where = {
-    ...(role !== "ALL" && role !== "all" ? { role } : {}),
-    ...(search
-      ? {
-          OR: [
-            { firstName: { contains: search, mode: "insensitive" } },
-            { lastName: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-          ],
-        }
-      : {}),
-  };
-
-  const [rows, total] = await Promise.all([
-    db.user.findMany({
-      where,
-      select: { id: true, firstName: true, lastName: true, email: true, role: true, isActive: true, updatedAt: true },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * take,
-      take,
-    }),
-    db.user.count({ where }),
-  ]);
-
-  return { success: true, rows, total, page, take, pages: Math.max(1, Math.ceil(total / take)) };
+  return { store, legal, homepage };
 }
 
 export async function updateSettings(input) {
@@ -154,67 +114,49 @@ export async function updateSettings(input) {
         instagramUrl: String(payload.instagramUrl ?? "").trim() || null,
         tiktokUrl: String(payload.tiktokUrl ?? "").trim() || null,
         defaultLanguage: payload.defaultLanguage === "en" ? "en" : "ar",
-        currency: ["SDG", "EGP", "USD", "SAR"].includes(String(payload.currency || ""))
-          ? String(payload.currency)
-          : "SDG",
-        maintenanceMode: !!payload.maintenanceMode,
       },
     });
   } else if (tab === "shipping") {
+    // Checkout charges from these zones; replace them together or not at all.
+    let zones = null;
     if (Array.isArray(payload.zones)) {
-      await db.shippingZone.deleteMany({ where: { storeId: store.id } });
-      if (payload.zones.length) {
-        await db.shippingZone.createMany({
-          data: payload.zones.map((z) => ({
-            storeId: store.id,
-            zoneName: z.zoneName,
-            governorates: Array.isArray(z.governorates) ? z.governorates : [],
-            shippingCost: Number(z.shippingCost || 0),
-            freeShippingMinOrder: z.freeShippingMinOrder ? Number(z.freeShippingMinOrder) : null,
-            deliveryDaysEstimate: z.deliveryDaysEstimate || "",
-          })),
+      zones = [];
+      for (const z of payload.zones) {
+        const zoneName = String(z?.zoneName ?? "").trim().slice(0, 120);
+        const governorates = (Array.isArray(z?.governorates) ? z.governorates : [])
+          .map((g) => String(g ?? "").trim().slice(0, 120))
+          .filter(Boolean);
+        const cost = z?.shippingCost === "" || z?.shippingCost == null ? NaN : Number(z.shippingCost);
+        if (!zoneName || !governorates.length || !Number.isFinite(cost) || cost < 0 || cost > 1e9) {
+          return { success: false, error: "Each zone needs a name, at least one area and a delivery cost of 0 or more.", errorCode: "ZONE_INVALID" };
+        }
+        zones.push({
+          storeId: store.id,
+          zoneName,
+          governorates,
+          shippingCost: Math.round(cost * 100) / 100,
+          deliveryDaysEstimate: String(z?.deliveryDaysEstimate ?? "").trim().slice(0, 60),
         });
       }
     }
-    await db.store.update({
-      where: { id: store.id },
-      data: {
-        globalFreeShippingEnabled: !!payload.globalFreeShippingEnabled,
-        globalFreeShippingAmount: payload.globalFreeShippingAmount ? Number(payload.globalFreeShippingAmount) : null,
-        cashOnDeliveryEnabled: !!payload.cashOnDeliveryEnabled,
-        deliveryNotesAr: payload.deliveryNotesAr || null,
-        deliveryNotesEn: payload.deliveryNotesEn || null,
-        defaultDeliveryEstimateAr: payload.defaultDeliveryEstimateAr || null,
-        defaultDeliveryEstimateEn: payload.defaultDeliveryEstimateEn || null,
-      },
+    await db.$transaction(async (tx) => {
+      if (zones) {
+        await tx.shippingZone.deleteMany({ where: { storeId: store.id } });
+        if (zones.length) await tx.shippingZone.createMany({ data: zones });
+      }
+      await tx.store.update({
+        where: { id: store.id },
+        data: {
+          deliveryNotesAr: payload.deliveryNotesAr || null,
+          deliveryNotesEn: payload.deliveryNotesEn || null,
+          defaultDeliveryEstimateAr: payload.defaultDeliveryEstimateAr || null,
+          defaultDeliveryEstimateEn: payload.defaultDeliveryEstimateEn || null,
+        },
+      });
     });
   } else if (tab === "payment") {
-    if (payload.syncPaymentMethods === true && Array.isArray(payload.methods)) {
-      await db.paymentMethod.deleteMany({ where: { storeId: store.id } });
-      if (payload.methods.length) {
-        await db.paymentMethod.createMany({
-          data: payload.methods.map((m) => ({
-            storeId: store.id,
-            code: String(m.code || "").trim() || "METHOD",
-            labelAr: String(m.labelAr || "").trim() || String(m.code || "Method"),
-            labelEn: String(m.labelEn || "").trim() || String(m.code || "Method"),
-            isEnabled: !!m.isEnabled,
-            apiKey: m.apiKey || null,
-            apiSecret: m.apiSecret || null,
-            instructionsAr: m.instructionsAr || null,
-            instructionsEn: m.instructionsEn || null,
-          })),
-        });
-      }
-    }
-    const paymentData = {
-      invoicePrefix: payload.invoicePrefix || "INV-",
-      vatEnabled: !!payload.vatEnabled,
-      vatPercentage: payload.vatPercentage ? Number(payload.vatPercentage) : null,
-      vatLabelAr: payload.vatLabelAr || null,
-      vatLabelEn: payload.vatLabelEn || null,
-      minOrderAmount: payload.minOrderAmount ? Number(payload.minOrderAmount) : null,
-    };
+    // Only the bank-transfer details shown at checkout are read by the shop (no tax: P2.4/P3.4).
+    const paymentData = {};
     if (payload.bankTransferProofWhatsapp !== undefined) {
       const norm = normalizeBankTransferProofWhatsappInput(payload.bankTransferProofWhatsapp);
       if (!norm.ok) {
@@ -267,51 +209,6 @@ export async function updateSettings(input) {
       },
     });
     revalidatePath("/pos");
-  } else if (tab === "notifications") {
-    const prev = store.notificationConfig || {};
-    const notificationPayload = {
-      emailNewOrderAdmin:
-        payload.emailNewOrderAdmin !== undefined
-          ? !!payload.emailNewOrderAdmin
-          : (prev.emailNewOrderAdmin ?? true),
-      emailOrderStatusCustomer:
-        payload.emailOrderStatusCustomer !== undefined
-          ? !!payload.emailOrderStatusCustomer
-          : (prev.emailOrderStatusCustomer ?? true),
-      emailLowStockAdmin:
-        payload.emailLowStockAdmin !== undefined
-          ? !!payload.emailLowStockAdmin
-          : (prev.emailLowStockAdmin ?? true),
-      emailNewReturnAdmin:
-        payload.emailNewReturnAdmin !== undefined
-          ? !!payload.emailNewReturnAdmin
-          : (prev.emailNewReturnAdmin ?? true),
-      smsWhatsappEnabled:
-        payload.smsWhatsappEnabled !== undefined
-          ? !!payload.smsWhatsappEnabled
-          : (prev.smsWhatsappEnabled ?? false),
-      adminRecipients:
-        payload.adminRecipients !== undefined ? payload.adminRecipients || null : prev.adminRecipients ?? null,
-    };
-    await db.notificationConfig.upsert({
-      where: { storeId: store.id },
-      update: notificationPayload,
-      create: { storeId: store.id, ...notificationPayload },
-    });
-  } else if (tab === "seo") {
-    await db.store.update({
-      where: { id: store.id },
-      data: {
-        seoMetaTitleAr: payload.seoMetaTitleAr || null,
-        seoMetaTitleEn: payload.seoMetaTitleEn || null,
-        seoMetaDescriptionAr: payload.seoMetaDescriptionAr || null,
-        seoMetaDescriptionEn: payload.seoMetaDescriptionEn || null,
-        googleAnalyticsId: payload.googleAnalyticsId || null,
-        googleSearchConsoleVerification: payload.googleSearchConsoleVerification || null,
-        robotsTxt: payload.robotsTxt || null,
-        seoOgImageUrl: payload.seoOgImageUrl || null,
-      },
-    });
   } else if (tab === "legal") {
     try {
     const termsAr = sanitizeLegalHtml(String(payload.termsAr ?? ""));
@@ -357,34 +254,6 @@ export async function updateSettings(input) {
       },
     });
     revalidatePath("/about");
-  } else if (tab === "users") {
-    if (payload.updateUser?.id) {
-      const role = String(payload.updateUser.role || "").toUpperCase();
-      if (!["ADMIN", "MANAGER", "CASHIER", "CUSTOMER"].includes(role)) {
-        return { success: false, error: "Invalid role value" };
-      }
-      await db.user.update({
-        where: { id: payload.updateUser.id },
-        data: {
-          role,
-          isActive:
-            payload.updateUser.isActive !== undefined ? !!payload.updateUser.isActive : true,
-        },
-      });
-    }
-  } else if (tab === "system") {
-    await db.store.update({ where: { id: store.id }, data: { maintenanceMode: !!payload.maintenanceMode } });
-  } else if (tab === "backup") {
-    const backupSchedule = String(payload.backupSchedule || "OFF").toUpperCase();
-    if (!backupScheduleValues.has(backupSchedule)) {
-      return { success: false, error: "Invalid backup schedule value." };
-    }
-    await db.store.update({
-      where: { id: store.id },
-      data: {
-        backupSchedule,
-      },
-    });
   } else if (tab === "homepage") {
     const type = String(payload.type || "").toLowerCase();
     const action = String(payload.action || "").toLowerCase();
@@ -528,76 +397,5 @@ export async function updateSettings(input) {
   } catch (error) {
     console.error("Settings save failed:", error);
     return { success: false, error: error?.message || "Failed to save settings" };
-  }
-}
-
-const clearDemoSchema = z.object({
-  confirmation: z.string().trim(),
-});
-
-function normalizeDeleteResult(v) {
-  if (typeof v?.count === "number") return v.count;
-  if (typeof v === "number") return v;
-  return 0;
-}
-
-export async function clearTestDataAction(input = {}) {
-  try {
-    await ensureAdmin();
-    const parsed = clearDemoSchema.safeParse(input);
-    if (!parsed.success) return { success: false, error: "invalid_input" };
-    const phrase = parsed.data.confirmation.toUpperCase();
-    if (phrase !== "DELETE TEST DATA") {
-      return { success: false, error: "confirmation_mismatch" };
-    }
-
-    const stats = await db.$transaction(async (tx) => {
-      const out = {};
-      out.notifications = normalizeDeleteResult(await tx.notification.deleteMany({}));
-      // Clear all audit logs so control-panel activity history is removed when clearing test data
-      out.auditLogs = normalizeDeleteResult(await tx.auditLog.deleteMany({}));
-
-      out.contactMessages = normalizeDeleteResult(await tx.contactMessage.deleteMany({}));
-      out.newsletter = normalizeDeleteResult(await tx.newsletter.deleteMany({}));
-      out.transactions = normalizeDeleteResult(await tx.transaction.deleteMany({}));
-      out.coupons = normalizeDeleteResult(await tx.coupon.deleteMany({}));
-      out.offers = normalizeDeleteResult(await tx.offer.deleteMany({}));
-      out.banners = normalizeDeleteResult(await tx.banner.deleteMany({}));
-      out.faq = normalizeDeleteResult(await tx.faq.deleteMany({}));
-
-      out.reviewHelpfulVotes = normalizeDeleteResult(await tx.reviewHelpfulVote.deleteMany({}));
-      out.reviews = normalizeDeleteResult(await tx.review.deleteMany({}));
-      out.wishlistItems = normalizeDeleteResult(await tx.wishlistItem.deleteMany({}));
-      out.stockAlerts = normalizeDeleteResult(await tx.productStockAlert.deleteMany({}));
-
-      out.returnItems = normalizeDeleteResult(await tx.orderReturnItem.deleteMany({}));
-      out.orderReturns = normalizeDeleteResult(await tx.orderReturn.deleteMany({}));
-      out.orderItems = normalizeDeleteResult(await tx.orderItem.deleteMany({}));
-      out.invoices = normalizeDeleteResult(await tx.invoice.deleteMany({}));
-      out.orders = normalizeDeleteResult(await tx.order.deleteMany({}));
-
-      out.stockMovements = normalizeDeleteResult(await tx.stockMovement.deleteMany({}));
-      out.purchaseItems = normalizeDeleteResult(await tx.purchaseItem.deleteMany({}));
-      out.purchases = normalizeDeleteResult(await tx.purchase.deleteMany({}));
-
-      out.products = normalizeDeleteResult(await tx.product.deleteMany({}));
-      out.categories = normalizeDeleteResult(await tx.category.deleteMany({}));
-      out.suppliers = normalizeDeleteResult(await tx.supplier.deleteMany({}));
-
-      return out;
-    });
-
-    revalidatePublicStorefront();
-    revalidatePath("/admin");
-    revalidatePath("/admin/inventory");
-    revalidatePath("/admin/suppliers");
-    revalidatePath("/admin/orders");
-    revalidatePath("/admin/accounting");
-    revalidatePath("/admin/settings");
-
-    return { success: true, stats };
-  } catch (error) {
-    console.error("clearTestDataAction failed:", error);
-    return { success: false, error: error?.message || "Failed to clear test data." };
   }
 }

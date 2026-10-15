@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-// The proxy only matches /admin pages, not /api/admin, so every admin API
-// handler has to authenticate on its own.
-const ADMIN_API = path.resolve(__dirname, "../../../src/app/api/admin");
+// The proxy only matches /admin pages, not the API, so every admin-only API
+// handler (the database backup) has to authenticate on its own.
+const ADMIN_API = path.resolve(__dirname, "../../../src/app/api/backup");
 const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
 function routeFiles(dir: string): string[] {
