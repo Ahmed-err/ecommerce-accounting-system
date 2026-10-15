@@ -450,6 +450,7 @@ const dictionary = {
   "adminContactsTitle": "Contact messages",
   "adminContactsSubtitle": "Customer inquiries from the website form",
   "contactsConfirmDelete": "Delete this message?",
+  "contactsReplyNotEmailed": "Reply saved but not emailed: email sending isn't set up yet. Contact the customer by phone.",
   "contactStatusNew": "New",
   "contactStatusRead": "Read",
   "contactStatusReplied": "Replied",

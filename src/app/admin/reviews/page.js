@@ -24,5 +24,15 @@ export default async function AdminReviewsPage({ searchParams }) {
 
   if (!data.ok) redirect("/admin");
 
-  return <ReviewsManagerClient initialRows={data.rows} stats={data.stats} />;
+  // Keyed by the query so new filters/pages replace the client's rows.
+  return (
+    <ReviewsManagerClient
+      key={JSON.stringify(params || {})}
+      initialRows={data.rows}
+      stats={data.stats}
+      total={data.total}
+      page={data.page}
+      pages={data.pages}
+    />
+  );
 }

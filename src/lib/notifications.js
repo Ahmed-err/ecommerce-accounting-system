@@ -24,7 +24,7 @@ export async function createNotification(input) {
 export async function createAdminBroadcastNotification(input) {
   try {
     const admins = await db.user.findMany({
-      where: { role: { in: ["ADMIN", "MANAGER"] } },
+      where: { role: { in: ["ADMIN", "MANAGER"] }, isActive: true },
       select: { id: true },
     });
     if (!admins.length) return { count: 0 };

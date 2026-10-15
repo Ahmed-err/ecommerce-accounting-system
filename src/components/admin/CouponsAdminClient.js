@@ -12,6 +12,15 @@ import {
   updateCouponAdmin,
 } from "@/app/actions/coupons-admin";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { SHOP_TIME_ZONE, shopClockOf, shopDayKey } from "@/lib/shop-time";
+
+// Expiry is on the shop's clock (Khartoum) with Western digits, wherever the browser is.
+function formatExpiry(value, lang) {
+  return new Date(value).toLocaleString(lang === "ar" ? "ar-SD-u-nu-latn" : "en-GB", {
+    day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: SHOP_TIME_ZONE,
+  });
+}
 
 function CouponForm({ value, onChange, onSubmit, onCancel, saving, t, isEdit = false, lang = "en" }) {
   const isAr = lang === "ar";
@@ -110,6 +119,7 @@ export default function CouponsAdminClient({
   });
   const [isPending, startTransition] = useTransition();
   const formWrapRef = useRef(null);
+  const [confirm, confirmDialog] = useConfirm();
 
   const load = (next = {}) => {
     const q = {
@@ -160,26 +170,14 @@ export default function CouponsAdminClient({
       setError(res.error || "Failed to update coupon.");
       return;
     }
-    setRows((prev) =>
-      prev.map((row) =>
-        row.id === editingId
-          ? {
-              ...row,
-              code: String(form.code || "").trim().toUpperCase(),
-              percentOff: Math.round(Number(form.percentOff) || row.percentOff),
-              expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
-              isActive: form.isActive !== false,
-            }
-          : row
-      )
-    );
     resetForm();
     load();
     router.refresh();
   };
 
   const handleDelete = async (id) => {
-    if (!confirm(lang === "ar" ? "حذف هذا الكوبون؟" : "Delete this coupon?")) return;
+    const body = lang === "ar" ? "الطلبات التي استخدمته تحتفظ بخصمها. لإيقافه مؤقتاً اجعله غير نشط بدلاً من الحذف." : "Orders that used it keep their discount. To pause it, set it inactive instead.";
+    if (!(await confirm({ title: lang === "ar" ? "حذف هذا الكوبون؟" : "Delete this coupon?", body, action: t.delete, danger: true }))) return;
     const res = await deleteCouponAdmin(id);
     if (!res.success) {
       setError(res.error || "Failed to delete coupon.");
@@ -194,7 +192,7 @@ export default function CouponsAdminClient({
     setForm({
       code: row.code || "",
       percentOff: String(row.percentOff ?? 10),
-      expiresAt: row.expiresAt ? new Date(row.expiresAt).toISOString().slice(0, 16) : "",
+      expiresAt: row.expiresAt ? `${shopDayKey(row.expiresAt)}T${shopClockOf(row.expiresAt)}` : "",
       isActive: !!row.isActive,
     });
     formWrapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -252,13 +250,38 @@ export default function CouponsAdminClient({
         <div className="ms-auto text-xs text-muted-foreground">{lang === "ar" ? "الإجمالي" : "Total"}: {total}</div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-card/70">
+      {/* Phone: one card per coupon */}
+      <ul className="space-y-2 md:hidden">
+        {rows.length === 0 && (
+          <li className="rounded-xl border border-border bg-card/70 px-4 py-8 text-center text-muted-foreground">{lang === "ar" ? "لا توجد كوبونات" : "No coupons found"}</li>
+        )}
+        {rows.map((row) => (
+          <li key={row.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card/70 p-3 text-sm">
+            <div className="min-w-0 space-y-1">
+              <p className="font-mono font-semibold text-accent-text dark:text-amber-400">{row.code} · {row.percentOff}%</p>
+              <p className="text-xs text-muted-foreground">
+                {row.expiresAt ? formatExpiry(row.expiresAt, lang) : (lang === "ar" ? "بدون تاريخ" : "No expiry")} · {lang === "ar" ? "مرات الاستخدام" : "Used"}: <span className="tabular-nums">{row.uses ?? 0}</span>
+              </p>
+              <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${isExpired(row) ? "bg-red-500/15 text-red-700 dark:text-red-300" : row.isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+                {isExpired(row) ? (lang === "ar" ? "منتهي" : "Expired") : row.isActive ? (lang === "ar" ? "نشط" : "Active") : (lang === "ar" ? "غير نشط" : "Inactive")}
+              </span>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button type="button" variant="outline" size="icon" onClick={() => startEdit(row)} className="h-9 w-9" aria-label={t.edit}><Edit className="h-4 w-4" /></Button>
+              <Button type="button" variant="outline" size="icon" onClick={() => handleDelete(row.id)} className="h-9 w-9 border-red-500/40 text-red-700 dark:text-red-300" aria-label={t.delete}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-xl border border-border bg-card/70 md:block">
         <table className="min-w-full text-sm">
           <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3">{lang === "ar" ? "الكود" : "Code"}</th>
               <th className="px-4 py-3">{lang === "ar" ? "الخصم" : "Discount"}</th>
               <th className="px-4 py-3">{lang === "ar" ? "ينتهي" : "Expires"}</th>
+              <th className="px-4 py-3">{lang === "ar" ? "مرات الاستخدام" : "Times used"}</th>
               <th className="px-4 py-3">{lang === "ar" ? "الحالة" : "Status"}</th>
               <th className="px-4 py-3">{lang === "ar" ? "إجراءات" : "Actions"}</th>
             </tr>
@@ -266,7 +289,7 @@ export default function CouponsAdminClient({
           <tbody className="divide-y divide-border">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                   <TicketPercent className="mx-auto mb-2 h-6 w-6 opacity-40" />
                   {lang === "ar" ? "لا توجد كوبونات" : "No coupons found"}
                 </td>
@@ -277,8 +300,9 @@ export default function CouponsAdminClient({
                   <td className="px-4 py-3 font-mono text-accent-text dark:text-amber-400">{row.code}</td>
                   <td className="px-4 py-3 text-foreground">{row.percentOff}%</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {row.expiresAt ? new Date(row.expiresAt).toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : (lang === "ar" ? "بدون تاريخ" : "No expiry")}
+                    {row.expiresAt ? formatExpiry(row.expiresAt, lang) : (lang === "ar" ? "بدون تاريخ" : "No expiry")}
                   </td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{row.uses ?? 0}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2 py-1 text-xs font-bold ${isExpired(row) ? "bg-red-500/15 text-red-700 dark:text-red-300" : row.isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
                       {isExpired(row) ? (lang === "ar" ? "منتهي" : "Expired") : row.isActive ? (lang === "ar" ? "نشط" : "Active") : (lang === "ar" ? "غير نشط" : "Inactive")}
@@ -289,7 +313,7 @@ export default function CouponsAdminClient({
                       <Button type="button" variant="outline" size="icon" onClick={() => startEdit(row)} className="h-8 w-8 border-border text-foreground hover:bg-muted">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="outline" size="icon" onClick={() => handleDelete(row.id)} className="h-8 w-8 border-red-500/40 text-red-300 hover:bg-red-500/10">
+                      <Button type="button" variant="outline" size="icon" onClick={() => handleDelete(row.id)} className="h-8 w-8 border-red-500/40 text-red-700 hover:bg-red-500/10 dark:text-red-300">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -324,6 +348,7 @@ export default function CouponsAdminClient({
           {lang === "ar" ? "التالي" : "Next"}
         </Button>
       </div>
+      {confirmDialog}
     </div>
   );
 }

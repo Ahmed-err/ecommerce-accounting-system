@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { shopClock } from "@/lib/shop-time";
 
 async function ensureAdmin() {
   const session = await auth();
@@ -16,11 +17,11 @@ function normalizeCode(code) {
   return String(code || "").trim().toUpperCase();
 }
 
+/** The form's "YYYY-MM-DDTHH:MM" is the shop's clock (Khartoum), not the server's (UTC). */
 function parseExpiresAt(value) {
   const raw = String(value || "").trim();
-  if (!raw) return null;
-  const date = new Date(raw);
-  return Number.isNaN(date.getTime()) ? null : date;
+  const m = raw.match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/);
+  return m ? shopClock(m[1], m[2] || "23:59") : null;
 }
 
 export async function listCouponsAdmin({ page = 1, limit = 20, search = "", status = "all" } = {}) {
@@ -57,7 +58,23 @@ export async function listCouponsAdmin({ page = 1, limit = 20, search = "", stat
       db.coupon.count({ where }),
     ]);
 
-    return { success: true, rows, total, page: currentPage, pages: Math.max(1, Math.ceil(total / take)) };
+    // Times used: orders (not cancelled) that carry the code.
+    const used = rows.length
+      ? await db.order.groupBy({
+          by: ["couponCode"],
+          where: { couponCode: { in: rows.map((r) => r.code) }, status: { not: "CANCELLED" } },
+          _count: { _all: true },
+        })
+      : [];
+    const uses = new Map(used.map((u) => [u.couponCode, u._count._all]));
+
+    return {
+      success: true,
+      rows: rows.map((r) => ({ ...r, uses: uses.get(r.code) || 0 })),
+      total,
+      page: currentPage,
+      pages: Math.max(1, Math.ceil(total / take)),
+    };
   } catch (error) {
     console.error("listCouponsAdmin:", error);
     return { success: false, error: "Failed to load coupons." };
