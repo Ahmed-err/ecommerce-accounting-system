@@ -148,7 +148,7 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
   }
 
   if (tab === "dashboard") {
-    const { kpis, stacked, pie, recent } = data;
+    const { kpis, stacked, pie, recent, owed } = data;
     const barData = (stacked || []).map((r) => ({
       name: r.month,
       store: r.store,
@@ -229,6 +229,21 @@ export function AccountingTabBody({ tab, data, t, lang, isRTL, permissions, onRe
             </motion.div>
           ))}
         </div>
+
+        {owed && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { k: "sup", label: t.accOwedSuppliers, v: owed.toSuppliers },
+              { k: "cus", label: t.accOwedCustomers, v: owed.fromCustomers },
+              { k: "bill", label: t.accOwedBills, v: owed.bills },
+            ].map((x) => (
+              <div key={x.k} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm">
+                <span className="text-muted-foreground">{x.label}</span>
+                <span className="font-semibold"><Money value={x.v} t={t} /></span>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="rounded-2xl border border-border bg-card p-4">

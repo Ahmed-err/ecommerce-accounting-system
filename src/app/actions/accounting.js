@@ -19,6 +19,7 @@ import {
   getPlTrend,
   getCashFlowSeries,
   getReportMonthlySummary,
+  getOwedSummary,
 } from "@/lib/accounting";
 import { bookDebtPayment, isEditableTransaction } from "@/lib/ledger";
 import {
@@ -302,17 +303,19 @@ export async function getAccountingTabData(tab, query = {}) {
 
     switch (tab) {
       case "dashboard": {
-        const [kpis, stacked, pie, recent] = await Promise.all([
+        const [kpis, stacked, pie, recent, owed] = await Promise.all([
           getDashboardKpis({ start, end }),
           getRevenueStoreVsPosMonthly({ start, end }),
           getExpenseCategoryBreakdown({ start, end }),
           getRecentUnifiedTransactions(10, { start, end }),
+          getOwedSummary(),
         ]);
         return {
           ok: true,
           tab,
           range: { start: start.toISOString(), end: end.toISOString(), preset },
           kpis,
+          owed,
           stacked,
           pie,
           recent,
