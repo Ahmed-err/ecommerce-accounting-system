@@ -196,7 +196,7 @@ export default function ReviewsManagerClient({ initialRows, stats, total = 0, pa
                 <td className="px-3 py-2 text-foreground">{productName(r)}</td>
                 <td className="px-3 py-2 text-muted-foreground">
                   {reviewer(r)}
-                  {r.verified && <span className="ms-1 text-xs text-emerald-700 dark:text-emerald-400">({ar ? "مشترٍ موثّق" : "verified buyer"})</span>}
+                  {r.verified && <div className="text-xs text-emerald-700 dark:text-emerald-400">{ar ? "مشترٍ موثّق" : "Verified buyer"}</div>}
                   <div className="text-xs">{formatDate(r.createdAt, lang)}</div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 text-amber-600 dark:text-amber-400">{"★".repeat(r.rating)}</td>

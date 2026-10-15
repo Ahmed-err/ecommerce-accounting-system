@@ -250,7 +250,31 @@ export default function CouponsAdminClient({
         <div className="ms-auto text-xs text-muted-foreground">{lang === "ar" ? "الإجمالي" : "Total"}: {total}</div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-card/70">
+      {/* Phone: one card per coupon */}
+      <ul className="space-y-2 md:hidden">
+        {rows.length === 0 && (
+          <li className="rounded-xl border border-border bg-card/70 px-4 py-8 text-center text-muted-foreground">{lang === "ar" ? "لا توجد كوبونات" : "No coupons found"}</li>
+        )}
+        {rows.map((row) => (
+          <li key={row.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card/70 p-3 text-sm">
+            <div className="min-w-0 space-y-1">
+              <p className="font-mono font-semibold text-accent-text dark:text-amber-400">{row.code} · {row.percentOff}%</p>
+              <p className="text-xs text-muted-foreground">
+                {row.expiresAt ? formatExpiry(row.expiresAt, lang) : (lang === "ar" ? "بدون تاريخ" : "No expiry")} · {lang === "ar" ? "مرات الاستخدام" : "Used"}: <span className="tabular-nums">{row.uses ?? 0}</span>
+              </p>
+              <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold ${isExpired(row) ? "bg-red-500/15 text-red-700 dark:text-red-300" : row.isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+                {isExpired(row) ? (lang === "ar" ? "منتهي" : "Expired") : row.isActive ? (lang === "ar" ? "نشط" : "Active") : (lang === "ar" ? "غير نشط" : "Inactive")}
+              </span>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button type="button" variant="outline" size="icon" onClick={() => startEdit(row)} className="h-9 w-9" aria-label={t.edit}><Edit className="h-4 w-4" /></Button>
+              <Button type="button" variant="outline" size="icon" onClick={() => handleDelete(row.id)} className="h-9 w-9 border-red-500/40 text-red-700 dark:text-red-300" aria-label={t.delete}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-xl border border-border bg-card/70 md:block">
         <table className="min-w-full text-sm">
           <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
