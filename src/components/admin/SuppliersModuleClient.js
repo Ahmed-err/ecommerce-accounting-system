@@ -758,9 +758,10 @@ ${p.invoiceRef ? `<p>${esc(t.suppliersInvoiceRef)}: ${esc(p.invoiceRef)}</p>` : 
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-border">
-        <table className="w-full text-sm text-muted-foreground">
-          <thead>
+      {/* Phone: each purchase is a labelled card; wider screens keep the table. */}
+      <div className="rounded-2xl border border-border sm:overflow-x-auto">
+        <table className="block w-full text-sm text-muted-foreground sm:table">
+          <thead className="hidden sm:table-header-group">
             <tr className="border-b border-border bg-muted/60 text-xs uppercase text-muted-foreground">
               <th className="p-2">{t.suppliersColPo}</th>
               <th className="p-2">{t.suppliersColDate}</th>
@@ -773,23 +774,23 @@ ${p.invoiceRef ? `<p>${esc(t.suppliersInvoiceRef)}: ${esc(p.invoiceRef)}</p>` : 
               <th className="p-2">{t.suppliersColActions}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="block divide-y divide-border sm:table-row-group sm:divide-y-0">
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-muted-foreground">{t.suppliersNoPurchases}</td>
+                <td colSpan={9} className="block p-8 text-center text-muted-foreground sm:table-cell">{t.suppliersNoPurchases}</td>
               </tr>
             )}
             {rows.map((r) => {
               const u = purchaseRowUi(r);
               return (
-              <tr key={r.id} className="border-b border-border">
-                <td className="p-2 font-mono text-xs">{r.purchaseNumber}</td>
-                <td className="p-2">{formatDate(r.createdAt, lang)}</td>
-                <td className="p-2">{r.supplierName}</td>
-                <td className="p-2">{r.itemCount}</td>
-                <td className="p-2">{fmt(r.totalAmount)}</td>
-                <td className="p-2">{fmt(r.paidAmount)}</td>
-                <td className="p-2">
+              <tr key={r.id} className="block p-3 sm:table-row sm:border-b sm:border-border sm:p-0">
+                <td data-label={t.suppliersColPo} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none font-mono text-xs">{r.purchaseNumber}</td>
+                <td data-label={t.suppliersColDate} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{formatDate(r.createdAt, lang)}</td>
+                <td data-label={t.suppliersColSupplier} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{r.supplierName}</td>
+                <td data-label={t.suppliersColItems} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{r.itemCount}</td>
+                <td data-label={t.suppliersColTotal} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{fmt(r.totalAmount)}</td>
+                <td data-label={t.suppliersColPaid} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{fmt(r.paidAmount)}</td>
+                <td data-label={t.suppliersColPayStatus} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">
                   <Badge
                     className={cn(
                       r.payment.key === "PAID" && "bg-emerald-600 text-white",
@@ -802,8 +803,8 @@ ${p.invoiceRef ? `<p>${esc(t.suppliersInvoiceRef)}: ${esc(p.invoiceRef)}</p>` : 
                     {t[PAY_LABEL[r.payment.key]] || r.payment.key}
                   </Badge>
                 </td>
-                <td className="p-2">{t[DELIVERY_LABEL[r.deliveryStatus]] || r.deliveryStatus}</td>
-                <td className="p-2">
+                <td data-label={t.suppliersColDelivery} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">{t[DELIVERY_LABEL[r.deliveryStatus]] || r.deliveryStatus}</td>
+                <td data-label={t.suppliersColActions} className="flex items-center justify-between gap-3 py-1 before:text-xs before:font-medium before:text-muted-foreground before:content-[attr(data-label)] sm:table-cell sm:p-2 sm:before:content-none">
                   <div className={cn("flex flex-wrap gap-1", isRTL && "flex-row-reverse")}>
                     <Button
                       type="button"
