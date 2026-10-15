@@ -9,12 +9,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createEmployee, updateEmployee } from "@/app/actions/employees";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { normalizeAppLang } from "@/lib/i18n-lang";
+import { isStrongPassword } from "@/lib/auth-identity";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const ROLES = ["ADMIN", "MANAGER", "CASHIER"];
 const DEPARTMENTS = ["Management", "Sales", "Warehouse", "Support", "IT", "Finance"];
 
 const today = () => new Date().toISOString().split("T")[0];
+
+/** Message for an employee action's error code. */
+export function employeeError(res, t) {
+  const key = {
+    LAST_ADMIN: "empErrLastAdmin",
+    OWN_ROLE: "empErrOwnRole",
+    WEAK_PASSWORD: "empErrWeakPassword",
+    EMAIL_TAKEN: "empErrEmailTaken",
+  }[res?.errorCode];
+  return key ? t[key] : t.errGeneric;
+}
 
 export default function EmployeeForm({ isOpen, onClose, employee }) {
   const router = useRouter();
@@ -80,8 +92,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
       if (!formData.firstName.trim() || !formData.lastName.trim())
         throw new Error(lang === 'ar' ? "الاسم الأول والأخير مطلوبان" : "First and last name are required.");
       if (!formData.email.trim()) throw new Error(lang === 'ar' ? "البريد الإلكتروني مطلوب" : "Email is required.");
-      if (!isEditing && (!formData.password || formData.password.length < 6))
-        throw new Error(lang === 'ar' ? "يجب أن تكون كلمة المرور ٦ أحرف على الأقل" : "Password must be at least 6 characters.");
+      if ((!isEditing || formData.password) && !isStrongPassword(formData.password)) throw new Error(t.empErrWeakPassword);
 
       const res = isEditing
         ? await updateEmployee(employee.id, formData)
@@ -91,7 +102,7 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
         router.refresh();
         onClose();
       } else {
-        setError(res.error || (lang === 'ar' ? "فشل حفظ الموظف" : "Failed to save employee."));
+        setError(employeeError(res, t));
       }
     } catch (err) {
       setError(err.message);
