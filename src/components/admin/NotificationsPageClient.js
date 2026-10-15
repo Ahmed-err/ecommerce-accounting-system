@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { formatDate } from "@/lib/account-format";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/context/LanguageContext";
@@ -116,7 +117,7 @@ export default function NotificationsPageClient() {
           <div key={n.id} className={`rounded-xl border p-4 sm:p-5 ${n.read ? "border-border bg-card" : "border-amber-500/40 bg-amber-500/10"}`}>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
               <p className="font-semibold text-sm text-foreground sm:text-base">{lang === "ar" ? n.titleAr : n.titleEn}</p>
-              <span className="shrink-0 text-[11px] text-muted-foreground sm:text-xs">{new Date(n.createdAt).toLocaleString()}</span>
+              <span className="shrink-0 text-[11px] text-muted-foreground sm:text-xs">{formatDate(n.createdAt, lang, true)}</span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{lang === "ar" ? n.bodyAr : n.bodyEn}</p>
             {n.link ? <p className="mt-1 break-all text-xs text-accent-text">{n.link}</p> : null}
