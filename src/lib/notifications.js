@@ -1,5 +1,5 @@
-"use server";
-
+// Server-side helpers only (no "use server"): as server actions these would be public endpoints
+// letting anyone create staff notifications or read another user's.
 import { prisma as db } from "@/lib/prisma";
 
 export async function createNotification(input) {

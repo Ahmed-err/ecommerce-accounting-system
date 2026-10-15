@@ -1,35 +1,28 @@
-# Go-Live Checklist
+# Go-Live Checklist (2026-10-16)
 
-## Pre-Deploy
-- [ ] `.env.production` populated with required keys.
-- [x] `npm run lint` passes.
-- [ ] `npm run build -- --webpack` passes.
-- [x] Migrations validated in staging.
-- [ ] Backup and restore drill completed.
+Status: the shop is live. These are the remaining items before calling it finished. Done by Claude unless marked **Owner**.
 
-## Deploy Day
-- [ ] Deploy application and run smoke checks (`npm run smoke` with `SMOKE_BASE_URL`).
-- [ ] Verify `/api/health` returns `{ ok: true }`.
-- [ ] Confirm auth login and checkout flow manually.
-- [ ] Confirm admin notifications and order status updates flow.
+## Must do
 
-## Observability
-- [x] Error tracking enabled and receiving events.
-- [x] Logs include correlation identifiers for critical flows.
-- [x] Alerts configured for 5xx spikes, checkout failures, DB saturation.
+- [ ] **Owner — email sending.** Add SMTP settings on Vercel (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_APP_PASSWORD`), then redeploy. Until then password-reset emails and replies to contact messages are not sent (the contact screen says so).
+- [ ] **Owner — rotate the Neon database password**, then update `DATABASE_URL` and `DIRECT_URL` on Vercel and redeploy.
+- [ ] **Owner — signed-in check on the live site** (10 minutes):
+  1. Admin: dashboard, orders (open one, change status), inventory, accounting, suppliers, employees, settings.
+  2. Manager: same menu without accounting, employees, coupons, settings.
+  3. Cashier: POS sale with a receipt; orders and inventory open, other pages redirect.
+  4. Customer: place a cash-on-delivery order, see it in "My orders", open its invoice.
+- [ ] **Owner — restore drill (Neon).** In the Neon console, create a branch from a point in time an hour ago, open its tables, check the latest orders are there, then delete the branch. This proves the automatic restore points work; nothing on the live database changes.
 
-## Notes (2026-03-30)
-- Lint passes with warnings only (no blocking errors).
-- Migration `20260330120000_notifications_system` was made idempotent and applied successfully.
-- Build verification is still blocked by local runtime instability/hangs and needs a clean CI/staging runner to produce final evidence.
-- Smoke run against local dev server timed out due severe compile/runtime instability (Turbopack panic observed).
+## Should do
 
-## Rollback Criteria
-- Checkout failure rate > 5% for 10 minutes.
-- Sustained 5xx > 2% for 10 minutes.
-- Critical auth/session failures.
+- [ ] **Owner — 106 products have no price** (they show "price on request").
+- [ ] **Owner — 23 product photos** to replace (`docs/rebuild/data/p1-3-photos-to-replace.csv`).
+- [ ] **Owner — confirm trust-badge claims** (free delivery, warranty, 24/7) are true, or have them changed.
+- [ ] **Owner (optional) —** fix the zone name "جبرةشمال" in Settings → Shipping.
+- [ ] **Owner (optional) —** error alerts: set `ERROR_TRACKING_WEBHOOK_URL` / `ALERT_WEBHOOK_URL` on Vercel if you want server errors pushed somewhere (`src/lib/monitoring.js`).
 
-## Rollback Steps
-1. Revert to last stable deploy.
-2. Re-run smoke checks.
-3. Notify stakeholders and open incident report.
+## Rollback
+
+1. Vercel → Deployments → the last good production deployment → "Promote to Production" (instant).
+2. Data mistakes: Neon point-in-time restore (to a branch first, then promote it).
+3. Run `SMOKE_BASE_URL=https://www.himmat.store npm run smoke`.
