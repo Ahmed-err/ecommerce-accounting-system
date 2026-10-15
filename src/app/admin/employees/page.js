@@ -38,6 +38,7 @@ export default async function EmployeesPage({ searchParams }) {
       search: params?.search || "",
       role: params?.role || "all",
       department: params?.department || "",
+      status: params?.status === "inactive" ? "inactive" : "active",
       page,
     });
   }
