@@ -1,34 +1,22 @@
-# Backup & Restore Drill Evidence
+# Backup & Restore Drill
 
-## Objective
-Prove that backups can be restored within agreed RTO/RPO before production go-live.
+The database is on Neon, which keeps automatic restore points (point-in-time restore). That is the recovery path; the "download backup" button in Settings → Backup is an extra copy.
 
-## Required Inputs
-- `DATABASE_URL` for source database
-- `STAGING_RESTORE_DATABASE_URL` for isolated restore target
-- `pg_dump` and `pg_restore` binaries available in runner
+## Drill (owner, ~10 minutes, live data untouched)
 
-## Drill Steps
-1. Take logical backup:
-   - `pg_dump --format=custom --file=backup.dump "$DATABASE_URL"`
-2. Restore into staging target:
-   - `pg_restore --clean --if-exists --no-owner --no-privileges --dbname="$STAGING_RESTORE_DATABASE_URL" backup.dump`
-3. Validate critical flows on restored DB:
-   - login
-   - product listing
-   - checkout write path
-   - admin orders
-4. Record timing:
-   - backup start/end
-   - restore start/end
-   - validation start/end
+1. Neon console → the project → **Branches** → **Create branch**, choose **Past data / point in time**, about one hour ago.
+2. Open the new branch's **Tables**: check `Order` and `Product` have recent rows.
+3. Delete the branch.
 
-## Evidence Log
+## Real restore
+
+1. Create the branch at the moment before the mistake (as above) and check its data.
+2. Either promote it to be the main branch in Neon, or point `DATABASE_URL` / `DIRECT_URL` on Vercel at it and redeploy.
+3. Run `SMOKE_BASE_URL=https://www.himmat.store npm run smoke`.
+
+## Evidence
+
 - Drill date:
-- Operator:
-- Backup duration:
-- Restore duration:
-- RTO met (Y/N):
-- RPO met (Y/N):
-- Validation result:
-- Follow-up actions:
+- By:
+- Point restored:
+- Rows checked:
