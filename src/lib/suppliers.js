@@ -315,7 +315,7 @@ export async function getPurchaseDetailAdmin(id) {
     where: { id },
     include: {
       supplier: true,
-      items: { include: { product: { select: { id: true, name: true, sku: true, stock: true } } } },
+      items: { include: { product: { select: { id: true, name: true, nameAr: true, sku: true, stock: true } } } },
     },
   });
 }

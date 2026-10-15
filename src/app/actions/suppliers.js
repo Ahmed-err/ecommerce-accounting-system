@@ -119,7 +119,8 @@ export async function loadPurchaseDetailAction(id) {
   try {
     await ensure();
     const data = await getPurchaseDetailAdmin(id);
-    return { ok: true, data };
+    // Decimals become strings so the result can cross to the browser.
+    return { ok: true, data: data ? JSON.parse(JSON.stringify(data)) : null };
   } catch (e) {
     return { ok: false, error: e.message };
   }
@@ -512,51 +513,6 @@ export async function updatePurchaseMetaAction(purchaseId, raw) {
     revalidatePath("/admin/suppliers");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e.message };
-  }
-}
-
-async function buildPurchasePdfBuffer(purchase) {
-  const PDFDocument = (await import("pdfkit")).default;
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50 });
-    const chunks = [];
-    doc.on("data", (c) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-
-    doc.fontSize(18).text(`Purchase Order ${purchase.purchaseNumber}`, { underline: true });
-    doc.moveDown();
-    doc.fontSize(11).text(`Supplier: ${purchase.supplier?.name || ""}`);
-    doc.text(`Date: ${purchase.createdAt?.toISOString?.().slice(0, 10) || ""}`);
-    doc.text(`Invoice ref: ${purchase.invoiceRef || "—"}`);
-    doc.moveDown();
-    doc.fontSize(12).text("Items", { underline: true });
-    purchase.items?.forEach((it, i) => {
-      if (doc.y > doc.page.height - 120) {
-        doc.addPage();
-      }
-      doc.fontSize(10).text(
-        `${i + 1}. ${it.product?.name || it.productId} × ${it.quantity} @ ${Number(it.unitCost).toLocaleString()} = ${Number(it.lineTotal).toLocaleString()}`
-      );
-    });
-    doc.moveDown();
-    doc.fontSize(12).text(`Total: ${Number(purchase.totalAmount).toLocaleString()}`);
-    doc.text(`Paid: ${Number(purchase.paidAmount).toLocaleString()}`);
-    doc.end();
-  });
-}
-
-export async function exportPurchasePdfAction(purchaseId) {
-  try {
-    await ensure();
-    const p = await getPurchaseDetailAdmin(purchaseId);
-    if (!p) return { ok: false, error: "not_found" };
-    const buf = await buildPurchasePdfBuffer(p);
-    const safeName = String(p.purchaseNumber || "purchase").replace(/[/\\?%*:|"<>]/g, "-");
-    return { ok: true, base64: buf.toString("base64"), filename: `${safeName}.pdf` };
-  } catch (e) {
-    console.error(e);
     return { ok: false, error: e.message };
   }
 }

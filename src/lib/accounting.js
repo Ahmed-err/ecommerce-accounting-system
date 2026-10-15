@@ -594,3 +594,25 @@ export async function getReportMonthlySummary({ start, end }) {
   const top = await getTopProductsByRevenue({ start, end, limit: 15 });
   return { pl, cats, revSplit, top };
 }
+
+/** What is owed right now, whatever the period: to suppliers, by customers (pay later), and bills. */
+export async function getOwedSummary() {
+  const [purchases, ledger] = await Promise.all([
+    db.purchase.findMany({
+      where: { deliveryStatus: { not: "CANCELLED" } },
+      select: { totalAmount: true, paidAmount: true },
+    }),
+    db.ledgerInvoice.groupBy({
+      by: ["direction"],
+      where: { status: "PENDING" },
+      _sum: { amount: true },
+    }),
+  ]);
+  const toSuppliers = purchases.reduce((s, p) => s + Math.max(0, n(p.totalAmount) - n(p.paidAmount)), 0);
+  const sumFor = (dir) => n(ledger.find((r) => r.direction === dir)?._sum.amount);
+  return {
+    toSuppliers: Math.round(toSuppliers * 100) / 100,
+    fromCustomers: sumFor("RECEIVABLE"),
+    bills: sumFor("PAYABLE"),
+  };
+}
