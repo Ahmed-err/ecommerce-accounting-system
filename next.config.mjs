@@ -12,6 +12,7 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
   images: {
     qualities: [75, 90],
     dangerouslyAllowSVG: true,
