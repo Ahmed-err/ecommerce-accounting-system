@@ -450,6 +450,7 @@ const dictionary = {
   "adminContactsTitle": "رسائل التواصل",
   "adminContactsSubtitle": "استفسارات العملاء من نموذج الموقع",
   "contactsConfirmDelete": "حذف هذه الرسالة؟",
+  "contactsReplyNotEmailed": "حُفظ الرد، لكنه لم يُرسل بالبريد: إرسال البريد غير مُعد بعد. تواصل مع العميل هاتفياً.",
   "contactStatusNew": "جديد",
   "contactStatusRead": "مقروء",
   "contactStatusReplied": "تم الرد",

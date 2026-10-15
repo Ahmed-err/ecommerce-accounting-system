@@ -5,12 +5,13 @@ Roadmap: [`docs/superpowers/specs/2026-10-03-app-rebuild-roadmap-design.md`](../
 
 ## Now
 
-- **Current part:** P3.7 Employees & HR (branch `rebuild/p3-7-employees`)
-- **Step:** 4 — built (parts/P3.7.md); PR open, CI next. No migration.
+- **Current part:** P3.8 Engagement admin (branch `rebuild/p3-8-engagement`)
+- **Step:** 4 — built (parts/P3.8.md); PR open, CI next. No migration.
 - **Last done:** P2.7 done — #29 merged, deployed 2026-10-11; legal text applied (2 rows, old values in export/); live robots, sitemap (170 URLs, no auth pages), manifest, share image, terms, track-order noindex checked.
 - **Built (2026-10-14, P3.3):** `src/lib/order-workflow.js` status rules per role + cancel/reinstate effects (A-23/A-25/A-26); returns priced from the order and capped by earlier returns; approving books the refund; `Order.deliveredAt` migration (return window); store credit removed; sales = not cancelled everywhere; dead `order-management.js` (A-24) removed. Still `ar-EG` digits in accounting, employees, reviews (their parts).
 - **Built (2026-10-14, P3.2):** one stock helper `src/lib/stock.js` records every stock change (checkout, cancel, return, refund, POS, receive/issue, +/−, create/edit; A-28); edit applies only the user\'s change; hide/restore (A-20); summary in SQL; Select labels fixed app-wide (Base UI `items`); cashiers can open inventory and receive only; import-tax table → printout.
 - **Built (2026-10-13):** dashboard from orders (no cancelled) + grouped SQL chart + real period change, Arabic labels; one role map `src/lib/staff-access.js` for proxy/pages/sidebar (checked locally: admin, manager, cashier menus + cashier redirects); read-only access table replaces the permission matrix; Himmat lockup + page title in admin header. Local `/pos` load hung in dev (low memory); CI e2e `pos-cashier` decides.
+- **Done:** P3.7 — #36 merged, deployed 2026-10-16 (no migration); live `/admin/employees` sends signed-out visitors to login.
 - **Done:** P3.6 — #35 merged, deployed 2026-10-15 (`CANCELLED` purchase status migration ran); live `/admin/suppliers` sends signed-out visitors to login.
 - **Done:** P3.5 — #34 merged, deployed 2026-10-15 (`ledger_sources` migration ran); live `/admin/accounting` sends signed-out visitors to login. Signed-in checks not done live.
 - **Done:** P3.4 — #33 merged, deployed 2026-10-15; live `/pos` sends signed-out visitors to login, store pages 200. Signed-in checks not done live.
@@ -52,8 +53,8 @@ Status: `todo` · `audit` · `design` · `build` · `test` · `review` · `done`
 | P3.4 | POS | done | #33 | parts/P3.4.md; also P3.1–P3.3 review fixes |
 | P3.5 | Accounting | done | #34 | parts/P3.5.md |
 | P3.6 | Suppliers & purchases | done | #35 | parts/P3.6.md |
-| P3.7 | Employees & HR | build | `rebuild/p3-7-employees` | parts/P3.7.md |
-| P3.8 | Engagement admin | todo | | |
+| P3.7 | Employees & HR | done | #36 | parts/P3.7.md |
+| P3.8 | Engagement admin | build | `rebuild/p3-8-engagement` | parts/P3.8.md |
 | P3.9 | Settings & backups | todo | | |
 | P4.1 | Final audit & go-live | todo | | |
 

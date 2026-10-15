@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/account-format";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Trash2, Reply } from "lucide-react";
 
 export default function ContactsModuleClient() {
@@ -24,6 +26,7 @@ export default function ContactsModuleClient() {
   const [sel, setSel] = useState(null);
   const [detail, setDetail] = useState(null);
   const [reply, setReply] = useState("");
+  const [confirm, confirmDialog] = useConfirm();
 
   const load = useCallback(async () => {
     const r = await loadContactMessagesAction({ status, take: 100 });
@@ -46,7 +49,9 @@ export default function ContactsModuleClient() {
   const sendReply = async () => {
     const r = await replyContactMessageAction(sel, { reply });
     if (r.ok) {
-      toast.success(t.toastSaved);
+      // Without email sending set up, the reply is kept but the customer never receives it.
+      if (r.emailSent === false) toast.warning(t.contactsReplyNotEmailed);
+      else toast.success(t.toastSaved);
       setSel(null);
       setDetail(null);
       load();
@@ -54,7 +59,7 @@ export default function ContactsModuleClient() {
   };
 
   const del = async (id) => {
-    if (!confirm(t.contactsConfirmDelete)) return;
+    if (!(await confirm({ title: t.contactsConfirmDelete, action: t.delete, danger: true }))) return;
     const r = await deleteContactMessageAction(id);
     if (r.ok) {
       toast.success(t.toastDeleted);
@@ -115,13 +120,13 @@ export default function ContactsModuleClient() {
                 <td className="p-3 text-foreground">{r.name}</td>
                 <td className="p-3">{r.email}</td>
                 <td className="p-3">{r.subject}</td>
-                <td className="p-3">{new Date(r.createdAt).toLocaleString()}</td>
+                <td className="p-3 whitespace-nowrap">{formatDate(r.createdAt, lang, true)}</td>
                 <td className="p-3">{statusBadge(r.status)}</td>
                 <td className="p-3">
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="text-red-400"
+                    className="text-red-700 dark:text-red-400"
                     onClick={(e) => {
                       e.stopPropagation();
                       del(r.id);
@@ -178,6 +183,7 @@ export default function ContactsModuleClient() {
           )}
         </SheetContent>
       </Sheet>
+      {confirmDialog}
     </div>
   );
 }

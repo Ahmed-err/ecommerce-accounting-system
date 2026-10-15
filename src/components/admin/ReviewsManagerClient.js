@@ -1,100 +1,234 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { adminDeleteReviewsAction, adminReplyReviewAction, adminSetReviewStatusAction } from "@/app/actions/reviews";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { formatDate } from "@/lib/account-format";
 
-export default function ReviewsManagerClient({ initialRows, stats }) {
+const STATUS_STYLE = {
+  APPROVED: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  REJECTED: "bg-red-500/15 text-red-700 dark:text-red-300",
+  PENDING: "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+};
+
+export default function ReviewsManagerClient({ initialRows, stats, total = 0, page = 1, pages = 1 }) {
   const { lang, isRTL } = useLanguage();
   const t = useT();
+  const ar = lang === "ar";
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
   const [rows, setRows] = useState(initialRows || []);
   const [selected, setSelected] = useState(new Set());
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [replyId, setReplyId] = useState("");
+  const [replyRow, setReplyRow] = useState(null);
   const [reply, setReply] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(params.get("search") || "");
+  const [busy, startTransition] = useTransition();
+  const [confirm, confirmDialog] = useConfirm();
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => (r.title || "").toLowerCase().includes(q) || (r.product?.name || "").toLowerCase().includes(q) || (r.guestName || "").toLowerCase().includes(q));
-  }, [rows, search]);
-
+  const statusLabel = { APPROVED: ar ? "منشورة" : "Approved", REJECTED: ar ? "مرفوضة" : "Rejected", PENDING: ar ? "بانتظار الموافقة" : "Pending" };
   const ids = Array.from(selected);
 
+  // Filters and paging live in the URL; the server page reloads the rows.
+  const go = (changes) => {
+    const q = new URLSearchParams(params);
+    for (const [k, v] of Object.entries(changes)) {
+      if (v && v !== "all") q.set(k, String(v));
+      else q.delete(k);
+    }
+    if (!("page" in changes)) q.delete("page");
+    startTransition(() => router.replace(`${pathname}?${q.toString()}`));
+  };
+
+  const fail = () => toast.error(t.errGeneric);
+
+  const setStatus = async (targetIds, status) => {
+    if (!targetIds.length) return;
+    const res = await adminSetReviewStatusAction({ ids: targetIds, status });
+    if (!res.success) return fail();
+    setRows((prev) => prev.map((r) => (targetIds.includes(r.id) ? { ...r, status } : r)));
+    setSelected(new Set());
+  };
+
+  const remove = async () => {
+    if (!ids.length) return;
+    const ok = await confirm({ title: ar ? `حذف ${ids.length} مراجعة؟` : `Delete ${ids.length} review(s)?`, body: ar ? "لا يمكن التراجع عن الحذف." : "This can't be undone.", action: t.delete, danger: true });
+    if (!ok) return;
+    const res = await adminDeleteReviewsAction(ids);
+    if (!res.success) return fail();
+    setRows((prev) => prev.filter((r) => !selected.has(r.id)));
+    setSelected(new Set());
+  };
+
+  const saveReply = async () => {
+    const res = await adminReplyReviewAction({ id: replyRow.id, reply });
+    if (!res.success) return fail();
+    setRows((prev) => prev.map((r) => (r.id === replyRow.id ? { ...r, adminReply: reply } : r)));
+    setReplyRow(null);
+    toast.success(t.toastSaved);
+  };
+
+  const toggle = (id) =>
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+
+  const productName = (r) => (ar && r.product?.nameAr) || r.product?.name || "—";
+  const reviewer = (r) => r.user?.name || [r.user?.firstName, r.user?.lastName].filter(Boolean).join(" ") || r.guestName || (ar ? "زائر" : "Guest");
+
+  const rowButtons = (r) => (
+    <div className="flex flex-wrap gap-1">
+      {r.status !== "APPROVED" && (
+        <Button size="sm" variant="outline" className="h-8 border-emerald-500/40 text-emerald-700 dark:text-emerald-300" onClick={() => setStatus([r.id], "APPROVED")}>
+          {ar ? "نشر" : "Approve"}
+        </Button>
+      )}
+      {r.status !== "REJECTED" && (
+        <Button size="sm" variant="outline" className="h-8 border-red-500/40 text-red-700 dark:text-red-300" onClick={() => setStatus([r.id], "REJECTED")}>
+          {ar ? "رفض" : "Reject"}
+        </Button>
+      )}
+      <Button size="sm" variant="outline" className="h-8" onClick={() => { setReplyRow(r); setReply(r.adminReply || ""); }}>
+        {ar ? "رد" : "Reply"}
+      </Button>
+    </div>
+  );
+
+  const stat = (label, value, cls = "text-foreground") => (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-2xl font-bold tabular-nums ${cls}`}>{value}</p>
+    </div>
+  );
+
   return (
-    <div className={`space-y-4 ${isRTL ? "text-right font-arabic" : "text-left font-sans"}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "إجمالي المراجعات" : "Total reviews"}</p><p className="text-2xl font-bold text-foreground">{stats.total}</p></div>
-        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "بانتظار الموافقة" : "Pending"}</p><p className="text-2xl font-bold text-accent-text">{stats.pending}</p></div>
-        <div className="rounded-xl border border-border bg-card p-3"><p className="text-xs text-muted-foreground">{lang === "ar" ? "متوسط التقييم" : "Average rating"}</p><p className="text-2xl font-bold text-emerald-400">{stats.averageRating.toFixed(1)}</p></div>
+    <div className={`space-y-4 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t.adminReviews}</h1>
+        <p className="mt-1 text-muted-foreground">{ar ? "مراجعة آراء العملاء قبل نشرها على صفحات المنتجات." : "Check customer reviews before they appear on product pages."}</p>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {stat(ar ? "إجمالي المراجعات" : "Total reviews", stats?.total ?? 0)}
+        {stat(ar ? "بانتظار الموافقة" : "Pending", stats?.pending ?? 0, "text-amber-700 dark:text-amber-400")}
+        {stat(ar ? "متوسط التقييم" : "Average rating", Number(stats?.averageRating || 0).toFixed(1), "text-emerald-700 dark:text-emerald-400")}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={lang === "ar" ? "بحث بالمراجع أو المنتج" : "Search by reviewer or product"} className="max-w-sm bg-background border-border text-foreground" />
-        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "APPROVED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "APPROVED" } : r))); }}>{lang === "ar" ? "قبول المحدد" : "Approve selected"}</Button>
-        <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids, status: "REJECTED" }); setRows((prev) => prev.map((r) => (selected.has(r.id) ? { ...r, status: "REJECTED" } : r))); }}>{lang === "ar" ? "رفض المحدد" : "Reject selected"}</Button>
-        <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={async () => { await adminDeleteReviewsAction(ids); setRows((prev) => prev.filter((r) => !selected.has(r.id))); setSelected(new Set()); }}>{lang === "ar" ? "حذف المحدد" : "Delete selected"}</Button>
-      </div>
+      <form
+        className="flex flex-wrap items-center gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          go({ search: search.trim() });
+        }}
+      >
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث بالمراجع أو المنتج أو النص" : "Search reviewer, product or text"} className="w-full bg-background sm:max-w-xs" />
+        <Select value={params.get("status") || "all"} onValueChange={(v) => go({ status: v })}>
+          <SelectTrigger className="w-full bg-background sm:w-44"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{ar ? "كل الحالات" : "All statuses"}</SelectItem>
+            <SelectItem value="PENDING">{statusLabel.PENDING}</SelectItem>
+            <SelectItem value="APPROVED">{statusLabel.APPROVED}</SelectItem>
+            <SelectItem value="REJECTED">{statusLabel.REJECTED}</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button type="submit" variant="outline" disabled={busy}>{ar ? "بحث" : "Search"}</Button>
+      </form>
 
-      <div className="overflow-x-auto rounded-xl border border-border">
-        <table className="w-full min-w-[900px] text-sm">
+      {selected.size > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card/70 p-2 text-sm">
+          <span className="px-1 text-muted-foreground tabular-nums">{ar ? `محدد: ${selected.size}` : `${selected.size} selected`}</span>
+          <Button size="sm" variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300" onClick={() => setStatus(ids, "APPROVED")}>{ar ? "نشر" : "Approve"}</Button>
+          <Button size="sm" variant="outline" className="border-red-500/40 text-red-700 dark:text-red-300" onClick={() => setStatus(ids, "REJECTED")}>{ar ? "رفض" : "Reject"}</Button>
+          <Button size="sm" variant="outline" onClick={remove}>{t.delete}</Button>
+        </div>
+      )}
+
+      {/* Phone: one card per review */}
+      <ul className="space-y-3 md:hidden">
+        {rows.length === 0 && <li className="rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">{ar ? "لا توجد مراجعات" : "No reviews found"}</li>}
+        {rows.map((r) => (
+          <li key={r.id} className="space-y-2 rounded-xl border border-border bg-card p-3">
+            <div className="flex items-start gap-2">
+              <input type="checkbox" className="mt-1" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={ar ? "تحديد" : "Select"} />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-foreground">{productName(r)}</p>
+                <p className="text-xs text-muted-foreground">{reviewer(r)} · {formatDate(r.createdAt, lang)}</p>
+              </div>
+              <Badge className={STATUS_STYLE[r.status]}>{statusLabel[r.status] || r.status}</Badge>
+            </div>
+            <p className="text-sm"><span className="text-amber-600 dark:text-amber-400">{"★".repeat(r.rating)}</span> <span className="font-medium">{r.title}</span></p>
+            {r.body && <p className="line-clamp-3 text-sm text-muted-foreground">{r.body}</p>}
+            {rowButtons(r)}
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-xl border border-border md:block">
+        <table className="w-full text-sm">
           <thead className="bg-muted/60 text-muted-foreground">
-            <tr>
-              <th className="px-3 py-2"><input type="checkbox" onChange={(e) => setSelected(e.target.checked ? new Set(filtered.map((r) => r.id)) : new Set())} /></th>
-              <th className="px-3 py-2">{lang === "ar" ? "المنتج" : "Product"}</th>
-              <th className="px-3 py-2">{lang === "ar" ? "المراجع" : "Reviewer"}</th>
-              <th className="px-3 py-2">{lang === "ar" ? "التقييم" : "Rating"}</th>
-              <th className="px-3 py-2">{lang === "ar" ? "العنوان" : "Title"}</th>
-              <th className="px-3 py-2">{lang === "ar" ? "الحالة" : "Status"}</th>
-              <th className="px-3 py-2">{lang === "ar" ? "موثق" : "Verified"}</th>
-              <th className="px-3 py-2">{t.actions}</th>
+            <tr className="text-start">
+              <th className="px-3 py-2"><input type="checkbox" aria-label={ar ? "تحديد الكل" : "Select all"} checked={rows.length > 0 && selected.size === rows.length} onChange={(e) => setSelected(e.target.checked ? new Set(rows.map((r) => r.id)) : new Set())} /></th>
+              <th className="px-3 py-2 text-start">{ar ? "المنتج" : "Product"}</th>
+              <th className="px-3 py-2 text-start">{ar ? "المراجع" : "Reviewer"}</th>
+              <th className="px-3 py-2 text-start">{ar ? "التقييم" : "Rating"}</th>
+              <th className="px-3 py-2 text-start">{ar ? "المراجعة" : "Review"}</th>
+              <th className="px-3 py-2 text-start">{ar ? "الحالة" : "Status"}</th>
+              <th className="px-3 py-2 text-start">{t.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan="8" className="px-6 py-12 text-center text-muted-foreground italic">
-                  {lang === "ar" ? "لا توجد مراجعات" : "No reviews found"}
-                </td>
-              </tr>
+            {rows.length === 0 && (
+              <tr><td colSpan="7" className="px-6 py-12 text-center text-muted-foreground">{ar ? "لا توجد مراجعات" : "No reviews found"}</td></tr>
             )}
-            {filtered.map((r) => (
-              <tr key={r.id} className="bg-card/70">
-                <td className="px-3 py-2"><input type="checkbox" checked={selected.has(r.id)} onChange={() => setSelected((prev) => { const n = new Set(prev); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })} /></td>
-                <td className="px-3 py-2 text-foreground">{r.product?.name}</td>
-                <td className="px-3 py-2 text-muted-foreground">{r.user?.name || r.guestName || "Guest"}</td>
-                <td className="px-3 py-2 text-amber-300">{r.rating}★</td>
-                <td className="px-3 py-2 text-muted-foreground">{r.title}</td>
-                <td className="px-3 py-2"><Badge className={r.status === "APPROVED" ? "bg-emerald-500/15 text-emerald-300" : r.status === "REJECTED" ? "bg-red-500/15 text-red-300" : "bg-amber-500/15 text-amber-300"}>{r.status}</Badge></td>
-                <td className="px-3 py-2">{r.verified ? <Badge className="bg-emerald-500/15 text-emerald-300">Yes</Badge> : "—"}</td>
-                <td className="px-3 py-2">
-                  <div className="flex gap-1">
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "APPROVED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "APPROVED" } : x)); }}>{lang === "ar" ? "قبول" : "Approve"}</Button>
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" onClick={async () => { await adminSetReviewStatusAction({ ids: [r.id], status: "REJECTED" }); setRows((prev) => prev.map((x) => x.id === r.id ? { ...x, status: "REJECTED" } : x)); }}>{lang === "ar" ? "رفض" : "Reject"}</Button>
-                    <Button size="sm" variant="outline" className="border-border bg-card text-foreground hover:bg-muted" onClick={() => { setReplyId(r.id); setReply(r.adminReply || ""); setReplyOpen(true); }}>{lang === "ar" ? "رد" : "Reply"}</Button>
-                  </div>
+            {rows.map((r) => (
+              <tr key={r.id} className="bg-card/70 align-top">
+                <td className="px-3 py-2"><input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={ar ? "تحديد" : "Select"} /></td>
+                <td className="px-3 py-2 text-foreground">{productName(r)}</td>
+                <td className="px-3 py-2 text-muted-foreground">
+                  {reviewer(r)}
+                  {r.verified && <span className="ms-1 text-xs text-emerald-700 dark:text-emerald-400">({ar ? "مشترٍ موثّق" : "verified buyer"})</span>}
+                  <div className="text-xs">{formatDate(r.createdAt, lang)}</div>
                 </td>
+                <td className="whitespace-nowrap px-3 py-2 text-amber-600 dark:text-amber-400">{"★".repeat(r.rating)}</td>
+                <td className="max-w-sm px-3 py-2">
+                  <p className="font-medium text-foreground">{r.title}</p>
+                  {r.body && <p className="line-clamp-2 text-muted-foreground">{r.body}</p>}
+                </td>
+                <td className="px-3 py-2"><Badge className={STATUS_STYLE[r.status]}>{statusLabel[r.status] || r.status}</Badge></td>
+                <td className="px-3 py-2">{rowButtons(r)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
-        <DialogContent className="bg-card border-border text-foreground">
-          <DialogHeader><DialogTitle>{lang === "ar" ? "رد الإدارة" : "Admin reply"}</DialogTitle></DialogHeader>
-          <textarea className="w-full rounded-md border border-border bg-background p-2" rows={5} value={reply} onChange={(e) => setReply(e.target.value)} />
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <Button variant="outline" size="sm" disabled={page <= 1 || busy} onClick={() => go({ page: page - 1 })}>{ar ? "السابق" : "Previous"}</Button>
+        <span className="tabular-nums">{ar ? `صفحة ${page} من ${pages} · ${total} مراجعة` : `Page ${page} of ${pages} · ${total} reviews`}</span>
+        <Button variant="outline" size="sm" disabled={page >= pages || busy} onClick={() => go({ page: page + 1 })}>{ar ? "التالي" : "Next"}</Button>
+      </div>
+
+      <Dialog open={!!replyRow} onOpenChange={(o) => !o && setReplyRow(null)}>
+        <DialogContent className="border-border bg-card text-foreground">
+          <DialogHeader><DialogTitle>{ar ? "رد المتجر" : "Shop reply"}</DialogTitle></DialogHeader>
+          <textarea className="w-full rounded-md border border-border bg-background p-2 text-sm" rows={5} maxLength={2000} value={reply} onChange={(e) => setReply(e.target.value)} />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setReplyOpen(false)}>{t.cancel}</Button>
-            <Button className="bg-amber-500 text-black hover:bg-amber-600" onClick={async () => { const res = await adminReplyReviewAction({ id: replyId, reply }); if (res.success) { setRows((prev) => prev.map((r) => (r.id === replyId ? { ...r, adminReply: reply } : r))); setReplyOpen(false); } }}>{t.save}</Button>
+            <Button variant="ghost" onClick={() => setReplyRow(null)}>{t.cancel}</Button>
+            <Button className="bg-amber-500 text-black hover:bg-amber-600" disabled={!reply.trim()} onClick={saveReply}>{t.save}</Button>
           </div>
         </DialogContent>
       </Dialog>
+      {confirmDialog}
     </div>
   );
 }
