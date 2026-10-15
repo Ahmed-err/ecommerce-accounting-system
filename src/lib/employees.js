@@ -1,4 +1,19 @@
 import { prisma as db } from "@/lib/prisma";
+import { shopAddDays, shopToday } from "@/lib/shop-time";
+
+/**
+ * Attendance and leave rows are keyed by calendar date (UTC noon / midnight of that date), so
+ * ranges are whole calendar dates; "today" comes from the shop's clock.
+ */
+function dayRange(from, to = from) {
+  return { gte: new Date(`${from}T00:00:00.000Z`), lte: new Date(`${to}T23:59:59.999Z`) };
+}
+
+function monthDays(year, month) {
+  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const mm = String(month).padStart(2, "0");
+  return [`${year}-${mm}-01`, `${year}-${mm}-${String(last).padStart(2, "0")}`];
+}
 
 function n(v) {
   if (v == null) return 0;
@@ -9,17 +24,8 @@ function n(v) {
 const STAFF_ROLES = { not: "CUSTOMER" };
 
 export async function getEmployeeKpis() {
-  const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(now);
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const weekStart = new Date(now);
-  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
-  weekStart.setHours(0, 0, 0, 0);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
+  const today = shopToday();
+  const { gte: todayStart, lte: todayEnd } = dayRange(today);
 
   const [total, leaveRows, absentToday, upcomingLeaves, staffRows, attendanceTodayDistinct] =
     await Promise.all([
@@ -42,7 +48,7 @@ export async function getEmployeeKpis() {
       db.leaveRequest.findMany({
         where: {
           status: "APPROVED",
-          fromDate: { gte: now, lte: weekEnd },
+          fromDate: dayRange(shopAddDays(today, 1), shopAddDays(today, 7)),
         },
         include: { user: { select: { firstName: true, lastName: true, role: true, avatar: true } } },
         orderBy: { fromDate: "asc" },
@@ -81,15 +87,10 @@ export async function getEmployeeKpis() {
 }
 
 export async function getAttendanceLast30Days() {
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-  const start = new Date(end);
-  start.setDate(start.getDate() - 29);
-  start.setHours(0, 0, 0, 0);
-
+  const today = shopToday();
   const records = await db.attendance.groupBy({
     by: ["date", "status"],
-    where: { date: { gte: start, lte: end } },
+    where: { date: dayRange(shopAddDays(today, -29), today) },
     _count: { id: true },
   });
 
@@ -152,11 +153,8 @@ export async function getRecentHrActivity(limit = 10) {
 }
 
 export async function getAttendanceSummary({ userId, month, year }) {
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 0, 23, 59, 59, 999);
-
   const where = {
-    date: { gte: start, lte: end },
+    date: dayRange(...monthDays(year, month)),
     ...(userId && userId !== "all" ? { userId } : {}),
   };
 
@@ -232,11 +230,10 @@ export async function getPayrollSummary({ month, year, status }) {
 }
 
 export async function getLeaveSummary({ month, year, userId, status, type }) {
-  const start = month && year ? new Date(year, month - 1, 1) : undefined;
-  const end = month && year ? new Date(year, month, 0, 23, 59, 59, 999) : undefined;
-
+  // Leaves that touch the month, including ones that started before it.
+  const range = month && year ? dayRange(...monthDays(year, month)) : null;
   const where = {
-    ...(start && end ? { fromDate: { gte: start, lte: end } } : {}),
+    ...(range ? { fromDate: { lte: range.lte }, toDate: { gte: range.gte } } : {}),
     ...(userId && userId !== "all" ? { userId } : {}),
     ...(status && status !== "all" ? { status } : {}),
     ...(type && type !== "all" ? { type } : {}),
@@ -251,25 +248,4 @@ export async function getLeaveSummary({ month, year, userId, status, type }) {
   });
 
   return leaves;
-}
-
-export async function getEmployeeLeaveBalance(userId) {
-  const yearStart = new Date(new Date().getFullYear(), 0, 1);
-  const leaves = await db.leaveRequest.findMany({
-    where: {
-      userId,
-      status: "APPROVED",
-      fromDate: { gte: yearStart },
-    },
-  });
-
-  const used = { ANNUAL: 0, SICK: 0, EMERGENCY: 0, UNPAID: 0 };
-  for (const l of leaves) used[l.type] = (used[l.type] || 0) + l.days;
-
-  return {
-    ANNUAL: { used: used.ANNUAL, total: 21, remaining: Math.max(0, 21 - used.ANNUAL) },
-    SICK: { used: used.SICK, total: 15, remaining: Math.max(0, 15 - used.SICK) },
-    EMERGENCY: { used: used.EMERGENCY, total: 3, remaining: Math.max(0, 3 - used.EMERGENCY) },
-    UNPAID: { used: used.UNPAID, total: 999, remaining: 999 },
-  };
 }

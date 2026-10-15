@@ -5,11 +5,13 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Edit, Trash2, X, Shield, ChevronLeft, ChevronRight } from "lucide-react";
-import EmployeeForm from "./EmployeeForm";
-import { deleteEmployee } from "@/app/actions/employees";
+import { Plus, Search, Edit, Trash2, X, Shield, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import EmployeeForm, { employeeError } from "./EmployeeForm";
+import { deleteEmployee, reactivateEmployee } from "@/app/actions/employees";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { normalizeAppLang } from "@/lib/i18n-lang";
+import { formatDate as formatAccountDate } from "@/lib/account-format";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 
 const ROLE_COLORS = {
@@ -21,16 +23,10 @@ const ROLE_COLORS = {
 function formatDate(date, lang, mounted) {
   if (!date) return "—";
   if (!mounted) return new Date(date).toISOString().split("T")[0];
-  return new Date(date).toLocaleDateString(lang === 'ar' ? "ar-EG" : "en-US", {
-    year: "numeric", month: "short", day: "numeric",
-  });
+  return formatAccountDate(date, lang);
 }
 
-const ROLE_LABELS = {
-  ADMIN: "مسؤول",
-  MANAGER: "مدير",
-  CASHIER: "محاسب",
-};
+const money = (v) => Number(v).toLocaleString("en-US");
 
 export default function EmployeeTable({ initialEmployees, total, departments, searchParams }) {
   const { lang: langRaw, isRTL } = useLanguage();
@@ -50,6 +46,8 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   const [searchValue, setSearchValue] = useState(searchParamsHook.get("search") || "");
   const [mounted, setMounted] = useState(false);
   const searchTimeout = useRef(null);
+  const [confirm, confirmDialog] = useConfirm();
+  const showInactive = searchParamsHook.get("status") === "inactive";
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -97,20 +95,40 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm(t.employeesDeleteConfirm)) return;
+    if (!(await confirm({ title: t.employeesDeleteConfirm, action: t.empDeactivate, danger: true }))) return;
     const res = await deleteEmployee(id);
     if (res?.success) {
-      toast.success(t.employeesRemoved);
+      toast.success(t.empSoftDeleted);
       router.refresh();
       return;
     }
-    const err = res?.error || "";
-    if (err.includes("cannot delete your own admin account")) {
-      toast.error(t.employeesErrSelfDelete);
-      return;
-    }
-    toast.error(err || t.genericError);
+    toast.error(res?.errorCode === "SELF" ? t.employeesErrSelfDelete : employeeError(res, t));
   };
+
+  const handleReactivate = async (id) => {
+    const res = await reactivateEmployee(id);
+    if (res?.success) {
+      toast.success(t.empReactivated);
+      router.refresh();
+    } else toast.error(t.errGeneric);
+  };
+
+  const rowActions = (emp) => (
+    <>
+      <Button variant="ghost" size="icon" onClick={() => openEdit(emp)} className="text-muted-foreground hover:text-foreground" aria-label={t.edit}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      {showInactive ? (
+        <Button variant="ghost" size="sm" onClick={() => handleReactivate(emp.id)} className="text-emerald-700 dark:text-emerald-400">
+          <RotateCcw className="h-4 w-4 me-1" /> {t.empReactivate}
+        </Button>
+      ) : (
+        <Button variant="ghost" size="icon" onClick={() => handleDelete(emp.id)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400" aria-label={t.empDeactivate}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
+    </>
+  );
 
   const openEdit = (emp) => { setEditingEmployee(emp); setIsFormOpen(true); };
   const openNew = () => { setEditingEmployee(null); setIsFormOpen(true); };
@@ -172,6 +190,20 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Active / deactivated */}
+            <Select
+              value={showInactive ? "inactive" : "active"}
+              onValueChange={(val) => handleFilter("status", val, "active")}
+            >
+              <SelectTrigger className={`w-full border-border bg-background sm:w-[140px] ${isRTL ? "text-right" : "text-left"} text-foreground`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className={`border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
+                <SelectItem value="active">{t.empStatusActive}</SelectItem>
+                <SelectItem value="inactive">{t.empStatusInactive}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button onClick={openNew} className="w-full shrink-0 bg-amber-500 font-semibold text-black hover:bg-amber-600 sm:w-auto">
@@ -180,8 +212,27 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
         </div>
       )}
 
+      {/* Phone: one card per employee */}
+      <ul className="divide-y divide-border sm:hidden">
+        {initialEmployees.length === 0 && <li className="px-4 py-10 text-center text-muted-foreground">{t.employeesNoEmployees}</li>}
+        {initialEmployees.map((emp) => (
+          <li key={emp.id} className="flex items-start justify-between gap-3 px-4 py-3">
+            <div className="min-w-0 space-y-1">
+              <div className="font-medium text-foreground">{emp.firstName} {emp.lastName}</div>
+              <div className="truncate text-xs text-muted-foreground" dir="ltr">{emp.email}</div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${ROLE_COLORS[emp.role] || "bg-muted"}`}>{roleLabels[emp.role] || emp.role}</span>
+                {emp.department && <span>{emp.department}</span>}
+                {emp.salary ? <span className="tabular-nums">{money(emp.salary)} {t.currency}</span> : null}
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center">{rowActions(emp)}</div>
+          </li>
+        ))}
+      </ul>
+
       {/* Table */}
-      <div className="flex-1 overflow-x-auto">
+      <div className="hidden flex-1 overflow-x-auto sm:block">
         <table className={`w-full min-w-[900px] text-sm text-foreground ${isRTL ? "text-right" : "text-left"}`}>
           <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
             <tr>
@@ -223,20 +274,13 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
                 <td className="px-6 py-4 text-muted-foreground">{emp.department || "—"}</td>
                 <td className="px-6 py-4">
                   {emp.salary ? (
-                    <span className="font-mono font-semibold text-emerald-700 regular-nums dark:text-emerald-400">{emp.salary.toLocaleString()} {t.currency}</span>
+                    <span className="font-mono font-semibold text-emerald-700 regular-nums dark:text-emerald-400">{money(emp.salary)} {t.currency}</span>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">{formatDate(emp.hireDate, lang, mounted)}</td>
-                <td className={`px-6 py-4 ${isRTL ? "text-left" : "text-right"}`}>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(emp)} className="text-muted-foreground hover:text-foreground">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(emp.id)} className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </td>
+                <td className={`whitespace-nowrap px-6 py-4 ${isRTL ? "text-left" : "text-right"}`}>{rowActions(emp)}</td>
               </tr>
             ))}
           </tbody>
@@ -291,6 +335,7 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
         }}
         employee={editingEmployee}
       />
+      {confirmDialog}
     </div>
   );
 }
