@@ -3,6 +3,8 @@ import { Pool } from "pg";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logAction } from "@/lib/audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -203,8 +205,19 @@ export async function GET(req) {
       );
     }
 
+    // A full copy of the database: a few per hour at most, and each one recorded.
+    const ip = await getClientIP();
+    const allowed = await checkRateLimit(`admin-backup:${session.user.id}:${ip}`, 5, 60 * 60 * 1000, { failClosed: false });
+    if (!allowed) {
+      return NextResponse.json(
+        { ok: false, error: "rate_limit", message: "Too many backup downloads. Try again in an hour." },
+        { status: 429 }
+      );
+    }
+
     const format = parseBackupFormat(req);
     const filename = backupFilename(format);
+    void logAction("DATABASE_BACKUP_DOWNLOAD", { format, filename });
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
 

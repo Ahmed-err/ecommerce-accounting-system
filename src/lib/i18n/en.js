@@ -553,6 +553,8 @@ const dictionary = {
   "adminNotifications": "Notifications",
   "adminCoupons": "Coupons",
   "adminLogout": "Logout",
+  "adminBackupRestoreTitle": "Automatic restore points",
+  "adminBackupRestoreDesc": "The database (Neon) keeps automatic restore points; the shop can be rolled back to an earlier moment from the Neon console. The download below is an extra copy you keep.",
   "adminBackupSaveSchedule": "Save backup schedule",
   "adminBackupScheduleHelp": "This only stores your schedule preference. To download an actual backup file, use the section below.",
   "adminBackupDownloadTitle": "Download database backup",
