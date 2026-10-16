@@ -21,5 +21,8 @@ export const authConfig = {
   },
   pages: {
     signIn: "/login",
+    // Failed Google sign-ins come back to the login page with ?error=, shown in plain words
+    // (lib/auth-errors.js) instead of Auth.js's English error page.
+    error: "/login",
   },
 };

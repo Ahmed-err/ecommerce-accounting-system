@@ -1,5 +1,9 @@
 // English UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "authErrAccessDenied": "This account can't sign in: it may be deactivated or deleted. If that's a mistake, contact us.",
+  "authErrAccountNotLinked": "This email already has an account with a password. Sign in with your email and password below.",
+  "authErrGoogleUnavailable": "Google sign-in isn't available right now. Use your email or phone and password.",
+  "authErrGoogleFailed": "Google sign-in didn't finish. Try again, or sign in with your email and password.",
   "footerShop": "Shop",
   "footerHelp": "Help",
   "footerContact": "Contact",
@@ -1343,7 +1347,7 @@ const dictionary = {
   "authForgotTitle": "Forgot your password?",
   "authForgotText": "Enter your email or phone number and we'll send you a link to reset your password.",
   "authForgotSubmit": "Send link",
-  "authForgotSent": "If an account matches, a reset link is on its way. The link is valid for one hour.",
+  "authForgotSent": "If an account matches, a reset link is on its way. The link is valid for one hour. Not in your inbox? Check your spam folder, and if it's there, mark it \"Not spam\".",
   "authForgotHelp": "Didn't get the link? Contact us on",
   "authResetTitle": "Set a new password",
   "authResetText": "Choose a new password for your account. Other devices will be signed out.",
