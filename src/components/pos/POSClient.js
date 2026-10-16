@@ -61,7 +61,7 @@ function ProductCard({ product, onAdd, t, isArabic }) {
           : "hover:border-amber-500/40 hover:shadow-2xl cursor-pointer"
       )}
     >
-      <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden shrink-0">
+      <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <Image 
             src={product.images[0]} 
@@ -92,16 +92,17 @@ function ProductCard({ product, onAdd, t, isArabic }) {
         {/* Action Overlay */}
         {!outOfStock && (
           <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/10 transition-colors flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-amber-500 text-black flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 shadow-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 shadow-xl">
               <Plus className="w-6 h-6" />
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-3 flex flex-col gap-1.5 flex-1 min-w-0">
-        <div className="flex flex-col items-start gap-1 sm:flex-row sm:justify-between">
-          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2 flex-1">{name}</h3>
+      <div className="p-2.5 flex flex-col gap-1 flex-1 min-w-0">
+        {/* Name gets the full width; the code sits under it. */}
+        <div className="flex flex-col items-start gap-1">
+          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2" title={name}>{name}</h3>
           <span className="text-[10px] font-mono font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded leading-none">
             {product.sku || (t.noSku)}
           </span>
@@ -799,7 +800,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
         <main className="flex-1 min-h-0 flex flex-col min-w-0 bg-muted/30">
           
           {/* Search & Tabs */}
-          <div className="p-3 sm:p-6 pb-0 space-y-3 sm:space-y-5">
+          <div className="p-3 sm:p-4 pb-0 space-y-2.5 sm:space-y-3">
             <div className="relative group max-w-2xl">
               <div className="absolute inset-y-0 start-4 flex items-center pointer-events-none">
                 <Search className={cn("w-5 h-5 transition-colors", searchTerm ? "text-accent-text" : "text-muted-foreground")} />
@@ -824,7 +825,7 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
                     addToCart(hit);
                   }
                 }}
-                className="w-full bg-card border border-border focus:border-amber-500/50 rounded-2xl py-3 sm:py-4 ps-12 pe-4 text-sm text-foreground placeholder:text-muted-foreground outline-none shadow-sm transition-all font-medium"
+                className="w-full bg-card border border-border focus:border-amber-500/50 rounded-2xl py-2.5 sm:py-3 ps-12 pe-4 text-sm text-foreground placeholder:text-muted-foreground outline-none shadow-sm transition-all font-medium"
               />
               <div className="absolute end-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 <span className="hidden md:flex text-[10px] font-black text-muted-foreground border border-border rounded px-1.5 py-0.5 uppercase">F2</span>
@@ -837,12 +838,19 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
             </div>
 
             <Tabs defaultValue="ALL" className="w-full" onValueChange={setActiveCategory}>
-              <TabsList className="bg-transparent h-auto p-0 w-full flex-nowrap lg:flex-wrap gap-2 justify-start overflow-x-auto lg:overflow-visible pb-1 no-scrollbar">
+              {/* One row that scrolls sideways (wheel included): ~30 categories wrapped used to
+                  fill half the screen and push the products down. */}
+              <TabsList
+                onWheel={(e) => {
+                  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) e.currentTarget.scrollLeft += isArabic ? -e.deltaY : e.deltaY;
+                }}
+                className="bg-transparent h-auto p-0 w-full flex-nowrap gap-1.5 justify-start overflow-x-auto pb-1.5 [scrollbar-width:thin]"
+              >
                 {Object.entries(categories).map(([id, name]) => (
                   <TabsTrigger 
                     key={id} 
                     value={id} 
-                    className="h-9 sm:h-10 px-4 sm:px-5 shrink-0 flex-none rounded-xl border border-border data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold text-xs transition-all data-[state=inactive]:hover:bg-muted data-[state=inactive]:text-muted-foreground"
+                    className="h-8 px-3 shrink-0 flex-none rounded-lg border border-border data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold text-xs transition-all data-[state=inactive]:hover:bg-muted data-[state=inactive]:text-muted-foreground"
                   >
                     {name}
                   </TabsTrigger>
@@ -852,12 +860,12 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
           </div>
 
           {/* Grid Area */}
-          <div className="flex-1 overflow-y-auto p-3 pb-24 sm:p-6 lg:pb-6 mt-1 relative">
+          <div className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 lg:pb-4 relative">
             <AnimatePresence mode="popLayout">
               {filteredProducts.length > 0 ? (
                 <motion.div 
                   layout
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-6 gap-3 sm:gap-4"
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5 sm:gap-3"
                 >
                   {filteredProducts.map(p => (
                     <ProductCard key={p.id} product={p} onAdd={addToCart} t={t} isArabic={isArabic} />
