@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { useT } from "@/context/LanguageContext";
 import { isSafeCallbackPath } from "@/lib/auth-identity";
+import { authErrorKey } from "@/lib/auth-errors";
 import AuthShell, { AuthAlert, AuthField, AuthGoogle, AuthSubmit } from "@/components/auth/AuthShell";
 
 function readCallbackUrl() {
@@ -23,6 +24,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+
+  // A failed Google sign-in lands here with ?error=<code>; read after mount (no server markup).
+  useEffect(() => {
+    const key = authErrorKey(new URLSearchParams(window.location.search).get("error"));
+    if (key) setError(t[key]);
+  }, [t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

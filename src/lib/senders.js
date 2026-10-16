@@ -83,28 +83,40 @@ export async function sendResetEmail(to, token) {
 
     const resetLink = `${getAbsoluteSiteUrl()}/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
 
+    // Plain sender name, bilingual subject, a text part and a light layout: all-HTML mail
+    // with a dark full-bleed design and a "Security" sender looks like phishing to spam filters.
     const mailOptions = {
-      from: `"${BRAND_EN} Security" <${process.env.SMTP_USER}>`,
-      to: to,
-      subject: "Password Reset Request",
+      from: `"${BRAND_EN} | همّت" <${process.env.SMTP_USER}>`,
+      to,
+      subject: "إعادة تعيين كلمة المرور | Reset your Himmat password",
+      text: [
+        "همّت | Himmat",
+        "",
+        "طلبتَ إعادة تعيين كلمة المرور. افتح الرابط التالي لاختيار كلمة مرور جديدة (صالح لمدة ساعة):",
+        resetLink,
+        "إن لم تطلب ذلك فتجاهل هذه الرسالة.",
+        "",
+        "You asked to reset your password. Open this link to choose a new one (valid for one hour):",
+        resetLink,
+        "If you didn't ask for this, ignore this email.",
+      ].join("\n"),
       html: `
-        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; background: #000; padding: 40px; border-radius: 16px; color: #fff; text-align: center;">
-            <h1 style="color: #f59e0b; margin-bottom: 20px;">${BRAND_EN}</h1>
-            <h2 style="color: #fff; margin-bottom: 20px;">Reset Your Password</h2>
-            <p style="color: #9ca3af; line-height: 1.6; margin-bottom: 30px;">
-                We received a request to reset your password. Click the button below to set a new password. If you didn't make this request, you can safely ignore this email.
-            </p>
-            <a href="${resetLink}" style="display: inline-block; background-color: #f59e0b; color: #000; font-weight: bold; padding: 14px 28px; border-radius: 50px; text-decoration: none;">
-                Reset Password
-            </a>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-                This link will expire in 1 hour.
-            </p>
+        <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1f2937; line-height: 1.6;">
+          <p style="font-size: 20px; font-weight: bold; color: #0e1a2b; margin: 0 0 16px;">همّت <span style="color: #b45309;">Himmat</span></p>
+          <div dir="rtl" style="text-align: right;">
+            <p>طلبتَ إعادة تعيين كلمة المرور. اضغط الزر لاختيار كلمة مرور جديدة. الرابط صالح لمدة ساعة.</p>
+          </div>
+          <p>You asked to reset your password. Use the button to choose a new one. The link is valid for one hour.</p>
+          <p style="margin: 24px 0;">
+            <a href="${resetLink}" style="background: #f59e0b; color: #111827; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none;">إعادة التعيين | Reset password</a>
+          </p>
+          <p style="font-size: 13px; color: #6b7280;">إن لم يعمل الزر فانسخ هذا الرابط | If the button doesn't work, copy this link:<br><a href="${resetLink}" style="color: #b45309; word-break: break-all;">${resetLink}</a></p>
+          <p style="font-size: 13px; color: #6b7280;">إن لم تطلب ذلك فتجاهل هذه الرسالة. | If you didn't ask for this, ignore this email.</p>
         </div>
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     return true;
 
   } catch (error) {
