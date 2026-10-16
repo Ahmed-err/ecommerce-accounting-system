@@ -100,8 +100,9 @@ function ProductCard({ product, onAdd, t, isArabic }) {
       </div>
 
       <div className="p-2.5 flex flex-col gap-1 flex-1 min-w-0">
-        <div className="flex flex-col items-start gap-1 sm:flex-row sm:justify-between">
-          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2 flex-1">{name}</h3>
+        {/* Name gets the full width; the code sits under it. */}
+        <div className="flex flex-col items-start gap-1">
+          <h3 className="text-[13px] font-bold text-foreground leading-tight line-clamp-2" title={name}>{name}</h3>
           <span className="text-[10px] font-mono font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded leading-none">
             {product.sku || (t.noSku)}
           </span>
