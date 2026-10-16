@@ -70,7 +70,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
     offers: initialData.homepage?.offers || [],
   });
   const [backupBusy, setBackupBusy] = useState(false);
-  const [backupFormat, setBackupFormat] = useState("custom");
+  // SQL is the format that can be loaded back (tested restore); JSON is a readable copy.
+  const [backupFormat, setBackupFormat] = useState("sql");
   const [legal, setLegal] = useState({
     termsAr: initialData.legal?.terms?.contentAr ?? "",
     termsEn: initialData.legal?.terms?.contentEn ?? "",
@@ -938,8 +939,8 @@ export default function AdminSettingsClient({ initialTab, initialData, lang }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="custom">{t.adminBackupFormatCustom}</SelectItem>
                   <SelectItem value="sql">{t.adminBackupFormatSql}</SelectItem>
+                  <SelectItem value="custom">{t.adminBackupFormatCustom}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
