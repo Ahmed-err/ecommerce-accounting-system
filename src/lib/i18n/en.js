@@ -1347,7 +1347,7 @@ const dictionary = {
   "authForgotTitle": "Forgot your password?",
   "authForgotText": "Enter your email or phone number and we'll send you a link to reset your password.",
   "authForgotSubmit": "Send link",
-  "authForgotSent": "If an account matches, a reset link is on its way. The link is valid for one hour.",
+  "authForgotSent": "If an account matches, a reset link is on its way. The link is valid for one hour. Not in your inbox? Check your spam folder, and if it's there, mark it \"Not spam\".",
   "authForgotHelp": "Didn't get the link? Contact us on",
   "authResetTitle": "Set a new password",
   "authResetText": "Choose a new password for your account. Other devices will be signed out.",
