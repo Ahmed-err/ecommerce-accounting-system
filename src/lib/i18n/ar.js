@@ -1,5 +1,9 @@
 // Arabic UI dictionary. Client code reads it via useT(); server code via @/lib/translations.
 const dictionary = {
+  "authErrAccessDenied": "لا يمكن الدخول بهذا الحساب: قد يكون موقوفاً أو محذوفاً. إن كان هذا خطأً فتواصل معنا.",
+  "authErrAccountNotLinked": "هذا البريد مسجّل لدينا بكلمة مرور. سجّل الدخول بالبريد وكلمة المرور أدناه.",
+  "authErrGoogleUnavailable": "الدخول عبر Google غير متاح الآن. استخدم البريد أو رقم الهاتف وكلمة المرور.",
+  "authErrGoogleFailed": "لم يكتمل الدخول عبر Google. حاول مرة أخرى، أو سجّل الدخول بالبريد وكلمة المرور.",
   "footerShop": "المتجر",
   "footerHelp": "المساعدة",
   "footerContact": "تواصل معنا",
