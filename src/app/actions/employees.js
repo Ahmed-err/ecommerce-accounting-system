@@ -8,9 +8,9 @@ import { logAction } from "@/lib/audit";
 import { z } from "zod";
 import { bookSalaryPayment } from "@/lib/ledger";
 import { isStrongPassword, normalizeEmail } from "@/lib/auth-identity";
+import { STAFF_ROLES } from "@/lib/staff-access";
 import { shopClock, shopClockOf, shopDayBounds, shopDaysBetween, shopToday } from "@/lib/shop-time";
 
-const STAFF_ROLES = ["ADMIN", "MANAGER", "CASHIER"];
 
 const attendanceSchema = z.object({
   userId: z.string().min(1),

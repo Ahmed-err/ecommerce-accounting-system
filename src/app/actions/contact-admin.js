@@ -18,7 +18,7 @@ function escapeHtml(text) {
 
 async function ensure() {
   const s = await auth();
-  if (!s?.user?.id || !["ADMIN", "MANAGER"].includes(s.user.role)) {
+  if (!s?.user?.id || !["ADMIN", "MANAGER", "SUPPORT"].includes(s.user.role)) {
     throw new Error("Unauthorized");
   }
   return s.user;

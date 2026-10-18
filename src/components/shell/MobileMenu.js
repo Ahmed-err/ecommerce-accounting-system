@@ -27,7 +27,7 @@ export default function MobileMenu() {
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  const { isAdmin, isStaff } = roleFlags(session?.user?.role);
+  const { isAdmin, isStaff, canPos } = roleFlags(session?.user?.role);
   const close = () => setOpen(false);
 
   useEffect(() => {
@@ -72,10 +72,12 @@ export default function MobileMenu() {
               {session && isStaff ? (
                 <div className="space-y-1 border-t border-border pt-4">
                   <p className={sectionTitle}>{t.staffArea}</p>
-                  <Link href="/pos" onClick={close} className={cn(rowCls, "text-accent-text")}>
-                    <Zap className="size-5" aria-hidden="true" />
-                    {t.adminPos}
-                  </Link>
+                  {canPos ? (
+                    <Link href="/pos" onClick={close} className={cn(rowCls, "text-accent-text")}>
+                      <Zap className="size-5" aria-hidden="true" />
+                      {t.adminPos}
+                    </Link>
+                  ) : null}
                   <Link href="/admin/orders" onClick={close} className={rowCls}>
                     <ShoppingCart className="size-5" aria-hidden="true" />
                     {t.adminOrders}

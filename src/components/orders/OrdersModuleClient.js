@@ -667,7 +667,7 @@ function PosOrdersTab({ data, t, lang, isRTL, role, initialQuery = {} }) {
   );
 }
 
-function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
+function ReturnsTab({ data, t, lang, isRTL, canApproveReturns, canCreateReturns }) {
   const [tabData, setTabData] = useState(data);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ orderId: "", reason: "", refundMethod: "CASH", notes: "" });
@@ -780,7 +780,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex justify-end">
+      {canCreateReturns && <div className="flex justify-end">
         <Button
           onClick={() => {
             setForm({ orderId: "", reason: "", refundMethod: "CASH", notes: "" });
@@ -795,7 +795,7 @@ function ReturnsTab({ data, t, lang, isRTL, canApproveReturns }) {
         >
           <Plus className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />{t.ordAddReturn}
         </Button>
-      </div>
+      </div>}
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className={`w-full min-w-[800px] text-sm ${isRTL ? "text-right" : "text-left"}`}>
@@ -1060,7 +1060,8 @@ export default function OrdersModuleClient({ initialData, initialTab, initialLis
 
   const role = permissions?.role || "";
   const canApproveReturns = role === "ADMIN" || role === "MANAGER";
-  const canViewReports = role !== "CASHIER";
+  const canViewReports = role !== "CASHIER" && role !== "SUPPORT";
+  const canCreateReturns = role !== "ACCOUNTANT";
 
   const activeTab = searchParams.get("tab") || initialTab || "all";
   const [tabData, setTabData] = useState({ [activeTab]: initialData });
@@ -1121,7 +1122,7 @@ export default function OrdersModuleClient({ initialData, initialTab, initialLis
               {activeTab === "all" && <AllOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
               {activeTab === "store" && <StoreOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
               {activeTab === "pos" && <PosOrdersTab data={currentData} t={t} lang={lang} isRTL={isRTL} role={role} initialQuery={listQuery} />}
-              {activeTab === "returns" && <ReturnsTab data={currentData} t={t} lang={lang} isRTL={isRTL} canApproveReturns={canApproveReturns} />}
+              {activeTab === "returns" && <ReturnsTab data={currentData} t={t} lang={lang} isRTL={isRTL} canApproveReturns={canApproveReturns} canCreateReturns={canCreateReturns} />}
               {activeTab === "reports" && <ReportsTab data={currentData} t={t} lang={lang} isRTL={isRTL} />}
             </>
           )}

@@ -18,6 +18,7 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
 import { getFallbackCatalogProducts, getFallbackCategories } from "@/lib/store/fallback-data";
+import { STAFF_ROLES } from "@/lib/staff-access";
 
 const ORDER_STATUS_LABELS_AR = {
   PENDING: "قيد الانتظار",
@@ -36,7 +37,7 @@ const ORDER_STATUS_LABELS_EN = {
 
 async function ensureStaff() {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
+  if (!session || !STAFF_ROLES.includes(session.user.role)) {
     throw new Error("Unauthorized: Only Staff can access administrative order data.");
   }
 }

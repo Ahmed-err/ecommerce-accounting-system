@@ -31,7 +31,7 @@ import {
 // Accounting is admin-only, like the page (owner, 2026-10-15).
 async function ensureAccountingView() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || !["ADMIN", "ACCOUNTANT"].includes(session.user.role)) {
     throw new Error("Unauthorized: Accounting access denied.");
   }
   return session;

@@ -1,4 +1,5 @@
-import { canOpen, staffHome, isStaff, accessTable } from "@/lib/staff-access";
+import { canOpen, staffHome, isStaff, accessTable, ORDER_DESK_ROLES } from "@/lib/staff-access";
+import { canMoveStatus } from "@/lib/order-status-rules";
 
 describe("staff-access", () => {
   it("admin opens every staff area", () => {
@@ -24,6 +25,32 @@ describe("staff-access", () => {
     expect(canOpen("CASHIER", "/admin/suppliers")).toBe(false);
   });
 
+  it("accountant: dashboard, accounting, suppliers; orders and inventory to read; no POS or settings", () => {
+    for (const p of ["/admin", "/admin/accounting", "/admin/suppliers", "/admin/orders", "/admin/inventory"]) {
+      expect(canOpen("ACCOUNTANT", p)).toBe(true);
+    }
+    for (const p of ["/pos", "/admin/settings", "/admin/employees", "/admin/contacts", "/admin/coupons"]) {
+      expect(canOpen("ACCOUNTANT", p)).toBe(false);
+    }
+  });
+
+  it("customer service: orders, messages, reviews, notifications; no costs, POS or accounting", () => {
+    for (const p of ["/admin/orders", "/admin/contacts", "/admin/reviews", "/admin/notifications"]) {
+      expect(canOpen("SUPPORT", p)).toBe(true);
+    }
+    for (const p of ["/admin", "/pos", "/admin/inventory", "/admin/suppliers", "/admin/accounting", "/admin/settings"]) {
+      expect(canOpen("SUPPORT", p)).toBe(false);
+    }
+  });
+
+  it("only the order desk works orders", () => {
+    expect(ORDER_DESK_ROLES).toContain("SUPPORT");
+    expect(ORDER_DESK_ROLES).not.toContain("ACCOUNTANT");
+    expect(canMoveStatus("SUPPORT", "PENDING", "PROCESSING")).toBe(true);
+    expect(canMoveStatus("SUPPORT", "PROCESSING", "CANCELLED")).toBe(false);
+    expect(canMoveStatus("ACCOUNTANT", "PENDING", "PROCESSING")).toBe(false);
+  });
+
   it("matches whole path segments only", () => {
     expect(canOpen("MANAGER", "/admin/ordersx")).toBe(false);
   });
@@ -44,13 +71,15 @@ describe("staff-access", () => {
     expect(staffHome("ADMIN")).toBe("/admin");
     expect(staffHome("MANAGER")).toBe("/admin");
     expect(staffHome("CASHIER")).toBe("/admin/orders");
+    expect(staffHome("ACCOUNTANT")).toBe("/admin");
+    expect(staffHome("SUPPORT")).toBe("/admin/orders");
     expect(staffHome("CUSTOMER")).toBe("/");
   });
 
   it("access table lists every area with the roles that open it", () => {
     const rows = accessTable();
     const accounting = rows.find((r) => r.key === "accounting");
-    expect(accounting).toMatchObject({ ADMIN: true, MANAGER: false, CASHIER: false });
-    expect(rows.find((r) => r.key === "pos")).toMatchObject({ ADMIN: true, MANAGER: true, CASHIER: true });
+    expect(accounting).toMatchObject({ ADMIN: true, MANAGER: false, CASHIER: false, ACCOUNTANT: true, SUPPORT: false });
+    expect(rows.find((r) => r.key === "pos")).toMatchObject({ ADMIN: true, MANAGER: true, CASHIER: true, ACCOUNTANT: false, SUPPORT: false });
   });
 });

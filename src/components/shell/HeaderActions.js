@@ -10,11 +10,15 @@ import { useCart } from "@/components/store/CartProvider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
+import { canOpenArea, isStaff as isStaffRole } from "@/lib/staff-access";
 import { cartLabel } from "./cart-label";
 
 export function roleFlags(role) {
-  const isAdmin = role === "ADMIN" || role === "MANAGER";
-  return { isAdmin, isStaff: isAdmin || role === "CASHIER" };
+  return {
+    isAdmin: canOpenArea(role, "dashboard"),
+    isStaff: isStaffRole(role),
+    canPos: canOpenArea(role, "pos"),
+  };
 }
 
 const itemCls = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted";
@@ -23,7 +27,7 @@ function AccountMenu({ session, t }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const panelId = useId();
-  const { isAdmin, isStaff } = roleFlags(session.user?.role);
+  const { isAdmin, isStaff, canPos } = roleFlags(session.user?.role);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -66,7 +70,7 @@ function AccountMenu({ session, t }) {
             <p className="text-xs text-muted-foreground">{t.welcome}</p>
             <p className="truncate text-sm font-semibold">{session.user?.email}</p>
           </div>
-          {isStaff && (
+          {canPos && (
             <Link href="/pos" className={cn(itemCls, "text-accent-text")}>
               <Zap className="size-4" aria-hidden="true" />
               {t.adminPos}

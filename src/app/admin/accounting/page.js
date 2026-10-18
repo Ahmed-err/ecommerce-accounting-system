@@ -19,7 +19,7 @@ export default async function AccountingPage({ searchParams }) {
   const params = await searchParams;
   const session = await auth();
 
-  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+  if (!session || !["ADMIN", "ACCOUNTANT"].includes(session.user.role)) {
     redirect("/admin");
   }
   if (!canOpenArea(session.user.role, "accounting")) {

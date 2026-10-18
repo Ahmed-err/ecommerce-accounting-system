@@ -60,7 +60,7 @@ async function sessionUser() {
 
 async function ensureStaff() {
   const u = await sessionUser();
-  if (!u?.id || !["ADMIN", "MANAGER", "CASHIER"].includes(u.role)) {
+  if (!u?.id || !["ADMIN", "MANAGER", "CASHIER", "ACCOUNTANT"].includes(u.role)) {
     throw new Error("Unauthorized: Staff access required.");
   }
   return u;

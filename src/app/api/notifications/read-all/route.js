@@ -8,7 +8,7 @@ export async function POST(req) {
     if (!session?.user?.id) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
-    const isAdmin = ["ADMIN", "MANAGER"].includes(session.user.role);
+    const isAdmin = ["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role);
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
     const customerOnly = searchParams.get("customerOnly") === "1";

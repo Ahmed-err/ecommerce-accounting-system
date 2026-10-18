@@ -26,7 +26,7 @@ import {
 
 async function ensure() {
   const s = await auth();
-  if (!s?.user?.id || !["ADMIN", "MANAGER"].includes(s.user.role)) {
+  if (!s?.user?.id || !["ADMIN", "MANAGER", "ACCOUNTANT"].includes(s.user.role)) {
     throw new Error("Unauthorized");
   }
   return s.user;

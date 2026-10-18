@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminNotificationsPage() {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+  if (!session || !["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role)) {
     redirect("/admin");
   }
   if (!canOpenArea(session.user.role, "notifications")) {

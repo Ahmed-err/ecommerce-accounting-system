@@ -10,6 +10,7 @@ import { ensureOrderInvoice } from "@/lib/orders";
 import { getOrCreateStoreSettings } from "@/lib/settings";
 import { buildReceiptData, buildReceiptMarkup, pickPrinterFieldsFromStore } from "@/lib/receipt";
 import styles from "./invoice-receipt.module.css";
+import { STAFF_ROLES } from "@/lib/staff-access";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function InvoicePage({ params }) {
 
   if (!order) return notFound();
 
-  const isStaff = ["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role);
+  const isStaff = STAFF_ROLES.includes(session.user.role);
   const isOwner = order.userId === session.user.id;
   if (!isStaff && !isOwner) return notFound();
 
