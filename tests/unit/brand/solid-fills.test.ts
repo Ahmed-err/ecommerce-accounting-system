@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Buttons/badges default to --primary-foreground (navy). A solid green/red/blue fill
-// set on top needs its own light text, or the label drops below 4.5:1 (P0.3 review I1).
+// set on top needs its own light text, or the label drops below 4.5:1.
 const SRC = path.resolve(__dirname, "../../../src");
 const SOLID = /(?:^|\s)bg-(?:emerald|red|rose|blue|green)-(?:600|700)(?=\s|$)/;
 const TEXT = /(?:^|\s)(?:[\w/-]+:)*text-(?:white|black|primary-foreground|destructive-foreground|success-foreground|info-foreground|\[)/;

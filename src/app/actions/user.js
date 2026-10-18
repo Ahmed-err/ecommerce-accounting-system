@@ -398,7 +398,7 @@ export async function deleteMyAccount(data) {
     const anonId = `deleted_${userId.slice(-8)}`;
 
     await db.$transaction(async (tx) => {
-      // Cancel open orders properly: stock back and the sale reversed (A-23).
+      // Cancel open orders properly: stock back and the sale reversed.
       const pending = await tx.order.findMany({
         where: { userId, status: "PENDING" },
         include: { items: true },

@@ -1,4 +1,4 @@
-// Two-level category tree helpers (P1.1). Pure functions over a flat list of
+// Two-level category tree helpers. Pure functions over a flat list of
 // { id, name, parentId, productCount } so server and client code can share them.
 
 const byName = (a, b) => a.name.localeCompare(b.name);

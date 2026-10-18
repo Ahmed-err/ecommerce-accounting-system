@@ -451,7 +451,7 @@ model OrderItem {
   id        String   @id @default(cuid())
   quantity  Int
   price     Decimal  @db.Decimal(12, 2)
-  /// Product cost when sold, for cost of goods (P3.5). Null on older lines: use the product's cost.
+  /// Product cost when sold, for cost of goods. Null on older lines: use the product's cost.
   unitCost  Decimal? @db.Decimal(12, 2)
   orderId   String
   productId String
@@ -473,7 +473,7 @@ model Transaction {
   date           DateTime        @default(now())
   receiptUrl     String?
   paymentMethod  String?
-  /// Who wrote the row (P3.5): ORDER, POS, REFUND, SUPPLIER, SALARY, DEBT; null = entered by hand.
+  /// Who wrote the row: ORDER, POS, REFUND, SUPPLIER, SALARY, DEBT; null = entered by hand.
   source         String?
   /// The order, return, purchase, salary record or ledger invoice behind the row.
   sourceId       String?
@@ -577,7 +577,7 @@ model LedgerInvoice {
   direction     LedgerInvoiceDirection
   partyName     String
   partyPhone    String?
-  /// Set for a POS pay-later sale (P3.5).
+  /// Set for a POS pay-later sale.
   orderId       String?
   amount        Decimal                 @db.Decimal(12, 2)
   dueDate       DateTime?
@@ -869,7 +869,7 @@ enum PurchaseDeliveryStatus {
   /// No longer set (owner, 2026-10-15); older rows read as PENDING.
   PARTIAL
   RECEIVED
-  /// Cancelled after receiving or paying: stock taken back, payments refunded (P3.6).
+  /// Cancelled after receiving or paying: stock taken back, payments refunded.
   CANCELLED
 }
 

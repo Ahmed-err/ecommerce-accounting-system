@@ -1,7 +1,7 @@
 import { createAdminBroadcastNotification } from "@/lib/notifications";
 
 // Every stock change goes through changeStock so the movement log explains the current
-// stock (A-28). Reasons: SALE, POS, CANCEL, RETURN, REFUND, RECEIVE, ISSUE, ADJUST,
+// stock. Reasons: SALE, POS, CANCEL, RETURN, REFUND, RECEIVE, ISSUE, ADJUST,
 // OPENING, PURCHASE.
 
 export class StockError extends Error {

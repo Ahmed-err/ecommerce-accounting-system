@@ -1,12 +1,12 @@
 name: Visual Review
 
 # Screenshots of key pages (AR/EN × light/dark × phone/desktop) from a
-# production build on seed data, for reviewing design changes; runs on rebuild/** pushes and on demand. Never touches production.
+# production build on seed data, for reviewing design changes; runs on design/** pushes and on demand. Never touches production.
 on:
   workflow_dispatch:
   push:
     branches:
-      - "rebuild/**"
+      - "design/**"
 
 permissions:
   contents: read

@@ -155,7 +155,7 @@ export async function updateSettings(input) {
       });
     });
   } else if (tab === "payment") {
-    // Only the bank-transfer details shown at checkout are read by the shop (no tax: P2.4/P3.4).
+    // Only the bank-transfer details shown at checkout are read by the shop (no tax).
     const paymentData = {};
     if (payload.bankTransferProofWhatsapp !== undefined) {
       const norm = normalizeBankTransferProofWhatsappInput(payload.bankTransferProofWhatsapp);

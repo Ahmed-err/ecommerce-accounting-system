@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 // destructive/success/info badges are dot + coloured text (no fill, no padding). A badge
 // that paints its own solid background must use a filled variant, or the text sits flush
-// against the edges with a stray dot (P0.3 review: POS out-of-stock badge).
+// against the edges with a stray dot.
 const SRC = path.resolve(__dirname, "../../../src");
 
 function files(dir: string): string[] {

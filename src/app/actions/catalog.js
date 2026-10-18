@@ -275,7 +275,7 @@ export async function getMyOrderConfirmation(orderId) {
   }
 }
 
-// Brands of active products with counts, most products first (P2.2 brand filter).
+// Brands of active products with counts, most products first.
 export async function getCatalogBrands() {
   try {
     const rows = await db.product.groupBy({
@@ -604,7 +604,7 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
           }
         }
 
-        // No cash-book row here: the money is booked when the order is delivered (P3.5, A-05).
+        // No cash-book row here: the money is booked when the order is delivered.
 
         return {
           order: newOrder,

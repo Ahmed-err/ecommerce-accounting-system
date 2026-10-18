@@ -1,4 +1,4 @@
-// Cash-book rules (P3.5, owner 2026-10-15). The cash book (Transaction) holds money actually
+// Cash-book rules (owner 2026-10-15). The cash book (Transaction) holds money actually
 // received or paid: POS sales when made, store orders when delivered, refunds when approved,
 // supplier and salary payments, and debts when marked paid. Profit is worked out from orders
 // (see lib/accounting.js), so only running costs and salaries count as expenses there.

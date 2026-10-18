@@ -1,6 +1,6 @@
 import { isProfitExpense } from "@/lib/ledger";
 
-// Profit for a period (P3.5, owner 2026-10-15): sales are orders not cancelled, as on the
+// Profit for a period (owner 2026-10-15): sales are orders not cancelled, as on the
 // dashboard; approved refunds reduce them; cost of goods is each line's cost when sold (older
 // lines: today's product cost), less the cost of returned items; expenses are running costs and
 // salaries. Stock purchases and supplier payments are cash only.

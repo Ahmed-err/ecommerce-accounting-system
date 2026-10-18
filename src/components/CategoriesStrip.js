@@ -6,7 +6,7 @@ import Tilt3D from "@/components/motion/Tilt3D";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { translateCategory } from "@/lib/i18n/translate-category";
 
-// Top categories with a real product photo as the cover (P2.1).
+// Top categories with a real product photo as the cover.
 export default function CategoriesStrip({ categories }) {
   const { isRTL } = useLanguage();
   const t = useT();

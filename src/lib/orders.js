@@ -161,7 +161,7 @@ export async function getOrderById(id) {
   });
 }
 
-// Sales everywhere = orders not cancelled, the same rule as the dashboard (P3.1).
+// Sales everywhere = orders not cancelled, the same rule as the dashboard.
 export async function getOrderStatusKpis() {
   const now = new Date();
   const todayStart = new Date(now);

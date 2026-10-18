@@ -275,7 +275,7 @@ function latestMonths(rows, n = 18) {
 }
 
 // Totals are summed in the database; only the chart rows and the imported list come back
-// as rows. Two small batches keep well under the connection pool (A-43).
+// as rows. Two small batches keep well under the connection pool.
 export async function getInventorySummary() {
   const [totalsRows, receiptMonths, movementMonths, topQty] = await Promise.all([
     db.$queryRaw`

@@ -212,7 +212,7 @@ export async function updateSupplierAction(id, raw) {
   }
 }
 
-/** Only a supplier with no purchases can be deleted; others are deactivated instead (A-36). */
+/** Only a supplier with no purchases can be deleted; others are deactivated instead. */
 export async function deleteSupplierAction(id) {
   try {
     await ensure();

@@ -1,6 +1,6 @@
 import { prisma as db } from "@/lib/prisma";
 
-// Cancelled purchases (P3.6) don't count as spending or as money owed.
+// Cancelled purchases don't count as spending or as money owed.
 const ACTIVE = { deliveryStatus: { not: "CANCELLED" } };
 
 function n(d) {

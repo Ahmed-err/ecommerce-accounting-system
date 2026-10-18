@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Supplier and salary payments write to the cash book (P3.5, A-35).
+// Supplier and salary payments write to the cash book.
 const db: any = {
   purchase: { findUnique: vi.fn(), updateMany: vi.fn() },
   salaryRecord: { findUnique: vi.fn(), updateMany: vi.fn() },

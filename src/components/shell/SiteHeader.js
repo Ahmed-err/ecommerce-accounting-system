@@ -11,7 +11,7 @@ import MobileMenu from "./MobileMenu";
 
 export { cartLabel } from "./cart-label";
 
-// Store header (P0.4, board 5): sticky, fixed 64px height, only the search box shrinks.
+// Store header: sticky, fixed 64px height, only the search box shrinks.
 export default function SiteHeader() {
   const t = useT();
   const [scrolled, setScrolled] = useState(false);

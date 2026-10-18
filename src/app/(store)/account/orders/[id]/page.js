@@ -15,7 +15,7 @@ import ProductImage from "@/components/media/ProductImage";
 
 export const dynamic = "force-dynamic";
 
-// Counted from the last order update until orders record when they were delivered (P3.3).
+// Counted from the last order update until orders record when they were delivered.
 
 async function getLang() {
   const lang = (await cookies()).get("lang")?.value || "ar";

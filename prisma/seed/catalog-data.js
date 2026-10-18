@@ -1,4 +1,4 @@
-// Development catalog. Placeholder taxonomy until P1.1 designs the real one
+// Development catalog. Placeholder taxonomy until the real one is designed
 // from the store's actual products. Prices in SDG.
 
 const IMG = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;

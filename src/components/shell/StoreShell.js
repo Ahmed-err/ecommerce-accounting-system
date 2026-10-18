@@ -4,7 +4,7 @@ import SiteFooter from "@/components/shell/SiteFooter";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 
-// Store shell (P0.4): skip link, header, one <main>, footer. Used by the (store) layout and by
+// Store shell: skip link, header, one <main>, footer. Used by the (store) layout and by
 // the root not-found page, so unmatched URLs also show the store navigation.
 export default async function StoreShell({ children }) {
   const lang = normalizeAppLang((await cookies()).get("lang")?.value);

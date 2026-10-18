@@ -46,7 +46,7 @@ function LinkColumn({ title, links, t }) {
   );
 }
 
-// Store footer (P0.4, board 6).
+// Store footer.
 export default function SiteFooter() {
   const t = useT();
   const { brandName, contactPhone, contactEmail, contactAddress, social = {} } = useLanguage();

@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 // emerald-500/600 are now the brand success green (#1B8352/#1F7A4D): fine on light
-// surfaces, under 4.5:1 on dark ones. Text using them needs a dark: override (P0.3 review I2).
+// surfaces, under 4.5:1 on dark ones. Text using them needs a dark: override.
 const SRC = path.resolve(__dirname, "../../../src");
 const GREEN_TEXT = /(?:^|[\s"'])text-emerald-(?:500|600)(?=[\s"']|$)/;
 const DARK_TEXT = /(?:^|\s)dark:text-\S+/;

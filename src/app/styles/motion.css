@@ -1,4 +1,4 @@
-/* Motion for the store (P2.1). Content is never hidden: reveals only run where the
+/* Motion for the store. Content is never hidden: reveals only run where the
    browser supports scroll timelines and the visitor allows motion. */
 
 @keyframes reveal-up {

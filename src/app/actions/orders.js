@@ -246,7 +246,7 @@ export async function approveOrderReturn(returnId) {
     if (order.status === "CANCELLED") {
       return { success: false, error: "RETURN_ORDER_CANCELLED", errorCode: "RETURN_ORDER_CANCELLED" };
     }
-    // Only returns already approved count against this one (A-25).
+    // Only returns already approved count against this one.
     const checked = checkReturnLines(
       { ...order, returns: order.returns.filter((r) => r.status === "APPROVED") },
       returnRecord.items

@@ -346,7 +346,7 @@ export async function bulkDeleteProducts(ids) {
   }
 }
 
-// Hide or show products in the store. Products with sales history are hidden, never deleted (A-20).
+// Hide or show products in the store. Products with sales history are hidden, never deleted.
 export async function setProductsActive(ids, isActive) {
   try {
     await ensureManager();

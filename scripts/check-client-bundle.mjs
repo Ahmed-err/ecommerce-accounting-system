@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fails if UI dictionary text is bundled into client JS (P0.4: only the current language travels, via the layout).
+// Fails if UI dictionary text is bundled into client JS (only the current language travels, via the layout).
 // Run after `next build`: node scripts/check-client-bundle.mjs
 import fs from "node:fs";
 import path from "node:path";

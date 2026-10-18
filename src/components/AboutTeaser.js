@@ -72,7 +72,7 @@ export default function AboutTeaser() {
             </div>
           </div>
 
-          {/* ── Right column: where to find the shop (stock solar photos removed, P2.1) ── */}
+          {/* ── Right column: where to find the shop ── */}
           <div className="space-y-4 sm:space-y-6">
             {/* Location card */}
             <div className="bg-card border border-border rounded-xl p-4 sm:rounded-2xl sm:p-6">

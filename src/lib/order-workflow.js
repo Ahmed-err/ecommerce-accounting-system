@@ -2,7 +2,7 @@ import { changeStock, StockError } from "@/lib/stock";
 import { bookOrderCash, reverseOrderCash } from "@/lib/ledger";
 
 // Stock and ledger effects of order status changes, shared by staff status changes, account
-// closure and returns (A-23, A-25, A-26). Who may make a move: order-status-rules.js.
+// closure and returns. Who may make a move: order-status-rules.js.
 
 export { ORDER_FLOW, canMoveStatus, allowedStatusMoves } from "@/lib/order-status-rules";
 

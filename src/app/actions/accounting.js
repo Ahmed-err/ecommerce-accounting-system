@@ -28,7 +28,7 @@ import {
   ledgerInvoiceIdSchema,
 } from "@/lib/schemas/accounting";
 
-// Accounting is admin-only, like the page (owner, 2026-10-15; A-13).
+// Accounting is admin-only, like the page (owner, 2026-10-15).
 async function ensureAccountingView() {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {

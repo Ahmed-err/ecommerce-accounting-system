@@ -27,11 +27,9 @@ PERF_BASE_URL="https://your-domain.com" npm run perf:baseline
 - `docs/production/security-audit.md`
 - `docs/production/performance-audit.md`
 - `docs/production/performance-report-template.md`
-- `docs/production/go-live-checklist.md`
 - `docs/production/observability.md`
 - `docs/production/data-reliability.md`
 - `docs/production/auth-audit-matrix.md`
-- `docs/production/launch-status.md`
 - `docs/production/backup-restore-drill.md`
 
 ## Learn More
