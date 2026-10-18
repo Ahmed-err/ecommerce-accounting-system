@@ -533,6 +533,7 @@ function revalidateStock() {
 export async function receiveStockAction(raw) {
   try {
     const u = await ensureStaff();
+    if (u.role === "ACCOUNTANT") throw new Error("Unauthorized: the accountant views stock only.");
     const parsed = receiveStockSchema.safeParse(raw);
     if (!parsed.success) return { success: false, error: schemaError(parsed) };
     const { productId, quantity, supplierId, unitCost, notes } = parsed.data;

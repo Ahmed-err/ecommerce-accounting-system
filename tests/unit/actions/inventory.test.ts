@@ -96,6 +96,17 @@ describe("actions/inventory", () => {
     (auth as any).mockResolvedValue({ user: { id: "u1", role: "ADMIN" } });
   });
 
+  it("the accountant views stock but cannot change it", async () => {
+    vi.clearAllMocks();
+    const { auth } = await import("@/auth");
+    (auth as any).mockResolvedValue({ user: { id: "a1", role: "ACCOUNTANT" } });
+    const { receiveStockAction, issueStockAction } = await import("@/app/actions/inventory");
+    expect((await receiveStockAction({ productId: "p1", quantity: 2 })).success).toBe(false);
+    expect((await issueStockAction({ productId: "p1", quantity: 1 })).success).toBe(false);
+    expect(db.stockMovement.create).not.toHaveBeenCalled();
+    (auth as any).mockResolvedValue({ user: { id: "u1", role: "ADMIN" } });
+  });
+
   it("setProductsActive hides products without deleting them", async () => {
     vi.clearAllMocks();
     db.product.updateMany.mockResolvedValue({ count: 2 });
