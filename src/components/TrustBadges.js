@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage, useT } from "@/context/LanguageContext";
-import { Truck, ShieldCheck, Lock, Headphones } from "lucide-react";
+import { RotateCcw, ShieldCheck, Lock, Headphones } from "lucide-react";
 
 export default function TrustBadges() {
   const { lang, isRTL } = useLanguage();
@@ -9,9 +9,9 @@ export default function TrustBadges() {
 
   const badges = [
     {
-      icon: Truck,
-      title: t.freeShipping,
-      desc: t.freeShippingBadgeDesc || (isRTL ? "على الطلبات المؤهلة" : "On eligible orders"),
+      icon: RotateCcw,
+      title: t.returnsBadge,
+      desc: t.returnsBadgeDesc,
     },
     {
       icon: ShieldCheck,
