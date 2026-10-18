@@ -11,8 +11,16 @@ import { useLanguage, useT } from "@/context/LanguageContext";
 import { normalizeAppLang } from "@/lib/i18n-lang";
 import { isStrongPassword } from "@/lib/auth-identity";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { STAFF_ROLES } from "@/lib/staff-access";
 
-const ROLES = ["ADMIN", "MANAGER", "CASHIER"];
+const ROLES = STAFF_ROLES;
+const ROLE_TEXT = {
+  ADMIN: { label: "roleAdmin", desc: "roleAdminDesc" },
+  MANAGER: { label: "roleManager", desc: "roleManagerDesc" },
+  CASHIER: { label: "roleCashier", desc: "roleCashierDesc" },
+  ACCOUNTANT: { label: "roleAccountant", desc: "roleAccountantDesc" },
+  SUPPORT: { label: "roleSupport", desc: "roleSupportDesc" },
+};
 const DEPARTMENTS = ["Management", "Sales", "Warehouse", "Support", "IT", "Finance"];
 
 const today = () => new Date().toISOString().split("T")[0];
@@ -171,17 +179,17 @@ export default function EmployeeForm({ isOpen, onClose, employee }) {
                 <Select value={formData.role} onValueChange={(val) => setFormData((p) => ({ ...p, role: val }))}>
                   <SelectTrigger className={`h-12 rounded-xl border-border bg-background ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <SelectValue placeholder={t.employeesSelectRole}>
-                      {formData.role === 'ADMIN' ? t.roleAdmin : formData.role === 'MANAGER' ? t.roleManager : t.roleCashier}
+                      {t[ROLE_TEXT[formData.role]?.label] || t.roleCashier}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className={`rounded-xl border-border bg-popover text-popover-foreground ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-                    <SelectItem value="ADMIN">{t.roleAdmin}</SelectItem>
-                    <SelectItem value="MANAGER">{t.roleManager}</SelectItem>
-                    <SelectItem value="CASHIER">{t.roleCashier}</SelectItem>
+                    {ROLES.map((r) => (
+                      <SelectItem key={r} value={r}>{t[ROLE_TEXT[r].label]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <p className="mt-1.5 rounded-lg border border-border bg-muted/50 p-2 text-[10px] leading-relaxed text-muted-foreground">
-                   {formData.role === 'ADMIN' ? t.roleAdminDesc : formData.role === 'MANAGER' ? t.roleManagerDesc : t.roleCashierDesc}
+                   {t[ROLE_TEXT[formData.role]?.desc] || t.roleCashierDesc}
                 </p>
               </div>
               <div className="space-y-2">

@@ -18,6 +18,8 @@ const ROLE_COLORS = {
   ADMIN: "bg-purple-500/15 text-purple-700 dark:text-purple-400",
   MANAGER: "bg-blue-500/15 text-blue-700 dark:text-blue-400",
   CASHIER: "bg-amber-500/15 text-amber-800 dark:text-amber-400",
+  ACCOUNTANT: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+  SUPPORT: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
 };
 
 function formatDate(date, lang, mounted) {
@@ -36,6 +38,8 @@ export default function EmployeeTable({ initialEmployees, total, departments, se
     ADMIN: t.roleAdmin,
     MANAGER: t.roleManager,
     CASHIER: t.roleCashier,
+    ACCOUNTANT: t.roleAccountant,
+    SUPPORT: t.roleSupport,
   };
   const router = useRouter();
   const searchParamsHook = useSearchParams();

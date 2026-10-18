@@ -8,7 +8,7 @@ export const ORDER_FLOW = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"];
 const MANAGERS = ["ADMIN", "MANAGER"];
 
 export function canMoveStatus(role, from, to) {
-  if (!["ADMIN", "MANAGER", "CASHIER"].includes(role) || from === to) return false;
+  if (!["ADMIN", "MANAGER", "CASHIER", "SUPPORT"].includes(role) || from === to) return false;
   const isManager = MANAGERS.includes(role);
   if (from === "DELIVERED") return false;
   if (from === "CANCELLED") return isManager && to === "PENDING";

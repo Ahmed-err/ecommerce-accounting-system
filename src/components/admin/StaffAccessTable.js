@@ -4,7 +4,13 @@ import { Check, Minus } from "lucide-react";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { STAFF_ROLES, accessTable } from "@/lib/staff-access";
 
-const ROLE_KEYS = { ADMIN: "empRoleAdmin", MANAGER: "empRoleManager", CASHIER: "empRoleCashier" };
+const ROLE_KEYS = {
+  ADMIN: "empRoleAdmin",
+  MANAGER: "empRoleManager",
+  CASHIER: "empRoleCashier",
+  ACCOUNTANT: "empRoleAccountant",
+  SUPPORT: "empRoleSupport",
+};
 
 // Read-only: who can open each staff page. Access is fixed in code (src/lib/staff-access.js).
 export default function StaffAccessTable() {

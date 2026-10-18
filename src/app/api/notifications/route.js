@@ -9,7 +9,7 @@ export async function GET(req) {
     if (!session?.user?.id) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
-    const isAdmin = ["ADMIN", "MANAGER"].includes(session.user.role);
+    const isAdmin = ["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role);
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "all";
     const read = searchParams.get("read") || "all";
@@ -30,7 +30,7 @@ export async function GET(req) {
 export async function DELETE(req) {
   try {
     const session = await auth();
-    if (!session?.user?.id || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+    if (!session?.user?.id || !["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role)) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
     const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

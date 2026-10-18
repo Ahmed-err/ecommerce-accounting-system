@@ -5,6 +5,6 @@ import NotificationBell from "@/components/admin/NotificationBell";
 
 export default function StoreNotificationBell() {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER";
+  const isAdmin = ["ADMIN", "MANAGER", "SUPPORT"].includes(session?.user?.role);
   return <NotificationBell customerOnly={!isAdmin} />;
 }

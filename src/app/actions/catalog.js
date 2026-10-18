@@ -18,6 +18,7 @@ import { getOrCreateStoreSettings } from "@/lib/settings";
 import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
 import { getFallbackCatalogProducts, getFallbackCategories } from "@/lib/store/fallback-data";
+import { STAFF_ROLES } from "@/lib/staff-access";
 
 const ORDER_STATUS_LABELS_AR = {
   PENDING: "قيد الانتظار",
@@ -36,7 +37,7 @@ const ORDER_STATUS_LABELS_EN = {
 
 async function ensureStaff() {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
+  if (!session || !STAFF_ROLES.includes(session.user.role)) {
     throw new Error("Unauthorized: Only Staff can access administrative order data.");
   }
 }
@@ -705,72 +706,6 @@ export async function placeOrder(userId, cartItems, guestInfo = null) {
       userId: effectiveUserId,
     }).catch(() => {});
     return { success: false, error: message || "Checkout failed. Please try again." };
-  }
-}
-
-export async function getUserOrders(userId) {
-  try {
-    if (!userId) return [];
-    
-    // Security check: Only match current user
-    const session = await auth();
-    if (!session || (session.user.id !== userId && session.user.role !== 'ADMIN')) {
-       throw new Error("Unauthorized: Access denied.");
-    }
-
-    const orders = await db.order.findMany({
-      where: { userId },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: "desc"
-      }
-    });
-
-    return orders;
-  } catch (error) {
-    console.error("Failed to fetch user orders:", error);
-    return [];
-  }
-}
-
-export async function getAllOrders({ search = "", status = "all", page = 1, limit = 20 } = {}) {
-  try {
-    await ensureStaff();
-    const where = {
-      ...(status !== "all" ? { status } : {}),
-      ...(search ? {
-        OR: [
-          { guestName: { contains: search, mode: "insensitive" } },
-          { guestPhone: { contains: search, mode: "insensitive" } },
-          { id: { contains: search, mode: "insensitive" } },
-        ]
-      } : {}),
-    };
-    const skip = (page - 1) * limit;
-
-    const [orders, total] = await Promise.all([
-      db.order.findMany({
-        where,
-        include: {
-          user: true,
-          items: { include: { product: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      db.order.count({ where }),
-    ]);
-    return { orders, total };
-  } catch (error) {
-    console.error("Failed to fetch all orders:", error);
-    return { orders: [], total: 0 };
   }
 }
 

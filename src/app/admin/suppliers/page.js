@@ -10,7 +10,7 @@ export const generateMetadata = adminMetadata("adminSuppliersTitle");
 
 export default async function AdminSuppliersPage() {
   const session = await auth();
-  if (!session?.user?.role || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+  if (!session?.user?.role || !["ADMIN", "MANAGER", "ACCOUNTANT"].includes(session.user.role)) {
     redirect("/admin");
   }
   if (!canOpenArea(session.user.role, "suppliers")) {

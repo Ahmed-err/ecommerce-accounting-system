@@ -29,16 +29,13 @@ function buildOrdersSearchParams(params) {
 
 export default async function AdminOrdersPage({ searchParams }) {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
-    redirect("/admin");
-  }
-  if (!canOpenArea(session.user.role, "orders")) {
+  if (!session || !canOpenArea(session.user.role, "orders")) {
     redirect(staffHome(session?.user?.role));
   }
 
   const params = await searchParams;
   let activeTab = params?.tab || "all";
-  if (session.user.role === "CASHIER" && activeTab === "reports") {
+  if (["CASHIER", "SUPPORT"].includes(session.user.role) && activeTab === "reports") {
     const p = buildOrdersSearchParams(params);
     p.set("tab", "all");
     redirect(`/admin/orders?${p.toString()}`);

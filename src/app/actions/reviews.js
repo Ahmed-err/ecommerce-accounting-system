@@ -134,7 +134,7 @@ const REVIEWS_PAGE = 20;
 
 async function isModerator() {
   const session = await auth();
-  return ["ADMIN", "MANAGER"].includes(session?.user?.role);
+  return ["ADMIN", "MANAGER", "SUPPORT"].includes(session?.user?.role);
 }
 
 /** Product pages (addressed by id) show approved reviews; refresh the ones these reviews belong to. */

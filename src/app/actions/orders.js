@@ -6,11 +6,20 @@ import { auth } from "@/auth";
 import { logAction } from "@/lib/audit";
 import { changeStock } from "@/lib/stock";
 import { checkReturnLines, REFUND_METHODS } from "@/lib/order-workflow";
+import { ORDER_DESK_ROLES, STAFF_ROLES } from "@/lib/staff-access";
 import { z } from "zod";
 
 async function ensureStaff() {
   const session = await auth();
-  if (!session || !["ADMIN", "MANAGER", "CASHIER"].includes(session.user.role)) {
+  if (!session || !STAFF_ROLES.includes(session.user.role)) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
+
+async function ensureOrderDesk() {
+  const session = await auth();
+  if (!session || !ORDER_DESK_ROLES.includes(session.user.role)) {
     throw new Error("Unauthorized");
   }
   return session;
@@ -174,7 +183,7 @@ export async function getOrdersTabData(tab, query = {}) {
 
 export async function createOrderReturn(raw) {
   try {
-    await ensureStaff();
+    await ensureOrderDesk();
     const parsed = returnSchema.safeParse(raw);
     if (!parsed.success) {
       const { error, errorCode } = returnValidationResult(parsed.error);
@@ -339,7 +348,7 @@ export async function rejectOrderReturn(returnId, reason) {
 
 export async function updateOrderStatusAction(orderId, status) {
   try {
-    await ensureStaff();
+    await ensureOrderDesk();
     const { updateOrderStatus } = await import("@/app/actions/catalog");
     const res = await updateOrderStatus(orderId, status);
     revalidatePath("/admin/orders");

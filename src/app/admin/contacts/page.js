@@ -10,7 +10,7 @@ export const generateMetadata = adminMetadata("adminContactsTitle");
 
 export default async function AdminContactsPage() {
   const session = await auth();
-  if (!session?.user?.role || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+  if (!session?.user?.role || !["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role)) {
     redirect("/admin");
   }
   if (!canOpenArea(session.user.role, "contacts")) {

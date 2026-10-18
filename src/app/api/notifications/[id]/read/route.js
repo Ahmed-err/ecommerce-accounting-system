@@ -9,7 +9,7 @@ export async function POST(_req, { params }) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
     const { id } = await params;
-    const isAdmin = ["ADMIN", "MANAGER"].includes(session.user.role);
+    const isAdmin = ["ADMIN", "MANAGER", "SUPPORT"].includes(session.user.role);
     const row = await db.notification.findFirst({
       where: {
         id,
