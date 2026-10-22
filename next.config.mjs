@@ -14,6 +14,9 @@ const securityHeaders = [
 const nextConfig = {
   poweredByHeader: false,
   images: {
+    // Cloudinary resizes product photos itself; see src/lib/image-loader.js.
+    loader: 'custom',
+    loaderFile: './src/lib/image-loader.js',
     qualities: [75, 90],
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
@@ -35,11 +38,20 @@ const nextConfig = {
     ],
   },
   async headers() {
+    // Files in /public have no content hash, so Vercel serves them with max-age=0 and every
+    // repeat visit re-requests them. These change rarely: let browsers and the CDN keep them a
+    // day and serve a stale copy for a week while refreshing in the background.
+    const publicAssetCache = [
+      { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+    ];
     return [
       {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      { source: '/images/:path*', headers: publicAssetCache },
+      { source: '/icons/:path*', headers: publicAssetCache },
+      { source: '/:file(favicon.ico|favicon.png|favicon-48.png|og-image.png)', headers: publicAssetCache },
     ];
   },
   async redirects() {
