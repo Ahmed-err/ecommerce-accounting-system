@@ -5,7 +5,6 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductImage from "@/components/media/ProductImage";
 import DepthStage from "@/components/motion/DepthStage";
 import Tilt3D from "@/components/motion/Tilt3D";
-import Hero3D from "@/components/motion/Hero3D";
 import { buttonVariants } from "@/components/ui/button";
 import { useLanguage, useT } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -41,14 +40,7 @@ export default function HomeHero({ products, total, brands }) {
       />
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-20">
         <div className="hero-copy relative z-10 max-w-xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-bold text-accent-text">
-            <span className="relative flex size-2" aria-hidden="true">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
-              <span className="relative inline-flex size-2 rounded-full bg-primary" />
-            </span>
-            {t.homeHeroEyebrow}
-          </p>
-          <h1 className="mt-4 text-4xl font-extrabold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">{t.homeHeroTitle}</h1>
+          <h1 className="text-4xl font-extrabold leading-[1.15] text-foreground sm:text-5xl lg:text-6xl">{t.homeHeroTitle}</h1>
           <p className="mt-5 text-lg leading-8 text-ink-2">{heroSubtitle(t, total, brands)}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/products" className={cn(buttonVariants({ size: "lg" }), "press h-12 gap-2 px-6 text-base shadow-[0_12px_30px_-12px_rgb(242_162_12/0.8)]")}>
@@ -63,8 +55,6 @@ export default function HomeHero({ products, total, brands }) {
 
         {products.length ? (
           <div className="relative mx-auto aspect-[5/4] w-full max-w-[560px]">
-            {/* WebGL bolt behind the product cards (capable devices only). */}
-            <Hero3D rtl={isRTL} className="pointer-events-none absolute -inset-[18%] z-0 size-[136%]" />
             {products.map((p, i) => {
               const slot = SLOTS[i];
               const name = isRTL ? p.nameAr || p.name : p.nameEn || p.name;

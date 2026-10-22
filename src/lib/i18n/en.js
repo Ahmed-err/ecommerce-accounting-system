@@ -1077,7 +1077,6 @@ const dictionary = {
   "inventoryBrand": "Brand",
   "photoComingSoon": "Photo coming soon",
   "photoGuideline": "Best results: square photo, at least 1000 px, product on a plain white background.",
-  "homeHeroEyebrow": "Home appliances · Khartoum",
   "homeHeroTitle": "Every appliance your home needs, in one place",
   "homeHeroSubtitle": "{count} products from {brands} and more.",
   "homeHeroSubtitleCount": "{count} products for every room of your home.",

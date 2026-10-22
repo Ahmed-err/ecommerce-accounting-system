@@ -157,12 +157,6 @@
 }
 .card-zoom { transition: transform 600ms var(--ease-out-expo); }
 
-/* Hero 3D scene canvas: fades in once the first frame is drawn. */
-.hero-3d {
-  opacity: 0;
-  transition: opacity 900ms var(--ease-out-expo);
-}
-.hero-3d[data-ready] { opacity: 1; }
 
 /* 3D tilt: --rx/--ry are set by <Tilt3D> from the pointer position. */
 .tilt3d {
