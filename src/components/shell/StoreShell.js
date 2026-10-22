@@ -3,6 +3,7 @@ import SiteHeader from "@/components/shell/SiteHeader";
 import SiteFooter from "@/components/shell/SiteFooter";
 import { translations } from "@/lib/translations";
 import { normalizeAppLang } from "@/lib/i18n-lang";
+import MotionRuntime from "@/components/motion/MotionRuntime";
 
 // Store shell: skip link, header, one <main>, footer. Used by the (store) layout and by
 // the root not-found page, so unmatched URLs also show the store navigation.
@@ -17,6 +18,7 @@ export default async function StoreShell({ children }) {
       >
         {t.skipToContent}
       </a>
+      <MotionRuntime />
       <SiteHeader />
       <main id="content" tabIndex={-1} className="min-h-[60vh] outline-none">
         {children}

@@ -82,9 +82,9 @@ export default async function RootLayout({ children }) {
   const dictionary = translations[lang] || translations.ar;
 
   return (
-    <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overflow-x-hidden">
+    <html lang={lang} dir={dir} suppressHydrationWarning className="bg-background overflow-x-clip">
       <body
-        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background min-w-0 overflow-x-hidden min-h-dvh`}
+        className={`${cairo.variable} ${geistMono.variable} font-sans antialiased bg-background min-w-0 overflow-x-clip min-h-dvh`}
       >
         <Providers lang={lang} branding={branding} dictionary={dictionary}>
           <CartProvider>

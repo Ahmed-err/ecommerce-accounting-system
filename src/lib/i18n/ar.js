@@ -1077,7 +1077,6 @@ const dictionary = {
   "inventoryBrand": "العلامة التجارية",
   "photoComingSoon": "الصورة قريبًا",
   "photoGuideline": "أفضل نتيجة: صورة مربعة، 1000 بكسل على الأقل، والمنتج على خلفية بيضاء سادة.",
-  "homeHeroEyebrow": "أجهزة منزلية · الخرطوم",
   "homeHeroTitle": "كل أجهزة بيتك في مكان واحد",
   "homeHeroSubtitle": "{count} منتجًا من {brands} وغيرها.",
   "homeHeroSubtitleCount": "{count} منتجًا لكل ركن في بيتك.",

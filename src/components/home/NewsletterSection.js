@@ -45,7 +45,7 @@ export default function NewsletterSection() {
         <div className="w-[min(700px,100%)] h-60 bg-amber-500/10 blur-[100px] rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-xl mx-auto px-4 sm:px-6 text-center">
+      <div className="reveal-3d relative z-10 max-w-xl mx-auto px-4 sm:px-6 text-center">
         {/* Icon */}
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-accent-text border border-amber-500/20 mb-6 sm:h-16 sm:w-16 sm:mb-8">
           <Mail className="h-7 w-7 sm:h-8 sm:w-8" />
