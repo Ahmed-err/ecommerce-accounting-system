@@ -1,5 +1,7 @@
 import { prisma as db } from "@/lib/prisma";
 import { sanitizeLegalHtml } from "@/lib/legal-sanitize";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 import {
   DEFAULT_TERMS_AR,
   DEFAULT_TERMS_EN,
@@ -13,10 +15,17 @@ const FALLBACK = {
   PRIVACY: { ar: DEFAULT_PRIVACY_AR, en: DEFAULT_PRIVACY_EN },
 };
 
+// Terms and privacy pages; cleared by any LegalPage write. Errors throw (never cached).
+const loadLegalRow = cachedQuery(
+  (type) => db.legalPage.findUnique({ where: { type } }),
+  ["legal-page-v1"],
+  { tags: [TAGS.content], revalidate: CACHE_TTL.content }
+);
+
 export async function getLegalPageForStore(type) {
   try {
     const row = await Promise.race([
-      db.legalPage.findUnique({ where: { type } }),
+      loadLegalRow(type),
       new Promise((_, reject) => setTimeout(() => reject(new Error("legal_timeout")), 3000)),
     ]);
     if (row) {

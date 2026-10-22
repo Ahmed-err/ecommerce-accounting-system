@@ -1,7 +1,8 @@
 import { prisma as db } from "@/lib/prisma";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
 
-export const revalidate = 3600;
+// Rebuilt at most once a day: crawlers fetching it hourly no longer wake the database.
+export const revalidate = 86400;
 
 export default async function sitemap() {
   const base = getAbsoluteSiteUrl();

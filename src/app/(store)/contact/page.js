@@ -1,7 +1,7 @@
 import ContactSupportShell from "@/components/store/ContactSupportShell";
 import { cookies } from "next/headers";
 import { translations } from "@/lib/translations";
-import { getOrCreateStoreSettings } from "@/lib/settings";
+import { getStoreSettingsForDisplay } from "@/lib/settings";
 import { listActiveFaqs } from "@/lib/contact";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
@@ -29,7 +29,7 @@ export default async function ContactPage({ searchParams }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
 
-  const [store, faqs] = await Promise.all([getOrCreateStoreSettings(), listActiveFaqs()]);
+  const [store, faqs] = await Promise.all([getStoreSettingsForDisplay(), listActiveFaqs()]);
 
   const storeBrief = {
     contactPhone: store.contactPhone,

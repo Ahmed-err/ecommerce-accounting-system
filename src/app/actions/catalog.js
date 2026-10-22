@@ -19,6 +19,14 @@ import { productPublicFields } from "@/lib/store/product-public-fields";
 import { getTopRatedProductIdsFiltered } from "@/lib/store/homepage-featured";
 import { getFallbackCatalogProducts, getFallbackCategories } from "@/lib/store/fallback-data";
 import { STAFF_ROLES } from "@/lib/staff-access";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
+
+// Storefront catalog reads are cached and cleared by any product, category or review write
+// (src/lib/db-write-tracking.js), so shoppers and crawlers browsing the catalog do not wake
+// the database. placeOrder never uses these: it re-reads prices and stock in its transaction.
+const catalogCache = (load, key) =>
+  cachedQuery(load, [key], { tags: [TAGS.catalog], revalidate: CACHE_TTL.catalog });
 
 const ORDER_STATUS_LABELS_AR = {
   PENDING: "قيد الانتظار",
@@ -61,26 +69,27 @@ function sanitizePaymentProofUrl(raw) {
   return s;
 }
 
+const loadPriceBounds = catalogCache(async () => {
+  const agg = await db.product.aggregate({
+    where: { isActive: true },
+    _min: { sellingPrice: true },
+    _max: { sellingPrice: true },
+  });
+  return {
+    min: Number(agg._min.sellingPrice ?? 0),
+    max: Number(agg._max.sellingPrice ?? 0),
+  };
+}, "catalog-price-bounds-v1");
+
 export async function getCatalogPriceBounds() {
   try {
-    const agg = await db.product.aggregate({
-      where: { isActive: true },
-      _min: { sellingPrice: true },
-      _max: { sellingPrice: true },
-    });
-    return {
-      min: Number(agg._min.sellingPrice ?? 0),
-      max: Number(agg._max.sellingPrice ?? 0),
-    };
+    return await loadPriceBounds();
   } catch {
     return { min: 0, max: 0 };
   }
 }
 
-export async function getCatalogProductsByIds(ids) {
-  try {
-    const clean = Array.isArray(ids) ? ids.filter(Boolean).slice(0, 12) : [];
-    if (clean.length === 0) return [];
+const loadProductsByIds = catalogCache(async (clean) => {
     let products = await db.product.findMany({
       where: { id: { in: clean }, isActive: true },
       select: { ...productPublicFields, category: true },
@@ -95,24 +104,20 @@ export async function getCatalogProductsByIds(ids) {
     return products
       .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
       .map(serializeCatalogProduct);
+}, "catalog-products-by-ids-v1");
+
+export async function getCatalogProductsByIds(ids) {
+  try {
+    const clean = Array.isArray(ids) ? ids.filter((id) => typeof id === "string" && id).slice(0, 12) : [];
+    if (clean.length === 0) return [];
+    return await loadProductsByIds(clean);
   } catch (e) {
     console.error("getCatalogProductsByIds:", e);
     return [];
   }
 }
 
-export async function getCatalogProducts({
-  search = "",
-  category = "",
-  sort = "newest",
-  page = 1,
-  limit = 12,
-  minPrice,
-  maxPrice,
-  inStockOnly,
-  brand = "",
-} = {}) {
-  try {
+const loadCatalogProducts = catalogCache(async ({ search, category, sort, page, limit, minPrice, maxPrice, inStockOnly, brand }) => {
     const minP =
       minPrice !== undefined && minPrice !== "" && !Number.isNaN(Number(minPrice))
         ? Number(minPrice)
@@ -224,6 +229,32 @@ export async function getCatalogProducts({
       products: products.map(serializeCatalogProduct),
       total,
     };
+}, "catalog-products-v1");
+
+export async function getCatalogProducts({
+  search = "",
+  category = "",
+  sort = "newest",
+  page = 1,
+  limit = 12,
+  minPrice,
+  maxPrice,
+  inStockOnly,
+  brand = "",
+} = {}) {
+  try {
+    // Normalized so equivalent requests share one cache entry.
+    return await loadCatalogProducts({
+      search: String(search || ""),
+      category: String(category || ""),
+      sort: String(sort || "newest"),
+      page: Math.max(1, Number(page) || 1),
+      limit: Math.min(Math.max(Number(limit) || 12, 1), 100),
+      minPrice: minPrice ?? null,
+      maxPrice: maxPrice ?? null,
+      inStockOnly: inStockOnly ?? null,
+      brand: String(brand || ""),
+    });
   } catch (error) {
     console.error("Failed to fetch catalog products:", error);
     const fallback = getFallbackCatalogProducts({ search, category, limit });
@@ -234,13 +265,18 @@ export async function getCatalogProducts({
   }
 }
 
+const loadProductById = catalogCache(async (id) => {
+  const product = await db.product.findFirst({
+    where: { id, isActive: true },
+    select: { ...productPublicFields, category: true },
+  });
+  return product ? serializeCatalogProduct(product) : null;
+}, "catalog-product-by-id-v1");
+
 export async function getProductById(id) {
   try {
-    const product = await db.product.findFirst({
-      where: { id, isActive: true },
-      select: { ...productPublicFields, category: true },
-    });
-    return product ? serializeCatalogProduct(product) : null;
+    if (typeof id !== "string" || !id) return null;
+    return await loadProductById(id);
   } catch (error) {
     console.error("Failed to fetch product:", error);
     return null;
@@ -277,25 +313,28 @@ export async function getMyOrderConfirmation(orderId) {
 }
 
 // Brands of active products with counts, most products first.
+const loadBrands = catalogCache(async () => {
+  const rows = await db.product.groupBy({
+    by: ["brand"],
+    where: { isActive: true, brand: { not: null } },
+    _count: { _all: true },
+  });
+  return rows
+    .filter((r) => r.brand?.trim())
+    .map((r) => ({ name: r.brand.trim(), count: r._count._all }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}, "catalog-brands-v1");
+
 export async function getCatalogBrands() {
   try {
-    const rows = await db.product.groupBy({
-      by: ["brand"],
-      where: { isActive: true, brand: { not: null } },
-      _count: { _all: true },
-    });
-    return rows
-      .filter((r) => r.brand?.trim())
-      .map((r) => ({ name: r.brand.trim(), count: r._count._all }))
-      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return await loadBrands();
   } catch (error) {
     console.error("Failed to fetch catalog brands:", error);
     return [];
   }
 }
 
-export async function getCatalogCategories() {
-  try {
+const loadCatalogCategories = catalogCache(async () => {
     const categories = await db.category.findMany({
       orderBy: { name: "asc" },
       include: {
@@ -321,6 +360,11 @@ export async function getCatalogCategories() {
       top,
       ...children.map(({ children: _children, ...k }) => k),
     ]);
+}, "catalog-categories-v1");
+
+export async function getCatalogCategories() {
+  try {
+    return await loadCatalogCategories();
   } catch (error) {
     console.error("Failed to fetch catalog categories:", error);
     return getFallbackCategories();

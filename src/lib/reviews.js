@@ -1,5 +1,7 @@
 import crypto from "crypto";
 import { prisma as db } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 
 export function sanitizeText(input, max = 1000) {
   return String(input || "")
@@ -122,3 +124,15 @@ export async function getAdminReviewStats() {
     mostReviewed: mostReviewed.map((r) => ({ ...r, product: byId[r.productId] || null })),
   };
 }
+
+// Cached copies for the product page (cleared by any review write). Both results are already
+// JSON-safe. Paging, sorting and moderation keep using the uncached functions above.
+export const getProductReviewSummaryCached = cachedQuery(getProductReviewSummary, ["review-summary-v1"], {
+  tags: [TAGS.reviews],
+  revalidate: CACHE_TTL.catalog,
+});
+
+export const listApprovedReviewsCached = cachedQuery(listApprovedReviews, ["approved-reviews-v1"], {
+  tags: [TAGS.reviews],
+  revalidate: CACHE_TTL.catalog,
+});

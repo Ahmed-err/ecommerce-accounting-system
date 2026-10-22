@@ -8,6 +8,8 @@ import { createAdminBroadcastNotification } from "@/lib/notifications";
 import { emitAlert } from "@/lib/monitoring";
 import { changeStock, notifyLowStock, StockError } from "@/lib/stock";
 import { isPosPaymentMethod, priceSale, PosPricingError } from "@/lib/pos-pricing";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 
 async function ensureStaff() {
   const session = await auth();
@@ -17,9 +19,12 @@ async function ensureStaff() {
   return session.user;
 }
 
-export async function getProductStock() {
-  try {
-    await ensureStaff();
+// Stock list every POS tablet polls. Cached and cleared the moment any product row changes
+// (a sale on another tablet, an online order, a stock receipt), so idle tablets polling it do
+// not keep the database awake. A sale never trusts it: createPOSOrder re-reads stock and
+// prices inside its transaction.
+const loadProductStock = cachedQuery(
+  async () => {
     const products = await prisma.product.findMany({
       where: { isActive: true },
       select: {
@@ -29,15 +34,21 @@ export async function getProductStock() {
         isActive: true,
       },
     });
-    
-    return products.map(p => ({
+    return products.map((p) => ({
       id: p.id,
       stock: Number(p.stock ?? 0),
-      sellingPrice: typeof p.sellingPrice?.toNumber === "function" 
-        ? p.sellingPrice.toNumber() 
-        : Number(p.sellingPrice),
+      sellingPrice: typeof p.sellingPrice?.toNumber === "function" ? p.sellingPrice.toNumber() : Number(p.sellingPrice),
       isActive: p.isActive,
     }));
+  },
+  ["pos-product-stock-v1"],
+  { tags: [TAGS.stock], revalidate: CACHE_TTL.stock }
+);
+
+export async function getProductStock() {
+  try {
+    await ensureStaff();
+    return await loadProductStock();
   } catch (error) {
     console.error("Failed to fetch product stock:", error);
     return [];
