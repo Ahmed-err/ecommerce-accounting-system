@@ -509,8 +509,20 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       console.error("Failed to load cart:", err);
     }
 
-    const interval = setInterval(syncStock, 60000); // Auto-sync every minute
-    return () => clearInterval(interval);
+    // Auto-sync every 5 minutes, only while the POS tab is visible, plus whenever the cashier
+    // returns to the tab. A one-minute timer on a POS screen left open all day kept the
+    // Neon database awake around the clock and used up the free compute allowance.
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") syncStock();
+    }, 5 * 60 * 1000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") syncStock();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [syncStock, initialProducts]);
 
   // Save cart to localStorage

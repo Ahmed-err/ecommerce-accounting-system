@@ -29,10 +29,10 @@
 ## Emitted Events
 - `checkout_success` / `checkout_failure` from `src/app/actions/catalog.js`
 - `pos_checkout_success` / `pos_checkout_failure` from `src/app/actions/pos.js`
-- `healthcheck_failed` from `src/app/api/health/route.js`
+- `healthcheck_failed` from `src/app/api/health/route.js` (only on the `?db=1` deep check)
 
 ## Incident Workflow
 1. Acknowledge alert and assign owner.
-2. Check `/api/health` and recent deploy diff.
+2. Check `/api/health?db=1` (plain `/api/health` skips the database so monitors do not wake Neon) and recent deploy diff.
 3. If customer-impacting, rollback to last stable release.
 4. Publish incident summary and follow-up fixes.

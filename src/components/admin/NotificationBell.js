@@ -69,13 +69,14 @@ export default function NotificationBell({ customerOnly = false }) {
     if (open) fetchList();
   }, [open, fetchList]);
 
-  // Polling only while the tab is visible (staff every 30 s, customers every 2 min), plus on
-  // tab/network return. A held-open stream kept the database awake for every signed-in visitor.
+  // Polling only while the tab is visible (staff every 2 min, customers every 5 min), plus on
+  // tab/network return. A held-open stream kept the database awake for every signed-in visitor,
+  // and a 30 s staff poll on an admin screen left open still kept Neon from ever suspending.
   useEffect(() => {
     const poll = setInterval(() => {
       if (document.visibilityState !== "visible") return;
       fetchList();
-    }, customerOnly ? 120000 : 30000);
+    }, customerOnly ? 5 * 60 * 1000 : 2 * 60 * 1000);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") fetchList();
