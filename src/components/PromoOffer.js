@@ -38,7 +38,7 @@ export default function PromoOffer({ offer }) {
   const showTimer   = offer.expiresAt && timeLeft.seconds !== undefined;
 
   return (
-    <section className="relative overflow-hidden bg-card text-foreground border-y border-foreground/5 py-10 sm:py-12 lg:py-16">
+    <section className="relative overflow-clip bg-card text-foreground border-y border-foreground/5 py-10 sm:py-12 lg:py-16">
       {/* Decorative glow */}
       <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none" />
 
@@ -105,7 +105,7 @@ export default function PromoOffer({ offer }) {
           </div>
 
           {/* ── Image side ────────────────────────────────────────────── */}
-          <div className="reveal-3d relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
+          <div className="reveal-3d relative h-56 rounded-2xl overflow-clip border border-foreground/10 shadow-xl group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
             {/* The photo drifts slower than the page while scrolling (Chrome/Edge). */}
             <div className="parallax absolute inset-0">
             <Image

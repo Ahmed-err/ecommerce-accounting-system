@@ -4,11 +4,11 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 // Store-wide motion runtime (public pages only).
-// - Browsers with CSS scroll timelines (Chrome, Edge) animate .reveal* in pure CSS.
-// - Others (Safari, Firefox) get the same reveals through one IntersectionObserver that
-//   adds .in-view. Content is visible by default: the hidden start state only applies once
-//   this script has added html.motion-io, so a script failure never hides anything. It only
-//   ever adds the .in-view class (stagger delays are in CSS), never React-owned attributes.
+// Every browser gets the same reveals through one IntersectionObserver that adds .in-view.
+// (CSS scroll timelines were used before, but they attach to the nearest clipping ancestor,
+// and any section with overflow-hidden froze its animations.) Content is visible by default:
+// the hidden start state only applies once this script has added html.motion-io, so a script
+// failure never hides anything. It only ever adds classes, never React-owned attributes.
 // - Visitors who ask for reduced motion get no reveals at all.
 const TARGETS = ".reveal, .reveal-3d, .reveal-stagger > *, .reveal-flip > *";
 
@@ -18,7 +18,6 @@ export default function MotionRuntime() {
   useEffect(() => {
     const root = document.documentElement;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
-    if (window.CSS?.supports?.("animation-timeline: view()")) return undefined;
     if (!("IntersectionObserver" in window)) return undefined;
 
     // Start after the page has loaded and gone idle, so React has finished hydrating every

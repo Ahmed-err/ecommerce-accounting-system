@@ -130,13 +130,17 @@
     overscroll-behavior-y: auto;
     overscroll-behavior-x: none;
     max-width: 100vw;
+    /* clip, not hidden: hidden on both html and body makes <body> a scroll container that
+       never scrolls, which froze scroll-linked animations and the sticky header. */
     overflow-x: hidden;
+    overflow-x: clip;
     min-height: 100%;
     min-height: -webkit-fill-available;
   }
   body {
     @apply bg-background text-foreground min-h-screen;
     overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
     min-height: -webkit-fill-available;
     transition:
@@ -146,6 +150,7 @@
   html {
     @apply font-sans bg-background;
     overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
   :lang(ar) {
@@ -155,15 +160,6 @@
   :lang(ar).uppercase,
   :lang(ar) .uppercase {
     text-transform: none;
-    letter-spacing: normal;
-  }
-  /* Arabic has no true italic (browsers fake a slant) and letter-spacing breaks the joins
-     between letters, so the Latin display styling (italic, tight tracking) stays upright
-     and naturally spaced in Arabic. */
-  :lang(ar) .italic {
-    font-style: normal;
-  }
-  :lang(ar) [class*="tracking-"] {
     letter-spacing: normal;
   }
   .sticky {
