@@ -1,12 +1,11 @@
-import { unstable_cache } from "next/cache";
+import { cachedQuery } from "@/lib/cached-query";
 import { translations } from "@/lib/translations";
-import { getOrCreateStoreSettings } from "@/lib/settings";
+import { getStoreSettingsForDisplay, loadStoreSettingsOrThrow } from "@/lib/settings";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 
 const clean = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
 
-export async function fetchStoreBranding() {
-  try {
-    const store = await getOrCreateStoreSettings();
+function brandingFromStore(store) {
     return {
       nameAr: clean(store.nameAr) || translations.ar.brandName,
       nameEn: clean(store.nameEn) || translations.en.brandName,
@@ -23,10 +22,9 @@ export async function fetchStoreBranding() {
         tiktok: clean(store.tiktokUrl),
       },
     };
-  } catch (error) {
-    console.error("Failed to load store branding, using translation defaults:", error);
-  }
+}
 
+function defaultBranding() {
   return {
     nameAr: translations.ar.brandName,
     nameEn: translations.en.brandName,
@@ -40,10 +38,31 @@ export async function fetchStoreBranding() {
   };
 }
 
-export const getStoreBranding = unstable_cache(fetchStoreBranding, ["store-branding"], {
-  tags: ["branding"],
-  revalidate: 300,
-});
+export async function fetchStoreBranding() {
+  try {
+    return brandingFromStore(await getStoreSettingsForDisplay());
+  } catch (error) {
+    console.error("Failed to load store branding, using translation defaults:", error);
+    return defaultBranding();
+  }
+}
+
+// Read on every page (root layout). Cleared on any Store write, so a day is only a safety net.
+// A database failure inside the cached function throws instead of caching the defaults.
+const loadBrandingCached = cachedQuery(
+  async () => brandingFromStore(await loadStoreSettingsOrThrow()),
+  ["store-branding-v2"],
+  { tags: [TAGS.branding], revalidate: CACHE_TTL.branding }
+);
+
+export async function getStoreBranding() {
+  try {
+    return await loadBrandingCached();
+  } catch (error) {
+    console.error("Failed to load store branding, using translation defaults:", error);
+    return defaultBranding();
+  }
+}
 
 export function getBrandingForLang(branding, lang) {
   const isRTL = lang === "ar";

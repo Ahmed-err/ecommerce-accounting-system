@@ -11,6 +11,19 @@ import { translations, translateCategory } from "@/lib/translations";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { jsonLdHtml } from "@/lib/json-ld";
 import { prisma as db } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
+
+// Category for the page title; cached so crawler visits to category pages skip the database.
+const findCategoryForMeta = cachedQuery(
+  (category) =>
+    db.category.findFirst({
+      where: { OR: [{ id: category }, { name: category }] },
+      select: { id: true, name: true, nameAr: true },
+    }),
+  ["products-meta-category-v1"],
+  { tags: [TAGS.catalog], revalidate: CACHE_TTL.catalog }
+);
 
 export async function generateMetadata({ searchParams }) {
   const params = await searchParams;
@@ -23,9 +36,7 @@ export async function generateMetadata({ searchParams }) {
   // Category links carry the id; older links (and the old sitemap) carry the English name.
   const cat =
     category && category !== "all"
-      ? await db.category
-          .findFirst({ where: { OR: [{ id: category }, { name: category }] }, select: { id: true, name: true, nameAr: true } })
-          .catch(() => null)
+      ? await findCategoryForMeta(String(category)).catch(() => null)
       : null;
   const catName = cat ? (lang === "ar" ? cat.nameAr || translateCategory(cat.name, t) : cat.name) : null;
   const titleBase = catName ? `${catName} | ${b.brandName}` : `${t.allProducts} | ${b.brandName}`;

@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const store: Record<string, unknown> = {};
-vi.mock("@/lib/settings", () => ({ getOrCreateStoreSettings: vi.fn(async () => store) }));
+vi.mock("@/lib/settings", () => ({
+  getStoreSettingsForDisplay: vi.fn(async () => store),
+  loadStoreSettingsOrThrow: vi.fn(async () => store),
+}));
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 
 import { fetchStoreBranding } from "@/lib/branding";

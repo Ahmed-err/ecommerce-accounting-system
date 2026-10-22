@@ -2,13 +2,13 @@ import ProductDetailClient from "@/components/store/ProductDetailClient";
 import { cookies } from "next/headers";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
 import { translations } from "@/lib/translations";
-import { getProductReviewSummary, listApprovedReviews } from "@/lib/reviews";
+import { getProductReviewSummaryCached, listApprovedReviewsCached } from "@/lib/reviews";
 import {
   getStorefrontProductBySlug,
   getRelatedStoreProducts,
   getTopProductSlugsForStatic,
 } from "@/lib/store/products";
-import { getOrCreateStoreSettings } from "@/lib/settings";
+import { getStoreSettingsForDisplay } from "@/lib/settings";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
       ? product.descriptionAr || product.description || ""
       : product.descriptionEn || product.description || "";
 
-  const summary = await getProductReviewSummary(product.id).catch(() => ({ total: 0, average: 0 }));
+  const summary = await getProductReviewSummaryCached(product.id).catch(() => ({ total: 0, average: 0 }));
   const description =
     displayDesc?.slice(0, 160) ||
     (lang === "ar" ? `اشتري ${displayName} من ${b.brandName}.` : `Buy ${displayName} from ${b.brandName}.`);
@@ -84,10 +84,10 @@ export default async function ProductDetailPage({ params }) {
   const lang = cookieStore.get("lang")?.value || "ar";
 
   const [summary, reviewRows, relatedProducts, store, session] = await Promise.all([
-    getProductReviewSummary(product.id).catch(() => ({ total: 0, average: 0 })),
-    listApprovedReviews({ productId: product.id, page: 1, limit: 5 }).catch(() => ({ rows: [] })),
+    getProductReviewSummaryCached(product.id).catch(() => ({ total: 0, average: 0 })),
+    listApprovedReviewsCached({ productId: product.id, page: 1, limit: 5 }).catch(() => ({ rows: [] })),
     getRelatedStoreProducts(product.categoryId, product.id, 8).catch(() => []),
-    getOrCreateStoreSettings().catch(() => ({})),
+    getStoreSettingsForDisplay().catch(() => ({})),
     auth().catch(() => null),
   ]);
 

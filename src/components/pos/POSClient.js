@@ -509,12 +509,13 @@ export default function POSClient({ initialProducts, initialPrinterSettings }) {
       console.error("Failed to load cart:", err);
     }
 
-    // Auto-sync every 5 minutes, only while the POS tab is visible, plus whenever the cashier
-    // returns to the tab. A one-minute timer on a POS screen left open all day kept the
-    // Neon database awake around the clock and used up the free compute allowance.
+    // Auto-sync every 2 minutes while the POS tab is visible, plus whenever the cashier returns
+    // to the tab. getProductStock is served from a cache that every stock change clears, so
+    // these polls only reach the database right after something actually changed; a hidden
+    // or locked tablet does not poll at all.
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") syncStock();
-    }, 5 * 60 * 1000);
+    }, 2 * 60 * 1000);
     const onVisible = () => {
       if (document.visibilityState === "visible") syncStock();
     };

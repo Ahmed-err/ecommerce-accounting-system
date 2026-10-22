@@ -1,4 +1,5 @@
-import { unstable_cache } from "next/cache";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 import { prisma as db } from "@/lib/prisma";
 import { getHomepageFeaturedSets } from "@/lib/store/homepage-featured";
 import { getFallbackCategories } from "@/lib/store/fallback-data";
@@ -70,59 +71,75 @@ function buildFallbackCategories() {
   }));
 }
 
-async function fetchHomepageData() {
-  try {
-    const [banners, categories, featured, offers] = await Promise.all([
-      db.banner.findMany({
-        where: { isActive: true },
-        orderBy: { order: "asc" },
-      }),
-      db.category.findMany({
-        orderBy: { name: "asc" },
-        include: {
-          _count: {
-            select: {
-              products: { where: { isActive: true } },
-            },
+// Throws on database errors so a failure is never cached (see getHomepageData).
+async function loadHomepageData() {
+  const [banners, categories, featured, offers] = await Promise.all([
+    db.banner.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    }),
+    db.category.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: {
+            products: { where: { isActive: true } },
           },
         },
-      }),
-      getHomepageFeaturedSets(),
-      db.offer.findMany({
-        where: { isActive: true },
-        take: 1,
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
-    const products = await db.product.findMany({
+      },
+    }),
+    getHomepageFeaturedSets(),
+    db.offer.findMany({
       where: { isActive: true },
-      select: { id: true, name: true, nameAr: true, nameEn: true, brand: true, images: true, categoryId: true },
-      orderBy: { createdAt: "asc" },
-    });
-    const showcase = buildShowcase(categories, products);
-
-    return {
-      // Only banners the admin created; the old stock placeholders are gone.
-      banners,
-      ...showcase,
-      featured,
-      featuredOffer: offers[0] || null,
-    };
-  } catch (error) {
-    console.error("Failed to fetch homepage data:", error);
-    return {
-      banners: [],
-      categories: buildFallbackCategories(),
-      brands: [],
-      heroProducts: [],
-      productTotal: 0,
-      featured: buildFallbackFeatured(),
-      featuredOffer: null,
-    };
+      take: 1,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+  // The featured sets fall back to placeholders on their own errors; never cache those.
+  if (featured?.featuredMeta?.bestSellersPeriod === "fallback") {
+    throw new Error("homepage featured sets unavailable");
   }
+
+  const products = await db.product.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, nameAr: true, nameEn: true, brand: true, images: true, categoryId: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const showcase = buildShowcase(categories, products);
+
+  return {
+    // Only banners the admin created; the old stock placeholders are gone.
+    banners,
+    ...showcase,
+    featured,
+    featuredOffer: offers[0] || null,
+  };
 }
 
-export const getHomepageData = unstable_cache(fetchHomepageData, ["homepage-data"], {
-  tags: ["homepage"],
-  revalidate: 60,
+function homepageFallback() {
+  return {
+    banners: [],
+    categories: buildFallbackCategories(),
+    brands: [],
+    heroProducts: [],
+    productTotal: 0,
+    featured: buildFallbackFeatured(),
+    featuredOffer: null,
+  };
+}
+
+// Cleared on writes to products, categories, reviews, banners, offers and store settings;
+// the hour is a safety net (best-seller ranking can lag a sale by up to an hour).
+const loadHomepageDataCached = cachedQuery(loadHomepageData, ["homepage-data-v2"], {
+  tags: [TAGS.homepage],
+  revalidate: CACHE_TTL.homepage,
 });
+
+export async function getHomepageData() {
+  try {
+    return await loadHomepageDataCached();
+  } catch (error) {
+    console.error("Failed to fetch homepage data:", error);
+    return homepageFallback();
+  }
+}

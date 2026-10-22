@@ -2,6 +2,23 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/prisma";
 import { countUnreadNotifications, listNotificationsForUser } from "@/lib/notifications";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
+
+// The bell polls this route on every open admin and account page. Cached per user and filter,
+// and cleared by any notification write (new, read, deleted), so polling between changes does
+// not wake the database. The response is JSON either way, so caching does not change it.
+const loadBell = cachedQuery(
+  async (args) => {
+    const [rows, unread] = await Promise.all([
+      listNotificationsForUser(args),
+      countUnreadNotifications(args.userId, args.isAdmin, args.type),
+    ]);
+    return { rows, unread };
+  },
+  ["notification-bell-v1"],
+  { tags: [TAGS.notifications], revalidate: CACHE_TTL.notifications }
+);
 
 export async function GET(req) {
   try {
@@ -16,10 +33,7 @@ export async function GET(req) {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     const limit = Number(searchParams.get("limit") || 20);
-    const [rows, unread] = await Promise.all([
-      listNotificationsForUser({ userId: session.user.id, isAdmin, type, read, from, to, limit }),
-      countUnreadNotifications(session.user.id, isAdmin, type),
-    ]);
+    const { rows, unread } = await loadBell({ userId: session.user.id, isAdmin, type, read, from, to, limit });
     return NextResponse.json({ ok: true, rows, unread });
   } catch (error) {
     console.error("GET /api/notifications:", error);

@@ -1,4 +1,6 @@
 import { prisma as db } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/cached-query";
+import { CACHE_TTL, TAGS } from "@/lib/cache-tags";
 
 export async function getUnreadContactMessageCount() {
   try {
@@ -8,12 +10,16 @@ export async function getUnreadContactMessageCount() {
   }
 }
 
+// Contact page FAQs; cleared by any Faq write. Errors throw inside (never cached).
+const loadActiveFaqs = cachedQuery(
+  () => db.faq.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+  ["active-faqs-v1"],
+  { tags: [TAGS.content], revalidate: CACHE_TTL.content }
+);
+
 export async function listActiveFaqs() {
   try {
-    return db.faq.findMany({
-      where: { active: true },
-      orderBy: { sortOrder: "asc" },
-    });
+    return await loadActiveFaqs();
   } catch {
     return [];
   }

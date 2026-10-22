@@ -14,6 +14,8 @@
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { MODEL_TAGS, invalidateTags } from "@/lib/cache-tags";
+import { createWriteTracker } from "@/lib/db-write-tracking";
 
 function normalizeConnectionString(rawUrl) {
   if (!rawUrl) return rawUrl;
@@ -50,19 +52,18 @@ const adapter = new PrismaPg(pool);
 // In development: store the client on `globalThis` so it survives hot-reloads
 const globalForPrisma = globalThis;
 
-// Bump key when schema changes so dev HMR does not keep a stale client (missing new models).
-export const prisma =
-    globalForPrisma.prismaV3 ??
-    new PrismaClient({
-      adapter,
-      ...(process.env.PRISMA_LOG_QUERIES === "true"
-        ? { log: [{ level: "query", emit: "event" }, "error", "warn"] }
-        : { log: ["error", "warn"] }),
-    });
+function createClient() {
+  const base = new PrismaClient({
+    adapter,
+    ...(process.env.PRISMA_LOG_QUERIES === "true"
+      ? { log: [{ level: "query", emit: "event" }, "error", "warn"] }
+      : { log: ["error", "warn"] }),
+  });
 
-if (process.env.PRISMA_LOG_QUERIES === "true") {
+  // $on is only available on the base client, before $extends.
+  if (process.env.PRISMA_LOG_QUERIES === "true") {
     const slowMs = Number(process.env.DB_SLOW_QUERY_MS || 250);
-    prisma.$on("query", (e) => {
+    base.$on("query", (e) => {
       if (e.duration >= slowMs) {
         console.warn("[DB_SLOW_QUERY]", {
           durationMs: e.duration,
@@ -71,8 +72,17 @@ if (process.env.PRISMA_LOG_QUERIES === "true") {
         });
       }
     });
+  }
+
+  // Every write clears the cache tags of its model (after commit inside $transaction), so
+  // cached storefront, POS and auth reads stay correct without per-mutation bookkeeping.
+  const tracker = createWriteTracker(MODEL_TAGS, invalidateTags);
+  return tracker.withCommitInvalidation(base.$extends(tracker.extension));
 }
 
+// Bump key when schema changes so dev HMR does not keep a stale client (missing new models).
+export const prisma = globalForPrisma.prismaV4 ?? createClient();
+
 if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prismaV3 = prisma;
+    globalForPrisma.prismaV4 = prisma;
 }
