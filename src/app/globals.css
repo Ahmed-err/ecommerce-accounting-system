@@ -157,6 +157,15 @@
     text-transform: none;
     letter-spacing: normal;
   }
+  /* Arabic has no true italic (browsers fake a slant) and letter-spacing breaks the joins
+     between letters, so the Latin display styling (italic, tight tracking) stays upright
+     and naturally spaced in Arabic. */
+  :lang(ar) .italic {
+    font-style: normal;
+  }
+  :lang(ar) [class*="tracking-"] {
+    letter-spacing: normal;
+  }
   .sticky {
     position: -webkit-sticky;
     position: sticky;

@@ -123,7 +123,7 @@ export default function AboutPageClient({ store, features, team }) {
 
       <section className="border-y border-border bg-muted/20 py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-10 text-center text-2xl font-black text-foreground">{t.aboutWhyTitle}</h2>
+          <h2 className="reveal mb-10 text-center text-2xl font-black text-foreground">{t.aboutWhyTitle}</h2>
           <motion.div
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
             initial="hidden"
@@ -156,8 +156,8 @@ export default function AboutPageClient({ store, features, team }) {
       {team?.length ? (
         <section className="border-t border-border bg-muted/15 py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-10 text-center text-2xl font-black text-foreground">{t.aboutTeamTitle}</h2>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <h2 className="reveal mb-10 text-center text-2xl font-black text-foreground">{t.aboutTeamTitle}</h2>
+            <div className="reveal-flip grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {team.map((m) => {
                 const nm = lang === "ar" ? m.nameAr : m.nameEn;
                 const pos = lang === "ar" ? m.positionAr : m.positionEn;
@@ -183,7 +183,7 @@ export default function AboutPageClient({ store, features, team }) {
       ) : null}
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="mb-6 text-2xl font-black text-foreground">{t.aboutVisitTitle}</h2>
+        <h2 className="reveal mb-6 text-2xl font-black text-foreground">{t.aboutVisitTitle}</h2>
         {address ? <p className="mb-6 text-muted-foreground">{address}</p> : null}
         {embedSrc ? (
           <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border">

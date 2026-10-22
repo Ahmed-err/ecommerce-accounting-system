@@ -17,6 +17,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ProductImage from "@/components/media/ProductImage";
+import Tilt3D from "@/components/motion/Tilt3D";
 
 const WISHLIST_KEY = "powerstore_wishlist";
 
@@ -190,10 +191,13 @@ export default function ProductCard({
 
   return (
     <>
+      {/* Reveal and tilt live on wrappers: a CSS animation on the card itself would override
+          framer-motion's hover lift (animations win over inline transforms). */}
+      <div className={cn("reveal min-h-0", homeShowcase ? "h-auto" : "h-full")}>
+      <Tilt3D max={compactRail ? 0 : 5} className={cn("min-h-0 rounded-3xl", homeShowcase ? "h-auto" : "h-full", compactRail && "rounded-2xl")}>
       <motion.div
         className={cn(
-          // Visible from the first paint; .reveal animates it in where the browser supports scroll timelines.
-          "reveal group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
+          "group relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-foreground/5 bg-card transition-all duration-500 hover:border-amber-500/50 hover:shadow-2xl",
           // `h-full` relies on the parent having an explicit height. On the home featured grid
           // that isn't the case, which can clip the bottom price row.
           homeShowcase
@@ -424,7 +428,7 @@ export default function ProductCard({
                   }}
                   disabled={isOutOfStock}
                   className={cn(
-                    "relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-accent-text transition-all duration-200 hover:bg-amber-500 hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-30",
+                    "press relative shrink-0 overflow-hidden rounded-xl bg-amber-500/10 text-accent-text transition-all duration-200 hover:bg-amber-500 hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-30",
                     "p-2.5"
                   )}
                   title={t.addToCart}
@@ -435,7 +439,10 @@ export default function ProductCard({
             )}
           </div>
         </div>
+        <span className="tilt3d-shine pointer-events-none absolute inset-0 z-30 rounded-[inherit]" aria-hidden="true" />
       </motion.div>
+      </Tilt3D>
+      </div>
 
       <Dialog open={qvOpen} onOpenChange={setQvOpen}>
         <DialogContent

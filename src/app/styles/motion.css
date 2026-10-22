@@ -1,25 +1,176 @@
 /* Motion for the store. Content is never hidden: reveals only run where the
    browser supports scroll timelines and the visitor allows motion. */
 
+/* Shared rhythm: one easing and a short set of durations for every store animation. */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-reveal: 700ms;
+}
+
+/* Start states. .reveal rises with a slight forward tilt; .reveal-3d swings up from below
+   the page plane; .reveal-flip cards turn in around their vertical axis. */
 @keyframes reveal-up {
-  from { opacity: 0.001; transform: translateY(28px) scale(0.985); }
+  from { opacity: 0.001; transform: perspective(1200px) translateY(36px) rotateX(8deg) scale(0.985); }
   to { opacity: 1; transform: none; }
+}
+@keyframes reveal-3d {
+  from { opacity: 0.001; transform: perspective(1000px) translateY(60px) rotateX(18deg) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes reveal-flip {
+  from { opacity: 0.001; transform: perspective(900px) rotateY(-24deg) translateZ(-60px); }
+  to { opacity: 1; transform: none; }
+}
+/* Drift is a share of the element's own height and the scale covers it, so the frame
+   never shows an edge at any size: 1 + 2 × 6% = 1.12 < 1.14. */
+@keyframes parallax-drift {
+  from { transform: translate3d(0, 6%, 0) scale(1.14); }
+  to { transform: translate3d(0, -6%, 0) scale(1.14); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Chrome/Edge: driven by the scroll position itself, no JavaScript. */
   @supports (animation-timeline: view()) {
     .reveal {
       animation: reveal-up linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 40%;
     }
+    .reveal-3d {
+      animation: reveal-3d linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+      transform-origin: 50% 100%;
+    }
     .reveal-stagger > * {
       animation: reveal-up linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 55%;
     }
+    .reveal-flip > * {
+      animation: reveal-flip linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 60%;
+    }
+    .parallax {
+      animation: parallax-drift linear both;
+      animation-timeline: view();
+    }
+    .scroll-progress {
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  /* Safari/Firefox: MotionRuntime adds html.motion-io and .in-view as items enter.
+     Groups stagger their children 45ms apart, capped at the 9th. */
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(2) { --stagger: 45ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(3) { --stagger: 90ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(4) { --stagger: 135ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(5) { --stagger: 180ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(6) { --stagger: 225ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(7) { --stagger: 270ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(8) { --stagger: 315ms; }
+  :is(.reveal-stagger, .reveal-flip) > :nth-child(n + 9) { --stagger: 360ms; }
+  .motion-io :is(.reveal, .reveal-3d, .reveal-stagger > *, .reveal-flip > *) {
+    transition:
+      opacity var(--dur-reveal) var(--ease-out-expo) var(--stagger, 0ms),
+      transform var(--dur-reveal) var(--ease-out-expo) var(--stagger, 0ms);
+  }
+  .motion-io :is(.reveal, .reveal-stagger > *):not(.in-view) {
+    opacity: 0;
+    transform: perspective(1200px) translateY(36px) rotateX(8deg) scale(0.985);
+  }
+  .motion-io .reveal-3d:not(.in-view) {
+    opacity: 0;
+    transform: perspective(1000px) translateY(60px) rotateX(18deg) scale(0.96);
+    transform-origin: 50% 100%;
+  }
+  .motion-io .reveal-flip > *:not(.in-view) {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-24deg) translateZ(-60px);
+  }
+
+  /* Page transition: each store page settles into place from slightly behind the screen. */
+  @keyframes page-enter {
+    from { opacity: 0; transform: perspective(1400px) translate3d(0, 18px, -40px) rotateX(3deg); }
+    to { opacity: 1; transform: none; }
+  }
+  .page-enter {
+    animation: page-enter 420ms var(--ease-out-expo) both;
+    transform-origin: 50% 0;
   }
 }
+
+/* Home hero entrance (on load, not on scroll): copy rises line by line, photo cards
+   swing in from behind the scene one after another. */
+@keyframes hero-copy-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hero-card-in {
+  from { opacity: 0; transform: perspective(900px) translateZ(-160px) rotateY(-28deg) rotateX(10deg); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * { animation: hero-copy-in 800ms var(--ease-out-expo) both; }
+  .hero-copy > :nth-child(2) { animation-delay: 90ms; }
+  .hero-copy > :nth-child(3) { animation-delay: 180ms; }
+  .hero-copy > :nth-child(4) { animation-delay: 270ms; }
+  .hero-card-enter { animation: hero-card-in 1000ms var(--ease-out-expo) var(--enter-delay, 0ms) both; }
+}
+
+/* Thin brand-colored bar showing how far down the page the visitor is. */
+@keyframes scroll-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), #ffcf5c);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+[dir="rtl"] .scroll-progress { transform-origin: 100% 50%; }
+@supports not (animation-timeline: scroll(root)) {
+  .scroll-progress { display: none; }
+}
+
+/* Press feedback for storefront buttons and cards (never on admin or POS). */
+.press {
+  transition: transform var(--dur-fast) var(--ease-out-expo);
+}
+.press:active { transform: scale(0.97); }
+
+/* Product cards: lift toward the viewer, photo zooms slightly. */
+.card-lift {
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) var(--ease-out-expo),
+    border-color var(--dur-base);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 50px -24px rgb(14 26 43 / 0.35), 0 0 0 1px rgb(242 162 12 / 0.35);
+  }
+  .card-lift:hover .card-zoom { transform: scale(1.06); }
+}
+.card-zoom { transition: transform 600ms var(--ease-out-expo); }
+
+/* Hero 3D scene canvas: fades in once the first frame is drawn. */
+.hero-3d {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out-expo);
+}
+.hero-3d[data-ready] { opacity: 1; }
 
 /* 3D tilt: --rx/--ry are set by <Tilt3D> from the pointer position. */
 .tilt3d {
@@ -60,5 +211,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tilt3d, .depth-layer { transform: none !important; transition: none; }
+  .tilt3d, .depth-layer, .card-lift, .card-zoom, .press { transform: none !important; transition: none; }
+  .scroll-progress { display: none; }
 }

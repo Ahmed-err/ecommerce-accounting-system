@@ -15,7 +15,7 @@ export default function CategoriesStrip({ categories }) {
   return (
     <section id="categories" className="scroll-mt-20 py-12 sm:py-16" dir={isRTL ? "rtl" : "ltr"} aria-labelledby="home-categories">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between gap-4">
+        <div className="reveal flex items-end justify-between gap-4">
           <h2 id="home-categories" className="type-h2 text-foreground">
             {t.shopByCategory}
           </h2>
@@ -23,7 +23,7 @@ export default function CategoriesStrip({ categories }) {
             {t.viewAll}
           </Link>
         </div>
-        <ul className="reveal-stagger mt-8 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
+        <ul className="reveal-flip mt-8 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
           {categories.map((cat) => {
             const label = translateCategory(cat.name, t, cat.nameAr);
             return (

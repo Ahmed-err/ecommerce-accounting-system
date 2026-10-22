@@ -3,11 +3,11 @@
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
-const MAX = 8; // degrees
+const MAX = 8; // default maximum tilt, degrees
 
 // Tilts its child toward the pointer (mouse/pen only; touch scrolls normally).
 // Writes CSS variables, so React never re-renders while the pointer moves.
-export default function Tilt3D({ children, className, as: Tag = "div", ...rest }) {
+export default function Tilt3D({ children, className, as: Tag = "div", max = MAX, ...rest }) {
   const ref = useRef(null);
   const frame = useRef(0);
 
@@ -21,8 +21,8 @@ export default function Tilt3D({ children, className, as: Tag = "div", ...rest }
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       el.dataset.active = "";
-      el.style.setProperty("--ry", `${((x - 0.5) * 2 * MAX).toFixed(2)}deg`);
-      el.style.setProperty("--rx", `${((0.5 - y) * 2 * MAX).toFixed(2)}deg`);
+      el.style.setProperty("--ry", `${((x - 0.5) * 2 * max).toFixed(2)}deg`);
+      el.style.setProperty("--rx", `${((0.5 - y) * 2 * max).toFixed(2)}deg`);
       el.style.setProperty("--sx", `${(x * 100).toFixed(1)}%`);
       el.style.setProperty("--sy", `${(y * 100).toFixed(1)}%`);
     });

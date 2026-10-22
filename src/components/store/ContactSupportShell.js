@@ -76,7 +76,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
         <p className="mt-4 text-lg text-muted-foreground">{t.contactSalesDesc}</p>
       </motion.div>
 
-      <div className="mb-16 grid gap-6 md:grid-cols-3">
+      <div className="reveal-flip mb-16 grid gap-6 md:grid-cols-3">
         {[
           {
             icon: Phone,
@@ -133,7 +133,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
         ))}
       </div>
 
-      <div className="mb-16 grid gap-10 lg:grid-cols-2">
+      <div className="reveal-3d mb-16 grid gap-10 lg:grid-cols-2">
         <ContactFormClient defaultSubject={defaultSubject} />
         <div className="space-y-6 rounded-3xl border border-border bg-card p-8">
           <div className="flex items-start gap-4">
@@ -195,7 +195,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
 
       {faqs.length > 0 && (
       <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
-        <h2 className="text-xl font-bold text-foreground">{t.contactFaqTitle}</h2>
+        <h2 className="reveal text-xl font-bold text-foreground">{t.contactFaqTitle}</h2>
         <Input
           className="mt-4 border-border bg-background"
           placeholder={t.contactFaqSearch}

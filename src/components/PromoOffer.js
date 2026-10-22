@@ -50,7 +50,7 @@ export default function PromoOffer({ offer }) {
           )}
         >
           {/* ── Text side ─────────────────────────────────────────────── */}
-          <div className={cn("space-y-6 sm:space-y-8", isRTL ? "text-right" : "text-left")}>
+          <div className={cn("reveal space-y-6 sm:space-y-8", isRTL ? "text-right" : "text-left")}>
             {/* Badge */}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest animate-pulse sm:px-4 sm:text-xs">
               <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -105,7 +105,9 @@ export default function PromoOffer({ offer }) {
           </div>
 
           {/* ── Image side ────────────────────────────────────────────── */}
-          <div className="relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
+          <div className="reveal-3d relative h-56 rounded-2xl overflow-hidden border border-foreground/10 shadow-xl group sm:h-64 md:h-72 lg:h-[380px] xl:h-[420px]">
+            {/* The photo drifts slower than the page while scrolling (Chrome/Edge). */}
+            <div className="parallax absolute inset-0">
             <Image
               src={offer.image}
               alt={offerTitle}
@@ -113,6 +115,7 @@ export default function PromoOffer({ offer }) {
               className="object-cover transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           </div>
         </div>
