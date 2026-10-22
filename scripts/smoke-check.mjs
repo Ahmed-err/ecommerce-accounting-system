@@ -11,7 +11,7 @@ const endpoints = [
   "/privacy",
   "/sitemap.xml",
   "/robots.txt",
-  "/api/health",
+  "/api/health?db=1",
 ];
 
 async function check(path) {
