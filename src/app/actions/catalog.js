@@ -118,14 +118,13 @@ export async function getCatalogProductsByIds(ids) {
 }
 
 const loadCatalogProducts = catalogCache(async ({ search, category, sort, page, limit, minPrice, maxPrice, inStockOnly, brand }) => {
-    const minP =
-      minPrice !== undefined && minPrice !== "" && !Number.isNaN(Number(minPrice))
-        ? Number(minPrice)
-        : null;
-    const maxP =
-      maxPrice !== undefined && maxPrice !== "" && !Number.isNaN(Number(maxPrice))
-        ? Number(maxPrice)
-        : null;
+    // No filter when the bound is missing. getCatalogProducts passes null for "not set",
+    // and Number(null) is 0, so null must be checked here or every listing becomes
+    // "price between 0 and 0".
+    const toBound = (v) =>
+      v === undefined || v === null || v === "" || Number.isNaN(Number(v)) ? null : Number(v);
+    const minP = toBound(minPrice);
+    const maxP = toBound(maxPrice);
 
     const priceFilter =
       minP !== null || maxP !== null
@@ -229,7 +228,7 @@ const loadCatalogProducts = catalogCache(async ({ search, category, sort, page, 
       products: products.map(serializeCatalogProduct),
       total,
     };
-}, "catalog-products-v1");
+}, "catalog-products-v2");
 
 export async function getCatalogProducts({
   search = "",
