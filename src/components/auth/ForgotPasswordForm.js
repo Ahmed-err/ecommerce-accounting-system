@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Mail, Loader2 } from "lucide-react";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { splitPhones, telHref } from "@/lib/phones";
 import { requestPasswordReset } from "@/app/actions/reset-password";
 import AuthShell, { AuthAlert, AuthField, AuthSubmit } from "@/components/auth/AuthShell";
 
@@ -67,9 +68,14 @@ export default function ForgotPasswordForm() {
       {contactPhone ? (
         <p className="mt-5 text-center text-sm text-muted-foreground">
           {t.authForgotHelp}{" "}
-          <a href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`} dir="ltr" className="font-semibold text-foreground hover:underline">
-            {contactPhone}
-          </a>
+          {splitPhones(contactPhone).map((phone, i) => (
+            <span key={phone}>
+              {i > 0 ? " / " : null}
+              <a href={telHref(phone)} dir="ltr" className="font-semibold text-foreground hover:underline">
+                {phone}
+              </a>
+            </span>
+          ))}
         </p>
       ) : null}
     </AuthShell>
