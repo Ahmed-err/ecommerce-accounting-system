@@ -4,6 +4,7 @@ import Link from "next/link";
 import BrandLockup from "@/components/brand/BrandLockup";
 import DeveloperCredit from "@/components/brand/DeveloperCredit";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { splitPhones, telHref } from "@/lib/phones";
 
 export const FOOTER_LINKS = {
   shop: [
@@ -83,13 +84,13 @@ export default function SiteFooter() {
         <div className="space-y-3">
           <h2 className="text-[15px] font-bold">{t.footerContact}</h2>
           <ul className="space-y-2">
-            {contactPhone ? (
-              <li>
-                <a href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`} dir="ltr" className={`${linkCls} font-bold tabular-nums`}>
-                  {contactPhone}
+            {splitPhones(contactPhone).map((phone) => (
+              <li key={phone}>
+                <a href={telHref(phone)} dir="ltr" className={`${linkCls} font-bold tabular-nums`}>
+                  {phone}
                 </a>
               </li>
-            ) : null}
+            ))}
             {contactEmail ? (
               <li>
                 <a href={`mailto:${contactEmail}`} className={linkCls}>

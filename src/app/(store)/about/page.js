@@ -5,6 +5,7 @@ import { getAboutPageData } from "@/lib/store/about";
 import { getBrandingForLang, getStoreBranding } from "@/lib/branding";
 import { jsonLdHtml } from "@/lib/json-ld";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
+import { splitPhones } from "@/lib/phones";
 
 export const revalidate = 3600;
 
@@ -46,7 +47,7 @@ export default async function AboutPage() {
           },
         }
       : {}),
-    ...(store.contactPhone ? { telephone: store.contactPhone } : {}),
+    ...(splitPhones(store.contactPhone)[0] ? { telephone: splitPhones(store.contactPhone)[0] } : {}),
     ...(store.contactEmail ? { email: store.contactEmail } : {}),
   };
 

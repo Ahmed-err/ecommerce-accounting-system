@@ -7,6 +7,7 @@ import { Phone, Mail, MessageCircle, MapPin, Clock, ExternalLink } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage, useT } from "@/context/LanguageContext";
+import { splitPhones, telHref, whatsappDigits } from "@/lib/phones";
 import { cn } from "@/lib/utils";
 import ContactFormClient from "@/components/ContactFormClient";
 
@@ -18,14 +19,15 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
   const [faqQ, setFaqQ] = useState("");
 
   const address = lang === "ar" ? store.addressAr || store.addressEn : store.addressEn || store.addressAr;
-  const phone = store.contactPhone || "";
+  const phones = splitPhones(store.contactPhone);
+  const phone = phones[0] || "";
   const emailDisplay = store.contactEmail?.trim() || t.businessEmail;
   const mailtoHref = store.contactEmail?.trim() ? `mailto:${store.contactEmail.trim()}` : null;
 
   const waHref = useMemo(() => {
     const url = store.whatsappUrl?.trim();
     if (url) return url;
-    const digits = String(phone).replace(/\D/g, "");
+    const digits = whatsappDigits(phone);
     return digits ? `https://wa.me/${digits}` : null;
   }, [store.whatsappUrl, phone]);
 
@@ -43,7 +45,7 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
     return t.whatsappSales;
   }, [phone, store.whatsappUrl, t.whatsappSales]);
 
-  const telHref = phone ? `tel:${phone.replace(/\s/g, "")}` : null;
+  const callHref = phone ? telHref(phone) : null;
 
   const hours = store.businessHoursJson && typeof store.businessHoursJson === "object" ? store.businessHoursJson : {};
 
@@ -81,8 +83,17 @@ export default function ContactSupportShell({ store, faqs = [], defaultSubject }
           {
             icon: Phone,
             label: t.contactCardCall,
-            value: phone || "—",
-            href: telHref,
+            value: phones.length
+              ? phones.map((p, i) => (
+                  <span key={p}>
+                    {i > 0 ? " / " : null}
+                    <a href={telHref(p)} className="hover:text-accent-text hover:underline">
+                      {p}
+                    </a>
+                  </span>
+                ))
+              : "—",
+            href: callHref,
             cta: t.contactCardCall,
           },
           {
