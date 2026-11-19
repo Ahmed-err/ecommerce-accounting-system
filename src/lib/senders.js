@@ -2,8 +2,24 @@ import nodemailer from "nodemailer";
 import twilio from "twilio";
 import { translations } from "@/lib/translations";
 import { getAbsoluteSiteUrl } from "@/lib/site-url";
+import { getStoreSettingsForDisplay } from "@/lib/settings";
 
 const BRAND_EN = translations.en.brandName;
+
+/**
+ * Reply-To for customer-facing mail: the store's contact email from settings, so a customer
+ * who replies reaches the store owner and not the mailbox the site sends from (SMTP_USER).
+ * Never throws: mail must go out even if settings cannot be read.
+ */
+export async function getStoreReplyTo() {
+  try {
+    const store = await getStoreSettingsForDisplay();
+    const email = String(store?.contactEmail || "").trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 function isMockSmsProvider() {
   return String(process.env.SMS_PROVIDER || "").toLowerCase() === "mock";
@@ -33,6 +49,7 @@ export async function sendEmailVerification(to, token) {
 
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      replyTo: await getStoreReplyTo(),
       to,
       subject: "Verify your email",
       html: `<p>Verify your email:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>This link expires in 24 hours.</p>`,
@@ -58,6 +75,7 @@ export async function sendAccountDeletionEmail(to) {
     if (!process.env.SMTP_USER) return false;
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      replyTo: await getStoreReplyTo(),
       to,
       subject: "Account closed",
       html: `<p>Your account has been closed as requested. This address is no longer active on our store.</p>`,
@@ -87,6 +105,7 @@ export async function sendResetEmail(to, token) {
     // with a dark full-bleed design and a "Security" sender looks like phishing to spam filters.
     const mailOptions = {
       from: `"${BRAND_EN} | همّت" <${process.env.SMTP_USER}>`,
+      replyTo: await getStoreReplyTo(),
       to,
       subject: "إعادة تعيين كلمة المرور | Reset your Himmat password",
       text: [
@@ -143,6 +162,7 @@ export async function sendContactAdminNotification({ name, email, phone, subject
     if (!process.env.SMTP_USER || !adminTo) return false;
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      replyTo: email || undefined,
       to: adminTo,
       subject: `[Contact] ${subject}`,
       text: `From: ${name} <${email}>\nPhone: ${phone || "—"}\n\n${message}`,
@@ -173,6 +193,7 @@ export async function sendContactAutoReply(to, lang = "en") {
         : "<p>Thank you for contacting us. We will get back to you shortly.</p>";
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      replyTo: await getStoreReplyTo(),
       to,
       subject: subj,
       html: body,
@@ -198,6 +219,7 @@ export async function sendContactReplyEmail(to, subject, htmlBody) {
     if (!process.env.SMTP_USER) return false;
     await transporter.sendMail({
       from: `"${BRAND_EN}" <${process.env.SMTP_USER}>`,
+      replyTo: await getStoreReplyTo(),
       to,
       subject: `Re: ${subject}`,
       html: htmlBody,
